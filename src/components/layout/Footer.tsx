@@ -6,15 +6,15 @@ export default function Footer() {
           {/* Brand Column */}
           <div className="space-y-10">
             <div className="font-display font-black text-4xl tracking-tighter flex items-center gap-2">
-              <span>FLEX</span>
-              <span className="w-8 h-8 bg-white text-black flex items-center justify-center text-xs rounded-full">W</span>
+              <span>Flex Wear</span>
+              <span className="w-8 h-8 bg-white text-black flex items-center justify-center text-xs rounded-full">FW</span>
             </div>
-            <p className="text-[11px] uppercase tracking-[0.2em] leading-loose text-white/70 max-w-xs">
+            <p className="text-[11px] uppercase tracking-[0.2em] leading-loose text-white/90 max-w-xs">
               Engineered garments for the modern inhabitant. Merging archival technicalities with contemporary silhouettes of the future.
             </p>
             <div className="flex gap-6">
-              {['Instagram', 'Twitter', 'Archive'].map((social) => (
-                <a key={social} href="#" className="text-[10px] font-black uppercase tracking-widest text-white/70 hover:text-white transition-all underline outline-offset-4 decoration-white/40">
+              {['Instagram', 'Twitter', 'Journal'].map((social) => (
+                <a key={social} href="#" className="text-[10px] font-black uppercase tracking-widest text-white/90 hover:text-white transition-all underline outline-offset-4 decoration-white/40">
                   {social}
                 </a>
               ))}
@@ -23,11 +23,11 @@ export default function Footer() {
 
           {/* Navigation */}
           <div>
-            <h4 className="font-display font-black text-[10px] uppercase tracking-[0.4em] mb-10 text-white/50">Inventory</h4>
+            <h4 className="font-display font-black text-[10px] uppercase tracking-[0.4em] mb-10 text-white/70">Inventory</h4>
             <ul className="space-y-5">
-              {["All Collections", "Outerwear", "Technical Tops", "Accessories", "Sale Archive"].map((link) => (
+              {["All Collections", "Outerwear", "Technical Tops", "Accessories", "Sale Collection"].map((link) => (
                 <li key={link}>
-                  <a href="/shop" className="text-[11px] font-black uppercase tracking-widest text-white/70 hover:text-white transition-all flex items-center group">
+                  <a href="/shop" className="text-[11px] font-black uppercase tracking-widest text-white/90 hover:text-white transition-all flex items-center group">
                     <span className="w-0 group-hover:w-4 h-[1px] bg-white mr-0 group-hover:mr-3 transition-all"></span>
                     {link}
                   </a>
@@ -38,11 +38,11 @@ export default function Footer() {
 
           {/* Support */}
           <div>
-            <h4 className="font-display font-black text-[10px] uppercase tracking-[0.4em] mb-10 text-white/50">Bureau</h4>
+            <h4 className="font-display font-black text-[10px] uppercase tracking-[0.4em] mb-10 text-white/70">Bureau</h4>
             <ul className="space-y-5">
               {["Contact Us", "Shipping Logic", "Return Policy", "Size Guide", "Privacy Layer"].map((link) => (
                 <li key={link}>
-                  <a href="#" className="text-[11px] font-black uppercase tracking-widest text-white/70 hover:text-white transition-all flex items-center group">
+                  <a href="#" className="text-[11px] font-black uppercase tracking-widest text-white/90 hover:text-white transition-all flex items-center group">
                     <span className="w-0 group-hover:w-4 h-[1px] bg-white mr-0 group-hover:mr-3 transition-all"></span>
                     {link}
                   </a>
@@ -53,7 +53,7 @@ export default function Footer() {
 
           {/* Newsletter */}
           <div className="space-y-10">
-            <h4 className="font-display font-black text-[10px] uppercase tracking-[0.4em] text-white/50">Transmission</h4>
+            <h4 className="font-display font-black text-[10px] uppercase tracking-[0.4em] text-white/70">Transmission</h4>
             <div className="relative group">
               <input
                 type="email"
@@ -71,22 +71,22 @@ export default function Footer() {
         </div>
 
         {/* Archival Logo / Large Background Text */}
-        <div className="pointer-events-none select-none opacity-[0.03] absolute bottom-12 left-1/2 -translate-x-1/2 w-full text-center">
-          <h2 className="font-display font-black text-[20vw] leading-none uppercase tracking-tighter">FLEXWEAR</h2>
+        <div className="pointer-events-none select-none opacity-[0.06] absolute bottom-12 left-1/2 -translate-x-1/2 w-full text-center">
+          <h2 className="font-display font-black text-[15vw] leading-none uppercase tracking-tighter">Flex Wear</h2>
         </div>
 
         {/* Bottom Bar */}
         <div className="pt-12 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-8 relative z-10">
-          <p className="text-[9px] font-black uppercase tracking-[0.4em] text-white/50">
-            © 2024 FLEXWEAR ARCHIVE. ALL RIGHTS RESERVED.
+          <p className="text-[10px] font-black uppercase tracking-[0.4em] text-white/70">
+            © 2026 Flex Wear. All Rights Reserved.
           </p>
           <div className="flex gap-10">
-            <p className="text-[9px] font-black uppercase tracking-[0.4em] text-white/50">LND / NYC / TKY</p>
-            <p className="text-[9px] font-black uppercase tracking-[0.4em] text-white/50 italic">00:00:24</p>
+            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-white/70">LND / NYC / TKY</p>
+            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-white/70 italic">00:00:24</p>
           </div>
         </div>
       </div>
-      
+
       {/* Decorative Blur */}
       <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-white/5 rounded-full blur-[150px] -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
     </footer>

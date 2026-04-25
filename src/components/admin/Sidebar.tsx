@@ -6,7 +6,7 @@ import { signOut, useSession } from "next-auth/react"
 import { 
   Home, ShoppingCart, Tag, Users, Inbox, BarChart2, 
   Megaphone, Ticket, Settings, Store, Search, Bell,
-  LogOut, Plus, ChevronRight
+  LogOut, Plus, ChevronRight, UserPlus
 } from "lucide-react"
 
 export default function Sidebar() {
@@ -18,10 +18,8 @@ export default function Sidebar() {
     { name: "Orders", href: "/admin/orders", icon: ShoppingCart },
     { name: "Products", href: "/admin/products", icon: Tag },
     { name: "Customers", href: "/admin/customers", icon: Users },
-    { name: "Content", href: "/admin/content", icon: Inbox },
-    { name: "Analytics", href: "/admin/analytics", icon: BarChart2 },
-    { name: "Marketing", href: "/admin/marketing", icon: Megaphone },
     { name: "Discounts", href: "/admin/coupons", icon: Ticket },
+    { name: "Invite Admin", href: "/admin/invite", icon: UserPlus },
   ]
 
   const salesChannels = [
@@ -110,8 +108,12 @@ export default function Sidebar() {
       {/* User Info */}
       <div className="p-4 bg-black/20">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#008060] to-[#004c3f] flex items-center justify-center text-white font-bold text-xs shadow-md">
-            {session?.user?.name?.charAt(0) || "A"}
+          <div className="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-xs shadow-md overflow-hidden bg-gradient-to-br from-[#008060] to-[#004c3f]">
+            {(session?.user as any)?.image ? (
+              <img src={(session?.user as any).image} alt="Avatar" className="w-full h-full object-cover" />
+            ) : (
+              session?.user?.name?.charAt(0) || "A"
+            )}
           </div>
           <div className="flex flex-col min-w-0">
             <span className="text-[12px] font-bold text-white truncate">{session?.user?.name || "Admin"}</span>

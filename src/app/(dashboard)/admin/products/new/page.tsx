@@ -217,48 +217,72 @@ export default function NewProductPage() {
               <h2 className="text-base font-semibold text-[#202223]">Media</h2>
             </div>
             <div className="p-6 space-y-4">
-              <div>
-                <label className={labelStyle}>Upload Image</label>
-                <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md relative hover:bg-gray-50 transition-colors">
-                  <div className="space-y-1 text-center">
-                    {uploadingImage ? (
-                      <div className="flex flex-col items-center justify-center space-y-2">
-                        <div className="w-8 h-8 border-4 border-[#008060] border-t-transparent rounded-full animate-spin"></div>
-                        <p className="text-sm text-gray-500">Uploading to Cloudinary...</p>
-                      </div>
-                    ) : (
-                      <>
-                        <svg className="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
-                          <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
-                        </svg>
-                        <div className="flex text-sm text-gray-600 justify-center">
-                          <label htmlFor="file-upload" className="relative cursor-pointer bg-white rounded-md font-medium text-[#005bd3] hover:text-[#004299] focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-[#005bd3]">
-                            <span>Upload a file</span>
-                            <input id="file-upload" name="file-upload" type="file" className="sr-only" accept="image/*" onChange={handleImageUpload} disabled={uploadingImage} />
-                          </label>
-                          <p className="pl-1">or drag and drop</p>
-                        </div>
-                        <p className="text-xs text-gray-500">PNG, JPG, WEBP up to 5MB</p>
-                      </>
-                    )}
+              {formData.imageUrl ? (
+                <div className="relative border rounded-lg overflow-hidden group">
+                  <img 
+                    src={formData.imageUrl} 
+                    alt="Product preview" 
+                    className="w-full h-64 object-contain bg-gray-50"
+                  />
+                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <button
+                      type="button"
+                      onClick={() => setFormData({ ...formData, imageUrl: "" })}
+                      className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 font-medium transition-colors"
+                    >
+                      <Trash size={18} /> Delete Image
+                    </button>
                   </div>
                 </div>
-              </div>
-              <div className="relative flex items-center py-2">
-                <div className="flex-grow border-t border-gray-200"></div>
-                <span className="flex-shrink-0 mx-4 text-gray-400 text-xs">OR</span>
-                <div className="flex-grow border-t border-gray-200"></div>
-              </div>
-              <div>
-                <label className={labelStyle}>Image URL</label>
-                <input 
-                  type="url" 
-                  placeholder="https://"
-                  value={formData.imageUrl}
-                  onChange={(e) => setFormData({...formData, imageUrl: e.target.value})}
-                  className={inputStyle}
-                />
-              </div>
+              ) : (
+                <div>
+                  <label className={labelStyle}>Upload Image</label>
+                  <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md relative hover:bg-gray-50 transition-colors">
+                    <div className="space-y-1 text-center">
+                      {uploadingImage ? (
+                        <div className="flex flex-col items-center justify-center space-y-2">
+                          <div className="w-8 h-8 border-4 border-[#008060] border-t-transparent rounded-full animate-spin"></div>
+                          <p className="text-sm text-gray-500">Uploading to Cloudinary...</p>
+                        </div>
+                      ) : (
+                        <>
+                          <svg className="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
+                            <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+                          </svg>
+                          <div className="flex text-sm text-gray-600 justify-center">
+                            <label htmlFor="file-upload" className="relative cursor-pointer bg-white rounded-md font-medium text-[#005bd3] hover:text-[#004299] focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-[#005bd3]">
+                              <span>Upload a file</span>
+                              <input id="file-upload" name="file-upload" type="file" className="sr-only" accept="image/*" onChange={handleImageUpload} disabled={uploadingImage} />
+                            </label>
+                            <p className="pl-1">or drag and drop</p>
+                          </div>
+                          <p className="text-xs text-gray-500">PNG, JPG, WEBP up to 5MB</p>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+              
+              {!formData.imageUrl && (
+                <>
+                  <div className="relative flex items-center py-2">
+                    <div className="flex-grow border-t border-gray-200"></div>
+                    <span className="flex-shrink-0 mx-4 text-gray-400 text-xs">OR</span>
+                    <div className="flex-grow border-t border-gray-200"></div>
+                  </div>
+                  <div>
+                    <label className={labelStyle}>Image URL</label>
+                    <input 
+                      type="url" 
+                      placeholder="https://"
+                      value={formData.imageUrl}
+                      onChange={(e) => setFormData({...formData, imageUrl: e.target.value})}
+                      className={inputStyle}
+                    />
+                  </div>
+                </>
+              )}
             </div>
           </div>
 

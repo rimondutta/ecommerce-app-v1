@@ -155,7 +155,7 @@ export default function RegisterPage() {
         )}
 
         <div className="pt-12 border-t-2 border-black/5 flex flex-col gap-4 text-center">
-          <p className="text-[9px] font-bold uppercase tracking-widest text-black/40">Already archived?</p>
+          <p className="text-[9px] font-bold uppercase tracking-widest text-black/40">Already a member?</p>
           <Link href="/login" className="text-[10px] font-black uppercase tracking-[0.2em] hover:italic transition-all">
             Authorized Entry ↗
           </Link>

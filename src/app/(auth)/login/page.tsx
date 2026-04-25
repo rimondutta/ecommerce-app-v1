@@ -47,7 +47,7 @@ function LoginForm() {
         <h1 className="font-display font-black text-6xl uppercase tracking-tighter leading-none">
           SECURE<br />ACCESS
         </h1>
-        <p className="text-[10px] font-black uppercase tracking-[0.4em] text-black/40">Enter credentials to unlock archive</p>
+        <p className="text-[10px] font-black uppercase tracking-[0.4em] text-black/40">Enter credentials to access your Flex Wear account</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-8">

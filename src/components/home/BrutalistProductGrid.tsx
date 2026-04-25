@@ -30,7 +30,7 @@ export default function ModernProductGrid() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-16">
         {displayProducts.map((product) => {
-          const isFavorited = isWishlisted(product.id);
+          const isFavorited = isWishlisted(String(product.id));
           
           return (
             <div key={product.id} className="group flex flex-col opacity-0 animate-reveal" style={{ animationDelay: `${(products.indexOf(product) % 4) * 0.1}s` }}>
@@ -45,7 +45,7 @@ export default function ModernProductGrid() {
                 {/* Actions Overlay */}
                 <div className="absolute top-4 right-4 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transform translate-x-4 group-hover:translate-x-0 transition-all duration-300">
                   <button 
-                    onClick={() => toggleItem(product.id)}
+                    onClick={() => toggleItem(String(product.id))}
                     className={`w-12 h-12 flex items-center justify-center border-2 border-black transition-all ${
                       isFavorited ? "bg-black text-white" : "bg-white text-black hover:bg-black hover:text-white"
                     }`}
@@ -54,7 +54,8 @@ export default function ModernProductGrid() {
                   </button>
                   <button 
                     onClick={() => addItem({ 
-                      id: product.id, 
+                      id: String(product.id), 
+                      slug: product.slug,
                       title: product.title, 
                       price: product.priceNum, 
                       quantity: 1, 
@@ -109,7 +110,7 @@ export default function ModernProductGrid() {
             onClick={() => setVisibleCount(prev => prev + 4)}
             className="group relative px-16 py-6 bg-black text-white font-black uppercase tracking-[0.2em] text-[10px] hover:bg-white hover:text-black hover:border-2 hover:border-black transition-all overflow-hidden shadow-[12px_12px_0px_0px_rgba(0,0,0,0.1)] hover:shadow-none active:translate-x-1 active:translate-y-1"
           >
-            LOAD MORE ARCHIVE
+            LOAD MORE FROM COLLECTION
           </button>
         </div>
       )}

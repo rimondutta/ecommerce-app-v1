@@ -1,0 +1,74 @@
+import type { MetadataRoute } from 'next';
+import connectToDatabase from '@/lib/db';
+import Product from '@/models/Product';
+import BlogPost from '@/models/BlogPost';
+import Category from '@/models/Category';
+
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const baseUrl = process.env.NEXTAUTH_URL || 'https://flexwear.com';
+
+  await connectToDatabase();
+
+  // Fetch all published products
+  const products = await Product.find({ isPublished: true })
+    .select('slug updatedAt')
+    .lean();
+
+  // Fetch all published blog posts
+  const blogs = await BlogPost.find({ isPublished: true })
+    .select('slug updatedAt')
+    .lean();
+
+  // Fetch active categories
+  const categories = await Category.find({ isActive: true })
+    .select('slug updatedAt')
+    .lean();
+
+  // Static pages
+  const staticPages: MetadataRoute.Sitemap = [
+    {
+      url: baseUrl,
+      lastModified: new Date(),
+      changeFrequency: 'daily',
+      priority: 1,
+    },
+    {
+      url: `${baseUrl}/products`,
+      lastModified: new Date(),
+      changeFrequency: 'daily',
+      priority: 0.9,
+    },
+    {
+      url: `${baseUrl}/blogs`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.7,
+    },
+  ];
+
+  // Dynamic product pages
+  const productPages: MetadataRoute.Sitemap = products.map((product: any) => ({
+    url: `${baseUrl}/products/${product.slug}`,
+    lastModified: product.updatedAt || new Date(),
+    changeFrequency: 'weekly' as const,
+    priority: 0.8,
+  }));
+
+  // Dynamic blog pages
+  const blogPages: MetadataRoute.Sitemap = blogs.map((blog: any) => ({
+    url: `${baseUrl}/blogs/${blog.slug}`,
+    lastModified: blog.updatedAt || new Date(),
+    changeFrequency: 'monthly' as const,
+    priority: 0.6,
+  }));
+
+  // Category filter pages
+  const categoryPages: MetadataRoute.Sitemap = categories.map((cat: any) => ({
+    url: `${baseUrl}/products?category=${cat.slug}`,
+    lastModified: cat.updatedAt || new Date(),
+    changeFrequency: 'weekly' as const,
+    priority: 0.7,
+  }));
+
+  return [...staticPages, ...productPages, ...blogPages, ...categoryPages];
+}

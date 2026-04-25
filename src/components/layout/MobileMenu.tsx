@@ -6,12 +6,10 @@ import { X, ArrowRight } from "lucide-react";
 import Link from "next/link";
 
 const menuItems = [
-  { label: "EXPLORE SHOP", href: "/shop", subtitle: "ALL COLLECTIONS" },
-  { label: "NEW ARRIVALS", href: "/shop?new=true", subtitle: "SEASON 2024" },
-  { label: "MEN'S WEAR", href: "/shop?category=Men", subtitle: "TAILORED & STREET" },
-  { label: "WOMEN'S WEAR", href: "/shop?category=Women", subtitle: "ELEVATED BASICS" },
-  { label: "ACCESSORIES", href: "/shop?category=Accessories", subtitle: "THE FINISHING TOUCH" },
-  { label: "OUR STORY", href: "/about", subtitle: "REDEFINING DESIGN" },
+  { label: "HOME", href: "/", subtitle: "THE BEGINNING" },
+  { label: "SHOP", href: "/products", subtitle: "ALL COLLECTIONS" },
+  { label: "CONTACT US", href: "#contact", subtitle: "GET IN TOUCH" },
+  { label: "BLOG", href: "/blogs", subtitle: "THE JOURNAL" },
 ];
 
 interface MobileMenuProps {
@@ -73,7 +71,7 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
                       <span className="font-display font-black text-4xl uppercase tracking-tighter italic leading-none block mb-2 group-hover:translate-x-2 transition-transform duration-300">
                         {item.label}
                       </span>
-                      <span className="text-[10px] font-bold uppercase tracking-[0.3em] opacity-40 group-hover:opacity-100 transition-opacity">
+                      <span className="text-[10px] font-bold uppercase tracking-[0.3em] opacity-60 group-hover:opacity-100 transition-opacity">
                         {item.subtitle}
                       </span>
                     </div>
@@ -87,7 +85,7 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
             {/* Bottom */}
             <div className="p-8 space-y-8 bg-gray-50">
               <div>
-                <p className="text-[10px] font-black uppercase tracking-[0.4em] text-black/40 mb-4 text-center">CONNECT WITH US</p>
+                <p className="text-[10px] font-black uppercase tracking-[0.4em] text-black/60 mb-4 text-center">CONNECT WITH US</p>
                 <div className="flex justify-center gap-12 font-bold text-xs uppercase tracking-widest">
                   <a href="#" className="hover:line-through transition-all">INSTAGRAM</a>
                   <a href="#" className="hover:line-through transition-all">TWITTER</a>
@@ -97,7 +95,7 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
               
               <div className="pt-8 border-t-2 border-black/10 text-center">
                 <a 
-                  href="mailto:contact@brutalistarchive.com" 
+                  href="mailto:contact@flexwear.com" 
                   className="font-display font-black text-lg uppercase tracking-tight hover:italic transition-all"
                 >
                   contact@flexwear.com
@@ -107,7 +105,7 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
 
             {/* Bottom Bar */}
             <div className="p-4 bg-black text-[9px] font-bold uppercase tracking-[0.3em] text-white flex justify-between px-8">
-              <span>© FLEXWEAR 2024</span>
+              <span>© Flex Wear 2024</span>
               <span>ALL RIGHTS RESERVED</span>
             </div>
           </DialogPanel>

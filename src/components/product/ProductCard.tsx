@@ -28,7 +28,8 @@ export default function ProductCard({ product }: ProductCardProps) {
       return;
     }
     addItem({
-      id: product.id,
+      id: String(product.id),
+      slug: product.slug,
       title: product.title,
       price: product.priceNum,
       quantity: 1,
@@ -95,13 +96,13 @@ export default function ProductCard({ product }: ProductCardProps) {
             Quick add
           </button>
           <button
-            onClick={() => toggleItem(product.id)}
+            onClick={() => toggleItem(String(product.id))}
             className={`w-9 h-9 rounded-lg flex items-center justify-center shadow-md transition-colors ${
-              isWishlisted(product.id) ? "bg-red-500 text-white" : "bg-white text-primary hover:bg-red-50"
+              isWishlisted(String(product.id)) ? "bg-red-500 text-white" : "bg-white text-primary hover:bg-red-50"
             }`}
-            aria-label={`${isWishlisted(product.id) ? "Remove from" : "Add to"} wishlist`}
+            aria-label={`${isWishlisted(String(product.id)) ? "Remove from" : "Add to"} wishlist`}
           >
-            <Heart size={14} fill={isWishlisted(product.id) ? "currentColor" : "none"} />
+            <Heart size={14} fill={isWishlisted(String(product.id)) ? "currentColor" : "none"} />
           </button>
           <button
             className="w-9 h-9 rounded-lg bg-white text-primary flex items-center justify-center shadow-md hover:bg-gray-50 transition-colors"

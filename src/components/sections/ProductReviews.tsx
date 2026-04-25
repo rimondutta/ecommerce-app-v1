@@ -48,7 +48,7 @@ export default function ProductReviews({ slug }: { slug: string }) {
         <div className="lg:col-span-4 space-y-12 h-fit lg:sticky lg:top-[160px]">
           <div className="space-y-6">
              <h2 className="font-display font-black text-6xl md:text-8xl uppercase tracking-tighter leading-none">
-               ARCHIVE<br />VOICES
+               COLLECTION<br />VOICES
              </h2>
              <p className="text-[10px] font-bold uppercase tracking-[0.4em] text-black/40">Collective Data Analysis ({reviews.length} entries)</p>
           </div>
@@ -178,7 +178,7 @@ export default function ProductReviews({ slug }: { slug: string }) {
             {reviews.length > 5 && (
                <div className="flex justify-center pt-24">
                   <button className="group px-16 py-6 border-2 border-black text-black font-black uppercase tracking-[0.3em] text-[10px] hover:bg-black hover:text-white transition-all shadow-[12px_12px_0px_0px_rgba(0,0,0,0.05)] active:shadow-none">
-                    Expand Archive Access <ChevronDown size={14} className="inline ml-4 group-hover:translate-y-1 transition-transform" />
+                    Expand Review Archives <ChevronDown size={14} className="inline ml-4 group-hover:translate-y-1 transition-transform" />
                   </button>
                </div>
             )}

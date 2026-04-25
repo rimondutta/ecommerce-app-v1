@@ -25,7 +25,7 @@ export default function ReviewForm({ slug, onSuccess }: ReviewFormProps) {
           onClick={() => window.location.href = '/login'}
           className="px-8 py-4 bg-black text-white font-black uppercase tracking-widest text-[9px] hover:bg-neutral-800 transition-all shadow-[8px_8px_0px_0px_rgba(0,0,0,0.1)]"
         >
-          Sign In to Access Archive
+          Sign In to Access Reviews
         </button>
       </div>
     );
@@ -129,7 +129,7 @@ export default function ReviewForm({ slug, onSuccess }: ReviewFormProps) {
           {isSubmitting ? (
             <>Processing Data <Loader2 className="animate-spin" size={16} /></>
           ) : (
-            <>Commit Review to Archive</>
+            <>Post Review to Collection</>
           )}
         </button>
       </form>

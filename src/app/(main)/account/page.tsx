@@ -97,7 +97,7 @@ export default function AccountPage() {
          <div className="relative">
             <div className="w-20 h-20 border border-black/5 rounded-full" />
             <div className="absolute inset-0 w-20 h-20 border-t-2 border-black rounded-full animate-spin" />
-            <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 text-[10px] font-mono uppercase tracking-widest whitespace-nowrap opacity-40">Authenticating...</span>
+            <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 text-[10px] font-mono uppercase tracking-widest whitespace-nowrap opacity-60">Authenticating...</span>
          </div>
       </div>
     );
@@ -127,17 +127,17 @@ export default function AccountPage() {
               {/* Brand/Identity */}
               <div className="space-y-6">
                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2 px-3 py-1 bg-black text-white text-[9px] font-black uppercase tracking-widest">
-                       <ShieldCheck size={10} /> Member_ID
-                    </div>
-                    <span className="text-[10px] font-mono text-black/40">{currentTime}</span>
+                     <div className="flex items-center gap-2 px-3 py-1 bg-black text-white text-[10px] font-black uppercase tracking-widest">
+                       <ShieldCheck size={10} /> MEMBER
+                     </div>
+                    <span className="text-[10px] font-mono text-black/60">{currentTime}</span>
                  </div>
                  
                  <div className="space-y-1">
                     <h1 className="font-display font-black text-5xl uppercase tracking-tighter leading-tight">
                        {session.user?.name?.split(' ')[0] || "User"}
                     </h1>
-                    <p className="text-[10px] font-mono text-black/40 uppercase tracking-widest truncate">{session.user?.email}</p>
+                    <p className="text-[10px] font-mono text-black/60 uppercase tracking-widest truncate">{session.user?.email}</p>
                  </div>
               </div>
 
@@ -155,14 +155,14 @@ export default function AccountPage() {
                     >
                        <div className="flex items-center gap-4 relative z-10">
                          <div className={`p-2 rounded-lg transition-colors ${activeTab === tab.id ? 'bg-white/10' : 'bg-transparent'}`}>
-                            <tab.icon size={16} className={activeTab === tab.id ? 'opacity-100' : 'opacity-40 group-hover:opacity-100'} />
+                            <tab.icon size={16} className={activeTab === tab.id ? 'opacity-100' : 'opacity-60 group-hover:opacity-100'} />
                          </div>
                          <span className="text-[11px] font-black uppercase tracking-widest">{tab.label}</span>
                        </div>
                        
                        {tab.count !== undefined && tab.count !== null && (
-                         <span className={`text-[9px] font-mono font-black px-2 py-1 rounded-md transition-all ${
-                           activeTab === tab.id ? 'bg-white/20 text-white' : 'bg-black/5 text-black/40 group-hover:bg-black/10'
+                         <span className={`text-[10px] font-mono font-black px-2 py-1 rounded-md transition-all ${
+                           activeTab === tab.id ? 'bg-white/20 text-white' : 'bg-black/5 text-black/60 group-hover:bg-black/10'
                          }`}>
                            {tab.count < 10 ? `0${tab.count}` : tab.count}
                          </span>
@@ -183,8 +183,8 @@ export default function AccountPage() {
                     onClick={() => signOut()}
                     className="w-full p-5 border border-black/10 rounded-2xl flex items-center justify-center gap-4 group hover:bg-red-500 hover:border-red-500 transition-all duration-500 active:scale-95"
                   >
-                     <LogOut size={16} className="text-black/40 group-hover:text-white transition-colors" />
-                     <span className="text-[10px] font-black uppercase tracking-widest text-black/40 group-hover:text-white transition-colors">Log Out</span>
+                     <LogOut size={16} className="text-black/60 group-hover:text-white transition-colors" />
+                     <span className="text-[10px] font-black uppercase tracking-widest text-black/60 group-hover:text-white transition-colors">Log Out</span>
                   </button>
                </div>
            </div>
@@ -192,7 +192,7 @@ export default function AccountPage() {
            {/* Mobile status pill */}
            <div className="mt-auto p-10 border-t border-black/5 bg-neutral-50/50">
               <div className="flex flex-col gap-3">
-                 <div className="flex items-center justify-between text-[8px] font-mono uppercase tracking-widest opacity-40">
+                 <div className="flex items-center justify-between text-[8px] font-mono uppercase tracking-widest opacity-60">
                     <span>Account Status</span>
                     <span className="text-green-600 font-bold">● Active</span>
                  </div>
@@ -223,19 +223,19 @@ export default function AccountPage() {
                    >
                        <header className="flex flex-col md:flex-row md:items-end justify-between gap-10">
                           <div className="space-y-8">
-                             <div className="flex items-center gap-4 text-black/30">
+                             <div className="flex items-center gap-4 text-black/50">
                                 <div className="w-12 h-[1px] bg-black/10" />
                                 <span className="text-[10px] font-black uppercase tracking-[0.6em] italic">Dashboard</span>
                              </div>
                              <div className="space-y-2">
                                 <h2 className="text-7xl md:text-9xl font-display font-black uppercase tracking-tighter leading-[0.8] italic">
-                                   My <span className="opacity-20 font-light">Account</span>
+                                   My <span className="opacity-40 font-light">Account</span>
                                 </h2>
                              </div>
                           </div>
                           
                           <div className="hidden md:flex flex-col items-end gap-2 text-right">
-                             <span className="text-[9px] font-mono text-black/30 uppercase tracking-[0.2em]">Session Active</span>
+                             <span className="text-[10px] font-mono text-black/50 uppercase tracking-[0.2em]">Session Active</span>
                              <div className="flex gap-1">
                                 {[1, 1, 1, 1, 0.4, 0.2].map((op, i) => (
                                   <div key={i} className="w-4 h-4 bg-black rounded-sm" style={{ opacity: op }} />
@@ -251,7 +251,7 @@ export default function AccountPage() {
                             <div className="relative z-10 flex flex-col h-full justify-between gap-12">
                                <div className="flex justify-between items-start">
                                   <div className="space-y-4">
-                                     <div className="flex items-center gap-2 px-3 py-1 bg-white/10 rounded-full text-[9px] font-black uppercase tracking-[0.2em] backdrop-blur-md w-fit">
+                                     <div className="flex items-center gap-2 px-3 py-1 bg-white/10 rounded-full text-[10px] font-black uppercase tracking-[0.2em] backdrop-blur-md w-fit">
                                         <ShieldCheck size={10} className="text-emerald-400" /> Verified Member
                                      </div>
                                      <h3 className="text-5xl font-display font-black uppercase tracking-tighter italic leading-none">
@@ -259,19 +259,19 @@ export default function AccountPage() {
                                      </h3>
                                   </div>
                                   <div className="w-16 h-16 border border-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm group-hover:rotate-12 transition-transform duration-500">
-                                     <Fingerprint size={32} className="opacity-40" />
+                                     <Fingerprint size={32} className="opacity-60" />
                                   </div>
                                </div>
                                
                                <div className="flex flex-wrap items-end justify-between gap-8">
                                   <div className="space-y-2">
-                                     <span className="text-[9px] font-mono text-white/30 uppercase tracking-widest">Account Hash</span>
+                                     <span className="text-[10px] font-mono text-white/30 uppercase tracking-widest">Account Hash</span>
                                      <div className="text-sm font-mono tracking-widest">FX-7729-BK-2024</div>
                                   </div>
                                   <div className="flex -space-x-3">
                                      {[1, 2, 3, 4].map((i) => (
                                        <div key={i} className="w-10 h-10 rounded-full border-2 border-black bg-neutral-800 flex items-center justify-center overflow-hidden">
-                                          <div className="w-full h-full bg-gradient-to-tr from-neutral-700 to-neutral-500 opacity-20" />
+                                          <div className="w-full h-full bg-gradient-to-tr from-neutral-700 to-neutral-500 opacity-40" />
                                        </div>
                                      ))}
                                      <div className="w-10 h-10 rounded-full border-2 border-black bg-white/10 flex items-center justify-center backdrop-blur-md text-[8px] font-black">+VIP</div>
@@ -297,11 +297,11 @@ export default function AccountPage() {
                                     <div className="p-3 bg-white border border-black/5 rounded-xl group-hover:bg-black group-hover:text-white transition-all shadow-sm">
                                        <stat.icon size={18} />
                                     </div>
-                                    <span className="text-[9px] font-mono text-black/30 uppercase tracking-widest">{stat.sub}</span>
+                                    <span className="text-[10px] font-mono text-black/50 uppercase tracking-widest">{stat.sub}</span>
                                  </div>
                                  <div className="relative z-10 space-y-1">
                                     <div className="text-4xl font-display font-black tracking-tighter italic">{stat.value < 10 ? `0${stat.value}` : stat.value}</div>
-                                    <div className="text-[9px] font-bold uppercase tracking-widest text-black/40">{stat.label}</div>
+                                    <div className="text-[10px] font-bold uppercase tracking-widest text-black/60">{stat.label}</div>
                                  </div>
                                  <div className="absolute -right-4 -bottom-4 opacity-[0.02] group-hover:opacity-[0.05] transition-opacity">
                                     <stat.icon size={100} strokeWidth={4} />
@@ -320,7 +320,7 @@ export default function AccountPage() {
                                      <div className="w-2 h-2 bg-black rounded-full animate-pulse" />
                                      <span className="text-[10px] font-black uppercase tracking-widest italic">Shopping Activity</span>
                                   </div>
-                                  <p className="text-[9px] font-mono text-black/30 uppercase">Relative activity (6 month window)</p>
+                                  <p className="text-[10px] font-mono text-black/50 uppercase">Relative activity (6 month window)</p>
                                </div>
                                <div className="flex gap-2">
                                   {['M', 'A', 'M', 'J', 'J', 'A'].map((m, i) => (
@@ -347,15 +347,15 @@ export default function AccountPage() {
                             <div className="flex items-center justify-between pt-6 border-t border-black/5">
                                <div className="flex gap-8">
                                   <div className="flex flex-col">
-                                     <span className="text-[8px] font-mono text-black/30 uppercase mb-1">Peak Volume</span>
+                                     <span className="text-[8px] font-mono text-black/50 uppercase mb-1">Peak Volume</span>
                                      <span className="text-xs font-black tracking-tight">৳ 45,000.00</span>
                                   </div>
                                   <div className="flex flex-col">
-                                     <span className="text-[8px] font-mono text-black/30 uppercase mb-1">Frequency</span>
+                                     <span className="text-[8px] font-mono text-black/50 uppercase mb-1">Frequency</span>
                                      <span className="text-xs font-black tracking-tight">2.4 / MO</span>
                                   </div>
                                 </div>
-                                <div className="text-[9px] font-mono text-black/30 bg-black/5 px-3 py-1 rounded-full">ACTIVE SESSION</div>
+                                <div className="text-[10px] font-mono text-black/50 bg-black/5 px-3 py-1 rounded-full">ACTIVE SESSION</div>
                             </div>
                          </div>
 
@@ -367,7 +367,7 @@ export default function AccountPage() {
                                </div>
                                <div className="space-y-2">
                                   <h4 className="text-2xl font-display font-black uppercase tracking-tighter leading-tight italic">New <br /> Order</h4>
-                                  <p className="text-[9px] font-mono opacity-40 group-hover:opacity-60 leading-relaxed uppercase">Explore our store and find your next premium piece.</p>
+                                  <p className="text-[10px] font-mono opacity-60 group-hover:opacity-60 leading-relaxed uppercase">Explore our store and find your next premium piece.</p>
                                </div>
                             </div>
                             <Link href="/products" className="mt-8 py-4 border-t border-black/5 group-hover:border-white/10 flex items-center justify-between text-[10px] font-black uppercase tracking-widest">
@@ -384,7 +384,7 @@ export default function AccountPage() {
                                   <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
                                   <span className="text-[11px] font-black uppercase tracking-widest italic">Recent Purchases</span>
                                </div>
-                               <button onClick={() => setActiveTab('orders')} className="text-[10px] font-bold uppercase tracking-widest text-black/40 hover:text-black transition-colors flex items-center gap-2 group">
+                               <button onClick={() => setActiveTab('orders')} className="text-[10px] font-bold uppercase tracking-widest text-black/60 hover:text-black transition-colors flex items-center gap-2 group">
                                   View All Orders <ArrowUpRight size={14} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
                                </button>
                             </div>
@@ -395,32 +395,32 @@ export default function AccountPage() {
                                      <div className="space-y-10 flex-1">
                                         <div className="space-y-4">
                                            <div className="flex items-center gap-4">
-                                              <span className="px-3 py-1 bg-black text-white text-[9px] font-mono uppercase tracking-widest">RECENT</span>
-                                              <span className="text-[10px] font-mono text-black/40 uppercase tracking-widest">ORDER: #{orders[0]._id.slice(-12).toUpperCase()}</span>
+                                              <span className="px-3 py-1 bg-black text-white text-[10px] font-mono uppercase tracking-widest">RECENT</span>
+                                              <span className="text-[10px] font-mono text-black/60 uppercase tracking-widest">ORDER: #{orders[0]._id.slice(-12).toUpperCase()}</span>
                                            </div>
                                            <h3 className="text-5xl md:text-6xl font-display font-black uppercase tracking-tighter leading-none italic">
-                                              Order <br /> <span className="opacity-20 font-light">Confirmed</span>
+                                              Order <br /> <span className="opacity-40 font-light">Confirmed</span>
                                            </h3>
                                         </div>
 
                                         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 pt-6 border-t border-black/5">
                                            <div className="space-y-2">
-                                              <span className="text-[8px] font-mono text-black/30 uppercase tracking-widest">Payment</span>
+                                              <span className="text-[8px] font-mono text-black/50 uppercase tracking-widest">Payment</span>
                                               <div className="flex items-center gap-2">
                                                  <div className="w-2 h-2 bg-emerald-500 rounded-full" />
                                                  <span className="text-xs font-black uppercase tracking-widest">{orders[0].paymentStatus}</span>
                                               </div>
                                            </div>
                                            <div className="space-y-2">
-                                              <span className="text-[8px] font-mono text-black/30 uppercase tracking-widest">Total</span>
+                                              <span className="text-[8px] font-mono text-black/50 uppercase tracking-widest">Total</span>
                                               <div className="text-xs font-black tracking-tight italic">৳{orders[0].totalAmount.toLocaleString()}</div>
                                            </div>
                                            <div className="space-y-2">
-                                              <span className="text-[8px] font-mono text-black/30 uppercase tracking-widest">Items</span>
+                                              <span className="text-[8px] font-mono text-black/50 uppercase tracking-widest">Items</span>
                                               <div className="text-xs font-black tracking-widest">{orders[0].items.length} UNIT(S)</div>
                                            </div>
                                            <div className="space-y-2">
-                                              <span className="text-[8px] font-mono text-black/30 uppercase tracking-widest">Region</span>
+                                              <span className="text-[8px] font-mono text-black/50 uppercase tracking-widest">Region</span>
                                               <div className="text-xs font-black tracking-widest">GLOBAL</div>
                                            </div>
                                         </div>
@@ -465,7 +465,7 @@ export default function AccountPage() {
                    >
                        <header className="flex flex-col md:flex-row md:items-end justify-between gap-8">
                           <div className="space-y-6">
-                             <div className="flex items-center gap-4 text-black/30">
+                             <div className="flex items-center gap-4 text-black/50">
                                 <Package size={18} />
                                 <span className="text-[10px] font-black uppercase tracking-[0.4em]">Order History</span>
                              </div>
@@ -476,7 +476,7 @@ export default function AccountPage() {
                           <div className="flex items-center gap-4">
                              <div className="px-6 py-4 border border-black/5 bg-[#FBFBFB] rounded-xl flex items-center gap-3">
                                 <Terminal size={14} className="opacity-30" />
-                                <span className="text-[10px] font-mono text-black/40">Total Orders: {orders.length}</span>
+                                <span className="text-[10px] font-mono text-black/60">Total Orders: {orders.length}</span>
                              </div>
                           </div>
                        </header>
@@ -487,7 +487,7 @@ export default function AccountPage() {
                                <div className="w-16 h-16 border border-black/5 rounded-full" />
                                <div className="absolute inset-0 w-16 h-16 border-t-2 border-black rounded-full animate-spin" />
                             </div>
-                            <span className="text-[10px] font-mono uppercase tracking-[0.4em] opacity-40">Loading Orders...</span>
+                            <span className="text-[10px] font-mono uppercase tracking-[0.4em] opacity-60">Loading Orders...</span>
                          </div>
                        ) : orders.length === 0 ? (
                          <div className="py-32 border border-black/5 rounded-[2.5rem] bg-[#FBFBFB] flex flex-col items-center justify-center space-y-10">
@@ -496,7 +496,7 @@ export default function AccountPage() {
                             </div>
                             <div className="text-center space-y-2">
                                <p className="text-[11px] font-black uppercase tracking-widest">No Orders Found</p>
-                               <p className="text-[9px] font-mono text-black/40 uppercase">You haven't placed any orders yet.</p>
+                               <p className="text-[10px] font-mono text-black/60 uppercase">You haven't placed any orders yet.</p>
                             </div>
                             <Link href="/products" className="group px-10 py-5 bg-black text-white text-[10px] font-black uppercase tracking-widest rounded-2xl hover:scale-105 transition-all shadow-xl shadow-black/20 flex items-center gap-3">
                                Find Products <ArrowUpRight size={14} className="group-hover:-translate-y-1 group-hover:translate-x-1 transition-transform" />
@@ -511,19 +511,19 @@ export default function AccountPage() {
                                        <div className="space-y-12 flex-1">
                                           <div className="flex flex-wrap items-center gap-10 border-b border-black/5 pb-10">
                                              <div className="space-y-2">
-                                                <span className="text-[9px] font-mono text-black/30 uppercase tracking-widest">Order ID</span>
+                                                <span className="text-[10px] font-mono text-black/50 uppercase tracking-widest">Order ID</span>
                                                 <div className="text-xs font-black tracking-widest uppercase">#{order._id.slice(-12).toUpperCase()}</div>
                                              </div>
                                              <div className="space-y-2">
-                                                <span className="text-[9px] font-mono text-black/30 uppercase tracking-widest">Date</span>
+                                                <span className="text-[10px] font-mono text-black/50 uppercase tracking-widest">Date</span>
                                                 <div className="text-xs font-mono opacity-60 bg-black/5 px-2 py-1 rounded-md">{new Date(order.createdAt).toISOString().split('T')[0].replace(/-/g, '.')}</div>
                                              </div>
                                              <div className="space-y-2">
-                                                <span className="text-[9px] font-mono text-black/30 uppercase tracking-widest">Total</span>
+                                                <span className="text-[10px] font-mono text-black/50 uppercase tracking-widest">Total</span>
                                                 <div className="text-xs font-black tracking-tight italic">৳{order.totalAmount.toLocaleString()}</div>
                                              </div>
-                                             <div className={`px-5 py-2 rounded-full text-[9px] font-black uppercase tracking-widest flex items-center gap-2 ${
-                                               order.paymentStatus === 'paid' ? 'bg-black text-white' : 'bg-black/5 text-black/40'
+                                             <div className={`px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-2 ${
+                                               order.paymentStatus === 'paid' ? 'bg-black text-white' : 'bg-black/5 text-black/60'
                                              }`}>
                                                 <div className={`w-1.5 h-1.5 rounded-full ${order.paymentStatus === 'paid' ? 'bg-emerald-400 animate-pulse' : 'bg-black/20'}`} />
                                                 {order.paymentStatus}
@@ -544,7 +544,7 @@ export default function AccountPage() {
   
                                        <div className="flex lg:flex-col justify-between lg:justify-end items-end lg:w-56 gap-10">
                                           <div className="hidden lg:block space-y-4 w-full">
-                                             <div className="flex justify-between text-[9px] font-mono opacity-30 uppercase">
+                                             <div className="flex justify-between text-[10px] font-mono opacity-30 uppercase">
                                                 <span>Status</span>
                                                 <span className="text-black font-bold">Verified</span>
                                              </div>
@@ -574,12 +574,12 @@ export default function AccountPage() {
                      className="space-y-12"
                    >
                        <header className="space-y-6">
-                          <div className="flex items-center gap-4 text-black/30">
+                          <div className="flex items-center gap-4 text-black/50">
                              <Heart size={18} />
                              <span className="text-[10px] font-black uppercase tracking-[0.4em]">Wishlist</span>
                           </div>
                           <h2 className="text-6xl md:text-8xl font-display font-black uppercase tracking-tighter leading-none italic">
-                             Saved <span className="opacity-20 font-light">Items</span>
+                             Saved <span className="opacity-40 font-light">Items</span>
                           </h2>
                        </header>
                        
@@ -589,7 +589,7 @@ export default function AccountPage() {
                                <div className="w-16 h-16 border border-black/5 rounded-full" />
                                <div className="absolute inset-0 w-16 h-16 border-t-2 border-emerald-400 rounded-full animate-spin" />
                             </div>
-                            <span className="text-[10px] font-mono uppercase tracking-[0.4em] opacity-40">Loading Wishlist...</span>
+                            <span className="text-[10px] font-mono uppercase tracking-[0.4em] opacity-60">Loading Wishlist...</span>
                          </div>
                        ) : wishlistProducts.length === 0 ? (
                          <div className="py-32 border border-black/5 rounded-[2.5rem] bg-[#FBFBFB] flex flex-col items-center justify-center space-y-10">
@@ -607,7 +607,7 @@ export default function AccountPage() {
                             </div>
                             <div className="text-center space-y-2">
                                <p className="text-[11px] font-black uppercase tracking-widest">Wishlist is Empty</p>
-                               <p className="text-[9px] font-mono text-black/40 uppercase">Your saved items will appear here.</p>
+                               <p className="text-[10px] font-mono text-black/60 uppercase">Your saved items will appear here.</p>
                             </div>
                             <Link href="/products" className="px-10 py-5 bg-black text-white text-[10px] font-black uppercase tracking-widest rounded-2xl hover:shadow-2xl transition-all shadow-black/20 flex items-center gap-3">
                                Browse Store <ArrowUpRight size={14} />
@@ -644,7 +644,7 @@ export default function AccountPage() {
                      className="space-y-12"
                    >
                       <header className="space-y-6">
-                         <div className="flex items-center gap-4 text-black/30">
+                         <div className="flex items-center gap-4 text-black/50">
                             <Settings size={18} />
                             <span className="text-[10px] font-black uppercase tracking-[0.4em]">Account Settings</span>
                          </div>
@@ -660,13 +660,13 @@ export default function AccountPage() {
                                    <span className="text-xl font-black uppercase tracking-tight italic">Personal Information</span>
                                 </div>
                                 <div className="p-3 bg-black/5 rounded-xl">
-                                   <Fingerprint size={20} className="opacity-40" />
+                                   <Fingerprint size={20} className="opacity-60" />
                                 </div>
                              </div>
                              
                              <div className="space-y-10">
                                 <div className="space-y-4">
-                                   <label className="text-[9px] font-black uppercase tracking-widest opacity-30 flex items-center gap-2">
+                                   <label className="text-[10px] font-black uppercase tracking-widest opacity-30 flex items-center gap-2">
                                       <div className="w-1 h-1 bg-black/20 rounded-full" /> Full Name
                                    </label>
                                    <div className="p-8 bg-[#FBFBFB] border border-black/5 rounded-2xl font-black uppercase tracking-widest text-lg group-hover:bg-white transition-colors">
@@ -674,7 +674,7 @@ export default function AccountPage() {
                                    </div>
                                 </div>
                                 <div className="space-y-4">
-                                   <label className="text-[9px] font-black uppercase tracking-widest opacity-30 flex items-center gap-2">
+                                   <label className="text-[10px] font-black uppercase tracking-widest opacity-30 flex items-center gap-2">
                                       <div className="w-1 h-1 bg-black/20 rounded-full" /> Email Address
                                    </label>
                                    <div className="p-8 bg-[#FBFBFB] border border-black/5 rounded-2xl font-mono text-sm opacity-60 group-hover:bg-white transition-colors">
@@ -683,7 +683,7 @@ export default function AccountPage() {
                                 </div>
                              </div>
                              
-                             <div className="pt-6 flex justify-between items-center text-[8px] font-mono opacity-20 uppercase tracking-[0.3em]">
+                             <div className="pt-6 flex justify-between items-center text-[8px] font-mono opacity-40 uppercase tracking-[0.3em]">
                                 <span>Status: Active</span>
                                 <span>Security Verified</span>
                              </div>
@@ -713,14 +713,14 @@ export default function AccountPage() {
                                       <MapPin size={18} />
                                       <span className="text-[10px] font-black uppercase tracking-widest italic">Shipping Address</span>
                                    </div>
-                                   <div className="text-[8px] font-mono opacity-20 group-hover:opacity-40">0 SAVED</div>
+                                   <div className="text-[8px] font-mono opacity-40 group-hover:opacity-60">0 SAVED</div>
                                 </div>
                                 <div className="flex flex-col items-center justify-center py-16 space-y-6 border border-dashed border-black/10 rounded-3xl bg-[#FBFBFB] group-hover:bg-white transition-colors">
                                    <div className="w-12 h-12 rounded-full bg-black/5 flex items-center justify-center">
-                                      <CornerDownRight size={20} className="opacity-20" />
+                                      <CornerDownRight size={20} className="opacity-40" />
                                    </div>
                                    <div className="text-center space-y-1">
-                                      <span className="text-[9px] font-mono text-black/30 block">No address on file</span>
+                                      <span className="text-[10px] font-mono text-black/50 block">No address on file</span>
                                       <span className="text-[10px] font-black uppercase tracking-widest opacity-10">Verified</span>
                                    </div>
                                 </div>
@@ -734,7 +734,7 @@ export default function AccountPage() {
            </div>
            
            {/* Footer detail */}
-           <div className="mt-auto p-14 border-t border-black/5 text-[9px] font-mono text-black/20 flex flex-col md:flex-row justify-between gap-6 uppercase tracking-[0.2em]">
+           <div className="mt-auto p-14 border-t border-black/5 text-[10px] font-mono text-black/20 flex flex-col md:flex-row justify-between gap-6 uppercase tracking-[0.2em]">
               <p>© 2024 FLEXWEAR // ALL RIGHTS RESERVED</p>
               <div className="flex gap-10">
                  <span>Location: Dhaka, BD</span>

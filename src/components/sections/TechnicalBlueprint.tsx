@@ -64,8 +64,8 @@ export default function TechnicalBlueprint() {
              viewport={{ once: true }}
              transition={{ type: "spring", bounce: 0.5, duration: 1.5, delay: 0.5 }}
            >
-              <span className="font-display font-black text-4xl mb-1">0_1</span>
-              <span className="font-mono text-[8px] uppercase tracking-[0.3em] opacity-60">Foundation</span>
+               <span className="font-display font-black text-4xl mb-1">FW</span>
+               <span className="font-mono text-[8px] uppercase tracking-[0.3em] opacity-60">Flex Wear</span>
            </motion.div>
         </div>
 

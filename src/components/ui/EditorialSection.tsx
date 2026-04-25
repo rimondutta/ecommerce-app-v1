@@ -46,7 +46,7 @@ export default function EditorialSection({ product, index }: EditorialSectionPro
       <div className="lg:col-span-5 flex flex-col justify-center p-12 lg:p-24 space-y-12 text-white relative">
         <div className="space-y-6">
           <span className="text-[12px] font-black uppercase tracking-[0.6em] text-white/70 italic font-serif">
-            FEATURED ARCHIVE PIECE
+            FEATURED COLLECTION PIECE
           </span>
           <h2 className="text-6xl lg:text-8xl font-black uppercase tracking-tighter leading-[0.85] break-words">
             {product.title}

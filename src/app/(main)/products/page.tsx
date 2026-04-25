@@ -145,7 +145,7 @@ function ShopContent() {
                 transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
                 className="space-y-8"
               >
-                  <span className="text-[10px] font-black uppercase tracking-[0.4em] text-neutral-600">Archive Collection / Vol. 01</span>
+                  <span className="text-[10px] font-black uppercase tracking-[0.4em] text-neutral-600">Flex Wear Collection / Vol. 01</span>
                   <h1 className="font-display font-black text-7xl md:text-9xl tracking-tighter text-neutral-900 leading-[0.85] uppercase">
                     The <br />
                     <span className="text-neutral-400 italic">Uniform</span> <br />

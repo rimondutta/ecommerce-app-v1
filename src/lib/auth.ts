@@ -36,7 +36,13 @@ export const authOptions: NextAuthOptions = {
           throw new Error('Invalid credentials');
         }
 
-        return { id: user._id.toString(), email: user.email, name: user.name, role: user.role };
+        return { 
+          id: user._id.toString(), 
+          email: user.email, 
+          name: user.name, 
+          role: user.role,
+          image: user.image 
+        };
       },
     }),
   ],
@@ -45,6 +51,9 @@ export const authOptions: NextAuthOptions = {
       if (user) {
         token.role = (user as any).role;
         token.id = user.id;
+        if ((user as any).image) {
+          token.image = (user as any).image;
+        }
       }
       return token;
     },
@@ -52,6 +61,9 @@ export const authOptions: NextAuthOptions = {
       if (token) {
         (session.user as any).id = token.id;
         (session.user as any).role = token.role;
+        if (token.image) {
+          (session.user as any).image = token.image;
+        }
       }
       return session;
     },

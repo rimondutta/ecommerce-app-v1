@@ -12,17 +12,17 @@ import { motion, AnimatePresence } from "framer-motion";
 const navLinks = [
   { label: "Home", href: "/" },
   { label: "Shop", href: "/products" },
-  { label: "Archive", href: "/products?category=Outerwear" },
-  { label: "Journal", href: "#blog" },
+  { label: "Contact Us", href: "#contact" },
+  { label: "Blog", href: "/blogs" },
 ];
 
 const shopMegaMenu = {
   columns: [
-    { title: "Navigation", links: ["New Arrivals", "Best Sellers", "Sale Archive", "Coming Soon"] },
-    { title: "Collections", links: ["Core Essentials", "Technical Outerwear", "Archival T-Shirts", "Accessories"] },
+    { title: "Navigation", links: ["New Arrivals", "Best Sellers", "Sale Collection", "Coming Soon"] },
+    { title: "Collections", links: ["Core Essentials", "Technical Outerwear", "Signature T-Shirts", "Accessories"] },
   ],
   featured: [
-    { title: "THE ARCHIVE AW24", image: "https://images.unsplash.com/photo-1509631179647-0177331693ae?q=80&w=800&auto=format&fit=crop", subtitle: "Limited Edition" },
+    { title: "THE COLLECTION AW24", image: "https://images.unsplash.com/photo-1509631179647-0177331693ae?q=80&w=800&auto=format&fit=crop", subtitle: "Limited Edition" },
     { title: "ESSENTIALS", image: "https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=800&auto=format&fit=crop", subtitle: "Core Collection" },
   ],
 };
@@ -77,7 +77,7 @@ export default function Header() {
             {/* Logo */}
             <div className="flex items-center gap-20">
               <Link href="/" className="font-sans font-black text-3xl tracking-tighter group flex items-center gap-2" data-cursor="HOME">
-                  <span className="group-hover:italic transition-all">FLX</span>
+                  <span className="group-hover:italic transition-all">Flex Wear</span>
               </Link>
             </div>
 
@@ -92,7 +92,7 @@ export default function Header() {
                 >
                   <Link
                     href={link.href}
-                    className="text-[10px] font-black uppercase tracking-[0.3em] opacity-80 hover:opacity-100 transition-all py-8"
+                    className="text-[10px] font-black uppercase tracking-[0.3em] opacity-100 hover:opacity-100 transition-all py-8"
                     data-cursor="CLICK"
                   >
                     {link.label}

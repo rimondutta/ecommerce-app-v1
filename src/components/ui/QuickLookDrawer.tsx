@@ -107,11 +107,11 @@ export default function QuickLookDrawer() {
                   <div className="absolute top-8 left-8 flex flex-col gap-2">
                     <div className="glass px-4 py-1.5 rounded-full inline-flex items-center gap-2">
                       <div className="w-1.5 h-1.5 rounded-full bg-black animate-pulse" />
-                      <span className="text-[9px] font-mono font-bold uppercase tracking-[0.2em] text-black">New Arrival</span>
+                      <span className="text-[10px] font-mono font-bold uppercase tracking-[0.2em] text-black">New Arrival</span>
                     </div>
                     {images.length > 1 && (
                       <div className="bg-black text-white px-3 py-1 rounded-sm inline-flex w-fit">
-                        <span className="text-[9px] font-mono font-bold tracking-widest">VIEW {activeImageIndex + 1}/{images.length}</span>
+                        <span className="text-[10px] font-mono font-bold tracking-widest">VIEW {activeImageIndex + 1}/{images.length}</span>
                       </div>
                     )}
                   </div>
@@ -123,7 +123,7 @@ export default function QuickLookDrawer() {
                   >
                     <Heart
                       size={18}
-                      className={`transition-colors ${wishlisted ? 'fill-red-500 text-red-500' : 'text-neutral-400'}`}
+                      className={`transition-colors ${wishlisted ? 'fill-red-500 text-red-500' : 'text-neutral-600'}`}
                     />
                   </button>
                 </div>
@@ -139,7 +139,7 @@ export default function QuickLookDrawer() {
                       >
                         <Image src={img} alt="" fill className="object-cover" sizes="80px" />
                         <div className="absolute top-0 right-0 p-1">
-                          <span className="text-[8px] font-mono font-bold bg-white/80 backdrop-blur-sm px-1 leading-none">{idx + 1}</span>
+                          <span className="text-[10px] font-mono font-bold bg-white/80 backdrop-blur-sm px-1 leading-none">{idx + 1}</span>
                         </div>
                       </button>
                     ))}
@@ -154,10 +154,10 @@ export default function QuickLookDrawer() {
                   {/* Header: Identity & Specs */}
                   <div className="space-y-6">
                     <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-mono font-bold uppercase tracking-[0.4em] text-neutral-400">
+                      <span className="text-[10px] font-mono font-bold uppercase tracking-[0.4em] text-neutral-600">
                         {product.category?.name || "COLLECTION"}
                       </span>
-                      <span className="text-[9px] font-mono font-medium text-neutral-300">SKU: {product._id?.slice(-6).toUpperCase() || "NEW-SS24"}</span>
+                      <span className="text-[10px] font-mono font-medium text-neutral-500">SKU: {product._id?.slice(-6).toUpperCase() || "NEW-SS24"}</span>
                     </div>
 
                     <div className="space-y-2">
@@ -171,7 +171,7 @@ export default function QuickLookDrawer() {
                         <div className="flex items-center gap-1">
                           <Star size={10} className="fill-black text-black" />
                           <span className="text-[10px] font-mono font-bold">4.9</span>
-                          <span className="text-[10px] font-mono text-neutral-400 ml-1">/ 128 REVIEWS</span>
+                          <span className="text-[10px] font-mono text-neutral-600 ml-1">/ 128 REVIEWS</span>
                         </div>
                       </div>
                     </div>
@@ -179,8 +179,8 @@ export default function QuickLookDrawer() {
 
                   {/* Description — Technical Readout Style */}
                   <div className="space-y-3">
-                    <h4 className="text-[9px] font-mono font-bold uppercase tracking-[0.3em] text-neutral-300 border-b border-neutral-100 pb-2">Description</h4>
-                    <p className="text-neutral-500 text-[13px] leading-relaxed font-medium">
+                    <h4 className="text-[10px] font-mono font-bold uppercase tracking-[0.3em] text-neutral-500 border-b border-neutral-100 pb-2">Description</h4>
+                    <p className="text-neutral-700 text-[13px] leading-relaxed font-medium">
                       {product.description || "Designed for ultimate durability and comfort. Features high-performance fabric composition with engineered seams for maximum mobility and aesthetic impact."}
                     </p>
                   </div>
@@ -193,7 +193,7 @@ export default function QuickLookDrawer() {
                         <div className="flex items-center justify-between">
                           <h4 className="text-[10px] font-mono font-bold uppercase tracking-[0.3em] text-black">Color</h4>
                           {selectedColor && (
-                            <span className="text-[10px] font-mono font-bold text-neutral-400 uppercase tracking-widest">{selectedColor.name}</span>
+                            <span className="text-[10px] font-mono font-bold text-neutral-600 uppercase tracking-widest">{selectedColor.name}</span>
                           )}
                         </div>
                         <div className="flex flex-wrap gap-4">
@@ -223,7 +223,7 @@ export default function QuickLookDrawer() {
                             <button
                               key={s}
                               onClick={() => setSelectedSize(s)}
-                              className={`h-12 border transition-all text-[11px] font-bold uppercase ${selectedSize === s ? 'bg-black border-black text-white' : 'bg-white border-neutral-200 text-neutral-400 hover:border-black hover:text-black'}`}
+                              className={`h-12 border transition-all text-[11px] font-bold uppercase ${selectedSize === s ? 'bg-black border-black text-white' : 'bg-white border-neutral-200 text-neutral-600 hover:border-black hover:text-black'}`}
                             >
                               {s}
                             </button>
@@ -256,7 +256,7 @@ export default function QuickLookDrawer() {
                     <div className="space-y-4 pt-4">
                       <div className="flex items-center gap-2 px-1">
                         <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-                        <span className="text-[9px] font-mono font-bold text-green-600 uppercase tracking-[0.2em]">Ready for Delivery</span>
+                        <span className="text-[10px] font-mono font-bold text-green-600 uppercase tracking-[0.2em]">Ready for Delivery</span>
                       </div>
                     </div>
                   </div>
@@ -282,7 +282,7 @@ export default function QuickLookDrawer() {
                         openCart();
                       }}
                       disabled={(colors.length > 0 && !selectedColor) || (sizes.length > 0 && !selectedSize)}
-                      className="w-full h-16 bg-black text-white text-[12px] font-bold uppercase tracking-[0.3em] hover:bg-neutral-900 transition-all flex items-center justify-between px-8 group disabled:bg-neutral-100 disabled:text-neutral-400 disabled:cursor-not-allowed"
+                      className="w-full h-16 bg-black text-white text-[12px] font-bold uppercase tracking-[0.3em] hover:bg-neutral-900 transition-all flex items-center justify-between px-8 group disabled:bg-neutral-100 disabled:text-neutral-600 disabled:cursor-not-allowed"
                     >
                       <span className="flex items-center gap-4">
                         <ShoppingBag size={18} />
@@ -293,7 +293,7 @@ export default function QuickLookDrawer() {
                             : "ADD TO BAG"}
                       </span>
                       <div className="flex items-center gap-4">
-                        <span className={`${!selectedColor || !selectedSize ? 'text-neutral-300' : 'text-white/50'} font-mono transition-colors`}>
+                        <span className={`${!selectedColor || !selectedSize ? 'text-neutral-500' : 'text-white/50'} font-mono transition-colors`}>
                           ৳{Math.round(currentPrice * quantity).toLocaleString()}
                         </span>
                         <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
@@ -303,7 +303,7 @@ export default function QuickLookDrawer() {
                     <Link
                       href={`/products/${product.slug}`}
                       onClick={handleClose}
-                      className="inline-flex items-center justify-center gap-3 text-[10px] font-mono font-bold uppercase tracking-[0.3em] text-neutral-400 hover:text-black transition-all group"
+                      className="inline-flex items-center justify-center gap-3 text-[10px] font-mono font-bold uppercase tracking-[0.3em] text-neutral-600 hover:text-black transition-all group"
                     >
                       View Full Details
                       <div className="w-8 h-px bg-neutral-200 group-hover:w-12 group-hover:bg-black transition-all" />

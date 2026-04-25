@@ -31,7 +31,7 @@ const BlogListingPage = async () => {
             </div>
             <h1 className="text-7xl md:text-9xl font-black uppercase leading-[0.8] tracking-tighter mb-8">
               Editorial <br />
-              Archive
+              Journal
             </h1>
             <p className="text-xl md:text-2xl text-gray-500 max-w-2xl font-medium leading-relaxed">
               Curated thoughts on the intersection of performance, design, and technical apparel.
@@ -93,7 +93,7 @@ const BlogListingPage = async () => {
           {/* Load More Mockup */}
           <div className="mt-32 flex justify-center">
             <button className="px-12 py-5 bg-black text-white text-xs font-black uppercase tracking-[0.3em] hover:bg-gray-800 transition-colors">
-              Synchronize Archive
+              Explore All
             </button>
           </div>
         </div>

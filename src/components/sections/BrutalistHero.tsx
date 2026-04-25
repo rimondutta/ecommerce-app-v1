@@ -16,7 +16,7 @@ export default function EditorialHero() {
   const scale = useTransform(scrollYProgress, [0, 1], [1, 1.1]);
   const opacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
 
-  const words = "THE ARCHIVE AW_24".split(" ");
+  const words = "Simple. Stylish. FlexWear.".split(" ");
 
   return (
     <section 
@@ -55,7 +55,7 @@ export default function EditorialHero() {
             animate={{ y: 0, opacity: 1 }}
             transition={{ duration: 1, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
           >
-            A New Horizon
+            Redefining Casual Wear
           </motion.span>
         </motion.div>
 

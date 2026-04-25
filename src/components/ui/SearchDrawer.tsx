@@ -90,7 +90,7 @@ export default function SearchDrawer({ isOpen, onClose }: SearchDrawerProps) {
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder="WHAT ARE YOU LOOKING FOR?..."
-                  className="w-full bg-white border-4 border-black px-6 py-5 pr-16 text-sm font-bold uppercase tracking-widest placeholder:text-black/30 outline-none focus:bg-white focus:ring-4 focus:ring-black/5 transition-all"
+                  className="w-full bg-white border-4 border-black px-6 py-5 pr-16 text-sm font-bold uppercase tracking-widest placeholder:text-black/50 outline-none focus:bg-white focus:ring-4 focus:ring-black/5 transition-all"
                   autoFocus
                   aria-label="Search products"
                 />
@@ -101,7 +101,7 @@ export default function SearchDrawer({ isOpen, onClose }: SearchDrawerProps) {
 
               {/* Quick Links */}
               <div className="mt-6">
-                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-black/40 mb-3">POPULAR SEARCHES</p>
+                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-black/60 mb-3">POPULAR SEARCHES</p>
                 <div className="flex flex-wrap gap-2">
                   {quickLinks.map((link) => (
                     <button
@@ -200,9 +200,9 @@ export default function SearchDrawer({ isOpen, onClose }: SearchDrawerProps) {
                     </div>
                   ) : (
                     <div className="py-20 text-center">
-                      <div className="font-display font-black text-7xl mb-6 text-black/10">NOT FOUND</div>
+                      <div className="font-display font-black text-7xl mb-6 text-black/20">NOT FOUND</div>
                       <p className="font-display font-black text-xl uppercase italic">NO RESULTS FOR "{query}"</p>
-                      <p className="text-[10px] font-bold uppercase tracking-widest mt-4 text-gray-400">TRY SOMETHING ELSE OR CHECK OUR COLLECTIONS</p>
+                      <p className="text-[11px] font-bold uppercase tracking-widest mt-4 text-gray-600">TRY SOMETHING ELSE OR CHECK OUR COLLECTIONS</p>
                     </div>
                   )}
                 </div>
@@ -213,7 +213,7 @@ export default function SearchDrawer({ isOpen, onClose }: SearchDrawerProps) {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="font-display font-black text-xl italic uppercase tracking-tighter">NEW SEASON DROPPED</p>
-                  <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-white/60">EXPLORE THE ARCHIVE 2024</p>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/80">EXPLORE THE COLLECTION 2024</p>
                 </div>
                 <Link href="/shop" onClick={onClose} className="px-6 py-3 border-2 border-white font-bold text-[10px] uppercase hover:bg-white hover:text-black transition-all">
                   SHOP NOW

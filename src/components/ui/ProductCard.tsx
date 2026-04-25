@@ -113,8 +113,8 @@ export default function ProductCard({ product }: ProductCardProps) {
       {/* Product Info */}
       <div className="flex flex-col space-y-1">
         <div className="flex justify-between items-baseline group/info">
-          <Link href={`/products/${product.slug}`} className="text-[11px] font-black uppercase tracking-[0.2em] text-black/60 hover:text-black transition-colors block">
-            {product.category?.name || "Archive"}
+          <Link href={`/products/${product.slug}`} className="text-[12px] font-black uppercase tracking-[0.2em] text-black/80 hover:text-black transition-colors block">
+            {product.category?.name || "Collection"}
           </Link>
           <span className="text-[14px] font-medium text-black">
             ৳{Math.round(product.priceNum || product.price).toLocaleString()}

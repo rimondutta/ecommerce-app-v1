@@ -110,36 +110,39 @@ export default function CartDrawer() {
                           </Link>
                           <button
                             onClick={() => removeItem(item.id)}
-                            className="text-black/30 hover:text-black transition-colors"
+                            className="text-black/50 hover:text-red-600 transition-colors"
                             aria-label="Remove item"
                           >
                             <Trash2 size={16} />
                           </button>
                         </div>
-                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                        <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">
                           {item.color} // {item.size}
                         </p>
                       </div>
                       
                       <div className="flex items-center justify-between mt-4">
-                        <div className="flex items-center border-2 border-black h-9">
-                          <button
-                            onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                            className="w-9 h-full flex items-center justify-center hover:bg-black hover:text-white transition-colors"
-                            aria-label="Decrease quantity"
-                          >
-                            <Minus size={12} strokeWidth={3} />
-                          </button>
-                          <span className="w-9 h-full flex items-center justify-center text-xs font-black border-x-2 border-black">
-                            {item.quantity}
-                          </span>
-                          <button
-                            onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                            className="w-9 h-full flex items-center justify-center hover:bg-black hover:text-white transition-colors"
-                            aria-label="Increase quantity"
-                          >
-                            <Plus size={12} strokeWidth={3} />
-                          </button>
+                        <div className="flex items-center gap-3">
+                          <span className="text-[9px] font-black uppercase tracking-widest text-black/40">QTY:</span>
+                          <div className="flex items-center border-2 border-black h-9">
+                            <button
+                              onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                              className="w-9 h-full flex items-center justify-center hover:bg-black hover:text-white transition-colors"
+                              aria-label="Decrease quantity"
+                            >
+                              <Minus size={12} strokeWidth={3} />
+                            </button>
+                            <span className="w-10 h-full flex items-center justify-center text-[13px] font-black border-x-2 border-black tabular-nums">
+                              {item.quantity}
+                            </span>
+                            <button
+                              onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                              className="w-9 h-full flex items-center justify-center hover:bg-black hover:text-white transition-colors"
+                              aria-label="Increase quantity"
+                            >
+                              <Plus size={12} strokeWidth={3} />
+                            </button>
+                          </div>
                         </div>
                         <p className="font-display font-black text-lg">
                           ৳{Math.round(item.price * item.quantity).toLocaleString()}
@@ -159,7 +162,7 @@ export default function CartDrawer() {
                     <span>Subtotal</span>
                     <span>৳{Math.round(total).toLocaleString()}</span>
                   </div>
-                  <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-600">
                     TAXES AND SHIPPING CALCULATED AT CHECKOUT
                   </p>
                 </div>

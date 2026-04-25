@@ -17,23 +17,23 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: {
-    default: "Ecomus — Modern Fashion Store",
-    template: "%s | Ecomus"
+    default: "Flex Wear — Simple. Stylish.",
+    template: "%s | Flex Wear"
   },
   description:
-    "Discover the latest fashion trends at Ecomus. Shop clothing, accessories, bags, sunglasses and more with free shipping on orders over $120.",
+    "Redefining casual wear with simple, stylish, and premium garments. Explore the Flex Wear collection.",
   openGraph: {
-    title: "Ecomus — Modern Fashion Store",
+    title: "Flex Wear — Simple. Stylish.",
     description:
-      "Discover the latest fashion trends at Ecomus. Shop clothing, accessories, bags, sunglasses and more.",
+      "Redefining casual wear with simple, stylish, and premium garments. Explore the Flex Wear collection.",
     type: "website",
     locale: "en_US",
-    siteName: "Ecomus",
+    siteName: "Flex Wear",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Ecomus — Modern Fashion Store",
-    description: "Discover the latest fashion trends at Ecomus.",
+    title: "Flex Wear — Simple. Stylish.",
+    description: "Redefining casual wear with simple, stylish, and premium garments.",
   },
 };
 

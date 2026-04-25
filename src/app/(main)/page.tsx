@@ -34,7 +34,7 @@ export default async function Home() {
         <div className="flex animate-marquee whitespace-nowrap">
           {Array(10).fill(0).map((_, i) => (
             <span key={i} className="font-display font-black text-3xl md:text-5xl uppercase tracking-tighter mx-8 opacity-50">
-              FLEXWEAR // AW_24 COLLECTION // NEW ARRIVALS // SHIPS GLOBALLY // ✳
+              Flex Wear // REDEFINING CASUAL WEAR // ✳
             </span>
           ))}
         </div>

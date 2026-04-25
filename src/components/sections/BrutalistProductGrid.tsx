@@ -50,7 +50,7 @@ export default function ModernProductGrid({
       <div className="flex flex-col lg:flex-row items-end justify-between mb-32 gap-12">
         <div className="space-y-6">
           <h2 className="font-display font-black uppercase text-6xl md:text-[8rem] tracking-tighter leading-[0.85] text-black">
-            The<br /><span className="italic opacity-60 font-light">Archive</span>
+            The<br /><span className="italic opacity-60 font-light">Collection</span>
           </h2>
         </div>
         
@@ -86,7 +86,7 @@ export default function ModernProductGrid({
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-12 gap-y-32 relative">
           {displayProducts.map((product, idx) => {
-            const isFavorited = isWishlisted(product.id);
+            const isFavorited = isWishlisted(String(product.id));
             // Create an asymmetrical layout by margin-topping alternating columns
             const offsetClass = idx % 2 !== 0 ? "lg:mt-32" : "";
             
@@ -112,7 +112,7 @@ export default function ModernProductGrid({
                   
                   <div className="absolute top-6 right-6 flex flex-col gap-3 opacity-0 group-hover:opacity-100 transform translate-x-4 group-hover:translate-x-0 transition-all duration-500">
                     <button 
-                      onClick={(e) => { e.preventDefault(); toggleItem(product.id); }}
+                      onClick={(e) => { e.preventDefault(); toggleItem(String(product.id)); }}
                       className={`w-12 h-12 flex items-center justify-center rounded-full transition-all backdrop-blur-md ${
                          isFavorited ? "bg-black text-white" : "bg-white/80 text-black hover:bg-black hover:text-white"
                       }`}
@@ -129,7 +129,7 @@ export default function ModernProductGrid({
                           return;
                         }
                         addItem({ 
-                          id: product.id, slug: product.slug, title: product.title, 
+                          id: String(product.id), slug: product.slug, title: product.title, 
                           price: product.priceNum, quantity: 1, color: "Default", 
                           size: "Default", image: product.images[0]?.src || ""
                         });

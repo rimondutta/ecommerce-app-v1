@@ -1,10 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 import connectToDatabase from "@/lib/db";
 import Coupon from "@/models/Coupon";
+
+// Auth helper — reusable guard for all handlers
+async function requireAdmin() {
+  const session = await getServerSession(authOptions);
+  if (!session || !['admin', 'manager'].includes((session.user as any).role)) {
+    return null;
+  }
+  return session;
+}
 
 // GET all coupons
 export async function GET() {
   try {
+    const session = await requireAdmin();
+    if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
     await connectToDatabase();
     const coupons = await Coupon.find().sort({ createdAt: -1 }).lean();
     return NextResponse.json(coupons);
@@ -16,6 +30,9 @@ export async function GET() {
 // POST create a new coupon
 export async function POST(req: NextRequest) {
   try {
+    const session = await requireAdmin();
+    if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
     await connectToDatabase();
     const body = await req.json();
 
@@ -44,6 +61,9 @@ export async function POST(req: NextRequest) {
 // DELETE a coupon
 export async function DELETE(req: NextRequest) {
   try {
+    const session = await requireAdmin();
+    if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
     await connectToDatabase();
     const { searchParams } = new URL(req.url);
     const id = searchParams.get("id");
@@ -60,6 +80,9 @@ export async function DELETE(req: NextRequest) {
 // PATCH update a coupon
 export async function PATCH(req: NextRequest) {
   try {
+    const session = await requireAdmin();
+    if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
     await connectToDatabase();
     const body = await req.json();
     const { id, ...updates } = body;

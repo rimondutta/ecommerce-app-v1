@@ -47,8 +47,8 @@ export default function TopBar() {
     <div className="w-full bg-black text-white h-[40px] flex items-center justify-between px-8 border-b-2 border-black relative z-50 overflow-hidden">
       {/* Socials / Info */}
       <div className="hidden lg:flex items-center gap-6">
-        <a href="#" className="text-[10px] font-bold uppercase tracking-widest hover:text-gray-400 transition-colors">Instagram</a>
-        <a href="#" className="text-[10px] font-bold uppercase tracking-widest hover:text-gray-400 transition-colors">Chattogram Store</a>
+        <a href="#" className="text-[11px] font-bold uppercase tracking-widest hover:text-gray-400 transition-colors">Instagram</a>
+        <a href="#" className="text-[11px] font-bold uppercase tracking-widest hover:text-gray-400 transition-colors">Chattogram Store</a>
       </div>
 
       {/* Announcement Slider */}
@@ -60,10 +60,10 @@ export default function TopBar() {
 
       {/* Region / Help */}
       <div className="hidden lg:flex items-center gap-6">
-        <button className="text-[10px] font-bold uppercase tracking-widest hover:text-gray-400 transition-colors flex items-center gap-1">
+        <button className="text-[11px] font-bold uppercase tracking-widest hover:text-gray-400 transition-colors flex items-center gap-1">
           BANGLADESH / BDT <ChevronDown size={10} />
         </button>
-        <a href="#" className="text-[10px] font-bold uppercase tracking-widest hover:text-gray-400 transition-colors">HAVE A QUESTION?</a>
+        <a href="#" className="text-[11px] font-bold uppercase tracking-widest hover:text-gray-400 transition-colors">HAVE A QUESTION?</a>
       </div>
     </div>
   );

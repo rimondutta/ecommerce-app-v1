@@ -1,5 +1,6 @@
 "use client"
 
+import { useState, useEffect, useRef } from "react"
 import { useSession } from "next-auth/react"
 import { 
   User, 
@@ -10,11 +11,78 @@ import {
   Globe, 
   Truck, 
   DollarSign,
-  ChevronRight
+  ChevronRight,
+  Camera,
+  Check
 } from "lucide-react"
 
 export default function AdminSettingsPage() {
-  const { data: session } = useSession()
+  const { data: session, update } = useSession()
+  const [isEditingProfile, setIsEditingProfile] = useState(false)
+  const [name, setName] = useState("")
+  const [imageUrl, setImageUrl] = useState("")
+  const [isUploading, setIsUploading] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    if (session?.user) {
+      setName(session.user.name || "")
+      setImageUrl((session.user as any).image || "")
+    }
+  }, [session])
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setIsUploading(true)
+    try {
+      const formData = new FormData()
+      formData.append("file", file)
+      
+      const res = await fetch("/api/admin/upload", {
+        method: "POST",
+        body: formData
+      })
+      
+      const data = await res.json()
+      if (res.ok) {
+        setImageUrl(data.url)
+      } else {
+        alert(data.error || "Failed to upload image")
+      }
+    } catch (err) {
+      console.error(err)
+      alert("Error uploading image")
+    } finally {
+      setIsUploading(false)
+    }
+  }
+
+  const handleSaveProfile = async () => {
+    setIsSaving(true)
+    try {
+      const res = await fetch("/api/admin/profile", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, image: imageUrl })
+      })
+      
+      if (res.ok) {
+        await update({ name, image: imageUrl })
+        setIsEditingProfile(false)
+      } else {
+        const data = await res.json()
+        alert(data.error || "Failed to update profile")
+      }
+    } catch (err) {
+      console.error(err)
+      alert("Error updating profile")
+    } finally {
+      setIsSaving(false)
+    }
+  }
 
   const settingsGroups = [
     {
@@ -57,19 +125,123 @@ export default function AdminSettingsPage() {
       </div>
 
       {/* Admin Profile Quick View */}
-      <div className="bg-white rounded-lg border border-[#d2d2d2] shadow-sm p-6 flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 bg-[#f6f6f7] rounded-full flex items-center justify-center border border-[#d2d2d2]">
-            <User size={24} className="text-[#616161]" />
+      <div className="bg-white rounded-lg border border-[#d2d2d2] shadow-sm p-6">
+        {isEditingProfile ? (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between border-b pb-4">
+              <h2 className="text-[16px] font-bold text-[#202223]">Edit Profile</h2>
+              <button 
+                onClick={() => {
+                  setIsEditingProfile(false);
+                  setName(session?.user?.name || "");
+                  setImageUrl((session?.user as any)?.image || "");
+                }}
+                className="text-sm text-gray-500 hover:text-black"
+              >
+                Cancel
+              </button>
+            </div>
+            
+            <div className="flex flex-col md:flex-row gap-8 items-start">
+              {/* Avatar Uploader */}
+              <div className="flex flex-col items-center gap-3">
+                <div className="relative group w-24 h-24 rounded-full border border-gray-300 overflow-hidden bg-gray-50 flex items-center justify-center">
+                  {imageUrl ? (
+                    <img src={imageUrl} alt="Avatar" className="w-full h-full object-cover" />
+                  ) : (
+                    <User size={32} className="text-gray-400" />
+                  )}
+                  <div 
+                    className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer"
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    <Camera className="text-white" size={24} />
+                  </div>
+                  {isUploading && (
+                    <div className="absolute inset-0 bg-white/80 flex items-center justify-center">
+                      <div className="w-5 h-5 border-2 border-[#008060] border-t-transparent rounded-full animate-spin"></div>
+                    </div>
+                  )}
+                </div>
+                <input 
+                  type="file" 
+                  ref={fileInputRef} 
+                  onChange={handleImageUpload} 
+                  accept="image/*" 
+                  className="hidden" 
+                />
+                <button 
+                  type="button" 
+                  onClick={() => fileInputRef.current?.click()}
+                  className="text-xs font-medium text-[#005bd3] hover:underline"
+                >
+                  Change Avatar
+                </button>
+              </div>
+
+              {/* Name and Details Input */}
+              <div className="flex-1 space-y-4 w-full">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Display Name</label>
+                  <input 
+                    type="text" 
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="w-full max-w-md px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#008060]/20 focus:border-[#008060]"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                  <input 
+                    type="email" 
+                    value={session?.user?.email || ""}
+                    disabled
+                    className="w-full max-w-md px-3 py-2 border border-gray-200 bg-gray-50 text-gray-500 rounded-md cursor-not-allowed"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">Email cannot be changed directly.</p>
+                </div>
+                <div className="pt-2">
+                  <button 
+                    onClick={handleSaveProfile}
+                    disabled={isSaving || isUploading}
+                    className="bg-[#008060] hover:bg-[#006e52] disabled:opacity-50 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2"
+                  >
+                    {isSaving ? (
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    ) : (
+                      <Check size={16} />
+                    )}
+                    Save Profile
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
-          <div>
-            <h2 className="text-[14px] font-bold text-[#202223]">{session?.user?.name || "Admin"}</h2>
-            <p className="text-[13px] text-[#616161]">{session?.user?.email || "admin@example.com"}</p>
+        ) : (
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-[#f6f6f7] rounded-full flex items-center justify-center border border-[#d2d2d2] overflow-hidden shadow-sm">
+                {(session?.user as any)?.image ? (
+                  <img src={(session?.user as any).image} alt="Profile" className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full bg-gradient-to-br from-[#008060] to-[#004c3f] flex items-center justify-center text-white font-bold text-sm">
+                    {session?.user?.name?.charAt(0) || "A"}
+                  </div>
+                )}
+              </div>
+              <div>
+                <h2 className="text-[14px] font-bold text-[#202223]">{session?.user?.name || "Admin"}</h2>
+                <p className="text-[13px] text-[#616161]">{session?.user?.email || "admin@example.com"}</p>
+              </div>
+            </div>
+            <button 
+              onClick={() => setIsEditingProfile(true)}
+              className="text-[13px] font-medium text-[#008060] hover:underline"
+            >
+              Manage account
+            </button>
           </div>
-        </div>
-        <button className="text-[13px] font-medium text-[#008060] hover:underline">
-          Manage account
-        </button>
+        )}
       </div>
 
       {/* Settings Grid */}

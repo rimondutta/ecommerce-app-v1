@@ -225,25 +225,44 @@ export default function EditProductPage() {
           </div>
           <div className="space-y-2">
             <label className="block text-xs font-bold uppercase tracking-widest">Image</label>
-            <div className="flex gap-2 items-stretch h-12">
-              <input 
-                type="url" 
-                placeholder="https://..."
-                value={formData.imageUrl}
-                onChange={(e) => setFormData({...formData, imageUrl: e.target.value})}
-                className="w-full border-2 border-black px-3 text-sm focus:outline-none focus:ring-0 focus:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-shadow"
-              />
-              <div className="relative border-2 border-black bg-gray-100 hover:bg-gray-200 transition-colors flex items-center justify-center shrink-0 w-32 cursor-pointer shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-x-1 active:translate-y-1 active:shadow-none">
-                {uploadingImage ? (
-                   <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
-                ) : (
-                  <label htmlFor="file-upload-edit" className="w-full h-full flex items-center justify-center cursor-pointer text-[10px] font-black uppercase tracking-widest">
-                    Upload File
-                    <input id="file-upload-edit" name="file-upload" type="file" className="sr-only" accept="image/*" onChange={handleImageUpload} disabled={uploadingImage} />
-                  </label>
-                )}
+            {formData.imageUrl ? (
+              <div className="relative border-2 border-black rounded-none overflow-hidden group mb-4">
+                <img 
+                  src={formData.imageUrl} 
+                  alt="Product preview" 
+                  className="w-full h-48 object-contain bg-gray-50"
+                />
+                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                  <button
+                    type="button"
+                    onClick={() => setFormData({ ...formData, imageUrl: "" })}
+                    className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 flex items-center gap-2 font-bold uppercase tracking-widest text-xs transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-x-1 active:translate-y-1 active:shadow-none border-2 border-black"
+                  >
+                    <Trash size={16} /> Delete Image
+                  </button>
+                </div>
               </div>
-            </div>
+            ) : (
+              <div className="flex gap-2 items-stretch h-12">
+                <input 
+                  type="url" 
+                  placeholder="https://..."
+                  value={formData.imageUrl}
+                  onChange={(e) => setFormData({...formData, imageUrl: e.target.value})}
+                  className="w-full border-2 border-black px-3 text-sm focus:outline-none focus:ring-0 focus:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-shadow"
+                />
+                <div className="relative border-2 border-black bg-gray-100 hover:bg-gray-200 transition-colors flex items-center justify-center shrink-0 w-32 cursor-pointer shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-x-1 active:translate-y-1 active:shadow-none">
+                  {uploadingImage ? (
+                     <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
+                  ) : (
+                    <label htmlFor="file-upload-edit" className="w-full h-full flex items-center justify-center cursor-pointer text-[10px] font-black uppercase tracking-widest">
+                      Upload File
+                      <input id="file-upload-edit" name="file-upload" type="file" className="sr-only" accept="image/*" onChange={handleImageUpload} disabled={uploadingImage} />
+                    </label>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         </div>
 

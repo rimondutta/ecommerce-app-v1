@@ -1,8 +1,11 @@
 "use client"
 
+import { useSession } from "next-auth/react"
 import { Search, Bell, HelpCircle, User } from "lucide-react"
 
 export default function TopBar() {
+  const { data: session } = useSession()
+
   return (
     <header className="h-14 bg-white border-b border-[#d2d2d2] px-6 flex items-center justify-between sticky top-0 z-50 shadow-[0_1px_0_rgba(0,0,0,0.05)]">
       <div className="flex-1 max-w-[560px]">
@@ -27,11 +30,15 @@ export default function TopBar() {
         <div className="w-px h-6 bg-[#d2d2d2] mx-2" />
         <button className="flex items-center gap-3 pl-3 pr-1 py-1 hover:bg-[#f6f6f6] rounded-lg transition-all group border border-transparent hover:border-[#d2d2d2]">
           <div className="flex flex-col items-end hidden sm:flex">
-            <span className="text-[12px] font-bold text-[#202223]">Admin</span>
+            <span className="text-[12px] font-bold text-[#202223]">{session?.user?.name || "Admin"}</span>
             <span className="text-[10px] text-[#8c9196]">Store Owner</span>
           </div>
-          <div className="w-8 h-8 rounded-lg bg-[#008060] flex items-center justify-center text-white font-bold text-xs shadow-md">
-            A
+          <div className="w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold text-xs shadow-md overflow-hidden bg-[#008060]">
+            {(session?.user as any)?.image ? (
+              <img src={(session?.user as any).image} alt="Avatar" className="w-full h-full object-cover" />
+            ) : (
+              session?.user?.name?.charAt(0) || "A"
+            )}
           </div>
         </button>
       </div>

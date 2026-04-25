@@ -1,11 +1,48 @@
 import { NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/db';
 import Order from '@/models/Order';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth'; // Assuming authOptions exists here or similar
+
+// ── Simple in-memory rate limiter (per-IP, per-minute) ──
+const rateLimit = new Map<string, { count: number; resetAt: number }>();
+const RATE_LIMIT_MAX = 5;     // max 5 orders per minute per IP
+const RATE_LIMIT_WINDOW = 60_000; // 1 minute
+
+function isRateLimited(ip: string): boolean {
+  const now = Date.now();
+  const entry = rateLimit.get(ip);
+
+  if (!entry || now > entry.resetAt) {
+    rateLimit.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW });
+    return false;
+  }
+
+  entry.count++;
+  if (entry.count > RATE_LIMIT_MAX) {
+    return true;
+  }
+  return false;
+}
+
+// Periodically clean up stale entries (prevent memory leak)
+setInterval(() => {
+  const now = Date.now();
+  for (const [ip, entry] of rateLimit) {
+    if (now > entry.resetAt) rateLimit.delete(ip);
+  }
+}, 60_000);
 
 export async function POST(req: Request) {
   try {
+    // ── Rate Limiting ──
+    const forwarded = req.headers.get('x-forwarded-for');
+    const ip = forwarded?.split(',')[0]?.trim() || 'unknown';
+    if (isRateLimited(ip)) {
+      return NextResponse.json(
+        { error: 'Too many requests. Please try again later.' },
+        { status: 429 }
+      );
+    }
+
     const body = await req.json();
     const { customerEmail, customerName, items, totalAmount, shippingAddress, paymentMethod, shippingCost } = body;
 
@@ -13,24 +50,29 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Missing required order details' }, { status: 400 });
     }
 
+    // Basic email format validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(customerEmail)) {
+      return NextResponse.json({ error: 'Invalid email address' }, { status: 400 });
+    }
+
     await connectToDatabase();
 
     // Create the order
     const order = await Order.create({
-      customerEmail,
-      customerName,
+      customerEmail: String(customerEmail).toLowerCase().trim(),
+      customerName: String(customerName || '').trim(),
       items,
       totalAmount,
       shippingCost: shippingCost || 0,
       shippingAddress,
       paymentMethod: paymentMethod || 'cod',
-      paymentStatus: 'pending', // Default
+      paymentStatus: 'pending',
       fulfillmentStatus: 'unfulfilled',
     });
 
     // Send Confirmation Email (Async/Non-blocking)
     try {
-      // Import dynamically to avoid top-level load if not needed elsewhere
       const { sendOrderConfirmationEmail } = await import('@/lib/nodemailer');
       sendOrderConfirmationEmail({
         orderId: order._id.toString(),
@@ -69,6 +111,10 @@ export async function POST(req: Request) {
     });
   } catch (error: any) {
     console.error('Order Creation error:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    // Don't leak internal error details in production
+    return NextResponse.json(
+      { error: 'Failed to create order. Please try again.' },
+      { status: 500 }
+    );
   }
 }

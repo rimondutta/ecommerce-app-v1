@@ -20,8 +20,13 @@ async function getRelatedProducts(category: string) {
   return await Product.find({ isPublished: true }).limit(4).lean();
 }
 
-const SingleBlogPage = async ({ params }: { params: { slug: string } }) => {
-  const post: any = await getBlogPost(params.slug);
+const SingleBlogPage = async ({ 
+  params 
+}: { 
+  params: Promise<{ slug: string }> 
+}) => {
+  const { slug } = await params;
+  const post: any = await getBlogPost(slug);
 
   if (!post) {
     notFound();
@@ -81,7 +86,7 @@ const SingleBlogPage = async ({ params }: { params: { slug: string } }) => {
         <article className="max-w-[800px] mx-auto px-6 pt-24 pb-32">
           {/* Back Action */}
           <Link href="/blogs" className="inline-flex items-center gap-3 text-xs font-black uppercase tracking-widest mb-16 hover:gap-5 transition-all">
-            <ArrowLeft className="w-4 h-4" /> Return to Archive
+            <ArrowLeft className="w-4 h-4" /> Return to Journal
           </Link>
 
           <div className="prose prose-xl prose-stone max-w-none">
