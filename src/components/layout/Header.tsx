@@ -30,9 +30,9 @@ const shopMegaMenu = {
 export default function Header() {
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const { openCart, count: cartCount } = useCart();
+  const { isOpen: isCartOpen, openCart, closeCart, count: cartCount } = useCart();
   const { count: wishlistCount } = useWishlist();
-  const { openSearch } = useSearch();
+  const { isOpen: isSearchOpen, openSearch, closeSearch } = useSearch();
   const [isScrolled, setIsScrolled] = useState(false);
   const closeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -58,7 +58,7 @@ export default function Header() {
   return (
     <>
       <motion.header
-        className={`fixed top-0 z-[100] w-full transition-all duration-700 pointer-events-none bg-white/95 backdrop-blur-xl border-b border-black/10 shadow-sm text-black`}
+        className={`fixed top-0 z-[500] w-full transition-all duration-700 pointer-events-none bg-white/95 backdrop-blur-xl border-b border-black/10 shadow-sm text-black`}
         initial={{ y: -100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
@@ -106,8 +106,15 @@ export default function Header() {
 
             {/* Action Icons */}
             <div className="flex items-center gap-6">
-              <button
-                onClick={openSearch}
+               <button
+                onClick={() => {
+                  closeCart();
+                  if (isSearchOpen) {
+                    closeSearch();
+                  } else {
+                    openSearch();
+                  }
+                }}
                 className="p-2 hover:scale-110 active:scale-95 transition-all"
                 aria-label="Search"
                 data-cursor="SEARCH"
@@ -137,8 +144,15 @@ export default function Header() {
                 )}
               </button>
 
-              <button
-                onClick={openCart}
+               <button
+                onClick={() => {
+                  closeSearch();
+                  if (isCartOpen) {
+                    closeCart();
+                  } else {
+                    openCart();
+                  }
+                }}
                 className="group p-2 hover:scale-110 active:scale-95 transition-all relative"
                 aria-label={`Cart: ${cartCount} items`}
                 data-cursor="CART"

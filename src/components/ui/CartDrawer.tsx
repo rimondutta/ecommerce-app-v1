@@ -16,7 +16,7 @@ export default function CartDrawer() {
 
   return (
     <Transition show={isOpen} as={Fragment}>
-      <Dialog onClose={closeCart} className="relative z-50">
+      <Dialog onClose={closeCart} className="relative z-[400]">
         <TransitionChild
           as={Fragment}
           enter="transition-opacity ease-linear duration-300"
@@ -26,7 +26,11 @@ export default function CartDrawer() {
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" aria-hidden="true" />
+          <div 
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm cursor-pointer" 
+            aria-hidden="true" 
+            onClick={closeCart}
+          />
         </TransitionChild>
 
         <TransitionChild
@@ -38,7 +42,7 @@ export default function CartDrawer() {
           leaveFrom="translate-x-0"
           leaveTo="translate-x-full"
         >
-          <DialogPanel className="fixed inset-y-0 right-0 w-full sm:w-[450px] bg-white border-l-4 border-black flex flex-col shadow-[0_0_50px_rgba(0,0,0,0.3)]">
+          <DialogPanel className="fixed inset-y-0 right-0 w-full sm:w-[450px] bg-white border-l-4 border-black flex flex-col shadow-[0_0_50px_rgba(0,0,0,0.3)] pt-[100px]">
             
             {/* Header */}
             <div className="flex items-center justify-between px-6 py-6 border-b-2 border-black">
@@ -47,10 +51,11 @@ export default function CartDrawer() {
               </h2>
               <button
                 onClick={closeCart}
-                className="p-2 hover:bg-black hover:text-white border-2 border-transparent hover:border-black transition-all"
+                className="group flex items-center gap-2 px-4 py-2 bg-black text-white border-2 border-black hover:bg-white hover:text-black transition-all transform active:scale-95 relative z-[200] pointer-events-auto"
                 aria-label="Close cart"
               >
-                <X size={24} strokeWidth={3} />
+                <span className="text-[10px] font-black uppercase tracking-widest hidden sm:block">CLOSE</span>
+                <X size={20} strokeWidth={3} className="group-hover:rotate-90 transition-transform" />
               </button>
             </div>
 

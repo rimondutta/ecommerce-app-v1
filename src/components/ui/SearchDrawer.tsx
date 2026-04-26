@@ -45,7 +45,7 @@ export default function SearchDrawer({ isOpen, onClose }: SearchDrawerProps) {
 
   return (
     <Transition show={isOpen} as={Fragment}>
-      <Dialog onClose={onClose} className="relative z-50">
+      <Dialog onClose={onClose} className="relative z-[400]">
         <TransitionChild
           as={Fragment}
           enter="transition-opacity ease-linear duration-300"
@@ -55,7 +55,11 @@ export default function SearchDrawer({ isOpen, onClose }: SearchDrawerProps) {
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" aria-hidden="true" />
+          <div 
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm cursor-pointer" 
+            aria-hidden="true" 
+            onClick={onClose}
+          />
         </TransitionChild>
 
         <TransitionChild
@@ -67,7 +71,7 @@ export default function SearchDrawer({ isOpen, onClose }: SearchDrawerProps) {
           leaveFrom="translate-x-0"
           leaveTo="translate-x-full"
         >
-          <DialogPanel className="fixed inset-y-0 right-0 w-full sm:w-[500px] bg-white border-l-4 border-black flex flex-col shadow-[0_0_50px_rgba(0,0,0,0.3)]">
+          <DialogPanel className="fixed inset-y-0 right-0 w-full sm:w-[500px] bg-white border-l-4 border-black flex flex-col shadow-[0_0_50px_rgba(0,0,0,0.3)] pt-[100px]">
             {/* Header */}
             <div className="flex items-center justify-between px-8 py-6 border-b-2 border-black">
               <h2 className="font-display font-black text-3xl uppercase tracking-tighter italic">
@@ -75,10 +79,11 @@ export default function SearchDrawer({ isOpen, onClose }: SearchDrawerProps) {
               </h2>
               <button
                 onClick={onClose}
-                className="p-2 hover:bg-black hover:text-white border-2 border-transparent hover:border-black transition-all"
+                className="group flex items-center gap-2 px-4 py-2 bg-black text-white border-2 border-black hover:bg-white hover:text-black transition-all transform active:scale-95 relative z-[200] pointer-events-auto"
                 aria-label="Close search"
               >
-                <X size={24} strokeWidth={3} />
+                <span className="text-[10px] font-black uppercase tracking-widest hidden sm:block">CLOSE</span>
+                <X size={20} strokeWidth={3} className="group-hover:rotate-90 transition-transform" />
               </button>
             </div>
 
@@ -90,12 +95,23 @@ export default function SearchDrawer({ isOpen, onClose }: SearchDrawerProps) {
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder="WHAT ARE YOU LOOKING FOR?..."
-                  className="w-full bg-white border-4 border-black px-6 py-5 pr-16 text-sm font-bold uppercase tracking-widest placeholder:text-black/50 outline-none focus:bg-white focus:ring-4 focus:ring-black/5 transition-all"
+                  className="w-full bg-white border-4 border-black px-6 py-5 pr-24 text-sm font-bold uppercase tracking-widest placeholder:text-black/50 outline-none focus:bg-white focus:ring-4 focus:ring-black/5 transition-all"
                   autoFocus
                   aria-label="Search products"
                 />
-                <div className="absolute right-4 top-1/2 -translate-y-1/2 p-2">
-                  <SearchIcon size={24} strokeWidth={3} className="text-black" />
+                <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
+                  {query && (
+                    <button
+                      onClick={() => setQuery("")}
+                      className="p-2 hover:bg-black hover:text-white border-2 border-black transition-all"
+                      aria-label="Clear search"
+                    >
+                      <X size={16} strokeWidth={3} />
+                    </button>
+                  )}
+                  <div className="p-2">
+                    <SearchIcon size={24} strokeWidth={3} className="text-black" />
+                  </div>
                 </div>
               </div>
 
