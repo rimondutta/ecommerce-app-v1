@@ -12,7 +12,8 @@ import {
   ShoppingCart,
   Calendar,
   ChevronRight,
-  Info
+  Info,
+  Plus
 } from "lucide-react"
 
 interface DashboardClientProps {
@@ -74,9 +75,10 @@ export default function DashboardClient({
             <Calendar size={16} />
             Last 30 days
           </button>
-          <button className="flex items-center gap-2 bg-[#008060] rounded-md px-3 py-1.5 text-[13px] font-medium text-white hover:bg-[#006e52] transition-colors shadow-sm">
-            Setup guide
-          </button>
+          <Link href="/admin/categories" className="flex items-center gap-2 bg-[#008060] rounded-md px-3 py-1.5 text-[13px] font-medium text-white hover:bg-[#006e52] transition-colors shadow-sm">
+            <Plus size={16} />
+            Add Category
+          </Link>
         </div>
       </div>
 
