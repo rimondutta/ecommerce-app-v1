@@ -48,7 +48,7 @@ export default function ProductDetailsClient({ product, relatedProducts }: Produ
       quantity,
       color: selectedColor?.name || "Default",
       size: selectedSize || "Default",
-      image: product.images?.[0]?.url || ""
+      image: (product.images?.[0]?.url && product.images[0].url.length > 1) ? product.images[0].url : "/placeholder.jpg"
     });
     openCart();
   };
@@ -103,7 +103,7 @@ export default function ProductDetailsClient({ product, relatedProducts }: Produ
                 {product.images?.map((img: any, idx: number) => (
                   <SwiperSlide key={idx}>
                     <Image
-                      src={img.url}
+                      src={(img.url && img.url.length > 1) ? img.url : "/placeholder.jpg"}
                       alt={`${product.title} - View ${idx + 1}`}
                       fill
                       className={`object-cover transition-transform duration-700 ${imageZoom ? 'scale-150' : 'scale-100 group-hover:scale-105'}`}
@@ -139,7 +139,13 @@ export default function ProductDetailsClient({ product, relatedProducts }: Produ
                   {product.images?.map((img: any, idx: number) => (
                     <SwiperSlide key={idx} className="cursor-pointer">
                       <div className={`aspect-[3/4] bg-[#f5f5f3] border-2 transition-all relative overflow-hidden ${thumbsSwiper?.activeIndex === idx ? 'border-black' : 'border-transparent opacity-60 hover:opacity-100'}`}>
-                        <Image src={img.url} alt="thumb" fill className="object-cover" sizes="100px" />
+                        <Image 
+                          src={(img.url && img.url.length > 1) ? img.url : "/placeholder.jpg"} 
+                          alt="thumb" 
+                          fill 
+                          className="object-cover" 
+                          sizes="100px" 
+                        />
                       </div>
                     </SwiperSlide>
                   ))}

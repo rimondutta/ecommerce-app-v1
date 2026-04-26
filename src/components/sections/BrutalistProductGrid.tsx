@@ -102,7 +102,7 @@ export default function ModernProductGrid({
                 <div className="relative aspect-[3/4] bg-black overflow-hidden rounded-2xl" data-cursor="VIEW">
                   <Link href={`/products/${product.slug}`} className="absolute inset-0 z-[1]">
                     <Image
-                      src={product.images[0]?.src || "/placeholder.jpg"}
+                      src={(product.images[0]?.src && product.images[0].src.length > 1) ? product.images[0].src : "/placeholder.jpg"}
                       alt={product.title}
                       fill
                       className="object-cover opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700 ease-[0.16,1,0.3,1]"
@@ -131,7 +131,7 @@ export default function ModernProductGrid({
                         addItem({ 
                           id: String(product.id), slug: product.slug, title: product.title, 
                           price: product.priceNum, quantity: 1, color: "Default", 
-                          size: "Default", image: product.images[0]?.src || ""
+                          size: "Default", image: (product.images[0]?.src && product.images[0].src.length > 1) ? product.images[0].src : "/placeholder.jpg"
                         });
                       }}
                       className="w-12 h-12 flex items-center justify-center bg-white/80 backdrop-blur-md rounded-full text-black hover:bg-black hover:text-white transition-all"

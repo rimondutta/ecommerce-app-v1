@@ -45,7 +45,7 @@ export default function SearchDrawer({ isOpen, onClose }: SearchDrawerProps) {
 
   return (
     <Transition show={isOpen} as={Fragment}>
-      <Dialog onClose={onClose} className="relative z-[400]">
+      <Dialog onClose={onClose} className="relative z-[600]">
         <TransitionChild
           as={Fragment}
           enter="transition-opacity ease-linear duration-300"
@@ -151,7 +151,7 @@ export default function SearchDrawer({ isOpen, onClose }: SearchDrawerProps) {
                       >
                         <div className="w-20 h-24 relative border-2 border-black shrink-0 overflow-hidden">
                           <Image
-                            src={product.images?.[0]?.url || "/placeholder.jpg"}
+                            src={(product.images?.[0]?.url && product.images[0].url.length > 1) ? product.images[0].url : "/placeholder.jpg"}
                             alt={product.title}
                             fill
                             className="object-cover group-hover:scale-110 transition-transform duration-500"
@@ -188,7 +188,7 @@ export default function SearchDrawer({ isOpen, onClose }: SearchDrawerProps) {
                         >
                           <div className="w-20 h-24 relative border-2 border-black group-hover:border-white shrink-0 overflow-hidden">
                             <Image
-                              src={product.images?.[0]?.url || "/placeholder.jpg"}
+                              src={(product.images?.[0]?.url && product.images[0].url.length > 1) ? product.images[0].url : "/placeholder.jpg"}
                               alt={product.title}
                               fill
                               className="object-cover transition-transform duration-500 group-hover:scale-110"
