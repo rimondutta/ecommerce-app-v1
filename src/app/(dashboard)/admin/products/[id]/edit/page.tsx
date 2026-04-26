@@ -26,7 +26,63 @@ export default function EditProductPage() {
     imageUrl: ""
   })
   const [sizes, setSizes] = useState("")
+  const [tags, setTags] = useState("")
   const [colors, setColors] = useState<{name: string, hex: string}[]>([])
+  const [attributes, setAttributes] = useState<{name: string, value: string}[]>([])
+  const [variations, setVariations] = useState<{
+    combinationString: string, 
+    attributes: Record<string, string>, 
+    price: number, 
+    stock: number, 
+    sku: string, 
+    image: string
+  }[]>([])
+
+  const generateVariations = () => {
+    const sizeArray = sizes.split(",").map(s => s.trim()).filter(Boolean)
+    const colorArray = colors.map(c => c.name).filter(Boolean)
+    
+    let generated: typeof variations = []
+    
+    if (colorArray.length > 0 && sizeArray.length > 0) {
+      colorArray.forEach(color => {
+        sizeArray.forEach(size => {
+          generated.push({
+            combinationString: `${color} / ${size}`,
+            attributes: { "Color": color, "Size": size },
+            price: Number(formData.price) || 0,
+            stock: 0,
+            sku: `${formData.title.substring(0, 3).toUpperCase()}-${color.substring(0, 3).toUpperCase()}-${size}`,
+            image: formData.imageUrl || ""
+          })
+        })
+      })
+    } else if (colorArray.length > 0) {
+      colorArray.forEach(color => {
+        generated.push({
+          combinationString: color,
+          attributes: { "Color": color },
+          price: Number(formData.price) || 0,
+          stock: 0,
+          sku: `${formData.title.substring(0, 3).toUpperCase()}-${color.substring(0, 3).toUpperCase()}`,
+          image: formData.imageUrl || ""
+        })
+      })
+    } else if (sizeArray.length > 0) {
+      sizeArray.forEach(size => {
+        generated.push({
+          combinationString: size,
+          attributes: { "Size": size },
+          price: Number(formData.price) || 0,
+          stock: 0,
+          sku: `${formData.title.substring(0, 3).toUpperCase()}-${size}`,
+          image: formData.imageUrl || ""
+        })
+      })
+    }
+    
+    setVariations(generated)
+  }
 
   useEffect(() => {
     // Fetch categories
@@ -54,6 +110,15 @@ export default function EditProductPage() {
           })
           if (data.product.sizes) {
             setSizes(data.product.sizes.join(", "))
+          }
+          if (data.product.tags) {
+            setTags(data.product.tags.join(", "))
+          }
+          if (data.product.attributes) {
+            setAttributes(data.product.attributes)
+          }
+          if (data.product.variations) {
+            setVariations(data.product.variations)
           }
           if (data.product.colors) {
             setColors(data.product.colors.map((c: any) => ({ name: c.name, hex: c.hex || "#000000" })))
@@ -83,8 +148,11 @@ export default function EditProductPage() {
           ...formData,
           price: Number(formData.price),
           images: formData.imageUrl ? [{ url: formData.imageUrl, alt: formData.title }] : [],
+          tags: tags.split(",").map(t => t.trim()).filter(Boolean),
           sizes: sizes.split(",").map(s => s.trim()).filter(Boolean),
-          colors: colors.filter(c => c.name.trim() !== '')
+          colors: colors.filter(c => c.name.trim() !== ''),
+          attributes,
+          variations
         })
       })
 
@@ -277,6 +345,37 @@ export default function EditProductPage() {
               className="w-full border-2 border-black p-3 focus:outline-none focus:ring-0 focus:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-shadow"
             />
           </div>
+          <div className="space-y-2">
+            <label className="block text-xs font-bold uppercase tracking-widest">Tags (comma separated)</label>
+            <input 
+              type="text" 
+              placeholder="e.g. summer, oversized, trending"
+              value={tags}
+              onChange={(e) => setTags(e.target.value)}
+              className="w-full border-2 border-black p-3 focus:outline-none focus:ring-0 focus:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-shadow"
+            />
+          </div>
+          
+          {/* Attributes */}
+          <div className="space-y-4 col-span-1 md:col-span-2 pt-4">
+            <div className="flex justify-between items-center border-b-4 border-black pb-2">
+              <label className="block text-xs font-bold uppercase tracking-widest">Specifications</label>
+              <button type="button" onClick={() => setAttributes([...attributes, {name: '', value: ''}])} className="text-[10px] font-black uppercase tracking-widest border-2 border-black px-2 py-1 hover:bg-black hover:text-white transition-colors flex items-center gap-1 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none">
+                <Plus size={14}/> Add Row
+              </button>
+            </div>
+            <div className="space-y-3">
+              {attributes.map((attr, idx) => (
+                <div key={idx} className="flex flex-col sm:flex-row gap-3 items-center w-full">
+                    <input type="text" placeholder="e.g. Material" value={attr.name} onChange={(e) => { const newAttrs = [...attributes]; newAttrs[idx].name = e.target.value; setAttributes(newAttrs) }} className="w-full border-2 border-black p-3 focus:outline-none focus:ring-0 focus:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-shadow" />
+                    <input type="text" placeholder="e.g. 100% Organic Cotton" value={attr.value} onChange={(e) => { const newAttrs = [...attributes]; newAttrs[idx].value = e.target.value; setAttributes(newAttrs) }} className="w-full border-2 border-black p-3 focus:outline-none focus:ring-0 focus:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-shadow" />
+                    <button type="button" onClick={() => setAttributes(attributes.filter((_, i) => i !== idx))} className="p-3.5 border-2 border-black hover:bg-black hover:text-white transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-x-1 active:translate-y-1 active:shadow-none shrink-0"><Trash size={20} /></button>
+                </div>
+              ))}
+              {attributes.length === 0 && <p className="text-xs font-bold uppercase tracking-widest text-gray-500 py-2">No specifications added.</p>}
+            </div>
+          </div>
+
           <div className="space-y-4 col-span-1 md:col-span-2 pt-4">
             <div className="flex justify-between items-center border-b-4 border-black pb-2">
               <label className="block text-xs font-bold uppercase tracking-widest">Colors</label>
@@ -319,6 +418,65 @@ export default function EditProductPage() {
               {colors.length === 0 && <p className="text-xs font-bold uppercase tracking-widest text-gray-500 py-2">No colors added.</p>}
             </div>
           </div>
+        </div>
+
+        {/* Variations Table */}
+        <div className="space-y-4 pt-4">
+          <div className="flex justify-between items-center border-b-4 border-black pb-2">
+            <label className="block text-xs font-bold uppercase tracking-widest">Variations</label>
+            <button 
+              type="button" 
+              onClick={generateVariations}
+              className="text-[10px] font-black uppercase tracking-widest border-2 border-black px-2 py-1 hover:bg-black hover:text-white transition-colors flex items-center gap-1 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
+            >
+              Generate Variations
+            </button>
+          </div>
+          
+          {variations.length > 0 ? (
+            <div className="border-2 border-black overflow-hidden bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-sm whitespace-nowrap">
+                  <thead className="bg-gray-100 border-b-2 border-black">
+                    <tr>
+                      <th className="px-4 py-3 font-bold uppercase tracking-widest text-xs border-r-2 border-black">Variant</th>
+                      <th className="px-4 py-3 font-bold uppercase tracking-widest text-xs border-r-2 border-black">Price</th>
+                      <th className="px-4 py-3 font-bold uppercase tracking-widest text-xs border-r-2 border-black w-24">Stock</th>
+                      <th className="px-4 py-3 font-bold uppercase tracking-widest text-xs border-r-2 border-black min-w-[120px]">SKU</th>
+                      <th className="px-4 py-3 font-bold uppercase tracking-widest text-xs border-r-2 border-black">Image URL</th>
+                      <th className="px-4 py-3 text-center"></th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y-2 divide-black">
+                    {variations.map((v, i) => (
+                      <tr key={i} className="hover:bg-gray-50">
+                        <td className="px-4 py-3 font-bold text-xs border-r-2 border-black">{v.combinationString}</td>
+                        <td className="px-4 py-2 border-r-2 border-black">
+                          <input type="number" value={v.price} onChange={e => { const vnew = [...variations]; vnew[i].price = Number(e.target.value); setVariations(vnew) }} className="w-full border-2 border-black px-2 py-1.5 focus:outline-none focus:ring-0" />
+                        </td>
+                        <td className="px-4 py-2 border-r-2 border-black">
+                          <input type="number" value={v.stock} onChange={e => { const vnew = [...variations]; vnew[i].stock = Number(e.target.value); setVariations(vnew) }} className="w-full border-2 border-black px-2 py-1.5 focus:outline-none focus:ring-0" />
+                        </td>
+                        <td className="px-4 py-2 border-r-2 border-black">
+                          <input type="text" value={v.sku} onChange={e => { const vnew = [...variations]; vnew[i].sku = e.target.value; setVariations(vnew) }} className="w-full border-2 border-black px-2 py-1.5 focus:outline-none focus:ring-0" placeholder="SKU" />
+                        </td>
+                        <td className="px-4 py-2 border-r-2 border-black">
+                          <input type="text" value={v.image} onChange={e => { const vnew = [...variations]; vnew[i].image = e.target.value; setVariations(vnew) }} className="w-full border-2 border-black px-2 py-1.5 focus:outline-none focus:ring-0" placeholder="https://" />
+                        </td>
+                        <td className="px-4 py-2 text-center">
+                          <button type="button" onClick={() => setVariations(variations.filter((_, idx) => idx !== i))} className="p-1.5 text-black hover:text-white hover:bg-black rounded transition-colors border-2 border-transparent hover:border-black">
+                            <Trash size={16} />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          ) : (
+            <p className="text-xs font-bold uppercase tracking-widest text-gray-500 py-2">No variations generated.</p>
+          )}
         </div>
 
         <div className="flex items-center gap-2 pt-2">

@@ -46,6 +46,11 @@ export async function POST(req: Request) {
 
     const data = await req.json();
 
+    // Sanitize image URLs to prevent next/image crash
+    if (data.images && Array.isArray(data.images)) {
+      data.images = data.images.filter((img: any) => img.url && (img.url.startsWith('http') || img.url.startsWith('/')));
+    }
+
     await connectToDatabase();
     const product = await Product.create(data);
 

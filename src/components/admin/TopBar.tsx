@@ -1,45 +1,53 @@
 "use client"
 
 import { useSession } from "next-auth/react"
-import { Search, Bell, HelpCircle, User } from "lucide-react"
+import { Search, Bell, HelpCircle, User, Menu } from "lucide-react"
 
 export default function TopBar() {
   const { data: session } = useSession()
 
   return (
-    <header className="h-14 bg-white border-b border-[#d2d2d2] px-6 flex items-center justify-between sticky top-0 z-50 shadow-[0_1px_0_rgba(0,0,0,0.05)]">
-      <div className="flex-1 max-w-[560px]">
+    <header className="h-20 bg-white border-b-4 border-black px-8 flex items-center justify-between sticky top-0 z-50">
+      <div className="flex-1 max-w-[600px]">
         <div className="relative group">
-          <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#8c9196] group-focus-within:text-[#008060] transition-colors" />
+          <Search size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-black" />
           <input
             type="text"
-            placeholder="Search"
-            className="w-full bg-[#f1f1f1] border border-transparent hover:border-[#616161] focus:bg-white focus:border-[#008060] focus:ring-4 focus:ring-[#008060]/10 rounded-lg py-2 pl-10 pr-4 text-[13px] text-[#202223] placeholder:text-[#8c9196] transition-all outline-none"
+            placeholder="SEARCH ANYTHING..."
+            className="w-full bg-gray-50 border-2 border-black focus:bg-white focus:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] py-3 pl-12 pr-4 text-xs font-black uppercase tracking-[0.1em] transition-all outline-none placeholder:text-gray-400"
           />
         </div>
       </div>
 
-      <div className="flex items-center gap-1.5">
-        <button className="p-2.5 text-[#616161] hover:bg-[#f6f6f6] rounded-lg transition-all relative group">
-          <Bell size={20} strokeWidth={1.5} className="group-hover:text-[#202223]" />
-          <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-[#d82c0d] border-2 border-white rounded-full" />
-        </button>
-        <button className="p-2.5 text-[#616161] hover:bg-[#f6f6f6] rounded-lg transition-all group">
-          <HelpCircle size={20} strokeWidth={1.5} className="group-hover:text-[#202223]" />
-        </button>
-        <div className="w-px h-6 bg-[#d2d2d2] mx-2" />
-        <button className="flex items-center gap-3 pl-3 pr-1 py-1 hover:bg-[#f6f6f6] rounded-lg transition-all group border border-transparent hover:border-[#d2d2d2]">
+      <div className="flex items-center gap-4">
+        <div className="hidden md:flex items-center gap-2">
+            <button className="p-3 border-2 border-transparent hover:border-black hover:bg-gray-50 transition-all relative">
+              <Bell size={22} className="text-black" />
+              <span className="absolute top-2 right-2 w-3 h-3 bg-red-500 border-2 border-black rounded-none" />
+            </button>
+            <button className="p-3 border-2 border-transparent hover:border-black hover:bg-gray-50 transition-all">
+              <HelpCircle size={22} className="text-black" />
+            </button>
+        </div>
+        
+        <div className="w-1 h-10 bg-black/10 mx-2 hidden md:block" />
+        
+        <button className="flex items-center gap-4 pl-4 pr-1 py-1 border-2 border-transparent hover:border-black transition-all group">
           <div className="flex flex-col items-end hidden sm:flex">
-            <span className="text-[12px] font-bold text-[#202223]">{session?.user?.name || "Admin"}</span>
-            <span className="text-[10px] text-[#8c9196]">Store Owner</span>
+            <span className="text-xs font-black uppercase tracking-tight text-black">{session?.user?.name || "Admin User"}</span>
+            <span className="text-[9px] font-black uppercase tracking-widest text-gray-500">Store Manager</span>
           </div>
-          <div className="w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold text-xs shadow-md overflow-hidden bg-[#008060]">
+          <div className="w-10 h-10 border-2 border-black flex items-center justify-center font-black text-xs shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] overflow-hidden bg-black text-white">
             {(session?.user as any)?.image ? (
               <img src={(session?.user as any).image} alt="Avatar" className="w-full h-full object-cover" />
             ) : (
               session?.user?.name?.charAt(0) || "A"
             )}
           </div>
+        </button>
+        
+        <button className="md:hidden p-2 border-2 border-black">
+           <Menu size={24} />
         </button>
       </div>
     </header>

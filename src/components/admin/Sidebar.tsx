@@ -6,7 +6,7 @@ import { signOut, useSession } from "next-auth/react"
 import { 
   Home, ShoppingCart, Tag, Users, Inbox, BarChart2, 
   Megaphone, Ticket, Settings, Store, Search, Bell,
-  LogOut, Plus, ChevronRight, UserPlus
+  LogOut, Plus, ChevronRight, UserPlus, Image as ImageIcon
 } from "lucide-react"
 
 export default function Sidebar() {
@@ -14,16 +14,13 @@ export default function Sidebar() {
   const { data: session } = useSession()
 
   const links = [
-    { name: "Home", href: "/admin", icon: Home },
+    { name: "Dashboard", href: "/admin", icon: Home },
     { name: "Orders", href: "/admin/orders", icon: ShoppingCart },
     { name: "Products", href: "/admin/products", icon: Tag },
+    { name: "Media Library", href: "/admin/media", icon: ImageIcon },
     { name: "Customers", href: "/admin/customers", icon: Users },
     { name: "Discounts", href: "/admin/coupons", icon: Ticket },
-    { name: "Invite Admin", href: "/admin/invite", icon: UserPlus },
-  ]
-
-  const salesChannels = [
-    { name: "Online Store", icon: Store },
+    { name: "Admins", href: "/admin/invite", icon: UserPlus },
   ]
 
   const isActive = (href: string) => {
@@ -32,25 +29,23 @@ export default function Sidebar() {
   }
 
   return (
-    <aside className="w-[240px] bg-[#1a1a1b] text-[#e3e3e3] min-h-screen flex flex-col hidden md:flex border-r border-white/5">
-      {/* Store Switcher */}
-      <div className="p-4">
-        <div className="flex items-center justify-between bg-white/5 p-2 rounded-lg cursor-pointer hover:bg-white/10 transition-all border border-white/5">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded bg-[#008060] flex items-center justify-center text-white font-bold shadow-lg">
+    <aside className="w-[260px] bg-black text-white min-h-screen flex flex-col hidden md:flex border-r-4 border-black">
+      {/* Logo Area */}
+      <div className="p-6 border-b-4 border-white/10">
+        <div className="flex items-center gap-3">
+            <div className="w-10 h-10 border-2 border-white bg-white text-black flex items-center justify-center font-black text-xl shadow-[4px_4px_0px_0px_rgba(255,255,255,0.2)]">
               F
             </div>
             <div className="flex flex-col">
-              <span className="text-[13px] font-bold text-white leading-tight">FlexWear</span>
-              <span className="text-[11px] text-[#8c9196]">Online Store</span>
+              <span className="text-lg font-black uppercase tracking-tighter leading-none">FlexWear</span>
+              <span className="text-[9px] font-black uppercase tracking-widest text-gray-500">Admin Pro</span>
             </div>
-          </div>
-          <ChevronRight size={14} className="text-[#8c9196]" />
         </div>
       </div>
 
       {/* Main Nav */}
-      <nav className="flex-1 px-3 py-2 space-y-0.5 overflow-y-auto custom-scrollbar">
+      <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto custom-scrollbar">
+        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 mb-4 px-2">Main Navigation</p>
         {links.map((link) => {
           const active = isActive(link.href)
           const Icon = link.icon
@@ -58,57 +53,53 @@ export default function Sidebar() {
             <Link
               key={link.name}
               href={link.href}
-              className={`flex items-center gap-3 px-3 py-2 rounded-md text-[13px] font-medium transition-all duration-200 ${
+              className={`flex items-center gap-4 px-4 py-3 border-2 transition-all group ${
                 active 
-                  ? "bg-white/10 text-white shadow-sm ring-1 ring-white/10" 
-                  : "text-[#e3e3e3] hover:bg-white/5 hover:text-white"
+                  ? "bg-white text-black border-white shadow-[4px_4px_0px_0px_rgba(255,255,255,0.3)] translate-x-1" 
+                  : "text-gray-400 border-transparent hover:text-white hover:border-white/20 hover:translate-x-1"
               }`}
             >
-              <Icon size={18} className={active ? "text-[#008060]" : "text-[#8c9196]"} />
-              <span>{link.name}</span>
+              <Icon size={20} className={active ? "text-black" : "text-gray-500 group-hover:text-white"} />
+              <span className="text-xs font-black uppercase tracking-widest">{link.name}</span>
             </Link>
           )
         })}
 
-        <div className="mt-8 px-3 mb-2 flex items-center justify-between">
-          <span className="text-[11px] font-semibold text-[#8c9196] uppercase tracking-[0.05em]">Sales channels</span>
-          <button className="text-[#8c9196] hover:text-white transition-colors"><Plus size={14} /></button>
+        <div className="pt-8">
+           <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 mb-4 px-2">Sales Channels</p>
+           <div className="flex items-center gap-4 px-4 py-3 border-2 border-transparent text-gray-400 hover:text-white hover:border-white/20 hover:translate-x-1 cursor-pointer transition-all">
+              <Store size={20} className="text-gray-500" />
+              <span className="text-xs font-black uppercase tracking-widest">Online Store</span>
+           </div>
         </div>
-        {salesChannels.map((channel) => (
-          <div
-            key={channel.name}
-            className="flex items-center gap-3 px-3 py-2 rounded-md text-[13px] font-medium text-[#e3e3e3] hover:bg-white/5 hover:text-white cursor-pointer transition-all"
-          >
-            <channel.icon size={18} className="text-[#8c9196]" />
-            <span>{channel.name}</span>
-          </div>
-        ))}
       </nav>
 
       {/* Footer Nav */}
-      <div className="p-3 space-y-0.5 border-t border-white/5">
+      <div className="p-4 space-y-2 border-t-4 border-white/10 bg-white/5">
         <Link
           href="/admin/settings"
-          className={`flex items-center gap-3 px-3 py-2 rounded-md text-[13px] font-medium text-[#e3e3e3] hover:bg-white/5 hover:text-white transition-all ${
-            pathname.startsWith("/admin/settings") ? "bg-white/10 text-white" : ""
+          className={`flex items-center gap-4 px-4 py-2 border-2 transition-all ${
+            pathname.startsWith("/admin/settings") 
+              ? "bg-white text-black border-white shadow-[4px_4px_0px_0px_rgba(255,255,255,0.3)]" 
+              : "text-gray-400 border-transparent hover:text-white hover:border-white/20"
           }`}
         >
-          <Settings size={18} className="text-[#8c9196]" />
-          <span>Settings</span>
+          <Settings size={18} />
+          <span className="text-xs font-black uppercase tracking-widest">Settings</span>
         </Link>
         <button
           onClick={() => signOut()}
-          className="flex items-center gap-3 px-3 py-2 rounded-md text-[13px] font-medium text-[#e3e3e3] hover:bg-red-500/10 hover:text-red-400 transition-all w-full text-left group"
+          className="flex items-center gap-4 px-4 py-2 border-2 border-transparent text-gray-400 hover:text-red-400 hover:border-red-400/20 transition-all w-full text-left"
         >
-          <LogOut size={18} className="text-[#8c9196] group-hover:text-red-400" />
-          <span>Logout</span>
+          <LogOut size={18} />
+          <span className="text-xs font-black uppercase tracking-widest">Logout</span>
         </button>
       </div>
 
       {/* User Info */}
-      <div className="p-4 bg-black/20">
+      <div className="p-4 bg-white text-black border-t-4 border-black">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-xs shadow-md overflow-hidden bg-gradient-to-br from-[#008060] to-[#004c3f]">
+          <div className="w-10 h-10 border-2 border-black flex items-center justify-center font-black text-xs shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] overflow-hidden bg-gray-100">
             {(session?.user as any)?.image ? (
               <img src={(session?.user as any).image} alt="Avatar" className="w-full h-full object-cover" />
             ) : (
@@ -116,8 +107,8 @@ export default function Sidebar() {
             )}
           </div>
           <div className="flex flex-col min-w-0">
-            <span className="text-[12px] font-bold text-white truncate">{session?.user?.name || "Admin"}</span>
-            <span className="text-[10px] text-[#8c9196] truncate">{session?.user?.email || "admin@example.com"}</span>
+            <span className="text-[11px] font-black uppercase tracking-tight truncate">{session?.user?.name || "Admin"}</span>
+            <span className="text-[9px] font-bold text-gray-500 truncate">{session?.user?.email || "admin@example.com"}</span>
           </div>
         </div>
       </div>

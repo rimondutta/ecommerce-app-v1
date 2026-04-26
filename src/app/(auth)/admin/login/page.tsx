@@ -8,11 +8,13 @@ export default function AdminLogin() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
+  const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
+    setIsLoading(true)
     
     const res = await signIn("credentials", {
       email,
@@ -22,6 +24,7 @@ export default function AdminLogin() {
 
     if (res?.error) {
       setError("Invalid email or password")
+      setIsLoading(false)
     } else {
       router.push("/admin")
       router.refresh()
@@ -42,6 +45,7 @@ export default function AdminLogin() {
               onChange={(e) => setEmail(e.target.value)}
               className="w-full border-2 border-black p-3 focus:outline-none focus:ring-0 focus:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-shadow"
               required
+              disabled={isLoading}
             />
           </div>
           <div>
@@ -52,13 +56,15 @@ export default function AdminLogin() {
               onChange={(e) => setPassword(e.target.value)}
               className="w-full border-2 border-black p-3 focus:outline-none focus:ring-0 focus:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-shadow"
               required
+              disabled={isLoading}
             />
           </div>
           <button
             type="submit"
-            className="w-full bg-black text-white font-bold uppercase tracking-widest py-4 hover:bg-gray-900 transition-colors"
+            disabled={isLoading}
+            className="w-full bg-black text-white font-bold uppercase tracking-widest py-4 hover:bg-gray-900 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
           >
-            Sign In
+            {isLoading ? "Signing In..." : "Sign In"}
           </button>
         </form>
       </div>

@@ -13,7 +13,7 @@ export default async function Home() {
   
   // Fetch latest products with populated categories
   const products = await Product.find({ isPublished: true })
-    .populate("category", "name")
+    .populate("category", "name slug")
     .sort({ createdAt: -1 })
     .lean();
 
