@@ -19,13 +19,14 @@ export default function ReviewForm({ slug, onSuccess }: ReviewFormProps) {
 
   if (!session) {
     return (
-      <div className="p-12 border-4 border-black border-dashed text-center space-y-6">
-        <p className="font-black uppercase tracking-[0.2em] text-[10px]">Authorization Required to Post Reviews</p>
+      <div className="p-12 border border-black border-dashed text-center space-y-6 bg-white relative">
+        <div className="absolute top-0 left-0 bg-black text-[#f0ece5] font-mono text-[9px] uppercase tracking-widest px-2 py-0.5">SYS_AUTH</div>
+        <p className="font-mono text-[10px] font-black uppercase tracking-widest text-black/60 pt-4">AUTH_REQUIRED: CANNOT POST REVIEW LOG</p>
         <button 
           onClick={() => window.location.href = '/login'}
-          className="px-8 py-4 bg-black text-white font-black uppercase tracking-widest text-[9px] hover:bg-neutral-800 transition-all shadow-[8px_8px_0px_0px_rgba(0,0,0,0.1)]"
+          className="px-8 py-4 border border-black bg-black text-[#f0ece5] font-mono font-black uppercase tracking-widest text-[9px] hover:bg-white hover:text-black transition-colors"
         >
-          Sign In to Access Reviews
+          INITIATE_AUTH_SEQUENCE
         </button>
       </div>
     );
@@ -71,15 +72,17 @@ export default function ReviewForm({ slug, onSuccess }: ReviewFormProps) {
   };
 
   return (
-    <div className="p-10 border-4 border-black bg-neutral-50 shadow-[16px_16px_0px_0px_rgba(0,0,0,1)]">
-      <h3 className="font-display font-black text-4xl uppercase tracking-tight mb-8">
-        Submit Feedback
+    <div className="p-10 border border-black bg-[#f0ece5] relative">
+      <div className="absolute top-0 left-0 bg-black text-[#f0ece5] font-mono text-[9px] uppercase tracking-widest px-2 py-0.5 border-b border-r border-black">NEW_ENTRY_FORM</div>
+      
+      <h3 className="font-display font-black text-4xl uppercase tracking-tight mb-8 mt-4">
+        LOG_FEEDBACK
       </h3>
 
       <form onSubmit={handleSubmit} className="space-y-8">
         {/* Star Rating */}
         <div className="space-y-4">
-          <label className="text-[10px] font-black uppercase tracking-[0.3em] block">Select Grade / {rating || hoverRating || '—'}</label>
+          <label className="font-mono text-[10px] font-black uppercase tracking-widest block border-b border-black/20 pb-2">SELECT_GRADE: [{rating || hoverRating || '—'}]</label>
           <div className="flex gap-4">
             {[1, 2, 3, 4, 5].map((star) => (
               <button
@@ -88,16 +91,16 @@ export default function ReviewForm({ slug, onSuccess }: ReviewFormProps) {
                 onMouseEnter={() => setHoverRating(star)}
                 onMouseLeave={() => setHoverRating(0)}
                 onClick={() => setRating(star)}
-                className="transition-transform active:scale-95"
+                className="transition-transform"
               >
                 <Star
                   size={32}
                   className={`transition-all ${
                     star <= (hoverRating || rating)
                       ? "fill-black text-black"
-                      : "text-black/10"
+                      : "text-black/10 hover:text-black/30"
                   }`}
-                  strokeWidth={3}
+                  strokeWidth={2}
                 />
               </button>
             ))}
@@ -106,30 +109,30 @@ export default function ReviewForm({ slug, onSuccess }: ReviewFormProps) {
 
         {/* Comment */}
         <div className="space-y-4">
-          <label className="text-[10px] font-black uppercase tracking-[0.3em] block">Manifesto / Comment</label>
+          <label className="font-mono text-[10px] font-black uppercase tracking-widest block border-b border-black/20 pb-2">SYS_MANIFESTO_COMMENT</label>
           <textarea
             value={comment}
             onChange={(e) => setComment(e.target.value)}
-            placeholder="Document your experience with this archival piece..."
-            className="w-full h-40 bg-white border-4 border-black p-6 font-medium text-[12px] uppercase tracking-wide focus:outline-none focus:shadow-[8px_8px_0px_1px_rgba(0,0,0,1)] transition-all placeholder:text-black/20"
+            placeholder="DOCUMENT YOUR EXPERIENCE WITH THIS ARCHIVAL PIECE..."
+            className="w-full h-40 bg-white border border-black p-6 font-mono font-medium text-[10px] uppercase tracking-widest focus:outline-none focus:bg-[#f0ece5] transition-colors placeholder:text-black/20"
           />
         </div>
 
         {error && (
-          <p className="text-[10px] font-black uppercase tracking-widest text-red-600 bg-red-50 p-4 border-2 border-red-600">
-            Error: {error}
+          <p className="font-mono text-[10px] font-black uppercase tracking-widest text-red-600 bg-red-50 p-4 border border-red-600">
+            SYS_ERROR: {error}
           </p>
         )}
 
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full h-20 bg-black text-white flex items-center justify-center gap-4 font-black uppercase tracking-[0.4em] text-[10px] hover:bg-neutral-800 transition-all disabled:opacity-50"
+          className="w-full h-16 border border-black bg-black text-[#f0ece5] flex items-center justify-center gap-4 font-mono font-black uppercase tracking-widest text-[10px] hover:bg-white hover:text-black transition-colors disabled:opacity-50"
         >
           {isSubmitting ? (
-            <>Processing Data <Loader2 className="animate-spin" size={16} /></>
+            <>PROCESSING_DATA <Loader2 className="animate-spin" size={14} /></>
           ) : (
-            <>Post Review to Collection</>
+            <>COMMIT_TO_ARCHIVE</>
           )}
         </button>
       </form>
