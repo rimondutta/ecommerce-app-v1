@@ -5,25 +5,6 @@ import connectToDatabase from '@/lib/db';
 import Product from '@/models/Product';
 import { deleteImage } from '@/lib/cloudinary';
 
-/**
- * Extracts a Cloudinary public ID from a Cloudinary URL.
- * e.g. "https://res.cloudinary.com/dciffpt3t/image/upload/v1234/products/abc123.jpg"
- *   => "products/abc123"
- */
-function getPublicIdFromUrl(url: string): string | null {
-  if (!url || !url.includes('cloudinary.com')) return null;
-  try {
-    const parts = url.split('/upload/');
-    if (parts.length < 2) return null;
-    // Remove the version segment (v1234567890/) and file extension
-    const afterUpload = parts[1].replace(/^v\d+\//, '');
-    const publicId = afterUpload.replace(/\.[^/.]+$/, '');
-    return publicId;
-  } catch {
-    return null;
-  }
-}
-
 export async function GET(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -68,24 +49,23 @@ export async function PUT(
     await connectToDatabase();
     const { id } = await params;
 
-    // If images are being updated, check for removed images and delete from Cloudinary
-    if (data.images) {
-      const existingProduct = await Product.findById(id).lean();
-      if (existingProduct && existingProduct.images) {
-        const newUrls = new Set(data.images.map((img: any) => img.url));
-        for (const oldImg of existingProduct.images) {
-          if (!newUrls.has(oldImg.url)) {
-            const publicId = getPublicIdFromUrl(oldImg.url);
-            if (publicId) {
-              try {
-                await deleteImage(publicId);
-                console.log(`Deleted Cloudinary image: ${publicId}`);
-              } catch (err) {
-                console.error(`Failed to delete Cloudinary image ${publicId}:`, err);
-              }
-            }
-          }
-        }
+    // Fetch existing product to compare images
+    const existingProduct = await Product.findById(id);
+    if (!existingProduct) {
+      return NextResponse.json({ error: 'Product not found' }, { status: 404 });
+    }
+
+    // Identify images being removed
+    const existingUrls = existingProduct.images?.map((img: any) => img.url) || [];
+    const newUrls = data.images?.map((img: any) => img.url) || [];
+    const urlsToDelete = existingUrls.filter((url: string) => !newUrls.includes(url) && url.includes('cloudinary.com'));
+
+    // Delete removed images from Cloudinary
+    for (const url of urlsToDelete) {
+      try {
+        await deleteImage(url);
+      } catch (cloudinaryError) {
+        console.error(`Failed to delete replaced Cloudinary image: ${url}`, cloudinaryError);
       }
     }
 
@@ -93,10 +73,6 @@ export async function PUT(
       new: true,
       runValidators: true,
     });
-
-    if (!product) {
-      return NextResponse.json({ error: 'Product not found' }, { status: 404 });
-    }
 
     return NextResponse.json({ product });
   } catch (error: any) {
@@ -122,33 +98,31 @@ export async function DELETE(
 
     await connectToDatabase();
     const { id } = await params;
+    
+    // Find the product first to get image URLs
     const product = await Product.findById(id);
-
     if (!product) {
       return NextResponse.json({ error: 'Product not found' }, { status: 404 });
     }
 
-    // Delete all product images from Cloudinary
-    if (product.images && product.images.length > 0) {
+    // Delete images from Cloudinary if they exist
+    if (product.images && Array.isArray(product.images)) {
       for (const img of product.images) {
-        const publicId = getPublicIdFromUrl(img.url);
-        if (publicId) {
+        if (img.url && img.url.includes('cloudinary.com')) {
           try {
-            await deleteImage(publicId);
-            console.log(`Deleted Cloudinary image: ${publicId}`);
-          } catch (err) {
-            console.error(`Failed to delete Cloudinary image ${publicId}:`, err);
+            await deleteImage(img.url);
+          } catch (cloudinaryError) {
+            console.error(`Failed to delete Cloudinary image: ${img.url}`, cloudinaryError);
           }
         }
       }
     }
 
+    // Delete product from database
     await Product.findByIdAndDelete(id);
 
-    return NextResponse.json({ message: 'Product and images deleted' });
+    return NextResponse.json({ message: 'Product and associated images deleted' });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
-
-

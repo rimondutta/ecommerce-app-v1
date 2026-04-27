@@ -30,8 +30,28 @@ export async function uploadImage(
 }
 
 /**
- * Deletes an image from Cloudinary by its public ID.
+ * Deletes an image from Cloudinary by its public ID or full URL.
+ * @param identifier - public_id or Cloudinary secure_url
  */
-export async function deleteImage(publicId: string) {
+export async function deleteImage(identifier: string) {
+  let publicId = identifier;
+
+  // If it's a URL, extract the public_id
+  if (identifier.startsWith('http')) {
+    // Example: https://res.cloudinary.com/demo/image/upload/v12345678/products/sample.jpg
+    // We need "products/sample"
+    const parts = identifier.split('/');
+    const lastPart = parts.pop() || ""; // sample.jpg
+    const folderPart = parts.pop() || ""; // products
+    const fileName = lastPart.split('.')[0]; // sample
+    
+    if (folderPart !== 'upload' && folderPart !== 'image') {
+      publicId = `${folderPart}/${fileName}`;
+    } else {
+      publicId = fileName;
+    }
+  }
+
+  console.log(`Deleting Cloudinary image: ${publicId}`);
   return cloudinary.uploader.destroy(publicId);
 }

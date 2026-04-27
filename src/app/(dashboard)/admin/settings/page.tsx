@@ -27,16 +27,11 @@ export default function AdminSettingsPage() {
   const [imageUrl, setImageUrl] = useState("")
   const [isUploading, setIsUploading] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
-  const fileInputRef = useRef<HTMLInputElement>(null)
-
-  // Password change state
+  const [isChangingPassword, setIsChangingPassword] = useState(false)
   const [currentPassword, setCurrentPassword] = useState("")
   const [newPassword, setNewPassword] = useState("")
-  const [confirmPassword, setConfirmPassword] = useState("")
-  const [showCurrentPw, setShowCurrentPw] = useState(false)
-  const [showNewPw, setShowNewPw] = useState(false)
-  const [changingPassword, setChangingPassword] = useState(false)
-  const [passwordMsg, setPasswordMsg] = useState<{ type: "success" | "error"; text: string } | null>(null)
+  const [passwordMessage, setPasswordMessage] = useState<{ type: "success" | "error", text: string } | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     if (session?.user) {
@@ -99,39 +94,29 @@ export default function AdminSettingsPage() {
 
   const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault()
-    setPasswordMsg(null)
+    setIsSaving(true)
+    setPasswordMessage(null)
 
-    if (newPassword.length < 6) {
-      setPasswordMsg({ type: "error", text: "New password must be at least 6 characters" })
-      return
-    }
-    if (newPassword !== confirmPassword) {
-      setPasswordMsg({ type: "error", text: "New passwords do not match" })
-      return
-    }
-
-    setChangingPassword(true)
     try {
       const res = await fetch("/api/admin/profile", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ currentPassword, newPassword }),
+        body: JSON.stringify({ currentPassword, newPassword })
       })
+
       const data = await res.json()
-
-      if (!res.ok) {
-        setPasswordMsg({ type: "error", text: data.error || "Failed to change password" })
-        return
+      if (res.ok) {
+        setPasswordMessage({ type: "success", text: "Password updated successfully" })
+        setCurrentPassword("")
+        setNewPassword("")
+        setTimeout(() => setIsChangingPassword(false), 2000)
+      } else {
+        setPasswordMessage({ type: "error", text: data.error || "Failed to update password" })
       }
-
-      setPasswordMsg({ type: "success", text: "Password changed successfully!" })
-      setCurrentPassword("")
-      setNewPassword("")
-      setConfirmPassword("")
-    } catch {
-      setPasswordMsg({ type: "error", text: "Network error. Please try again." })
+    } catch (err) {
+      setPasswordMessage({ type: "error", text: "Error updating password" })
     } finally {
-      setChangingPassword(false)
+      setIsSaving(false)
     }
   }
 
@@ -169,7 +154,7 @@ export default function AdminSettingsPage() {
   ]
 
   return (
-    <div className="max-w-[1000px] mx-auto space-y-8">
+    <div className="max-w-[1000px] mx-auto space-y-8 pb-20">
       {/* Header */}
       <div>
         <h1 className="text-[20px] font-bold text-[#202223]">Settings</h1>
@@ -295,101 +280,77 @@ export default function AdminSettingsPage() {
         )}
       </div>
 
-      {/* Change Password */}
-      <div className="bg-white rounded-lg border border-[#d2d2d2] shadow-sm p-6">
-        <div className="flex items-center gap-3 mb-4 border-b pb-4">
-          <div className="w-10 h-10 bg-[#f6f6f7] rounded-md flex items-center justify-center border border-[#d2d2d2]">
-            <KeyRound className="text-[#008060]" size={20} />
+      {/* Security & Password */}
+      <div className="bg-white rounded-lg border border-[#d2d2d2] shadow-sm overflow-hidden">
+        <div className="p-6 border-b border-[#d2d2d2] flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Lock className="text-[#008060]" size={20} />
+            <h2 className="text-[16px] font-bold text-[#202223]">Security</h2>
           </div>
-          <div>
-            <h2 className="text-[16px] font-bold text-[#202223]">Change Password</h2>
-            <p className="text-[13px] text-[#616161]">Update your login password</p>
-          </div>
+          {!isChangingPassword && (
+            <button 
+              onClick={() => setIsChangingPassword(true)}
+              className="text-[13px] font-medium text-[#008060] hover:underline"
+            >
+              Change password
+            </button>
+          )}
         </div>
 
-        {passwordMsg && (
-          <div className={`mb-4 p-3 rounded-md text-sm font-medium ${
-            passwordMsg.type === "success"
-              ? "bg-green-50 text-green-700 border border-green-200"
-              : "bg-red-50 text-red-700 border border-red-200"
-          }`}>
-            {passwordMsg.text}
+        {isChangingPassword && (
+          <div className="p-6 bg-gray-50/50">
+            <form onSubmit={handleChangePassword} className="space-y-4 max-w-md">
+              {passwordMessage && (
+                <div className={`p-3 text-xs font-bold uppercase border-2 ${
+                  passwordMessage.type === "success" ? "bg-green-50 border-green-500 text-green-700" : "bg-red-50 border-red-500 text-red-700"
+                }`}>
+                  {passwordMessage.text}
+                </div>
+              )}
+              <div>
+                <label className="block text-[11px] font-black uppercase tracking-widest text-gray-500 mb-1">Current Password</label>
+                <input 
+                  type="password" 
+                  required
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                  className="w-full px-3 py-2 border-2 border-black focus:outline-none focus:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all"
+                />
+              </div>
+              <div>
+                <label className="block text-[11px] font-black uppercase tracking-widest text-gray-500 mb-1">New Password</label>
+                <input 
+                  type="password" 
+                  required
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  className="w-full px-3 py-2 border-2 border-black focus:outline-none focus:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all"
+                />
+              </div>
+              <div className="flex items-center gap-3 pt-2">
+                <button 
+                  type="submit"
+                  disabled={isSaving}
+                  className="bg-black text-white px-6 py-2 text-[11px] font-black uppercase tracking-widest border-2 border-black hover:bg-white hover:text-black transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-1 active:translate-y-1"
+                >
+                  {isSaving ? "Updating..." : "Update Password"}
+                </button>
+                <button 
+                  type="button"
+                  onClick={() => {
+                    setIsChangingPassword(false);
+                    setPasswordMessage(null);
+                    setCurrentPassword("");
+                    setNewPassword("");
+                  }}
+                  className="text-[11px] font-black uppercase tracking-widest text-gray-500 hover:text-black transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
           </div>
         )}
-
-        <form onSubmit={handleChangePassword} className="space-y-4 max-w-md">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Current Password</label>
-            <div className="relative">
-              <input
-                type={showCurrentPw ? "text" : "password"}
-                value={currentPassword}
-                onChange={(e) => setCurrentPassword(e.target.value)}
-                required
-                className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#008060]/20 focus:border-[#008060]"
-                placeholder="Enter current password"
-              />
-              <button
-                type="button"
-                onClick={() => setShowCurrentPw(!showCurrentPw)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-              >
-                {showCurrentPw ? <EyeOff size={16} /> : <Eye size={16} />}
-              </button>
-            </div>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">New Password</label>
-            <div className="relative">
-              <input
-                type={showNewPw ? "text" : "password"}
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                required
-                minLength={6}
-                className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#008060]/20 focus:border-[#008060]"
-                placeholder="Enter new password (min 6 chars)"
-              />
-              <button
-                type="button"
-                onClick={() => setShowNewPw(!showNewPw)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-              >
-                {showNewPw ? <EyeOff size={16} /> : <Eye size={16} />}
-              </button>
-            </div>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Confirm New Password</label>
-            <input
-              type="password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              required
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#008060]/20 focus:border-[#008060] ${
-                confirmPassword && confirmPassword !== newPassword
-                  ? "border-red-400"
-                  : "border-gray-300"
-              }`}
-              placeholder="Confirm new password"
-            />
-            {confirmPassword && confirmPassword !== newPassword && (
-              <p className="text-xs text-red-500 mt-1">Passwords do not match</p>
-            )}
-          </div>
-          <button
-            type="submit"
-            disabled={changingPassword || !currentPassword || !newPassword || !confirmPassword}
-            className="bg-[#008060] hover:bg-[#006e52] disabled:opacity-50 disabled:cursor-not-allowed text-white px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2"
-          >
-            {changingPassword ? (
-              <Loader2 size={16} className="animate-spin" />
-            ) : (
-              <Lock size={16} />
-            )}
-            {changingPassword ? "Updating..." : "Update Password"}
-          </button>
-        </form>
       </div>
 
       {/* Settings Grid */}
@@ -414,7 +375,7 @@ export default function AdminSettingsPage() {
       </div>
 
       {/* Secondary Settings Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pb-10">
         <div className="bg-white p-5 rounded-lg border border-[#d2d2d2] shadow-sm hover:border-[#008060] transition-all cursor-pointer">
            <Globe className="text-[#616161] mb-3" size={20} />
            <h3 className="text-[14px] font-bold text-[#202223]">Languages</h3>
@@ -426,31 +387,25 @@ export default function AdminSettingsPage() {
            <p className="text-[12px] text-[#616161] mt-1">Manage your customer privacy and security settings.</p>
         </div>
         <div className="bg-white p-5 rounded-lg border border-[#d2d2d2] shadow-sm hover:border-[#008060] transition-all cursor-pointer">
-           <Tag className="text-[#616161] mb-3" size={20} />
+           <svg 
+              xmlns="http://www.w3.org/2000/svg" 
+              width={20} 
+              height={20} 
+              viewBox="0 0 24 24" 
+              fill="none" 
+              stroke="currentColor" 
+              strokeWidth="2" 
+              strokeLinecap="round" 
+              strokeLinejoin="round" 
+              className="text-[#616161] mb-3"
+            >
+              <path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l4.29-4.29c.94-.94.94-2.48 0-3.42L12 2Z" />
+              <path d="M7 7h.01" />
+            </svg>
            <h3 className="text-[14px] font-bold text-[#202223]">Gift cards</h3>
            <p className="text-[12px] text-[#616161] mt-1">Set up and manage gift cards for your store.</p>
         </div>
       </div>
     </div>
-  )
-}
-
-function Tag({ className, size }: { className?: string, size?: number }) {
-  return (
-    <svg 
-      xmlns="http://www.w3.org/2000/svg" 
-      width={size} 
-      height={size} 
-      viewBox="0 0 24 24" 
-      fill="none" 
-      stroke="currentColor" 
-      strokeWidth="2" 
-      strokeLinecap="round" 
-      strokeLinejoin="round" 
-      className={className}
-    >
-      <path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l4.29-4.29c.94-.94.94-2.48 0-3.42L12 2Z" />
-      <path d="M7 7h.01" />
-    </svg>
   )
 }
