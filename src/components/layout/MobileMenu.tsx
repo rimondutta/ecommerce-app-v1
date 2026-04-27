@@ -50,41 +50,40 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
         >
           <DialogPanel className="fixed inset-y-0 left-0 w-full sm:w-[450px] bg-white border-r-4 border-black flex flex-col shadow-[0_0_50px_rgba(0,0,0,0.3)] pt-[100px]">
             {/* Header */}
-            <div className="flex items-center justify-between px-8 py-6 border-b-2 border-black">
-              <h2 className="font-display font-black text-3xl uppercase tracking-tighter">
-                NAVIGATION
+            <div className="flex items-center justify-between px-8 py-8 border-b-2 border-black/5">
+              <h2 className="font-display font-black text-4xl uppercase tracking-tighter leading-none">
+                EXPLORE<br />
+                <span className="italic opacity-40 font-light">SYSTEM</span>
               </h2>
               <button
                 onClick={onClose}
-                className="group flex items-center gap-2 px-4 py-2 bg-black text-white border-2 border-black hover:bg-white hover:text-black transition-all transform active:scale-95 relative z-[200] pointer-events-auto"
+                className="w-12 h-12 bg-black text-white hover:bg-white hover:text-black border-2 border-black transition-all flex items-center justify-center group"
                 aria-label="Close menu"
               >
-                <span className="text-[10px] font-black uppercase tracking-widest hidden sm:block">CLOSE</span>
-                <X size={20} strokeWidth={3} className="group-hover:rotate-90 transition-transform" />
+                <X size={20} className="group-hover:rotate-90 transition-transform duration-500" />
               </button>
             </div>
 
             {/* Nav Links */}
-            <nav className="flex-1 overflow-y-auto" aria-label="Mobile navigation">
+            <nav className="flex-1 overflow-y-auto bg-white" aria-label="Mobile navigation">
               {menuItems.map((item) => (
                 <Link
                   key={item.label}
                   href={item.href}
                   onClick={onClose}
-                  className="group flex flex-col px-8 py-8 border-b-2 border-black hover:bg-black hover:text-white transition-all relative overflow-hidden"
+                  className="group flex flex-col px-8 py-10 border-b border-black/5 hover:bg-black hover:text-white transition-all relative overflow-hidden"
                 >
                   <div className="flex items-center justify-between relative z-10">
                     <div>
-                      <span className="font-display font-black text-4xl uppercase tracking-tighter italic leading-none block mb-2 group-hover:translate-x-2 transition-transform duration-300">
+                      <span className="font-display font-black text-5xl uppercase tracking-tighter leading-none block mb-3 group-hover:italic transition-all duration-300">
                         {item.label}
                       </span>
-                      <span className="text-[10px] font-bold uppercase tracking-[0.3em] opacity-60 group-hover:opacity-100 transition-opacity">
+                      <span className="text-[9px] font-black uppercase tracking-[0.4em] opacity-30 group-hover:opacity-100 transition-opacity">
                         {item.subtitle}
                       </span>
                     </div>
-                    <ArrowRight size={32} className="opacity-0 group-hover:opacity-100 -translate-x-8 group-hover:translate-x-0 transition-all duration-300" />
+                    <ArrowRight size={24} className="opacity-0 group-hover:opacity-100 -translate-x-4 group-hover:translate-x-0 transition-all duration-300" />
                   </div>
-                  {/* Decorative background number or icon could go here */}
                 </Link>
               ))}
             </nav>

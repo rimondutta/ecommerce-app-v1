@@ -85,57 +85,45 @@ export default function SearchDrawer({ isOpen, onClose }: SearchDrawerProps) {
         >
           <DialogPanel className="fixed inset-y-0 right-0 w-full sm:w-[500px] bg-white border-l-4 border-black flex flex-col shadow-[0_0_50px_rgba(0,0,0,0.3)] pt-[100px]">
             {/* Header */}
-            <div className="flex items-center justify-between px-8 py-6 border-b-2 border-black">
-              <h2 className="font-display font-black text-3xl uppercase tracking-tighter italic">
-                FIND YOUR STYLE
+            <div className="flex items-center justify-between px-8 py-8 border-b-2 border-black/5">
+              <h2 className="font-display font-black text-4xl uppercase tracking-tighter leading-none">
+                FIND YOUR<br />
+                <span className="italic opacity-40 font-light">STYLE</span>
               </h2>
               <button
                 onClick={onClose}
-                className="group flex items-center gap-2 px-4 py-2 bg-black text-white border-2 border-black hover:bg-white hover:text-black transition-all transform active:scale-95 relative z-[200] pointer-events-auto"
+                className="w-12 h-12 bg-black text-white hover:bg-white hover:text-black border-2 border-black transition-all flex items-center justify-center group"
                 aria-label="Close search"
               >
-                <span className="text-[10px] font-black uppercase tracking-widest hidden sm:block">CLOSE</span>
-                <X size={20} strokeWidth={3} className="group-hover:rotate-90 transition-transform" />
+                <X size={20} className="group-hover:rotate-90 transition-transform duration-500" />
               </button>
             </div>
 
             {/* Search Input Section */}
-            <div className="px-8 py-8 bg-gray-50 border-b-2 border-black">
+            <div className="px-8 py-10 bg-white">
               <div className="relative group">
                 <input
                   type="text"
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
-                  placeholder="WHAT ARE YOU LOOKING FOR?..."
-                  className="w-full bg-white border-4 border-black px-6 py-5 pr-24 text-sm font-bold uppercase tracking-widest placeholder:text-black/50 outline-none focus:bg-white focus:ring-4 focus:ring-black/5 transition-all"
+                  placeholder="START TYPING..."
+                  className="w-full bg-white border-b-4 border-black px-0 py-6 text-xl font-black uppercase tracking-widest placeholder:text-black/10 outline-none transition-all"
                   autoFocus
                   aria-label="Search products"
                 />
-                <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
-                  {query && (
-                    <button
-                      onClick={() => setQuery("")}
-                      className="p-2 hover:bg-black hover:text-white border-2 border-black transition-all"
-                      aria-label="Clear search"
-                    >
-                      <X size={16} strokeWidth={3} />
-                    </button>
-                  )}
-                  <div className="p-2">
-                    <SearchIcon size={24} strokeWidth={3} className="text-black" />
-                  </div>
+                <div className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center gap-2">
+                  <SearchIcon size={24} strokeWidth={2.5} className="text-black" />
                 </div>
               </div>
-
-              {/* Quick Links */}
-              <div className="mt-6">
-                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-black/60 mb-3">POPULAR SEARCHES</p>
-                <div className="flex flex-wrap gap-2">
+              
+              <div className="mt-10">
+                <p className="text-[9px] font-black uppercase tracking-[0.4em] text-black/30 mb-6">Popular Tags</p>
+                <div className="flex flex-wrap gap-3">
                   {quickLinks.map((link) => (
                     <button
                       key={link}
                       onClick={() => setQuery(link)}
-                      className="px-4 py-2 text-[10px] font-bold uppercase tracking-widest bg-white border-2 border-black hover:bg-black hover:text-white transition-all transform hover:-translate-y-0.5 active:translate-y-0"
+                      className="px-6 py-3 text-[10px] font-black uppercase tracking-widest border border-black/10 hover:border-black transition-all"
                     >
                       {link}
                     </button>

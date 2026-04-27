@@ -47,36 +47,46 @@ export default function BentoCategories() {
         </p>
       </div>
 
-      <div className="grid grid-cols-12 gap-8 md:gap-12 lg:gap-16 relative">
+      <div className="grid grid-cols-12 gap-6 md:gap-12 relative">
         {categories.map((cat, idx) => (
           <motion.div
             key={idx}
-            className={`${cat.colSpan} ${cat.height} relative group overflow-hidden rounded-[2rem] bg-black`}
+            className={`${cat.colSpan} ${cat.height} min-h-[350px] relative group overflow-hidden rounded-[1.5rem] bg-black`}
             initial={{ opacity: 0, y: 50 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-10%" }}
+            viewport={{ once: true }}
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
           >
-            <Link href={`/products?category=${cat.title}`} className="block w-full h-full" data-cursor="VIEW">
-              <motion.div
-                className="relative w-full h-full"
-                whileHover={{ scale: 1.05 }}
-                transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-              >
-                <Image
-                  src={cat.image}
-                  alt={cat.title}
-                  fill
-                  sizes="(max-width: 768px) 100vw, 50vw"
-                  className="object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-700"
-                />
-              </motion.div>
+            <Link href={`/products?category=${cat.title.toLowerCase()}`} className="block w-full h-full" data-cursor="VIEW">
+              <Image
+                src={cat.image}
+                alt={cat.title}
+                fill
+                sizes="(max-width: 768px) 100vw, 50vw"
+                className="object-cover opacity-70 group-hover:opacity-100 transition-all duration-1000 group-hover:scale-105"
+              />
               
-              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent flex flex-col justify-end p-10 md:p-16 lg:p-20">
-                <span className="font-mono text-[10px] text-white/40 uppercase tracking-[0.4em] mb-2">Category_{idx + 1}</span>
-                <h3 className="font-display font-black text-4xl md:text-5xl text-white uppercase tracking-tighter pb-2 leading-none">
-                  {cat.title}
-                </h3>
+              <div className="absolute inset-0 p-8 md:p-12 flex flex-col justify-end bg-gradient-to-t from-black/80 via-transparent to-transparent">
+                <div className="overflow-hidden">
+                  <motion.p 
+                    className="font-mono text-[9px] text-white/50 uppercase tracking-[0.4em] mb-3"
+                    initial={{ y: 20, opacity: 0 }}
+                    whileInView={{ y: 0, opacity: 1 }}
+                    transition={{ delay: 0.2 }}
+                  >
+                    Archive_{idx.toString().padStart(2, '0')}
+                  </motion.p>
+                </div>
+                <div className="overflow-hidden">
+                  <motion.h3 
+                    className="font-display font-black text-4xl md:text-6xl text-white uppercase tracking-tighter leading-none"
+                    initial={{ y: 50 }}
+                    whileInView={{ y: 0 }}
+                    transition={{ delay: 0.3, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+                  >
+                    {cat.title}
+                  </motion.h3>
+                </div>
               </div>
             </Link>
           </motion.div>
