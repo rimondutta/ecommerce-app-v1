@@ -99,12 +99,6 @@ body {
   color: #ffffff;
 }
 
-/* Hide cursor on desktop when custom cursor is active */
-@media (min-width: 1024px) {
-  *, body {
-    cursor: none !important;
-  }
-}
 
 .font-display {
   font-family: 'Barlow Condensed', sans-serif !important;

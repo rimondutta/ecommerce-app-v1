@@ -5,7 +5,6 @@ import Preloader from "@/components/ui/Preloader";
 import ScrollToTop from "@/components/ui/ScrollToTop";
 import { useSearch } from "@/components/providers/SearchProvider";
 
-import CustomCursor from "@/components/ui/CustomCursor";
 
 // Dynamically import heavy UI components to improve initial load performance
 const CartDrawer = dynamic(() => import("@/components/ui/CartDrawer"), { ssr: false });
@@ -17,7 +16,6 @@ export default function GlobalUI() {
 
   return (
     <>
-      <CustomCursor />
       <Preloader />
       <CartDrawer />
       <QuickLookDrawer />
