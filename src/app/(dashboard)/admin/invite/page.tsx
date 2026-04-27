@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { UserPlus, Trash2, Shield, ShieldCheck, Loader2, Copy, CheckCircle, AlertCircle } from "lucide-react";
+import { UserPlus, Trash2, Shield, ShieldCheck, Loader2, Copy, CheckCircle, AlertCircle, KeyRound } from "lucide-react";
 
 interface Admin {
   _id: string;
@@ -89,6 +89,35 @@ export default function InviteAdminPage() {
       fetchAdmins();
     } catch {
       setMessage({ type: "error", text: "Failed to remove admin" });
+    }
+  }
+
+  async function handleResetPassword(id: string, adminName: string) {
+    if (!confirm(`Reset password for ${adminName}? They will receive a new temporary password via email.`)) return;
+
+    setMessage(null);
+
+    try {
+      const res = await fetch("/api/admin/invite", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: id }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setMessage({ type: "error", text: data.error || "Failed to reset password" });
+        return;
+      }
+
+      setMessage({
+        type: "success",
+        text: data.message,
+        tempPassword: data.tempPassword,
+      });
+    } catch {
+      setMessage({ type: "error", text: "Network error. Please try again." });
     }
   }
 
@@ -260,6 +289,13 @@ export default function InviteAdminPage() {
                   <span className="text-xs text-gray-400">
                     {new Date(admin.createdAt).toLocaleDateString()}
                   </span>
+                  <button
+                    onClick={() => handleResetPassword(admin._id, admin.name)}
+                    className="p-2 text-gray-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors"
+                    title="Reset password"
+                  >
+                    <KeyRound size={16} />
+                  </button>
                   <button
                     onClick={() => handleRemove(admin._id, admin.name)}
                     className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
