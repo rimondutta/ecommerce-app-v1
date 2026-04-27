@@ -32,7 +32,7 @@ export default async function Home() {
       {/* HERO */}
       <ModernHero />
 
-      <div className="relative z-10 bg-[#f0ece5] rounded-t-[40px] overflow-hidden shadow-[0_-20px_50px_rgba(0,0,0,0.1)]">
+      <div className="relative z-10 bg-[#f0ece5] rounded-none overflow-hidden shadow-[0_-20px_50px_rgba(0,0,0,0.1)]">
         {/* FAST MARQUEE 1 */}
         <div className="bg-black text-white py-8 overflow-hidden pointer-events-none relative z-20 border-y border-white/10">
           <div className="flex animate-marquee whitespace-nowrap">

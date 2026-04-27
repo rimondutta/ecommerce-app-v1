@@ -93,12 +93,12 @@ export default function EditorialHero() {
           initial={{ opacity: 1 }}
         >
           <motion.div 
-            className="flex items-center gap-4 text-white/50 font-mono text-[10px] md:text-xs uppercase tracking-[0.6em] bg-white/5 px-4 py-2 border border-white/10 rounded-full backdrop-blur-md"
+            className="flex items-center gap-4 text-white/50 font-mono text-[10px] md:text-xs uppercase tracking-[0.6em] bg-white/5 px-4 py-2 border border-white/10 backdrop-blur-md"
             initial={{ y: 50, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
           >
-            <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+            <div className="w-1.5 h-1.5 bg-white animate-pulse" />
             ESTABLISHED MMXXVI // ARCHIVE 01
           </motion.div>
         </motion.div>
@@ -144,7 +144,7 @@ export default function EditorialHero() {
         >
            <Link 
              href="/products" 
-             className="relative overflow-hidden group bg-transparent border border-white/30 px-14 py-6 flex items-center justify-center transition-all hover:border-white hover:shadow-[0_0_30px_rgba(255,255,255,0.2)] active:scale-95 rounded-sm backdrop-blur-sm"
+             className="relative overflow-hidden group bg-transparent border border-white/30 px-14 py-6 flex items-center justify-center transition-all hover:border-white hover:shadow-[0_0_30px_rgba(255,255,255,0.2)] active:scale-95 backdrop-blur-sm"
              data-cursor="CLICK"
             >
               <span className="relative z-10 font-black text-[11px] text-white uppercase tracking-[0.3em] group-hover:mix-blend-difference transition-all duration-300">
@@ -171,14 +171,14 @@ export default function EditorialHero() {
         transition={{ delay: 2, duration: 1 }}
         style={{ opacity }}
       >
-        <div className="flex items-center gap-4 bg-white/5 backdrop-blur-md px-4 py-2 border border-white/10 rounded-full">
+        <div className="flex items-center gap-4 bg-white/5 backdrop-blur-md px-4 py-2 border border-white/10">
           <span className="font-mono text-[9px] text-white/50 uppercase tracking-[0.4em]">
               SYS: OPERATIONAL
           </span>
           <div className="flex gap-1.5">
-            <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.8)]" />
-            <div className="w-1.5 h-1.5 bg-white/20 rounded-full" />
-            <div className="w-1.5 h-1.5 bg-white/20 rounded-full" />
+            <div className="w-1.5 h-1.5 bg-green-500 animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.8)]" />
+            <div className="w-1.5 h-1.5 bg-white/20" />
+            <div className="w-1.5 h-1.5 bg-white/20" />
           </div>
         </div>
         <div className="w-px h-12 bg-gradient-to-b from-white/30 to-transparent mr-6 animate-bounce" />
