@@ -57,16 +57,17 @@ export default function ProductCard({ product }: ProductCardProps) {
         </div>
 
         {/* Quick Actions Panel */}
-        <div className="absolute inset-x-0 bottom-0 p-6 flex flex-col gap-3 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 ease-out z-20">
+        <div className="absolute inset-x-0 bottom-0 p-4 lg:p-6 flex flex-col gap-2 lg:gap-3 lg:translate-y-4 lg:opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 ease-out z-20">
           <button 
             onClick={(e) => {
               e.preventDefault();
               openQuickLook(product);
             }}
-            className="w-full h-14 bg-white text-black text-[10px] font-black uppercase tracking-[0.2em] flex items-center justify-center gap-3 hover:bg-neutral-100 transition-all shadow-xl"
+            className="w-full h-12 lg:h-14 bg-white text-black text-[9px] lg:text-[10px] font-black uppercase tracking-[0.2em] flex items-center justify-center gap-2 lg:gap-3 hover:bg-neutral-100 transition-all shadow-xl"
             data-cursor="LOOK"
           >
-            <Eye size={16} />
+            <Eye size={14} className="lg:hidden" />
+            <Eye size={16} className="hidden lg:block" />
             Quick Look
           </button>
           <button 
@@ -88,10 +89,11 @@ export default function ProductCard({ product }: ProductCardProps) {
               });
               openCart();
             }}
-            className="w-full h-14 bg-black text-white text-[10px] font-black uppercase tracking-[0.2em] flex items-center justify-center gap-3 hover:bg-neutral-800 transition-all shadow-xl"
+            className="w-full h-12 lg:h-14 bg-black text-white text-[9px] lg:text-[10px] font-black uppercase tracking-[0.2em] flex items-center justify-center gap-2 lg:gap-3 hover:bg-neutral-800 transition-all shadow-xl"
             data-cursor="ADD"
           >
-            <ShoppingBag size={16} />
+            <ShoppingBag size={14} className="lg:hidden" />
+            <ShoppingBag size={16} className="hidden lg:block" />
             {product.colors?.length > 0 || product.sizes?.length > 0 ? "Select Options" : "Quick Add"}
           </button>
         </div>
@@ -99,7 +101,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         {/* Wishlist Button - Absolute Top Right */}
         <button
           onClick={(e) => { e.preventDefault(); toggleItem(product._id || product.id.toString()); }}
-          className={`absolute top-6 right-6 z-30 transition-all duration-300 ${hovered ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4'}`}
+          className={`absolute top-4 right-4 lg:top-6 lg:right-6 z-30 transition-all duration-300 lg:translate-x-4 lg:opacity-0 group-hover:translate-x-0 group-hover:opacity-100`}
           data-cursor={isWishlisted(product._id || product.id.toString()) ? "SAVED" : "SAVE"}
         >
           <Heart 

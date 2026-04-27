@@ -73,21 +73,22 @@ export default function QuickLookDrawer() {
             leaveFrom="scale-100 opacity-100 translate-y-0"
             leaveTo="scale-95 opacity-0 translate-y-4"
           >
-            <DialogPanel className="relative w-full max-w-6xl max-h-[96vh] bg-white rounded-none border-4 border-black shadow-[16px_16px_0px_0px_rgba(0,0,0,1)] overflow-hidden flex flex-col lg:flex-row">
+            <DialogPanel className="relative w-full max-w-6xl h-full lg:h-auto max-h-[100vh] lg:max-h-[96vh] bg-white rounded-none border-0 lg:border-4 border-black shadow-none lg:shadow-[16px_16px_0px_0px_rgba(0,0,0,1)] overflow-y-auto lg:overflow-hidden flex flex-col lg:flex-row">
 
               {/* Close Button - Technical Style */}
               <button
                 onClick={handleClose}
-                className="absolute top-6 right-6 z-50 w-12 h-12 bg-white border-4 border-black hover:bg-black text-black hover:text-white flex items-center justify-center transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px]"
+                className="fixed lg:absolute top-4 right-4 lg:top-6 lg:right-6 z-[60] w-10 h-10 lg:w-12 lg:h-12 bg-white border-4 border-black hover:bg-black text-black hover:text-white flex items-center justify-center transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px]"
                 aria-label="Close"
               >
-                <X size={24} strokeWidth={3} />
+                <X size={20} strokeWidth={3} className="lg:hidden" />
+                <X size={24} strokeWidth={3} className="hidden lg:block" />
               </button>
 
               {/* LEFT — Image Gallery */}
-              <div className="relative w-full lg:w-[60%] bg-[#f8f8f8] flex flex-col border-r border-neutral-100">
+              <div className="relative w-full lg:w-[60%] bg-[#f8f8f8] flex flex-col border-b lg:border-b-0 lg:border-r border-black/10">
                 {/* Main Image Container */}
-                <div className="relative flex-1 min-h-[400px] lg:min-h-0 overflow-hidden group">
+                <div className="relative flex-1 min-h-[350px] md:min-h-[500px] lg:min-h-0 aspect-[4/5] lg:aspect-auto overflow-hidden group">
                   <AnimatePresence mode="wait">
                     <motion.div
                       key={activeImageIndex}
@@ -109,10 +110,10 @@ export default function QuickLookDrawer() {
                   </AnimatePresence>
 
                   {/* Brutalist Badges */}
-                  <div className="absolute top-8 left-8 flex flex-col gap-3">
-                    <div className="bg-white border-2 border-black px-4 py-1 inline-flex items-center gap-2 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-                      <div className="w-2 h-2 bg-black animate-pulse" />
-                      <span className="text-[11px] font-black uppercase tracking-[0.2em] text-black">New Release</span>
+                  <div className="absolute top-4 left-4 lg:top-8 lg:left-8 flex flex-col gap-2 lg:gap-3">
+                    <div className="bg-white border-2 border-black px-2 lg:px-4 py-1 inline-flex items-center gap-2 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] lg:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                      <div className="w-1.5 h-1.5 lg:w-2 lg:h-2 bg-black animate-pulse" />
+                      <span className="text-[9px] lg:text-[11px] font-black uppercase tracking-[0.2em] text-black">New Release</span>
                     </div>
                     {images.length > 1 && (
                       <div className="bg-black text-white px-3 py-1 inline-flex w-fit shadow-[4px_4px_0px_0px_rgba(255,255,255,0.2)]">
@@ -124,12 +125,17 @@ export default function QuickLookDrawer() {
                   {/* Floating Action: Wishlist */}
                   <button
                     onClick={() => toggleItem(product._id || product.id)}
-                    className={`absolute top-8 right-24 z-40 w-12 h-12 border-4 border-black flex items-center justify-center transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-1 active:translate-y-1 ${wishlisted ? 'bg-red-500' : 'bg-white hover:bg-neutral-50'}`}
+                    className={`absolute top-4 right-16 lg:top-8 lg:right-24 z-40 w-10 h-10 lg:w-12 lg:h-12 border-4 border-black flex items-center justify-center transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-1 active:translate-y-1 ${wishlisted ? 'bg-red-500' : 'bg-white hover:bg-neutral-50'}`}
                   >
+                    <Heart
+                      size={18}
+                      strokeWidth={3}
+                      className={wishlisted ? 'text-white fill-white' : 'text-black lg:hidden'}
+                    />
                     <Heart
                       size={20}
                       strokeWidth={3}
-                      className={wishlisted ? 'text-white fill-white' : 'text-black'}
+                      className={wishlisted ? 'text-white fill-white' : 'text-black hidden lg:block'}
                     />
                   </button>
                 </div>
@@ -149,7 +155,7 @@ export default function QuickLookDrawer() {
 
               {/* RIGHT — Product Details & Interaction */}
               <div className="w-full lg:w-[40%] flex flex-col bg-white">
-                <div className="flex-1 overflow-y-auto no-scrollbar px-8 lg:px-12 py-12 lg:py-16 space-y-10">
+                <div className="flex-1 lg:overflow-y-auto no-scrollbar px-6 lg:px-12 py-8 lg:py-16 space-y-8 lg:space-y-10">
 
                   {/* Header: Identity & Specs */}
                   <div className="space-y-6">
@@ -161,7 +167,7 @@ export default function QuickLookDrawer() {
                     </div>
 
                     <div className="space-y-2">
-                      <h2 className="text-4xl lg:text-5xl font-black uppercase tracking-tight leading-[0.85] text-black">
+                      <h2 className="text-2xl md:text-3xl lg:text-5xl font-black uppercase tracking-tight leading-[0.9] lg:leading-[0.85] text-black">
                         {product.title}
                       </h2>
                       <div className="flex items-center gap-6 pt-2">
@@ -262,8 +268,8 @@ export default function QuickLookDrawer() {
                 </div>
 
                 {/* Footer Actions — Impactful & Minimal */}
-                <div className="p-8 lg:p-10 bg-white border-t border-neutral-100">
-                  <div className="flex flex-col gap-6">
+                <div className="sticky bottom-0 lg:static p-6 lg:p-10 bg-white border-t border-neutral-100 z-50">
+                  <div className="flex flex-col gap-4 lg:gap-6">
                     <button
                       onClick={() => {
                         if ((colors.length > 0 && !selectedColor) || (sizes.length > 0 && !selectedSize)) return;
@@ -281,7 +287,7 @@ export default function QuickLookDrawer() {
                         openCart();
                       }}
                       disabled={(colors.length > 0 && !selectedColor) || (sizes.length > 0 && !selectedSize)}
-                      className="w-full h-20 bg-black text-white text-[14px] font-black uppercase tracking-[0.3em] hover:bg-neutral-800 transition-all flex items-center justify-between px-10 group disabled:bg-neutral-200 disabled:text-neutral-500 disabled:cursor-not-allowed shadow-[8px_8px_0px_0px_rgba(0,0,0,0.2)] hover:shadow-none hover:translate-x-1 hover:translate-y-1"
+                      className="w-full h-16 lg:h-20 bg-black text-white text-[12px] lg:text-[14px] font-black uppercase tracking-[0.2em] lg:tracking-[0.3em] hover:bg-neutral-800 transition-all flex items-center justify-between px-6 lg:px-10 group disabled:bg-neutral-200 disabled:text-neutral-500 disabled:cursor-not-allowed shadow-[6px_6px_0px_0px_rgba(0,0,0,0.2)] lg:shadow-[8px_8px_0px_0px_rgba(0,0,0,0.2)] hover:shadow-none hover:translate-x-1 hover:translate-y-1"
                     >
                       <span className="flex items-center gap-4">
                         <ShoppingBag size={20} strokeWidth={3} />
