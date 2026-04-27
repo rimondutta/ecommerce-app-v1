@@ -128,6 +128,34 @@ export default function ProductForm({ initialData, categories, onSubmit, loading
     }
   };
 
+  const handleRemoveImage = async () => {
+    if (!formData.imageUrl) return;
+    
+    // Only delete from Cloudinary if it's actually a cloudinary URL
+    if (formData.imageUrl.includes("cloudinary.com")) {
+      setUploadingImage(true);
+      try {
+        const res = await fetch("/api/admin/upload", {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ url: formData.imageUrl }),
+        });
+        
+        if (!res.ok) {
+          const data = await res.json();
+          console.error("Cloudinary delete failed:", data.error);
+          // Still remove it from the form even if delete fails on server
+        }
+      } catch (err) {
+        console.error("Cloudinary delete network error:", err);
+      } finally {
+        setUploadingImage(false);
+      }
+    }
+    
+    setFormData(prev => ({ ...prev, imageUrl: "" }));
+  };
+
   const handleSubmitInternal = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
@@ -254,10 +282,12 @@ export default function ProductForm({ initialData, categories, onSubmit, loading
               <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                 <button
                   type="button"
-                  onClick={() => setFormData(prev => ({ ...prev, imageUrl: "" }))}
-                  className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 flex items-center gap-2 font-bold uppercase tracking-widest text-xs transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-x-1 active:translate-y-1 active:shadow-none border-2 border-black"
+                  disabled={uploadingImage}
+                  onClick={handleRemoveImage}
+                  className="bg-red-500 hover:bg-red-600 disabled:bg-gray-500 text-white px-4 py-2 flex items-center gap-2 font-bold uppercase tracking-widest text-xs transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-x-1 active:translate-y-1 active:shadow-none border-2 border-black"
                 >
-                  <Trash size={16} /> Delete Image
+                  {uploadingImage ? <Loader2 size={16} className="animate-spin" /> : <Trash size={16} />}
+                  {uploadingImage ? "Deleting..." : "Delete Image"}
                 </button>
               </div>
             </div>

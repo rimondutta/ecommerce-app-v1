@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import { uploadImage } from '@/lib/cloudinary';
+import { uploadImage, deleteImage } from '@/lib/cloudinary';
 
 export async function POST(req: Request) {
   try {
@@ -30,6 +30,33 @@ export async function POST(req: Request) {
     return NextResponse.json({ url: secureUrl }, { status: 200 });
   } catch (error: any) {
     console.error("Cloudinary upload route error:", error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
+
+export async function DELETE(req: Request) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session || !['admin', 'manager'].includes((session.user as any).role)) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { url } = await req.json();
+
+    if (!url) {
+      return NextResponse.json({ error: 'Image URL required' }, { status: 400 });
+    }
+
+    // Only allow deleting cloudinary images
+    if (!url.includes('cloudinary.com')) {
+      return NextResponse.json({ error: 'Only Cloudinary images can be deleted' }, { status: 400 });
+    }
+
+    await deleteImage(url);
+
+    return NextResponse.json({ success: true, message: 'Image deleted from Cloudinary' });
+  } catch (error: any) {
+    console.error("Cloudinary delete route error:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

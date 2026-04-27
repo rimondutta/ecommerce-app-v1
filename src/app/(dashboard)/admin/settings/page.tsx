@@ -46,6 +46,15 @@ export default function AdminSettingsPage() {
 
     setIsUploading(true)
     try {
+      // If there's an existing cloudinary image, delete it first
+      if (imageUrl && imageUrl.includes('cloudinary.com')) {
+        await fetch("/api/admin/upload", {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ url: imageUrl })
+        });
+      }
+
       const formData = new FormData()
       formData.append("file", file)
       
@@ -66,6 +75,27 @@ export default function AdminSettingsPage() {
     } finally {
       setIsUploading(false)
     }
+  }
+
+  const handleRemoveAvatar = async () => {
+    if (!imageUrl) return;
+
+    if (imageUrl.includes('cloudinary.com')) {
+      setIsUploading(true);
+      try {
+        await fetch("/api/admin/upload", {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ url: imageUrl })
+        });
+      } catch (err) {
+        console.error("Failed to delete avatar from Cloudinary:", err);
+      } finally {
+        setIsUploading(false);
+      }
+    }
+
+    setImageUrl("");
   }
 
   const handleSaveProfile = async () => {
@@ -206,13 +236,31 @@ export default function AdminSettingsPage() {
                   accept="image/*" 
                   className="hidden" 
                 />
-                <button 
-                  type="button" 
-                  onClick={() => fileInputRef.current?.click()}
-                  className="text-xs font-medium text-[#005bd3] hover:underline"
-                >
-                  Change Avatar
-                </button>
+                <input 
+                  type="file" 
+                  ref={fileInputRef} 
+                  onChange={handleImageUpload} 
+                  accept="image/*" 
+                  className="hidden" 
+                />
+                <div className="flex gap-4">
+                  <button 
+                    type="button" 
+                    onClick={() => fileInputRef.current?.click()}
+                    className="text-xs font-medium text-[#005bd3] hover:underline"
+                  >
+                    Change Avatar
+                  </button>
+                  {imageUrl && (
+                    <button 
+                      type="button" 
+                      onClick={handleRemoveAvatar}
+                      className="text-xs font-medium text-red-600 hover:underline"
+                    >
+                      Remove
+                    </button>
+                  )}
+                </div>
               </div>
 
               {/* Name and Details Input */}
