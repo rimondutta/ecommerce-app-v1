@@ -34,7 +34,7 @@ export default async function Home() {
 
       <div className="relative z-10 bg-[#f0ece5] rounded-t-[40px] overflow-hidden shadow-[0_-20px_50px_rgba(0,0,0,0.1)]">
         {/* FAST MARQUEE 1 */}
-        <div className="bg-black text-white py-8 overflow-hidden pointer-events-none sticky top-[140px] z-[5] backdrop-blur-xl">
+        <div className="bg-black text-white py-8 overflow-hidden pointer-events-none sticky top-[140px] z-40 backdrop-blur-xl border-y border-white/10">
           <div className="flex animate-marquee whitespace-nowrap">
             {Array(10).fill(0).map((_, i) => (
               <span key={i} className="font-display font-black text-3xl md:text-5xl uppercase tracking-tighter mx-8 opacity-20 hover:opacity-100 transition-opacity">

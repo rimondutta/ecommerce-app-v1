@@ -37,7 +37,7 @@ const categories = [
 
 export default function BentoCategories() {
   return (
-    <section className="relative py-32 px-4 md:px-16 max-w-[1800px] mx-auto bg-[#f0ece5]">
+    <section className="relative pt-40 pb-32 px-4 md:px-16 max-w-[1800px] mx-auto bg-[#f0ece5]">
       <div className="mb-24 flex flex-col md:flex-row justify-between items-end gap-10">
         <h2 className="font-display font-black text-6xl md:text-8xl uppercase tracking-tighter leading-[0.9]">
           Explore <br/><span className="italic text-black/60">Silhouettes</span>
