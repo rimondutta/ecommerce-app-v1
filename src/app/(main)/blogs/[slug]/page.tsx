@@ -6,8 +6,6 @@ import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { Calendar, Clock, User, ArrowLeft, Share2 } from 'lucide-react';
 import Link from 'next/link';
-import Header from '@/components/layout/Header';
-import Footer from '@/components/layout/Footer';
 
 async function getBlogPost(slug: string) {
   await dbConnect();
@@ -38,9 +36,8 @@ const SingleBlogPage = async ({
     <div className="min-h-screen bg-[#f0ece5] relative z-10">
       <div className="absolute inset-0 pointer-events-none opacity-[0.03]" 
              style={{ backgroundImage: 'linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
-      <Header />
       
-      <main className="pt-24 pb-24 relative z-10">
+      <main className="pt-8 pb-24 relative z-10">
         {/* Progress Bar Mockup */}
         <div className="fixed top-0 left-0 w-1/3 h-1 bg-black z-[100]"></div>
 
@@ -147,8 +144,6 @@ const SingleBlogPage = async ({
           </div>
         </section>
       </main>
-
-      <Footer />
     </div>
   );
 };

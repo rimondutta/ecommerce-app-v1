@@ -1,6 +1,4 @@
 import React from 'react';
-import Header from '@/components/layout/Header';
-import Footer from '@/components/layout/Footer';
 import { ArrowRight, Mail, Phone, MapPin } from 'lucide-react';
 
 export const metadata = {
@@ -13,9 +11,8 @@ export default function ContactPage() {
     <div className="min-h-screen bg-[#f0ece5] relative z-10 flex flex-col">
       <div className="absolute inset-0 pointer-events-none opacity-[0.03]" 
              style={{ backgroundImage: 'linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
-      <Header />
       
-      <main className="flex-grow pt-32 pb-24 px-6 mt-16 relative z-10">
+      <main className="flex-grow pt-32 pb-24 px-6 relative z-10">
         <div className="max-w-[1400px] mx-auto relative">
           
           {/* Header */}
@@ -146,8 +143,6 @@ export default function ContactPage() {
           </div>
         </div>
       </main>
-
-      <Footer />
     </div>
   );
 }

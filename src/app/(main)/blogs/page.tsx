@@ -4,8 +4,6 @@ import BlogPost from '@/models/BlogPost';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Clock, ArrowRight } from 'lucide-react';
-import Header from '@/components/layout/Header';
-import Footer from '@/components/layout/Footer';
 
 async function getBlogs() {
   await dbConnect();
@@ -19,9 +17,8 @@ const BlogListingPage = async () => {
 
   return (
     <div className="min-h-screen bg-[#f0ece5]">
-      <Header />
       
-      <main className="pt-32 pb-24 px-6 mt-16 relative z-10">
+      <main className="pt-24 pb-24 px-6 relative z-10">
         <div className="absolute inset-0 pointer-events-none opacity-[0.03]" 
              style={{ backgroundImage: 'linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
              
@@ -103,8 +100,6 @@ const BlogListingPage = async () => {
           </div>
         </div>
       </main>
-
-      <Footer />
     </div>
   );
 };
