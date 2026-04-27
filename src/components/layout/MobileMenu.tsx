@@ -8,8 +8,10 @@ import Link from "next/link";
 const menuItems = [
   { label: "HOME", href: "/", subtitle: "THE BEGINNING" },
   { label: "SHOP", href: "/products", subtitle: "ALL COLLECTIONS" },
-  { label: "CONTACT US", href: "#contact", subtitle: "GET IN TOUCH" },
   { label: "BLOG", href: "/blogs", subtitle: "THE JOURNAL" },
+  { label: "ACCOUNT", href: "/profile", subtitle: "YOUR BUREAU" },
+  { label: "WISHLIST", href: "/wishlist", subtitle: "ARCHIVED FAVORITES" },
+  { label: "CONTACT US", href: "#contact", subtitle: "GET IN TOUCH" },
 ];
 
 interface MobileMenuProps {

@@ -19,7 +19,7 @@ export default function ProductForm({ initialData, categories, onSubmit, loading
     description: "",
     inventory: 0,
     isPublished: true,
-    imageUrl: ""
+    images: [] as { url: string, alt: string }[]
   })
   
   const [sizes, setSizes] = useState("")
@@ -40,7 +40,7 @@ export default function ProductForm({ initialData, categories, onSubmit, loading
         description: initialData.description || "",
         inventory: initialData.inventory || 0,
         isPublished: initialData.isPublished !== undefined ? initialData.isPublished : true,
-        imageUrl: initialData.images?.[0]?.url || ""
+        images: initialData.images || []
       })
       
       if (initialData.sizes) setSizes(initialData.sizes.join(", "))
@@ -68,7 +68,7 @@ export default function ProductForm({ initialData, categories, onSubmit, loading
             price: Number(formData.price) || 0,
             stock: 0,
             sku: `${formData.title.substring(0, 3).toUpperCase()}-${color.substring(0, 3).toUpperCase()}-${size}`,
-            image: formData.imageUrl || ""
+            image: formData.images?.[0]?.url || ""
           })
         })
       })
@@ -80,7 +80,7 @@ export default function ProductForm({ initialData, categories, onSubmit, loading
           price: Number(formData.price) || 0,
           stock: 0,
           sku: `${formData.title.substring(0, 3).toUpperCase()}-${color.substring(0, 3).toUpperCase()}`,
-          image: formData.imageUrl || ""
+          image: formData.images?.[0]?.url || ""
         })
       })
     } else if (sizeArray.length > 0) {
@@ -91,7 +91,7 @@ export default function ProductForm({ initialData, categories, onSubmit, loading
           price: Number(formData.price) || 0,
           stock: 0,
           sku: `${formData.title.substring(0, 3).toUpperCase()}-${size}`,
-          image: formData.imageUrl || ""
+          image: formData.images?.[0]?.url || ""
         })
       })
     }
@@ -100,51 +100,58 @@ export default function ProductForm({ initialData, categories, onSubmit, loading
   }
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
 
     setUploadingImage(true);
     try {
-      const formDataObj = new FormData();
-      formDataObj.append('file', file);
+      const newUrls = [...(formData.images || [])];
       
-      const res = await fetch("/api/admin/upload", {
-        method: "POST",
-        body: formDataObj,
-      });
-      
-      if (!res.ok) {
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const formDataObj = new FormData();
+        formDataObj.append('file', file);
+        
+        const res = await fetch("/api/admin/upload", {
+          method: "POST",
+          body: formDataObj,
+        });
+        
+        if (!res.ok) {
+          const data = await res.json();
+          throw new Error(data.error || `Failed to upload image ${i+1}`);
+        }
+        
         const data = await res.json();
-        throw new Error(data.error || "Failed to upload image");
+        newUrls.push({ url: data.url, alt: formData.title });
       }
       
-      const data = await res.json();
-      setFormData(prev => ({ ...prev, imageUrl: data.url }));
+      setFormData(prev => ({ ...prev, images: newUrls }));
       
     } catch (err: any) {
-      setError(err.message || "Failed to upload image");
+      setError(err.message || "Failed to upload images");
     } finally {
       setUploadingImage(false);
     }
   };
 
-  const handleRemoveImage = async () => {
-    if (!formData.imageUrl) return;
+  const handleRemoveImage = async (index: number) => {
+    const imageToDelete = formData.images[index];
+    if (!imageToDelete) return;
     
     // Only delete from Cloudinary if it's actually a cloudinary URL
-    if (formData.imageUrl.includes("cloudinary.com")) {
+    if (imageToDelete.url.includes("cloudinary.com")) {
       setUploadingImage(true);
       try {
         const res = await fetch("/api/admin/upload", {
           method: "DELETE",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ url: formData.imageUrl }),
+          body: JSON.stringify({ url: imageToDelete.url }),
         });
         
         if (!res.ok) {
           const data = await res.json();
           console.error("Cloudinary delete failed:", data.error);
-          // Still remove it from the form even if delete fails on server
         }
       } catch (err) {
         console.error("Cloudinary delete network error:", err);
@@ -153,7 +160,9 @@ export default function ProductForm({ initialData, categories, onSubmit, loading
       }
     }
     
-    setFormData(prev => ({ ...prev, imageUrl: "" }));
+    const newImages = [...formData.images];
+    newImages.splice(index, 1);
+    setFormData(prev => ({ ...prev, images: newImages }));
   };
 
   const handleSubmitInternal = async (e: React.FormEvent) => {
@@ -163,7 +172,7 @@ export default function ProductForm({ initialData, categories, onSubmit, loading
     const submissionData = {
       ...formData,
       price: Number(formData.price),
-      images: formData.imageUrl ? [{ url: formData.imageUrl, alt: formData.title }] : [],
+      images: formData.images || [],
       tags: tags.split(",").map(t => t.trim()).filter(Boolean),
       sizes: sizes.split(",").map(s => s.trim()).filter(Boolean),
       colors: colors.filter(c => c.name.trim() !== ''),
@@ -270,48 +279,45 @@ export default function ProductForm({ initialData, categories, onSubmit, loading
             ))}
           </select>
         </div>
-        <div className="space-y-2">
-          <label className="block text-xs font-bold uppercase tracking-widest">Image</label>
-          {formData.imageUrl ? (
-            <div className="relative border-2 border-black rounded-none overflow-hidden group">
-              <img 
-                src={formData.imageUrl} 
-                alt="Product preview" 
-                className="w-full h-48 object-contain bg-gray-50"
-              />
-              <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                <button
-                  type="button"
-                  disabled={uploadingImage}
-                  onClick={handleRemoveImage}
-                  className="bg-red-500 hover:bg-red-600 disabled:bg-gray-500 text-white px-4 py-2 flex items-center gap-2 font-bold uppercase tracking-widest text-xs transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-x-1 active:translate-y-1 active:shadow-none border-2 border-black"
-                >
-                  {uploadingImage ? <Loader2 size={16} className="animate-spin" /> : <Trash size={16} />}
-                  {uploadingImage ? "Deleting..." : "Delete Image"}
-                </button>
+        <div className="space-y-4">
+          <label className="block text-xs font-bold uppercase tracking-widest">Product Gallery</label>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {formData.images?.map((img: any, idx: number) => (
+              <div key={idx} className="relative border-2 border-black aspect-square overflow-hidden group bg-gray-50">
+                <img 
+                  src={img.url} 
+                  alt={`Product image ${idx + 1}`} 
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                  <button
+                    type="button"
+                    disabled={uploadingImage}
+                    onClick={() => handleRemoveImage(idx)}
+                    className="bg-red-500 hover:bg-red-600 disabled:bg-gray-500 text-white p-2 flex items-center justify-center transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-x-1 active:translate-y-1 active:shadow-none border-2 border-black"
+                    title="Delete image"
+                  >
+                    {uploadingImage ? <Loader2 size={16} className="animate-spin" /> : <Trash size={16} />}
+                  </button>
+                </div>
               </div>
+            ))}
+            
+            <div className="relative border-2 border-dashed border-black/30 aspect-square flex flex-col items-center justify-center gap-2 hover:border-black hover:bg-gray-50 transition-all cursor-pointer group">
+              {uploadingImage ? (
+                <Loader2 className="w-8 h-8 animate-spin text-black" />
+              ) : (
+                <label className="w-full h-full flex flex-col items-center justify-center cursor-pointer">
+                  <Plus size={24} className="group-hover:scale-110 transition-transform" />
+                  <span className="text-[10px] font-black uppercase tracking-widest mt-2">Add More</span>
+                  <input type="file" multiple className="sr-only" accept="image/*" onChange={handleImageUpload} disabled={uploadingImage} />
+                </label>
+              )}
             </div>
-          ) : (
-            <div className="flex gap-2 items-stretch h-[52px]">
-              <input 
-                type="url" 
-                placeholder="https://..."
-                value={formData.imageUrl}
-                onChange={(e) => setFormData(prev => ({...prev, imageUrl: e.target.value}))}
-                className="w-full border-2 border-black px-3 text-sm focus:outline-none focus:ring-0 focus:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-shadow"
-              />
-              <div className="relative border-2 border-black bg-gray-100 hover:bg-gray-200 transition-colors flex items-center justify-center shrink-0 w-32 cursor-pointer shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-x-1 active:translate-y-1 active:shadow-none">
-                {uploadingImage ? (
-                   <Loader2 className="w-5 h-5 animate-spin" />
-                ) : (
-                  <label className="w-full h-full flex items-center justify-center cursor-pointer text-[10px] font-black uppercase tracking-widest">
-                    Upload
-                    <input type="file" className="sr-only" accept="image/*" onChange={handleImageUpload} disabled={uploadingImage} />
-                  </label>
-                )}
-              </div>
-            </div>
-          )}
+          </div>
+          <p className="text-[10px] text-gray-500 font-mono italic">
+            You can select multiple images to upload. They will be automatically removed from Cloudinary if deleted.
+          </p>
         </div>
       </div>
 

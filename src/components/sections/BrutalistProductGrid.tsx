@@ -112,26 +112,29 @@ export default function ModernProductGrid({
               <motion.div 
                 key={product.id || idx} 
                 className={`group flex flex-col ${offsetClass}`}
-                initial={{ opacity: 0, y: 100 }}
+                initial={{ opacity: 0, y: 50 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-10%" }}
-                transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+                transition={{ duration: 1, delay: idx % 4 * 0.1, ease: [0.16, 1, 0.3, 1] }}
               >
-                <div className="relative aspect-[3/4] bg-black overflow-hidden rounded-2xl" data-cursor="VIEW">
+                <div className="relative aspect-[3/4] bg-gray-200 overflow-hidden rounded-none border border-black/5" data-cursor="VIEW">
                   <Link href={`/products/${product.slug}`} className="absolute inset-0 z-[1]">
                     <Image
                       src={(product.images[0]?.src && product.images[0].src.length > 1) ? product.images[0].src : "/placeholder.jpg"}
                       alt={product.title}
                       fill
-                      className="object-cover opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700 ease-[0.16,1,0.3,1]"
+                      className="object-cover group-hover:scale-110 transition-transform duration-1000 ease-[0.16,1,0.3,1]"
                       sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                     />
                   </Link>
                   
-                  <div className="absolute top-6 right-6 flex flex-col gap-3 opacity-0 group-hover:opacity-100 transform translate-x-4 group-hover:translate-x-0 transition-all duration-500">
+                  {/* Hover Overlay */}
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-500 z-[2] pointer-events-none" />
+
+                  <div className="absolute top-6 right-6 flex flex-col gap-3 z-[10] translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
                     <button 
                       onClick={(e) => { e.preventDefault(); toggleItem(String(product.id)); }}
-                      className={`w-12 h-12 flex items-center justify-center rounded-full transition-all backdrop-blur-md ${
+                      className={`w-12 h-12 flex items-center justify-center border border-black/10 transition-all backdrop-blur-md ${
                          isFavorited ? "bg-black text-white" : "bg-white/80 text-black hover:bg-black hover:text-white"
                       }`}
                       data-cursor="WISHLIST"
@@ -141,7 +144,6 @@ export default function ModernProductGrid({
                     <button 
                       onClick={(e) => { 
                         e.preventDefault(); 
-                        // If product has variations, navigate to product page instead of quick add
                         if (product.colors?.length > 0 || product.sizes?.length > 0) {
                           window.location.href = `/products/${product.slug}`;
                           return;
@@ -152,7 +154,7 @@ export default function ModernProductGrid({
                           size: "Default", image: (product.images[0]?.src && product.images[0].src.length > 1) ? product.images[0].src : "/placeholder.jpg"
                         });
                       }}
-                      className="w-12 h-12 flex items-center justify-center bg-white/80 backdrop-blur-md rounded-full text-black hover:bg-black hover:text-white transition-all"
+                      className="w-12 h-12 flex items-center justify-center bg-white/80 backdrop-blur-md border border-black/10 text-black hover:bg-black hover:text-white transition-all"
                       data-cursor="CART"
                     >
                       <ShoppingBag size={18} strokeWidth={1.5} />
@@ -160,28 +162,36 @@ export default function ModernProductGrid({
                   </div>
   
                   {product.badge && (
-                    <div className="absolute top-6 left-6">
-                       <span className="bg-white/90 backdrop-blur-md text-black text-[9px] font-black uppercase tracking-widest px-4 py-2 rounded-full">
+                    <div className="absolute top-6 left-6 z-[10]">
+                       <span className="bg-black text-white text-[8px] font-black uppercase tracking-[0.2em] px-4 py-2">
                          {product.badge}
                        </span>
                     </div>
                   )}
                 </div>
   
-                <div className="mt-8 space-y-2 relative">
+                <div className="mt-8 space-y-3 relative">
                   <div className="flex justify-between items-start gap-4">
-                    <h3 className="text-sm font-sans font-black uppercase tracking-tight text-black">
-                      <Link href={`/products/${product.slug}`} className="hover:opacity-60 transition-opacity">
+                    <h3 className="text-xs font-black uppercase tracking-widest text-black/80">
+                      <Link href={`/products/${product.slug}`} className="hover:text-black transition-colors">
                         {product.title}
                       </Link>
                     </h3>
-                    <span className="text-sm font-mono tracking-tighter text-black/80">৳{Math.round(product.priceNum).toLocaleString()}</span>
+                    <span className="text-sm font-black tracking-tighter text-black">৳{Math.round(product.priceNum).toLocaleString()}</span>
                   </div>
                   
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-mono text-black/60 uppercase tracking-widest">
+                  <div className="flex items-center justify-between border-t border-black/5 pt-3">
+                    <span className="text-[9px] font-mono text-black/40 uppercase tracking-[0.3em]">
                         {product.category}
                     </span>
+                    <div className="flex gap-1">
+                       {product.colors?.slice(0, 3).map((c, i) => (
+                         <div key={i} className="w-2 h-2 rounded-full border border-black/10" style={{ backgroundColor: c.hex }} />
+                       ))}
+                       {product.colors && product.colors.length > 3 && (
+                         <span className="text-[8px] font-bold text-black/40">+{product.colors.length - 3}</span>
+                       )}
+                    </div>
                   </div>
                 </div>
               </motion.div>

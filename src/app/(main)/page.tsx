@@ -9,6 +9,8 @@ import connectToDatabase from "@/lib/db";
 import Product from "@/models/Product";
 import Category from "@/models/Category";
 
+import Reveal from "@/components/ui/Reveal";
+
 export default async function Home() {
   await connectToDatabase();
   
@@ -31,41 +33,60 @@ export default async function Home() {
       <ModernHero />
 
       {/* FAST MARQUEE 1 */}
-      <div className="bg-black text-white py-8 overflow-hidden pointer-events-none sticky top-0 z-0 opacity-20">
+      <div className="bg-black text-white py-8 overflow-hidden pointer-events-none sticky top-0 z-[5] backdrop-blur-xl">
         <div className="flex animate-marquee whitespace-nowrap">
           {Array(10).fill(0).map((_, i) => (
-            <span key={i} className="font-display font-black text-3xl md:text-5xl uppercase tracking-tighter mx-8 opacity-50">
-              Flex Wear // REDEFINING CASUAL WEAR // ✳
+            <span key={i} className="font-display font-black text-3xl md:text-5xl uppercase tracking-tighter mx-8 opacity-20 hover:opacity-100 transition-opacity">
+              Flex Wear // ARCHIVAL TECHNICAL GEAR // ✳
             </span>
           ))}
         </div>
       </div>
 
-      <div className="relative z-10 bg-[#f0ece5] rounded-t-[40px]">
+      <div className="relative z-10 bg-[#f0ece5] rounded-t-[40px] -mt-12 overflow-hidden shadow-[0_-20px_50px_rgba(0,0,0,0.1)]">
         {/* CATEGORIES */}
-        <BentoCategories />
+        <Reveal width="100%" delay={0.2}>
+          <BentoCategories />
+        </Reveal>
 
         {/* TECHNICAL BLUEPRINT */}
-        <TechnicalBlueprint />
+        <Reveal width="100%" delay={0.4}>
+          <TechnicalBlueprint />
+        </Reveal>
 
         {/* SHOP THE LOOK */}
-        <ShopTheLook />
+        <Reveal width="100%" delay={0.2}>
+          <ShopTheLook />
+        </Reveal>
 
         {/* PRODUCTS */}
         <ModernProductGrid initialProducts={sanitizedProducts} categories={sanitizedCategories} />
         
-        <BrutalistBlogSection />
-        <ShopGram />
+        <Reveal width="100%">
+          <BrutalistBlogSection />
+        </Reveal>
+        
+        <Reveal width="100%">
+          <ShopGram />
+        </Reveal>
       </div>
 
       {/* FINAL CALL TO ACTION */}
       <div className="bg-black text-[#f0ece5] py-40 flex flex-col items-center justify-center text-center overflow-hidden relative" data-cursor="EXPLORE">
-         <h2 className="relative z-10 font-display font-black text-7xl md:text-[18rem] uppercase leading-none tracking-tighter mix-blend-difference mb-12">
-          DIRECT
-        </h2>
-        <h2 className="relative z-10 font-display font-black text-7xl md:text-[12rem] uppercase leading-none tracking-tighter italic text-white/50">
-          TO YOU
-        </h2>
+        <Reveal direction="down" distance={100}>
+          <h2 className="relative z-10 font-display font-black text-7xl md:text-[18rem] uppercase leading-none tracking-tighter mix-blend-difference">
+            DIRECT
+          </h2>
+        </Reveal>
+        <Reveal direction="up" distance={100} delay={0.4}>
+          <h2 className="relative z-10 font-display font-black text-7xl md:text-[12rem] uppercase leading-none tracking-tighter italic text-white/50">
+            TO YOU
+          </h2>
+        </Reveal>
+        
+        <div className="absolute inset-0 opacity-20 pointer-events-none">
+          <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] animate-pulse" />
+        </div>
       </div>
     </div>
   );

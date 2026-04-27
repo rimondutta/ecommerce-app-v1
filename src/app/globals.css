@@ -1,8 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;900&family=Barlow:wght@300;400;600&family=Outfit:wght@300;400;700;900&display=swap');
 @import "tailwindcss";
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
 
 @theme {
   --color-primary: #0A0A0A;
@@ -91,6 +88,22 @@ body {
   color: #000000;
   font-family: 'Barlow', sans-serif;
   position: relative;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom Selection */
+::selection {
+  background-color: #000000;
+  color: #ffffff;
+}
+
+/* Hide cursor on desktop when custom cursor is active */
+@media (min-width: 1024px) {
+  *, body {
+    cursor: none !important;
+  }
 }
 
 .font-display {
@@ -186,17 +199,17 @@ body {
 
 /* Scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 5px;
 }
 ::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
-  border-radius: 3px;
+  background: #000000;
+  border-radius: 0px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #999;
+  background: #333;
 }
 
 /* Preloader */
