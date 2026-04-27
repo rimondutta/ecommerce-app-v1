@@ -8,6 +8,7 @@ import GlobalUI from "@/components/layout/GlobalUI";
 import NextAuthProvider from "@/components/providers/NextAuthProvider";
 import CustomCursor from "@/components/ui/CustomCursor";
 import LenisProvider from "@/components/providers/LenisProvider";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -59,6 +60,7 @@ export default function RootLayout({
             </WishlistProvider>
           </NextAuthProvider>
         </LenisProvider>
+        <SpeedInsights />
       </body>
     </html>
   );
