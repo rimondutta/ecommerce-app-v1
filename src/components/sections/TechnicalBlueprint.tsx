@@ -39,24 +39,24 @@ export default function TechnicalBlueprint() {
       <div className="max-w-[1800px] mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-10 items-center relative z-10">
         
         {/* Abstract Philosophy Text */}
-        <div className="lg:col-span-7 z-20 relative pointer-events-none mix-blend-difference text-white">
+        <div className="lg:col-span-7 z-20 relative pointer-events-none text-black">
              <motion.div style={{ y: y1 }}>
                <h2 className="font-display font-black text-6xl md:text-[11vw] uppercase tracking-tighter leading-[0.85] pb-4 mb-4">
-                  <span className="block" style={{ WebkitTextStroke: '1px rgba(255,255,255,0.3)', color: 'transparent' }}>Form</span>
-                  <span className="block italic font-light text-white">Follows</span>
-                  <span className="block" style={{ WebkitTextStroke: '2px rgba(255,255,255,1)', color: 'transparent' }}>Feeling</span>
+                  <span className="block" style={{ WebkitTextStroke: '1px rgba(0,0,0,0.3)', color: 'transparent' }}>Form</span>
+                  <span className="block italic font-light text-black">Follows</span>
+                  <span className="block" style={{ WebkitTextStroke: '2px rgba(0,0,0,1)', color: 'transparent' }}>Feeling</span>
                </h2>
              </motion.div>
              
              <motion.div 
-               className="relative border-l border-white/20 pl-6 ml-2 md:ml-12"
+               className="relative border-l border-black/20 pl-6 ml-2 md:ml-12"
                style={{ opacity }}
              >
-                <div className="absolute -left-[3px] top-0 w-1.5 h-1.5 bg-white" />
+                <div className="absolute -left-[3px] top-0 w-1.5 h-1.5 bg-black" />
                 <p className="font-mono text-sm md:text-lg uppercase tracking-widest leading-relaxed max-w-xl opacity-90">
                   We construct garments not as mere coverings, but as architectural extensions of the self. Every thread is considered. Every silhouette is intentional. 
                 </p>
-                <div className="mt-8 flex gap-4 font-mono text-[10px] text-white/50 tracking-widest">
+                <div className="mt-8 flex gap-4 font-mono text-[10px] text-black/50 tracking-widest">
                   <span>[ SPEC_01 ]</span>
                   <span>[ PRECISION ]</span>
                   <span>[ UTILITY ]</span>
@@ -85,22 +85,22 @@ export default function TechnicalBlueprint() {
               <div className="absolute inset-0 pointer-events-none flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-700">
                 <div className="w-full h-[1px] bg-white/30 absolute top-1/2" />
                 <div className="w-[1px] h-full bg-white/30 absolute left-1/2" />
-                <div className="w-16 h-16 border border-white/50 rounded-full flex items-center justify-center backdrop-blur-sm">
-                  <div className="w-1 h-1 bg-white rounded-full" />
+                <div className="w-16 h-16 border border-white/50 flex items-center justify-center backdrop-blur-sm">
+                  <div className="w-1 h-1 bg-white" />
                 </div>
               </div>
            </motion.div>
            
            {/* Rotating Data Badge */}
            <motion.div 
-             className="absolute -bottom-12 -left-12 md:-left-24 bg-black text-white p-2 rounded-full w-40 h-40 md:w-56 md:h-56 flex flex-col items-center justify-center text-center shadow-[0_0_40px_rgba(0,0,0,0.2)] border border-white/10 z-30"
+             className="absolute -bottom-12 -left-12 md:-left-24 bg-black text-white p-2 w-40 h-40 md:w-56 md:h-56 flex flex-col items-center justify-center text-center shadow-[0_0_40px_rgba(0,0,0,0.2)] border border-white/10 z-30"
              initial={{ scale: 0 }}
              whileInView={{ scale: 1 }}
              viewport={{ once: true }}
              transition={{ type: "spring", bounce: 0.5, duration: 1.5 }}
            >
                <motion.div 
-                  className="absolute inset-2 border border-dashed border-white/20 rounded-full"
+                  className="absolute inset-2 border border-dashed border-white/20"
                   style={{ rotate }}
                />
                <div className="relative z-10 flex flex-col items-center">
