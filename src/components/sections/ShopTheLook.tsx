@@ -1,12 +1,29 @@
 "use client";
 
+import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
 import Image from "next/image";
-import { Eye, X } from "lucide-react";
+import { Plus, X } from "lucide-react";
+import { useQuickLook } from "@/store/quickLookStore";
 
-const lookbookSlides = [
+interface Hotspot {
+  x: number;
+  y: number;
+  product: {
+    name: string;
+    price: string;
+    image: string;
+  };
+}
+
+interface Look {
+  image: string;
+  hotspots: Hotspot[];
+}
+
+const looks: Look[] = [
   {
-    image: "https://picsum.photos/1200/700?random=110",
+    image: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1200&auto=format&fit=crop",
     hotspots: [
       {
         x: 30,
@@ -14,7 +31,7 @@ const lookbookSlides = [
         product: {
           name: "Ribbed Tank Top",
           price: "৳1,865",
-          image: "https://picsum.photos/100/130?random=1",
+          image: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=200&auto=format&fit=crop",
         },
       },
       {
@@ -23,30 +40,21 @@ const lookbookSlides = [
         product: {
           name: "Wide-Leg Trousers",
           price: "৳3,185",
-          image: "https://picsum.photos/100/130?random=11",
+          image: "https://images.unsplash.com/photo-1529139574466-a303027c028c?q=80&w=200&auto=format&fit=crop",
         },
       },
     ],
   },
   {
-    image: "https://picsum.photos/1200/700?random=111",
+    image: "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?q=80&w=1200&auto=format&fit=crop",
     hotspots: [
       {
         x: 45,
-        y: 35,
+        y: 30,
         product: {
-          name: "Silk Blend Blouse",
-          price: "৳4,285",
-          image: "https://picsum.photos/100/130?random=15",
-        },
-      },
-      {
-        x: 20,
-        y: 60,
-        product: {
-          name: "Denim Mini Skirt",
-          price: "৳2,195",
-          image: "https://picsum.photos/100/130?random=14",
+          name: "Oversized Blazer",
+          price: "৳7,450",
+          image: "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?q=80&w=200&auto=format&fit=crop",
         },
       },
     ],
@@ -54,90 +62,113 @@ const lookbookSlides = [
 ];
 
 export default function ShopTheLook() {
-  const [activeHotspot, setActiveHotspot] = useState<string | null>(null);
+  const [activeLook, setActiveLook] = useState(0);
+  const [hoveredHotspot, setHoveredHotspot] = useState<Hotspot | null>(null);
+  const { openQuickLook } = useQuickLook();
 
   return (
-    <section className="py-16 lg:py-20 bg-accent" aria-label="Shop the look">
-      <div className="max-w-[1440px] mx-auto px-4">
-        <div className="text-center mb-10">
-          <h2 className="text-3xl sm:text-4xl font-bold text-primary">Shop the look</h2>
-          <p className="text-sm text-gray-500 mt-2">
-            Pair your favorites together for a complete outfit
-          </p>
+    <section className="relative py-40 bg-white overflow-hidden">
+      <div className="max-w-[1800px] mx-auto px-6 md:px-12">
+        <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-10">
+          <motion.div
+            initial={{ opacity: 0, x: -30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 1 }}
+          >
+            <span className="text-[10px] font-black uppercase tracking-[0.4em] text-neutral-400">Editorial // Series 01</span>
+            <h2 className="font-display font-black text-7xl md:text-9xl uppercase tracking-tighter leading-[0.8] mt-6">
+              Shop <br />
+              <span className="text-neutral-300 italic">The Look</span>
+            </h2>
+          </motion.div>
+
+          <div className="flex gap-4">
+            {looks.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setActiveLook(i)}
+                className={`w-12 h-12 flex items-center justify-center font-black transition-all border-2 ${activeLook === i ? 'bg-black text-white border-black' : 'border-neutral-100 text-neutral-400 hover:border-black'}`}
+              >
+                0{i + 1}
+              </button>
+            ))}
+          </div>
         </div>
 
-        <div className="space-y-8">
-          {lookbookSlides.map((slide, slideIdx) => (
-            <div key={slideIdx} className="relative rounded-xl overflow-hidden">
-              <div className="aspect-[16/9] sm:aspect-[2/1] relative">
-                <Image
-                  src={slide.image}
-                  alt={`Lookbook ${slideIdx + 1}`}
-                  fill
-                  className="object-cover"
-                  sizes="100vw"
-                />
+        <div className="relative aspect-[16/9] md:aspect-[21/9] bg-neutral-100 rounded-[2rem] overflow-hidden border-2 border-black">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeLook}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.8 }}
+              className="absolute inset-0"
+            >
+              <Image
+                src={looks[activeLook].image}
+                alt="Shop the look"
+                fill
+                className="object-cover grayscale hover:grayscale-0 transition-all duration-1000"
+              />
 
-                {/* Hotspots */}
-                {slide.hotspots.map((hotspot, hotIdx) => {
-                  const key = `${slideIdx}-${hotIdx}`;
-                  const isOpen = activeHotspot === key;
-                  return (
-                    <div
-                      key={key}
-                      className="absolute z-10"
-                      style={{ left: `${hotspot.x}%`, top: `${hotspot.y}%` }}
-                    >
-                      {/* Pulsing dot */}
-                      <button
-                        onClick={() => setActiveHotspot(isOpen ? null : key)}
-                        className="relative w-8 h-8 flex items-center justify-center"
-                        aria-label={`View ${hotspot.product.name}`}
+              {/* Hotspots */}
+              {looks[activeLook].hotspots.map((spot, i) => (
+                <div
+                  key={i}
+                  className="absolute"
+                  style={{ left: `${spot.x}%`, top: `${spot.y}%` }}
+                >
+                  <motion.button
+                    onMouseEnter={() => setHoveredHotspot(spot)}
+                    onMouseLeave={() => setHoveredHotspot(null)}
+                    onClick={() => {
+                        // In a real app, you'd fetch the actual product by ID/Slug
+                        // For this component, we pass the basic info we have
+                        openQuickLook({
+                            title: spot.product.name,
+                            price: spot.product.price.replace('৳', '').replace(',', ''),
+                            images: [{ url: spot.product.image }]
+                        });
+                    }}
+                    className="relative w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-2xl border-2 border-black group"
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ delay: 0.5 + i * 0.1 }}
+                  >
+                    <Plus className="w-5 h-5 group-hover:rotate-90 transition-transform duration-500" />
+                    
+                    {/* Pulsing effect */}
+                    <div className="absolute inset-0 rounded-full border border-white animate-ping opacity-75" />
+                  </motion.button>
+
+                  {/* Tooltip */}
+                  <AnimatePresence>
+                    {hoveredHotspot === spot && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10, scale: 0.9 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: 10, scale: 0.9 }}
+                        className="absolute bottom-full left-1/2 -translate-x-1/2 mb-4 w-48 bg-black text-white p-4 shadow-2xl pointer-events-none z-50 border border-white/20"
                       >
-                        <span className="w-3 h-3 bg-white rounded-full z-10 relative shadow-md" />
-                        <span className="absolute w-6 h-6 bg-white/40 rounded-full animate-pulse-dot" />
-                      </button>
-
-                      {/* Product card dropdown */}
-                      {isOpen && (
-                        <div className="absolute top-10 left-1/2 -translate-x-1/2 w-52 bg-white rounded-lg shadow-xl p-3 animate-fade-in-up z-20">
-                          <button
-                            onClick={() => setActiveHotspot(null)}
-                            className="absolute top-1.5 right-1.5 text-gray-400 hover:text-primary"
-                            aria-label="Close"
-                          >
-                            <X size={14} />
-                          </button>
-                          <div className="flex gap-3">
-                            <div className="w-16 h-20 relative rounded overflow-hidden shrink-0 bg-gray-100">
-                              <Image
-                                src={hotspot.product.image}
-                                alt={hotspot.product.name}
-                                fill
-                                className="object-cover"
-                                sizes="64px"
-                              />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <p className="text-xs font-medium text-primary truncate">
-                                {hotspot.product.name}
-                              </p>
-                              <p className="text-xs font-semibold text-primary mt-0.5">
-                                {hotspot.product.price}
-                              </p>
-                              <button className="mt-1.5 flex items-center gap-1 text-[10px] text-gray-500 hover:text-primary transition-colors">
-                                <Eye size={10} /> Quick view
-                              </button>
-                            </div>
+                        <div className="flex gap-4">
+                          <div className="relative w-12 h-16 flex-none">
+                            <Image src={spot.product.image} alt={spot.product.name} fill className="object-cover" />
+                          </div>
+                          <div className="flex flex-col justify-center">
+                            <p className="text-[10px] font-black uppercase tracking-widest leading-tight">{spot.product.name}</p>
+                            <p className="text-[12px] font-medium text-neutral-400 mt-1">{spot.product.price}</p>
                           </div>
                         </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          ))}
+                        <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[6px] border-t-black" />
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              ))}
+            </motion.div>
+          </AnimatePresence>
         </div>
       </div>
     </section>

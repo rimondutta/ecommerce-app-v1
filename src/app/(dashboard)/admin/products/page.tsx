@@ -150,7 +150,7 @@ export default function AdminProductsPage() {
                       {product.inventory <= 5 && <div className="text-[9px] font-black uppercase text-red-600 mt-1">Low stock</div>}
                     </td>
                     <td className="px-6 py-4 text-xs font-bold uppercase tracking-widest border-r-2 border-black text-gray-600">
-                      {product.category || "Uncategorized"}
+                      {product.category?.name || "Uncategorized"}
                     </td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex items-center justify-end gap-3">

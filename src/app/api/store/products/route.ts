@@ -38,13 +38,20 @@ export async function GET(req: Request) {
       }
     }
 
+    const limit = parseInt(searchParams.get('limit') || '0');
+
     // Security: Use select() to strictly return public fields
     // Scalability: Use lean() and sort correctly
-    const products = await Product.find(query)
+    let productQuery = Product.find(query)
       .populate('category')
       .select('title price slug images category badge colors sizes')
-      .sort({ createdAt: -1 })
-      .lean();
+      .sort({ createdAt: -1 });
+    
+    if (limit > 0) {
+      productQuery = productQuery.limit(limit);
+    }
+
+    const products = await productQuery.lean();
 
     // High Traffic Scaling: Cache search results at the edge
     return NextResponse.json(

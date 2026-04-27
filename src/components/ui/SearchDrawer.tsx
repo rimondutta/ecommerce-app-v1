@@ -5,8 +5,6 @@ import { Dialog, DialogPanel, Transition, TransitionChild } from "@headlessui/re
 import { X, Search as SearchIcon, ArrowRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { products } from "@/data/products";
-
 const quickLinks = ["Fashion", "Men", "Women", "Shoes", "Accessories"];
 
 interface SearchDrawerProps {
@@ -17,7 +15,22 @@ interface SearchDrawerProps {
 export default function SearchDrawer({ isOpen, onClose }: SearchDrawerProps) {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<any[]>([]);
+  const [featured, setFeatured] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+
+  // Fetch featured products for empty state
+  useEffect(() => {
+    const fetchFeatured = async () => {
+      try {
+        const res = await fetch('/api/store/products?limit=3');
+        const data = await res.json();
+        setFeatured(data.products || []);
+      } catch (err) {
+        console.error("Failed to fetch featured products:", err);
+      }
+    };
+    fetchFeatured();
+  }, []);
 
   useEffect(() => {
     const fetchResults = async () => {
@@ -41,7 +54,6 @@ export default function SearchDrawer({ isOpen, onClose }: SearchDrawerProps) {
     return () => clearTimeout(timer);
   }, [query]);
 
-  const inspirationProducts = useMemo(() => products.slice(5, 8), []);
 
   return (
     <Transition show={isOpen} as={Fragment}>
@@ -142,7 +154,7 @@ export default function SearchDrawer({ isOpen, onClose }: SearchDrawerProps) {
                     <div className="flex-1 h-[2px] bg-black"></div>
                   </div>
                   <div className="grid grid-cols-1 gap-4">
-                    {results.slice(0, 3).map((product) => (
+                    {featured.slice(0, 3).map((product) => (
                       <Link 
                         key={product._id} 
                         href={`/products/${product.slug}`} 
@@ -160,12 +172,13 @@ export default function SearchDrawer({ isOpen, onClose }: SearchDrawerProps) {
                         </div>
                         <div className="flex-1">
                           <p className="font-display font-black text-lg uppercase leading-tight mb-1">{product.title}</p>
-                          <p className="font-black text-sm italic">৳{Math.round(product.price).toLocaleString()}</p>
+                          <p className="font-black text-sm italic">৳{Math.round(product.price || 0).toLocaleString()}</p>
                           <span className="inline-block mt-2 text-[10px] font-bold border-b-2 border-black opacity-0 group-hover:opacity-100 transition-opacity">VIEW PRODUCT</span>
                         </div>
                       </Link>
                     ))}
                   </div>
+
                 </div>
               ) : (
                 /* Search Results */

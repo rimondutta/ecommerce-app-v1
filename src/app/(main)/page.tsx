@@ -4,6 +4,7 @@ import TechnicalBlueprint from "@/components/sections/TechnicalBlueprint";
 import ModernProductGrid from "@/components/sections/BrutalistProductGrid";
 import BrutalistBlogSection from "@/components/sections/BrutalistBlogSection";
 import ShopGram from "@/components/sections/ShopGram";
+import ShopTheLook from "@/components/sections/ShopTheLook";
 import connectToDatabase from "@/lib/db";
 import Product from "@/models/Product";
 import Category from "@/models/Category";
@@ -46,6 +47,9 @@ export default async function Home() {
 
         {/* TECHNICAL BLUEPRINT */}
         <TechnicalBlueprint />
+
+        {/* SHOP THE LOOK */}
+        <ShopTheLook />
 
         {/* PRODUCTS */}
         <ModernProductGrid initialProducts={sanitizedProducts} categories={sanitizedCategories} />

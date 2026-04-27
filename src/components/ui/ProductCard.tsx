@@ -131,7 +131,7 @@ export default function ProductCard({ product }: ProductCardProps) {
 
         {product.colors?.length > 1 && (
           <div className="flex gap-1.5 pt-2">
-            {product.colors.map((c: any) => (
+            {product.colors.map((c: { name: string; hex?: string }) => (
               <div 
                 key={c.name}
                 className="w-2.5 h-2.5 rounded-full ring-1 ring-black/5"

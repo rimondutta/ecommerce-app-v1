@@ -8,12 +8,30 @@ import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
 
+interface Product {
+  _id?: string;
+  id?: string | number;
+  title: string;
+  price: number;
+  slug: string;
+  category: string | { name: string; slug: string };
+  images: { url: string; alt?: string }[];
+  colors?: { name: string; hex?: string; value?: string }[];
+  sizes?: string[];
+  badge?: string;
+}
+
+interface Category {
+  name: string;
+  slug: string;
+}
+
 export default function ModernProductGrid({ 
   initialProducts = [], 
   categories = [] 
 }: { 
-  initialProducts?: any[],
-  categories?: any[]
+  initialProducts?: Product[],
+  categories?: Category[]
 }) {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [visibleCount, setVisibleCount] = useState(8);
@@ -27,8 +45,8 @@ export default function ModernProductGrid({
       priceNum: p.price,
       category: typeof p.category === 'object' ? p.category.name : (p.category || "Uncategorized"),
       categorySlug: typeof p.category === 'object' ? p.category.slug : "",
-      images: p.images?.map((img: any) => ({ src: img.url, alt: img.alt })) || [],
-      colors: p.colors?.map((c: any) => ({ name: c.name, hex: c.hex || c.value })) || [],
+      images: p.images?.map((img: { url: string; alt?: string }) => ({ src: img.url, alt: img.alt })) || [],
+      colors: p.colors?.map((c: { name: string; hex?: string; value?: string }) => ({ name: c.name, hex: c.hex || c.value })) || [],
       sizes: p.sizes || [],
       slug: p.slug,
       badge: p.badge

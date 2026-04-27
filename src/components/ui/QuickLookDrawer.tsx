@@ -31,7 +31,12 @@ export default function QuickLookDrawer() {
 
   if (!product) return null;
 
-  const images = product.images?.map((img: any) => img.url || img.src) || ["https://placehold.co/600x800?text=No+Image"];
+  const images = product.images?.map((img: any) => {
+    const src = img.url || img.src || "";
+    // Defensive check for invalid/short URLs
+    return (src && src.length > 5) ? src : "/placeholder.jpg";
+  }) || ["/placeholder.jpg"];
+
   const colors = product.colors || [];
   const sizes = product.sizes || [];
 
@@ -44,7 +49,7 @@ export default function QuickLookDrawer() {
 
   return (
     <Transition show={isOpen} as={Fragment}>
-      <Dialog onClose={handleClose} className="relative z-[300]">
+      <Dialog onClose={handleClose} className="relative z-[700]">
         <TransitionChild
           as={Fragment}
           enter="transition-opacity ease-linear duration-500"
@@ -54,29 +59,29 @@ export default function QuickLookDrawer() {
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <div className="fixed inset-0 bg-black/70 backdrop-blur-2xl" aria-hidden="true" />
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" aria-hidden="true" />
         </TransitionChild>
 
-        {/* Centered Modal instead of side drawer */}
-        <div className="fixed inset-0 flex items-center justify-center p-4 md:p-8">
+        {/* Centered Modal */}
+        <div className="fixed inset-0 flex items-center justify-center p-2 md:p-6">
           <TransitionChild
             as={Fragment}
             enter="transform transition ease-[0.16,1,0.3,1] duration-700"
-            enterFrom="scale-90 opacity-0"
-            enterTo="scale-100 opacity-100"
+            enterFrom="scale-95 opacity-0 translate-y-4"
+            enterTo="scale-100 opacity-100 translate-y-0"
             leave="transform transition ease-[0.16,1,0.3,1] duration-500"
-            leaveFrom="scale-100 opacity-100"
-            leaveTo="scale-90 opacity-0"
+            leaveFrom="scale-100 opacity-100 translate-y-0"
+            leaveTo="scale-95 opacity-0 translate-y-4"
           >
-            <DialogPanel className="relative w-full max-w-6xl max-h-[92vh] bg-white rounded-2xl overflow-hidden shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)] flex flex-col lg:flex-row">
+            <DialogPanel className="relative w-full max-w-6xl max-h-[96vh] bg-white rounded-none border-4 border-black shadow-[16px_16px_0px_0px_rgba(0,0,0,1)] overflow-hidden flex flex-col lg:flex-row">
 
               {/* Close Button - Technical Style */}
               <button
                 onClick={handleClose}
-                className="absolute top-6 right-6 z-50 w-12 h-12 bg-white/10 hover:bg-black text-black hover:text-white rounded-full flex items-center justify-center transition-all backdrop-blur-xl border border-black/5 hover:border-black"
-                data-cursor="CLOSE"
+                className="absolute top-6 right-6 z-50 w-12 h-12 bg-white border-4 border-black hover:bg-black text-black hover:text-white flex items-center justify-center transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px]"
+                aria-label="Close"
               >
-                <X size={20} />
+                <X size={24} strokeWidth={3} />
               </button>
 
               {/* LEFT — Image Gallery */}
@@ -103,15 +108,15 @@ export default function QuickLookDrawer() {
                     </motion.div>
                   </AnimatePresence>
 
-                  {/* Technical Overlay Badges */}
-                  <div className="absolute top-8 left-8 flex flex-col gap-2">
-                    <div className="glass px-4 py-1.5 rounded-full inline-flex items-center gap-2">
-                      <div className="w-1.5 h-1.5 rounded-full bg-black animate-pulse" />
-                      <span className="text-[10px] font-mono font-bold uppercase tracking-[0.2em] text-black">New Arrival</span>
+                  {/* Brutalist Badges */}
+                  <div className="absolute top-8 left-8 flex flex-col gap-3">
+                    <div className="bg-white border-2 border-black px-4 py-1 inline-flex items-center gap-2 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                      <div className="w-2 h-2 bg-black animate-pulse" />
+                      <span className="text-[11px] font-black uppercase tracking-[0.2em] text-black">New Release</span>
                     </div>
                     {images.length > 1 && (
-                      <div className="bg-black text-white px-3 py-1 rounded-sm inline-flex w-fit">
-                        <span className="text-[10px] font-mono font-bold tracking-widest">VIEW {activeImageIndex + 1}/{images.length}</span>
+                      <div className="bg-black text-white px-3 py-1 inline-flex w-fit shadow-[4px_4px_0px_0px_rgba(255,255,255,0.2)]">
+                        <span className="text-[10px] font-black tracking-widest">GALLERY {activeImageIndex + 1}/{images.length}</span>
                       </div>
                     )}
                   </div>
@@ -119,32 +124,27 @@ export default function QuickLookDrawer() {
                   {/* Floating Action: Wishlist */}
                   <button
                     onClick={() => toggleItem(product._id || product.id)}
-                    className="absolute top-8 right-20 lg:right-20 z-40 w-12 h-12 bg-white/80 hover:bg-white text-black rounded-full flex items-center justify-center shadow-sm transition-transform active:scale-90 border border-black/5"
+                    className={`absolute top-8 right-24 z-40 w-12 h-12 border-4 border-black flex items-center justify-center transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-1 active:translate-y-1 ${wishlisted ? 'bg-red-500' : 'bg-white hover:bg-neutral-50'}`}
                   >
                     <Heart
-                      size={18}
-                      className={`transition-colors ${wishlisted ? 'fill-red-500 text-red-500' : 'text-neutral-600'}`}
+                      size={20}
+                      strokeWidth={3}
+                      className={wishlisted ? 'text-white fill-white' : 'text-black'}
                     />
                   </button>
                 </div>
 
-                {/* Thumbnail Sheet — Film Strip Style */}
-                {images.length > 1 && (
-                  <div className="flex gap-3 p-6 bg-white overflow-x-auto no-scrollbar">
+                  <div className="flex gap-4 p-6 bg-white overflow-x-auto no-scrollbar border-t-2 border-black">
                     {images.map((img: string, idx: number) => (
                       <button
                         key={idx}
                         onClick={() => setActiveImageIndex(idx)}
-                        className={`relative flex-shrink-0 w-20 h-24 transition-all duration-300 ${activeImageIndex === idx ? 'ring-2 ring-black scale-105 z-10' : 'opacity-40 hover:opacity-100'}`}
+                        className={`relative flex-shrink-0 w-24 h-28 border-2 transition-all ${activeImageIndex === idx ? 'border-black ring-4 ring-black/10 scale-105 z-10 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]' : 'border-black/5 opacity-40 hover:opacity-100'}`}
                       >
-                        <Image src={img} alt="" fill className="object-cover" sizes="80px" />
-                        <div className="absolute top-0 right-0 p-1">
-                          <span className="text-[10px] font-mono font-bold bg-white/80 backdrop-blur-sm px-1 leading-none">{idx + 1}</span>
-                        </div>
+                        <Image src={img} alt="" fill className="object-cover" sizes="100px" />
                       </button>
                     ))}
                   </div>
-                )}
               </div>
 
               {/* RIGHT — Product Details & Interaction */}
@@ -201,11 +201,10 @@ export default function QuickLookDrawer() {
                             <button
                               key={c.name}
                               onClick={() => setSelectedColor(c)}
-                              className={`group relative w-10 h-10 transition-all ${selectedColor?.name === c.name ? 'scale-110' : 'hover:scale-105'}`}
+                              className={`group relative w-12 h-12 border-2 border-black transition-all ${selectedColor?.name === c.name ? 'ring-4 ring-black/20 scale-110 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]' : 'hover:scale-105'}`}
                             >
-                              <div className={`absolute inset-0 border border-black/5 rounded-sm transition-all ${selectedColor?.name === c.name ? 'ring-2 ring-black ring-offset-2' : ''}`} />
                               <div
-                                className="absolute inset-1 rounded-sm shadow-inner"
+                                className="absolute inset-0"
                                 style={{ backgroundColor: c.hex || c.name.toLowerCase() }}
                               />
                             </button>
@@ -223,7 +222,7 @@ export default function QuickLookDrawer() {
                             <button
                               key={s}
                               onClick={() => setSelectedSize(s)}
-                              className={`h-12 border transition-all text-[11px] font-bold uppercase ${selectedSize === s ? 'bg-black border-black text-white' : 'bg-white border-neutral-200 text-neutral-600 hover:border-black hover:text-black'}`}
+                              className={`h-14 border-2 border-black transition-all text-xs font-black uppercase ${selectedSize === s ? 'bg-black text-white shadow-none translate-x-1 translate-y-1' : 'bg-white text-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]'}`}
                             >
                               {s}
                             </button>
@@ -234,21 +233,21 @@ export default function QuickLookDrawer() {
 
                     <div className="space-y-4">
                       <h4 className="text-[10px] font-mono font-bold uppercase tracking-[0.3em] text-black">Quantity</h4>
-                      <div className="flex items-center border border-neutral-200 bg-neutral-50 w-fit h-14 rounded-sm overflow-hidden">
+                      <div className="flex items-center border-2 border-black bg-white w-fit h-14 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
                         <button
                           onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                          className="w-14 h-full flex items-center justify-center hover:bg-white text-black transition-colors border-r border-neutral-200"
+                          className="w-14 h-full flex items-center justify-center hover:bg-black hover:text-white transition-colors border-r-2 border-black"
                         >
-                          <Minus size={14} />
+                          <Minus size={16} strokeWidth={3} />
                         </button>
-                        <span className="w-16 text-center text-[13px] font-bold font-mono text-black">
-                          {quantity.toString().padStart(2, '0')}
+                        <span className="w-16 text-center text-sm font-black text-black">
+                          {quantity}
                         </span>
                         <button
                           onClick={() => setQuantity(quantity + 1)}
-                          className="w-14 h-full flex items-center justify-center hover:bg-white text-black transition-colors border-l border-neutral-200"
+                          className="w-14 h-full flex items-center justify-center hover:bg-black hover:text-white transition-colors border-l-2 border-black"
                         >
-                          <Plus size={14} />
+                          <Plus size={16} strokeWidth={3} />
                         </button>
                       </div>
                     </div>
@@ -282,10 +281,10 @@ export default function QuickLookDrawer() {
                         openCart();
                       }}
                       disabled={(colors.length > 0 && !selectedColor) || (sizes.length > 0 && !selectedSize)}
-                      className="w-full h-16 bg-black text-white text-[12px] font-bold uppercase tracking-[0.3em] hover:bg-neutral-900 transition-all flex items-center justify-between px-8 group disabled:bg-neutral-100 disabled:text-neutral-600 disabled:cursor-not-allowed"
+                      className="w-full h-20 bg-black text-white text-[14px] font-black uppercase tracking-[0.3em] hover:bg-neutral-800 transition-all flex items-center justify-between px-10 group disabled:bg-neutral-200 disabled:text-neutral-500 disabled:cursor-not-allowed shadow-[8px_8px_0px_0px_rgba(0,0,0,0.2)] hover:shadow-none hover:translate-x-1 hover:translate-y-1"
                     >
                       <span className="flex items-center gap-4">
-                        <ShoppingBag size={18} />
+                        <ShoppingBag size={20} strokeWidth={3} />
                         {(!selectedColor && colors.length > 0) 
                           ? "SELECT COLOR" 
                           : (!selectedSize && sizes.length > 0) 
@@ -293,10 +292,10 @@ export default function QuickLookDrawer() {
                             : "ADD TO BAG"}
                       </span>
                       <div className="flex items-center gap-4">
-                        <span className={`${!selectedColor || !selectedSize ? 'text-neutral-500' : 'text-white/50'} font-mono transition-colors`}>
+                        <span className="font-black">
                           ৳{Math.round(currentPrice * quantity).toLocaleString()}
                         </span>
-                        <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                        <ArrowRight size={22} strokeWidth={3} className="group-hover:translate-x-2 transition-transform" />
                       </div>
                     </button>
 

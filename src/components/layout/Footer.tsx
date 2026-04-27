@@ -1,4 +1,28 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import Link from "next/link";
+
+interface Category {
+  name: string;
+  slug: string;
+}
+
 export default function Footer() {
+  const [categories, setCategories] = useState<Category[]>([]);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await fetch("/api/store/categories");
+        const data = await res.json();
+        if (data.categories) setCategories(data.categories);
+      } catch (err) {
+        console.error("Failed to fetch categories", err);
+      }
+    };
+    fetchCategories();
+  }, []);
   return (
     <footer className="bg-black text-white pt-32 pb-12 overflow-hidden relative">
       <div className="max-w-[1800px] mx-auto px-6 md:px-12 relative z-10">
@@ -25,12 +49,18 @@ export default function Footer() {
           <div>
             <h4 className="font-display font-black text-[10px] uppercase tracking-[0.4em] mb-10 text-white/70">Inventory</h4>
             <ul className="space-y-5">
-              {["All Collections", "Outerwear", "Technical Tops", "Accessories", "Sale Collection"].map((link) => (
-                <li key={link}>
-                  <a href="/shop" className="text-[11px] font-black uppercase tracking-widest text-white/90 hover:text-white transition-all flex items-center group">
+              <li>
+                <Link href="/products" className="text-[11px] font-black uppercase tracking-widest text-white/90 hover:text-white transition-all flex items-center group">
+                  <span className="w-0 group-hover:w-4 h-[1px] bg-white mr-0 group-hover:mr-3 transition-all"></span>
+                  All Collections
+                </Link>
+              </li>
+              {categories.slice(0, 4).map((cat) => (
+                <li key={cat.slug}>
+                  <Link href={`/products?category=${cat.name}`} className="text-[11px] font-black uppercase tracking-widest text-white/90 hover:text-white transition-all flex items-center group">
                     <span className="w-0 group-hover:w-4 h-[1px] bg-white mr-0 group-hover:mr-3 transition-all"></span>
-                    {link}
-                  </a>
+                    {cat.name}
+                  </Link>
                 </li>
               ))}
             </ul>

@@ -16,11 +16,12 @@ const navLinks = [
   { label: "Blog", href: "/blogs" },
 ];
 
+interface Category {
+  name: string;
+  slug: string;
+}
+
 const shopMegaMenu = {
-  columns: [
-    { title: "Navigation", links: ["New Arrivals", "Best Sellers", "Sale Collection", "Coming Soon"] },
-    { title: "Collections", links: ["Core Essentials", "Technical Outerwear", "Signature T-Shirts", "Accessories"] },
-  ],
   featured: [
     { title: "THE COLLECTION AW24", image: "https://images.unsplash.com/photo-1509631179647-0177331693ae?q=80&w=800&auto=format&fit=crop", subtitle: "Limited Edition" },
     { title: "ESSENTIALS", image: "https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=800&auto=format&fit=crop", subtitle: "Core Collection" },
@@ -30,6 +31,7 @@ const shopMegaMenu = {
 export default function Header() {
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [categories, setCategories] = useState<Category[]>([]);
   const { isOpen: isCartOpen, openCart, closeCart, count: cartCount } = useCart();
   const { count: wishlistCount } = useWishlist();
   const { isOpen: isSearchOpen, openSearch, closeSearch } = useSearch();
@@ -48,6 +50,17 @@ export default function Header() {
   };
 
   useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await fetch("/api/store/categories");
+        const data = await res.json();
+        if (data.categories) setCategories(data.categories);
+      } catch (err) {
+        console.error("Failed to fetch categories", err);
+      }
+    };
+    fetchCategories();
+
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
     };
@@ -182,22 +195,12 @@ export default function Header() {
           >
             <div className="max-w-[1800px] mx-auto grid grid-cols-12 gap-12 h-[500px]">
                 <div className="col-span-4 grid grid-cols-2 gap-12">
-                  {shopMegaMenu.columns.map((col) => (
-                    <div key={col.title} className="space-y-8">
-                      <h4 className="font-display font-black text-xs uppercase tracking-widest text-black/30 pb-4 border-b border-black/5">{col.title}</h4>
+                   <div className="space-y-8">
+                      <h4 className="font-display font-black text-xs uppercase tracking-widest text-black/30 pb-4 border-b border-black/5">Navigation</h4>
                       <ul className="space-y-4">
-                        {col.links.map((l, i) => (
-                          <motion.li 
-                            key={l}
-                            initial={{ opacity: 0, x: -10 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: i * 0.05 }}
-                          >
-                            <Link 
-                              href={`/products`} 
-                              className="group flex items-center justify-between text-[11px] font-black uppercase tracking-widest text-black/60 hover:text-black transition-all py-2"
-                              data-cursor="EXPLORE"
-                            >
+                        {["New Arrivals", "Best Sellers", "Sale Collection"].map((l, i) => (
+                          <motion.li key={l} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05 }}>
+                            <Link href="/products" className="group flex items-center justify-between text-[11px] font-black uppercase tracking-widest text-black/60 hover:text-black transition-all py-2">
                               {l}
                               <ArrowRight size={14} className="opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all" />
                             </Link>
@@ -205,7 +208,19 @@ export default function Header() {
                         ))}
                       </ul>
                     </div>
-                  ))}
+                    <div className="space-y-8">
+                      <h4 className="font-display font-black text-xs uppercase tracking-widest text-black/30 pb-4 border-b border-black/5">Collections</h4>
+                      <ul className="space-y-4">
+                        {categories.slice(0, 5).map((cat, i) => (
+                          <motion.li key={cat.slug} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05 }}>
+                            <Link href={`/products?category=${cat.name}`} className="group flex items-center justify-between text-[11px] font-black uppercase tracking-widest text-black/60 hover:text-black transition-all py-2">
+                              {cat.name}
+                              <ArrowRight size={14} className="opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all" />
+                            </Link>
+                          </motion.li>
+                        ))}
+                      </ul>
+                    </div>
                 </div>
                 
                 <div className="col-span-8 grid grid-cols-2 gap-8 h-full">
