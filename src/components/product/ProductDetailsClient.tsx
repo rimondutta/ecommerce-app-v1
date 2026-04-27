@@ -62,8 +62,9 @@ export default function ProductDetailsClient({ product, relatedProducts }: Produ
     return brightness > 155;
   };
 
-  <main className="min-h-screen bg-[#f0ece5] text-black font-sans relative">
-    {/* Blueprint Grid Overlay */}
+  return (
+    <main className="min-h-screen bg-[#f0ece5] text-black font-sans relative">
+      {/* Blueprint Grid Overlay */}
     <div
       className="fixed inset-0 pointer-events-none opacity-[0.03] z-0"
       style={{
@@ -444,4 +445,5 @@ export default function ProductDetailsClient({ product, relatedProducts }: Produ
       </div>
     </div>
   </main>
+  );
 }
