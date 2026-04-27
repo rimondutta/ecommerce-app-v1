@@ -24,17 +24,22 @@ export default function Footer() {
     fetchCategories();
   }, []);
   return (
-    <footer className="bg-black text-white pt-32 pb-12 overflow-hidden relative">
+    <footer className="bg-black text-white pt-32 pb-12 overflow-hidden relative border-t border-white/20">
+      {/* Background Grid */}
+      <div className="absolute inset-0 pointer-events-none opacity-[0.05]" 
+           style={{ backgroundImage: 'linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
+
       <div className="max-w-[1800px] mx-auto px-6 md:px-12 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16 lg:gap-24 mb-32">
           {/* Brand Column */}
           <div className="space-y-10">
-            <div className="font-display font-black text-4xl tracking-tighter flex items-center gap-2">
-              <span>Flex Wear</span>
-              <span className="w-8 h-8 bg-white text-black flex items-center justify-center text-xs rounded-full">FW</span>
+            <div className="font-mono font-black text-4xl tracking-tighter flex items-center gap-2">
+              <span className="text-white/40">[</span>
+              <span>Flex_Wear</span>
+              <span className="text-white/40">]</span>
             </div>
-            <p className="text-[11px] uppercase tracking-[0.2em] leading-loose text-white/90 max-w-xs">
-              Engineered garments for the modern inhabitant. Merging archival technicalities with contemporary silhouettes of the future.
+            <p className="text-[10px] font-mono uppercase tracking-[0.2em] leading-relaxed text-white/70 max-w-xs">
+              <span className="text-white mr-2">&gt;</span> Engineered garments for the modern inhabitant. Merging archival technicalities with contemporary silhouettes.
             </p>
             <div className="flex gap-6">
               {['Instagram', 'Twitter', 'Journal'].map((social) => (
@@ -47,7 +52,10 @@ export default function Footer() {
 
           {/* Navigation */}
           <div>
-            <h4 className="font-display font-black text-[10px] uppercase tracking-[0.4em] mb-10 text-white/70">Inventory</h4>
+            <div className="flex items-center gap-2 mb-10">
+               <div className="w-1.5 h-1.5 bg-white" />
+               <h4 className="font-mono font-black text-[10px] uppercase tracking-[0.4em] text-white/70">Inventory</h4>
+            </div>
             <ul className="space-y-5">
               <li>
                 <Link href="/products" className="text-[11px] font-black uppercase tracking-widest text-white/90 hover:text-white transition-all flex items-center group">
@@ -68,7 +76,10 @@ export default function Footer() {
 
           {/* Support */}
           <div>
-            <h4 className="font-display font-black text-[10px] uppercase tracking-[0.4em] mb-10 text-white/70">Bureau</h4>
+            <div className="flex items-center gap-2 mb-10">
+               <div className="w-1.5 h-1.5 bg-white" />
+               <h4 className="font-mono font-black text-[10px] uppercase tracking-[0.4em] text-white/70">Bureau</h4>
+            </div>
             <ul className="space-y-5">
               {["Contact Us", "Shipping Logic", "Return Policy", "Size Guide", "Privacy Layer"].map((link) => (
                 <li key={link}>
@@ -83,42 +94,42 @@ export default function Footer() {
 
           {/* Newsletter */}
           <div className="space-y-10">
-            <h4 className="font-display font-black text-[10px] uppercase tracking-[0.4em] text-white/70">Transmission</h4>
-            <div className="relative group">
+            <div className="flex items-center gap-2">
+               <div className="w-1.5 h-1.5 bg-white animate-pulse" />
+               <h4 className="font-mono font-black text-[10px] uppercase tracking-[0.4em] text-white/70">Transmission</h4>
+            </div>
+            <div className="relative group border border-white/20 p-1 focus-within:border-white/50 transition-all">
               <input
                 type="email"
-                placeholder="EMAIL@ADDRESS.COM"
-                className="w-full bg-white/5 border border-white/10 p-6 text-[10px] tracking-widest uppercase focus:bg-white/10 outline-none transition-all placeholder:text-white/50"
+                placeholder="ENTER_DATA..."
+                className="w-full bg-transparent p-4 text-[10px] font-mono tracking-widest uppercase outline-none placeholder:text-white/30"
               />
-              <button className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-black uppercase tracking-widest text-white hover:italic transition-all">
-                Join
+              <button className="absolute right-2 top-1/2 -translate-y-1/2 bg-white text-black px-4 py-2 text-[10px] font-black uppercase tracking-widest hover:bg-white/80 transition-all">
+                Exec
               </button>
             </div>
-            <p className="text-[9px] uppercase tracking-widest text-white/60 leading-relaxed">
+            <p className="text-[9px] font-mono uppercase tracking-widest text-white/50 leading-relaxed">
               *By subscribing you agree to receive our archival transmissions.
             </p>
           </div>
         </div>
 
         {/* Archival Logo / Large Background Text */}
-        <div className="pointer-events-none select-none opacity-[0.06] absolute bottom-12 left-1/2 -translate-x-1/2 w-full text-center">
-          <h2 className="font-display font-black text-[15vw] leading-none uppercase tracking-tighter">Flex Wear</h2>
+        <div className="pointer-events-none select-none absolute bottom-12 left-1/2 -translate-x-1/2 w-full text-center">
+          <h2 className="font-display font-black text-[15vw] leading-none uppercase tracking-tighter text-transparent" style={{ WebkitTextStroke: '1px rgba(255,255,255,0.1)' }}>Flex Wear</h2>
         </div>
 
         {/* Bottom Bar */}
-        <div className="pt-12 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-8 relative z-10">
-          <p className="text-[10px] font-black uppercase tracking-[0.4em] text-white/70">
-            © 2026 Flex Wear. All Rights Reserved.
+        <div className="pt-12 border-t border-white/20 flex flex-col md:flex-row justify-between items-center gap-8 relative z-10">
+          <p className="text-[10px] font-mono font-black uppercase tracking-[0.4em] text-white/70">
+            © 2026 Flex_Wear. All Rights Reserved.
           </p>
           <div className="flex gap-10">
-            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-white/70">LND / NYC / TKY</p>
-            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-white/70 italic">00:00:24</p>
+            <p className="text-[10px] font-mono font-black uppercase tracking-[0.4em] text-white/70">LND / NYC / TKY</p>
+            <p className="text-[10px] font-mono font-black uppercase tracking-[0.4em] text-white/70 italic opacity-50">SYS_ONLINE</p>
           </div>
         </div>
       </div>
-
-      {/* Decorative Blur */}
-      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-white/5 rounded-full blur-[150px] -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
     </footer>
   );
 }

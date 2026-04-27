@@ -37,55 +37,76 @@ const categories = [
 
 export default function BentoCategories() {
   return (
-    <section className="relative pt-40 pb-32 px-4 md:px-16 max-w-[1800px] mx-auto bg-[#f0ece5]">
-      <div className="mb-24 flex flex-col md:flex-row justify-between items-end gap-10">
-        <h2 className="font-display font-black text-6xl md:text-8xl uppercase tracking-tighter leading-[0.9]">
-          Explore <br/><span className="italic text-black/60">Silhouettes</span>
-        </h2>
-        <p className="max-w-md font-mono text-xs uppercase tracking-widest leading-relaxed text-black/70">
+    <section className="relative pt-40 pb-32 px-4 md:px-16 max-w-[1800px] mx-auto bg-[#f0ece5] overflow-hidden">
+      {/* Decorative background grid */}
+      <div className="absolute inset-0 pointer-events-none opacity-[0.02]" 
+           style={{ backgroundImage: 'linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
+
+      <div className="mb-24 flex flex-col md:flex-row justify-between items-end gap-10 relative z-10">
+        <div className="relative">
+          <div className="absolute -left-8 top-4 w-4 h-4 border-t-2 border-l-2 border-black/20" />
+          <h2 className="font-display font-black text-6xl md:text-8xl uppercase tracking-tighter leading-[0.9] text-black">
+            Explore <br/><span className="italic text-black/40" style={{ WebkitTextStroke: '1px rgba(0,0,0,0.8)' }}>Silhouettes</span>
+          </h2>
+        </div>
+        <p className="max-w-md font-mono text-[10px] md:text-xs uppercase tracking-widest leading-relaxed text-black/60 border-l-2 border-black/10 pl-6">
            Curated selections defining the contemporary wardrobe. Pieces selected for architectural form and enduring utility.
         </p>
       </div>
 
-      <div className="grid grid-cols-12 gap-6 md:gap-12 relative">
+      <div className="grid grid-cols-12 gap-6 md:gap-10 relative z-10">
         {categories.map((cat, idx) => (
           <motion.div
             key={idx}
-            className={`${cat.colSpan} ${cat.height} min-h-[350px] relative group overflow-hidden rounded-[1.5rem] bg-black`}
+            className={`${cat.colSpan} ${cat.height} min-h-[350px] relative group overflow-hidden bg-black`}
             initial={{ opacity: 0, y: 50 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
+            viewport={{ once: true, margin: "-10%" }}
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
           >
-            <Link href={`/products?category=${cat.title.toLowerCase()}`} className="block w-full h-full" data-cursor="VIEW">
+            <Link href={`/products?category=${cat.title.toLowerCase()}`} className="block w-full h-full relative" data-cursor="VIEW">
               <Image
                 src={cat.image}
                 alt={cat.title}
                 fill
                 sizes="(max-width: 768px) 100vw, 50vw"
-                className="object-cover opacity-70 group-hover:opacity-100 transition-all duration-1000 group-hover:scale-105"
+                className="object-cover opacity-60 group-hover:opacity-90 transition-all duration-1000 group-hover:scale-105 mix-blend-luminosity group-hover:mix-blend-normal"
               />
               
-              <div className="absolute inset-0 p-8 md:p-12 flex flex-col justify-end bg-gradient-to-t from-black/80 via-transparent to-transparent">
-                <div className="overflow-hidden">
-                  <motion.p 
-                    className="font-mono text-[9px] text-white/50 uppercase tracking-[0.4em] mb-3"
-                    initial={{ y: 20, opacity: 0 }}
-                    whileInView={{ y: 0, opacity: 1 }}
-                    transition={{ delay: 0.2 }}
-                  >
-                    Archive_{idx.toString().padStart(2, '0')}
-                  </motion.p>
-                </div>
-                <div className="overflow-hidden">
-                  <motion.h3 
-                    className="font-display font-black text-4xl md:text-6xl text-white uppercase tracking-tighter leading-none"
-                    initial={{ y: 50 }}
-                    whileInView={{ y: 0 }}
-                    transition={{ delay: 0.3, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                  >
-                    {cat.title}
-                  </motion.h3>
+              {/* Technical Corner Brackets */}
+              <div className="absolute top-4 left-4 w-4 h-4 border-t border-l border-white/30 transition-all duration-500 group-hover:border-white group-hover:w-8 group-hover:h-8" />
+              <div className="absolute bottom-4 right-4 w-4 h-4 border-b border-r border-white/30 transition-all duration-500 group-hover:border-white group-hover:w-8 group-hover:h-8" />
+              
+              <div className="absolute inset-0 p-6 md:p-10 flex flex-col justify-end">
+                <div className="relative z-10 bg-black/20 backdrop-blur-md border border-white/10 p-6 md:p-8 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500 ease-[0.16,1,0.3,1]">
+                  <div className="overflow-hidden flex items-center justify-between mb-4">
+                    <motion.p 
+                      className="font-mono text-[9px] text-white/70 uppercase tracking-[0.4em] flex items-center gap-3"
+                      initial={{ y: 20, opacity: 0 }}
+                      whileInView={{ y: 0, opacity: 1 }}
+                      transition={{ delay: 0.2 }}
+                    >
+                      <span className="w-1.5 h-1.5 bg-white rounded-full group-hover:animate-pulse" />
+                      Archive_{idx.toString().padStart(2, '0')}
+                    </motion.p>
+                    <div className="w-8 h-px bg-white/30 group-hover:w-16 transition-all duration-500" />
+                  </div>
+                  
+                  <div className="overflow-hidden relative">
+                    <motion.h3 
+                      className="font-display font-black text-4xl md:text-6xl text-white uppercase tracking-tighter leading-none group-hover:text-transparent transition-colors duration-500"
+                      style={{ WebkitTextStroke: '1px white' }}
+                      initial={{ y: 50 }}
+                      whileInView={{ y: 0 }}
+                      transition={{ delay: 0.3, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+                    >
+                      {cat.title}
+                    </motion.h3>
+                    {/* Solid text overlay that fades in */}
+                    <h3 className="font-display font-black text-4xl md:text-6xl text-white uppercase tracking-tighter leading-none absolute top-0 left-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                      {cat.title}
+                    </h3>
+                  </div>
                 </div>
               </div>
             </Link>

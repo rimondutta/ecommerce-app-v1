@@ -71,7 +71,7 @@ export default function Header() {
   return (
     <>
       <motion.header
-        className={`w-full transition-all duration-700 bg-white/95 backdrop-blur-xl border-b border-black/10 shadow-sm text-black`}
+        className={`w-full transition-all duration-700 bg-white/95 backdrop-blur-xl border-b border-black/10 shadow-sm text-black relative z-[100]`}
         initial={{ y: -100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
@@ -89,8 +89,10 @@ export default function Header() {
 
             {/* Logo */}
             <div className="flex items-center gap-20">
-              <Link href="/" className="font-sans font-black text-3xl tracking-tighter group flex items-center gap-2" data-cursor="HOME">
-                  <span className="group-hover:italic transition-all">Flex Wear</span>
+              <Link href="/" className="font-mono font-black text-2xl tracking-tighter group flex items-center gap-2" data-cursor="HOME">
+                  <span className="text-black/40">[</span>
+                  <span className="group-hover:italic transition-all uppercase tracking-widest">Flex_Wear</span>
+                  <span className="text-black/40">]</span>
               </Link>
             </div>
 
@@ -112,7 +114,7 @@ export default function Header() {
                   </Link>
 
                   {/* ANIMATED UNDERLINE */}
-                  <div className={`absolute bottom-6 left-0 h-[2px] bg-white transition-all duration-300 ${activeMenu === link.label ? 'w-full opacity-100' : 'w-0 opacity-0'}`} />
+                  <div className={`absolute bottom-6 left-0 h-[2px] bg-black transition-all duration-300 ${activeMenu === link.label ? 'w-full opacity-100' : 'w-0 opacity-0'}`} />
                 </div>
               ))}
             </nav>
@@ -149,9 +151,9 @@ export default function Header() {
                 aria-label={`Wishlist: ${wishlistCount} items`}
                 data-cursor="WISHLIST"
               >
-                <Heart size={22} strokeWidth={2.5} fill={wishlistCount > 0 ? "white" : "none"} />
+                <Heart size={22} strokeWidth={2.5} fill={wishlistCount > 0 ? "black" : "none"} />
                 {wishlistCount > 0 && (
-                  <span className="absolute top-1 right-1 w-4 h-4 bg-white text-black text-[9px] font-black rounded-full flex items-center justify-center">
+                  <span className="absolute top-1 right-1 w-4 h-4 bg-black text-white text-[9px] font-black rounded-full flex items-center justify-center">
                     {wishlistCount}
                   </span>
                 )}
@@ -172,7 +174,7 @@ export default function Header() {
               >
                 <ShoppingBag size={22} strokeWidth={2.5} />
                 {cartCount > 0 && (
-                  <span className="absolute top-1 right-1 w-4 h-4 bg-white text-black text-[9px] font-black rounded-full flex items-center justify-center">
+                  <span className="absolute top-1 right-1 w-4 h-4 bg-black text-white text-[9px] font-black rounded-full flex items-center justify-center">
                     {cartCount}
                   </span>
                 )}
@@ -181,11 +183,11 @@ export default function Header() {
           </div>
       </motion.header>
 
-      {/* Mega Menu Dropdown - Normal Blending */}
+      {/* Mega Menu Dropdown */}
       <AnimatePresence>
         {activeMenu === "Shop" && (
           <motion.div 
-            className="fixed top-[100px] left-0 w-full bg-white text-black border-b-[1px] border-black/10 p-12 shadow-2xl xl:px-32 pointer-events-auto z-[90]"
+            className="fixed top-[100px] left-0 w-full bg-[#f0ece5] text-black border-b-[2px] border-black p-12 shadow-2xl xl:px-32 pointer-events-auto z-[90]"
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
@@ -193,14 +195,21 @@ export default function Header() {
             onMouseEnter={() => handleMouseEnter("Shop")}
             onMouseLeave={handleMouseLeave}
           >
-            <div className="max-w-[1800px] mx-auto grid grid-cols-12 gap-12 h-[500px]">
+            {/* Background Grid */}
+            <div className="absolute inset-0 pointer-events-none opacity-[0.03]" 
+                 style={{ backgroundImage: 'linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
+                 
+            <div className="max-w-[1800px] mx-auto grid grid-cols-12 gap-12 h-[500px] relative z-10">
                 <div className="col-span-4 grid grid-cols-2 gap-12">
                    <div className="space-y-8">
-                      <h4 className="font-display font-black text-xs uppercase tracking-widest text-black/30 pb-4 border-b border-black/5">Navigation</h4>
+                      <div className="flex items-center gap-2 pb-4 border-b border-black">
+                         <div className="w-1.5 h-1.5 bg-black" />
+                         <h4 className="font-mono font-black text-[10px] uppercase tracking-widest text-black">Navigation</h4>
+                      </div>
                       <ul className="space-y-4">
                         {["New Arrivals", "Best Sellers", "Sale Collection"].map((l, i) => (
                           <motion.li key={l} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05 }}>
-                            <Link href="/products" className="group flex items-center justify-between text-[11px] font-black uppercase tracking-widest text-black/60 hover:text-black transition-all py-2">
+                            <Link href="/products" className="group flex items-center justify-between text-[11px] font-black uppercase tracking-widest text-black/60 hover:text-black transition-all py-2 border-b border-black/5">
                               {l}
                               <ArrowRight size={14} className="opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all" />
                             </Link>
@@ -209,11 +218,14 @@ export default function Header() {
                       </ul>
                     </div>
                     <div className="space-y-8">
-                      <h4 className="font-display font-black text-xs uppercase tracking-widest text-black/30 pb-4 border-b border-black/5">Collections</h4>
+                      <div className="flex items-center gap-2 pb-4 border-b border-black">
+                         <div className="w-1.5 h-1.5 bg-black" />
+                         <h4 className="font-mono font-black text-[10px] uppercase tracking-widest text-black">Collections</h4>
+                      </div>
                       <ul className="space-y-4">
                         {categories.slice(0, 5).map((cat, i) => (
                           <motion.li key={cat.slug} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05 }}>
-                            <Link href={`/products?category=${cat.name}`} className="group flex items-center justify-between text-[11px] font-black uppercase tracking-widest text-black/60 hover:text-black transition-all py-2">
+                            <Link href={`/products?category=${cat.name}`} className="group flex items-center justify-between text-[11px] font-black uppercase tracking-widest text-black/60 hover:text-black transition-all py-2 border-b border-black/5">
                               {cat.name}
                               <ArrowRight size={14} className="opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all" />
                             </Link>
@@ -228,7 +240,7 @@ export default function Header() {
                     <Link 
                       key={idx} 
                       href="/products" 
-                      className="relative group overflow-hidden border border-black/5 rounded-3xl"
+                      className="relative group overflow-hidden border-2 border-black bg-black"
                       data-cursor="VIEW"
                     >
                       <motion.img 
@@ -236,12 +248,16 @@ export default function Header() {
                         animate={{ scale: 1 }}
                         src={item.image} 
                         alt={item.title} 
-                        className="w-full h-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-[1.5s] ease-out" 
+                        className="w-full h-full object-cover mix-blend-luminosity group-hover:mix-blend-normal opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-[1.5s] ease-out" 
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent transition-all flex flex-col justify-end p-10 space-y-2">
-                          <span className="text-[10px] font-black uppercase tracking-[0.4em] text-white/80">{item.subtitle}</span>
+                          <span className="text-[10px] font-mono font-black uppercase tracking-[0.4em] text-white/80 border-b border-white/20 w-max pb-1 mb-2">{item.subtitle}</span>
                           <h3 className="text-white font-display font-black text-4xl uppercase tracking-tighter leading-none">{item.title}</h3>
                       </div>
+                      
+                      {/* Corner Accents */}
+                      <div className="absolute top-4 left-4 w-4 h-4 border-t-2 border-l-2 border-white/50" />
+                      <div className="absolute bottom-4 right-4 w-4 h-4 border-b-2 border-r-2 border-white/50" />
                     </Link>
                   ))}
                 </div>
