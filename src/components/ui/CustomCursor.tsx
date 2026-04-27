@@ -61,48 +61,60 @@ export default function CustomCursor() {
         y: mouseY,
         translateX: "-50%",
         translateY: "-50%",
-        rotate: rotate,
       }}
       animate={{
         opacity: isVisible ? 1 : 0,
-        scale: cursorType !== "default" ? 1.2 : 1,
       }}
     >
-      {/* Tactical Crosshair / Gun Point Design */}
+      {/* Tactical Gun Point / Reticle Design */}
       <div className="relative flex items-center justify-center">
-        {/* Center Dot */}
-        <div className="w-1.5 h-1.5 bg-white rounded-full shadow-[0_0_10px_rgba(255,255,255,0.8)]" />
+        {/* Precise Crosshair */}
+        <div className="absolute w-[20px] h-[1px] bg-white" />
+        <div className="absolute w-[1px] h-[20px] bg-white" />
         
-        {/* Horizontal Lines */}
-        <div className="absolute w-[30px] h-[1px] bg-white/60" />
-        <div className="absolute w-[2px] h-[2px] bg-white left-[-15px]" />
-        <div className="absolute w-[2px] h-[2px] bg-white right-[-15px]" />
-        
-        {/* Vertical Lines */}
-        <div className="absolute w-[1px] h-[30px] bg-white/60" />
-        <div className="absolute w-[2px] h-[2px] bg-white top-[-15px]" />
-        <div className="absolute w-[2px] h-[2px] bg-white bottom-[-15px]" />
-
-        {/* Outer Ring */}
+        {/* Tactical Brackets */}
         <motion.div 
-          className="absolute w-10 h-10 border border-white/20 rounded-full"
+          className="absolute w-8 h-8 flex items-center justify-center"
           animate={{
-            scale: cursorType !== "default" ? [1, 1.1, 1] : 1,
-            borderWidth: cursorType !== "default" ? "2px" : "1px",
-            borderColor: cursorType !== "default" ? "rgba(255,255,255,0.6)" : "rgba(255,255,255,0.2)"
+            rotate: cursorType !== "default" ? 45 : 0,
+            scale: cursorType !== "default" ? 1.5 : 1,
           }}
-          transition={{ repeat: Infinity, duration: 2 }}
+        >
+          {/* Top Left */}
+          <div className="absolute top-0 left-0 w-2 h-2 border-t-2 border-l-2 border-white" />
+          {/* Top Right */}
+          <div className="absolute top-0 right-0 w-2 h-2 border-t-2 border-r-2 border-white" />
+          {/* Bottom Left */}
+          <div className="absolute bottom-0 left-0 w-2 h-2 border-b-2 border-l-2 border-white" />
+          {/* Bottom Right */}
+          <div className="absolute bottom-0 right-0 w-2 h-2 border-b-2 border-r-2 border-white" />
+        </motion.div>
+
+        {/* Outer Pulsing Ring */}
+        <motion.div 
+          className="absolute w-12 h-12 border border-white/10 rounded-full"
+          animate={{
+            scale: cursorType !== "default" ? [1, 1.2, 1] : 1,
+            opacity: cursorType !== "default" ? 0.8 : 0.2,
+          }}
+          transition={{ repeat: Infinity, duration: 1.5 }}
         />
 
-        {/* Label if needed */}
+        {/* Center Precision Dot */}
+        <div className="w-1 h-1 bg-white rounded-full shadow-[0_0_8px_white]" />
+
+        {/* Label */}
         {cursorType !== "default" && cursorType !== "pointer" && (
-          <motion.span 
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 30 }}
-            className="absolute text-[8px] font-black text-white tracking-[0.3em] uppercase whitespace-nowrap"
+          <motion.div 
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 30 }}
+            className="absolute left-full ml-4 flex flex-col items-start"
           >
-            {cursorType}
-          </motion.span>
+            <div className="bg-white text-black px-2 py-0.5 text-[8px] font-black uppercase tracking-widest whitespace-nowrap">
+              {cursorType}
+            </div>
+            <div className="w-full h-[1px] bg-white/50 mt-1" />
+          </motion.div>
         )}
       </div>
     </motion.div>
