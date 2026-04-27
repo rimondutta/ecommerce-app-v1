@@ -32,18 +32,18 @@ export default async function Home() {
       {/* HERO */}
       <ModernHero />
 
-      {/* FAST MARQUEE 1 */}
-      <div className="bg-black text-white py-8 overflow-hidden pointer-events-none sticky top-[140px] z-[5] backdrop-blur-xl">
-        <div className="flex animate-marquee whitespace-nowrap">
-          {Array(10).fill(0).map((_, i) => (
-            <span key={i} className="font-display font-black text-3xl md:text-5xl uppercase tracking-tighter mx-8 opacity-20 hover:opacity-100 transition-opacity">
-              Flex Wear // ARCHIVAL TECHNICAL GEAR // ✳
-            </span>
-          ))}
+      <div className="relative z-10 bg-[#f0ece5] rounded-t-[40px] overflow-hidden shadow-[0_-20px_50px_rgba(0,0,0,0.1)]">
+        {/* FAST MARQUEE 1 */}
+        <div className="bg-black text-white py-8 overflow-hidden pointer-events-none sticky top-[140px] z-[5] backdrop-blur-xl">
+          <div className="flex animate-marquee whitespace-nowrap">
+            {Array(10).fill(0).map((_, i) => (
+              <span key={i} className="font-display font-black text-3xl md:text-5xl uppercase tracking-tighter mx-8 opacity-20 hover:opacity-100 transition-opacity">
+                Flex Wear // ARCHIVAL TECHNICAL GEAR // ✳
+              </span>
+            ))}
+          </div>
         </div>
-      </div>
 
-      <div className="relative z-10 bg-[#f0ece5] rounded-t-[40px] -mt-12 overflow-hidden shadow-[0_-20px_50px_rgba(0,0,0,0.1)]">
         {/* CATEGORIES */}
         <Reveal width="100%" delay={0.2}>
           <BentoCategories />
@@ -72,7 +72,7 @@ export default async function Home() {
       </div>
 
       {/* FINAL CALL TO ACTION */}
-      <div className="bg-black text-[#f0ece5] py-40 flex flex-col items-center justify-center text-center overflow-hidden relative" data-cursor="EXPLORE">
+      <div className="relative z-10 bg-black text-[#f0ece5] py-40 flex flex-col items-center justify-center text-center overflow-hidden" data-cursor="EXPLORE">
         <Reveal direction="down" distance={100}>
           <h2 className="relative z-10 font-display font-black text-7xl md:text-[18rem] uppercase leading-none tracking-tighter mix-blend-difference">
             DIRECT

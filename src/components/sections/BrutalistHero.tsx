@@ -23,7 +23,7 @@ export default function EditorialHero() {
   return (
     <section 
       ref={containerRef} 
-      className="relative h-[100vh] md:h-[110vh] w-full overflow-hidden bg-black flex items-center justify-center"
+      className="relative h-[100vh] md:h-[110vh] w-full overflow-hidden bg-black flex items-center justify-center pb-20 md:pb-0"
       data-cursor="SCROLL"
     >
       {/* Background Image with Parallax */}

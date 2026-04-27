@@ -1,14 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { motion, useSpring } from "framer-motion";
+import { motion, useSpring, useMotionValue } from "framer-motion";
 
 export default function CustomCursor() {
   const [cursorType, setCursorType] = useState("default");
   const [isVisible, setIsVisible] = useState(false);
   
-  const mouseX = useSpring(0, { stiffness: 500, damping: 50 });
-  const mouseY = useSpring(0, { stiffness: 500, damping: 50 });
+  const mouseX = useSpring(0, { stiffness: 800, damping: 50, mass: 0.1 });
+  const mouseY = useSpring(0, { stiffness: 800, damping: 50, mass: 0.1 });
+  const rotate = useSpring(0, { stiffness: 200, damping: 30 });
 
   useEffect(() => {
     const onMouseMove = (e: MouseEvent) => {
@@ -20,78 +21,35 @@ export default function CustomCursor() {
       
       if (cursorData) {
         setCursorType(cursorData.getAttribute('data-cursor') || "default");
+        rotate.set(45);
       } else if (target.closest('a') || target.closest('button')) {
         setCursorType("pointer");
+        rotate.set(90);
       } else {
         setCursorType("default");
+        rotate.set(0);
       }
     };
 
     const onMouseEnter = () => setIsVisible(true);
     const onMouseLeave = () => setIsVisible(false);
+    const onMouseDown = () => rotate.set(180);
+    const onMouseUp = () => rotate.set(0);
 
     window.addEventListener("mousemove", onMouseMove);
     document.addEventListener("mouseenter", onMouseEnter);
     document.addEventListener("mouseleave", onMouseLeave);
+    window.addEventListener("mousedown", onMouseDown);
+    window.addEventListener("mouseup", onMouseUp);
 
     return () => {
       window.removeEventListener("mousemove", onMouseMove);
       document.removeEventListener("mouseenter", onMouseEnter);
       document.removeEventListener("mouseleave", onMouseLeave);
+      window.removeEventListener("mousedown", onMouseDown);
+      window.removeEventListener("mouseup", onMouseUp);
     };
-  }, [mouseX, mouseY]);
-
-  const variants = {
-    default: {
-      width: 12,
-      height: 12,
-      backgroundColor: "rgba(0, 0, 0, 1)",
-      borderRadius: "100%",
-    },
-    pointer: {
-      width: 40,
-      height: 40,
-      backgroundColor: "rgba(0, 0, 0, 0.1)",
-      border: "1px solid rgba(0,0,0,1)",
-      borderRadius: "100%",
-    },
-    VIEW: {
-      width: 100,
-      height: 100,
-      backgroundColor: "rgba(0, 0, 0, 0.9)",
-      borderRadius: "100%",
-      content: "'VIEW'",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      color: "white",
-      fontSize: "10px",
-      fontWeight: "900",
-      letterSpacing: "0.2em"
-    },
-    SCROLL: {
-      width: 80,
-      height: 80,
-      backgroundColor: "rgba(255, 255, 255, 0.2)",
-      border: "1px solid rgba(255,255,255,0.5)",
-      borderRadius: "100%",
-      content: "'SCROLL'",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      color: "white",
-      fontSize: "8px",
-      fontWeight: "900",
-      letterSpacing: "0.2em"
-    },
-    CLICK: {
-      width: 60,
-      height: 60,
-      backgroundColor: "rgba(0, 0, 0, 1)",
-      borderRadius: "100%",
-      scale: 0.8,
-    }
-  };
+  }, [mouseX, mouseY, rotate]);
 
   if (typeof window === "undefined") return null;
 
@@ -103,28 +61,50 @@ export default function CustomCursor() {
         y: mouseY,
         translateX: "-50%",
         translateY: "-50%",
+        rotate: rotate,
       }}
-      initial={false}
       animate={{
-        ...variants[cursorType as keyof typeof variants] || variants.default,
         opacity: isVisible ? 1 : 0,
-      }}
-      transition={{
-        type: "spring",
-        stiffness: 500,
-        damping: 40,
-        mass: 0.5,
+        scale: cursorType !== "default" ? 1.2 : 1,
       }}
     >
-      {(cursorType === "VIEW" || cursorType === "SCROLL") && (
-        <motion.span 
-          initial={{ opacity: 0 }} 
-          animate={{ opacity: 1 }} 
-          className="font-black"
-        >
-          {cursorType}
-        </motion.span>
-      )}
+      {/* Tactical Crosshair / Gun Point Design */}
+      <div className="relative flex items-center justify-center">
+        {/* Center Dot */}
+        <div className="w-1.5 h-1.5 bg-white rounded-full shadow-[0_0_10px_rgba(255,255,255,0.8)]" />
+        
+        {/* Horizontal Lines */}
+        <div className="absolute w-[30px] h-[1px] bg-white/60" />
+        <div className="absolute w-[2px] h-[2px] bg-white left-[-15px]" />
+        <div className="absolute w-[2px] h-[2px] bg-white right-[-15px]" />
+        
+        {/* Vertical Lines */}
+        <div className="absolute w-[1px] h-[30px] bg-white/60" />
+        <div className="absolute w-[2px] h-[2px] bg-white top-[-15px]" />
+        <div className="absolute w-[2px] h-[2px] bg-white bottom-[-15px]" />
+
+        {/* Outer Ring */}
+        <motion.div 
+          className="absolute w-10 h-10 border border-white/20 rounded-full"
+          animate={{
+            scale: cursorType !== "default" ? [1, 1.1, 1] : 1,
+            borderWidth: cursorType !== "default" ? "2px" : "1px",
+            borderColor: cursorType !== "default" ? "rgba(255,255,255,0.6)" : "rgba(255,255,255,0.2)"
+          }}
+          transition={{ repeat: Infinity, duration: 2 }}
+        />
+
+        {/* Label if needed */}
+        {cursorType !== "default" && cursorType !== "pointer" && (
+          <motion.span 
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 30 }}
+            className="absolute text-[8px] font-black text-white tracking-[0.3em] uppercase whitespace-nowrap"
+          >
+            {cursorType}
+          </motion.span>
+        )}
+      </div>
     </motion.div>
   );
 }

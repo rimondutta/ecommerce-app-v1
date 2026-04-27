@@ -178,34 +178,34 @@ function ShopContent() {
 
       <div className="max-w-[1800px] mx-auto w-full px-6 md:px-12 relative">
 
-        {/* SHOP CONTROLS - MINIMAL STICKY BAR */}
-        <section className={`z-40 flex items-center justify-between gap-6 transition-all duration-700 py-8 border-b border-black/5 bg-[#F9F9F9]`}>
-          <div className="flex items-center gap-12">
+        {/* SHOP CONTROLS - MINIMAL TACTICAL BAR */}
+        <section className={`sticky top-[140px] z-40 flex items-center justify-between gap-6 transition-all duration-700 py-6 border-b border-black/5 bg-[#F9F9F9]/80 backdrop-blur-md`}>
+          <div className="flex items-center gap-6 md:gap-12">
             <button 
               onClick={() => setIsMobileFiltersOpen(true)}
-              className="group flex items-center gap-3 font-black text-[10px] uppercase tracking-[0.2em] active:scale-95 transition-all"
+              className="group flex items-center gap-3 font-black text-[10px] uppercase tracking-[0.2em] active:scale-95 transition-all bg-white px-4 py-2 border border-black/5 rounded-full"
               data-cursor="FILTER"
             >
-              <SlidersHorizontal size={14} className="group-hover:rotate-90 transition-transform duration-500" /> 
-              Refine Selection
+              <SlidersHorizontal size={12} className="group-hover:rotate-90 transition-transform duration-500" /> 
+              Refine
             </button>
             
-            <div className="hidden lg:flex items-center gap-8 text-[10px] font-black uppercase tracking-[0.2em] text-neutral-600">
-               <div className="bg-black text-white px-3 py-1 rounded-full">
-                  {filteredProducts.length} Results
+            <div className="hidden md:flex items-center gap-8 text-[10px] font-black uppercase tracking-[0.2em] text-neutral-600">
+               <div className="bg-black text-white px-3 py-1">
+                  {filteredProducts.length} Items
                </div>
                {selectedCategory && (
-                 <button onClick={() => updateFilters('category', null)} className="flex items-center gap-2 hover:text-black">
+                 <button onClick={() => updateFilters('category', null)} className="flex items-center gap-2 hover:text-black border-b border-black/20">
                    {selectedCategory} <X size={10} />
                  </button>
                )}
             </div>
           </div>
 
-          <div className="flex items-center gap-8">
+          <div className="flex items-center gap-4 md:gap-8">
             <div className="relative group">
-              <button className="flex items-center gap-3 font-black text-[10px] uppercase tracking-[0.2em] cursor-pointer">
-                Sort / <span className="text-neutral-500">{sortBy.replace('-', ' ')}</span>
+              <button className="flex items-center gap-3 font-black text-[10px] uppercase tracking-[0.2em] cursor-pointer bg-white px-4 py-2 border border-black/5 rounded-full">
+                Sort: <span className="text-neutral-500">{sortBy.replace('-', ' ')}</span>
               </button>
               <div className="absolute right-0 top-full mt-2 w-48 bg-white border border-black/10 shadow-2xl opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-all translate-y-2 group-hover:translate-y-0 z-50">
                 {["featured", "newest", "price-low", "price-high"].map(opt => (
@@ -222,31 +222,33 @@ function ShopContent() {
           </div>
         </section>
 
-        <section className="flex-1 pb-40 pt-16">
+        <section className="flex-1 pb-40 pt-12">
           {loading ? (
             <div className="flex flex-col items-center justify-center h-[50vh] gap-4">
               <div className="w-12 h-12 border-[3px] border-neutral-100 border-t-neutral-900 rounded-full animate-spin" />
-              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-neutral-500 animate-pulse">Synchronizing Inventory</p>
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-neutral-500 animate-pulse">Syncing Database</p>
             </div>
           ) : filteredProducts.length > 0 ? (
-            <div className="relative grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-12">
+            <div className="relative grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-x-4 md:gap-x-8 gap-y-12 md:gap-y-20">
               {filteredProducts.map((product: any, idx: number) => {
-                // Every 12th item is an Editorial Break
+                // Editorial Spacing Logic
                 const isEditorial = (idx + 1) % 13 === 6;
+                const isFullWidth = (idx + 1) % 7 === 0; // Every 7th item is full-width on mobile
 
                 if (isEditorial) {
                   return (
-                    <EditorialSection 
-                      key={`editorial-${product._id || idx}`} 
-                      product={product} 
-                      index={Math.floor(idx / 13)} 
-                    />
+                    <div key={`editorial-${product._id || idx}`} className="col-span-2 md:col-span-3 xl:col-span-4 py-12 md:py-24">
+                      <EditorialSection 
+                        product={product} 
+                        index={Math.floor(idx / 13)} 
+                      />
+                    </div>
                   );
                 }
 
                 return (
-                  <div key={product._id || idx}>
-                    <ProductCard product={product} />
+                  <div key={product._id || idx} className={`${isFullWidth ? 'col-span-2' : 'col-span-1'}`}>
+                    <ProductCard product={product} index={idx} />
                   </div>
                 );
               })}

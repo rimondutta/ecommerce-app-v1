@@ -93,6 +93,12 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+@media (min-width: 1024px) {
+  body, a, button, [data-cursor] {
+    cursor: none !important;
+  }
+}
+
 /* Custom Selection */
 ::selection {
   background-color: #000000;

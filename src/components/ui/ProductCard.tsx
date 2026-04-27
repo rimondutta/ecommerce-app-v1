@@ -10,10 +10,11 @@ import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 
 interface ProductCardProps {
-  product: any; // Allow for flexible data structure from DB
+  product: any;
+  index?: number;
 }
 
-export default function ProductCard({ product }: ProductCardProps) {
+export default function ProductCard({ product, index = 0 }: ProductCardProps) {
   const [hovered, setHovered] = useState(false);
   const { addItem, openCart } = useCart();
   const { toggleItem, isWishlisted } = useWishlist();
@@ -32,11 +33,16 @@ export default function ProductCard({ product }: ProductCardProps) {
     >
       <Link 
         href={`/products/${product.slug}`} 
-        className="relative aspect-[4/5] overflow-hidden bg-[#f0f0f0] rounded-sm mb-6 block"
+        className="relative aspect-[4/5] overflow-hidden bg-[#f0f0f0] rounded-none mb-4 block group"
         data-cursor="VIEW"
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
       >
+        {/* Archival Tag */}
+        <div className="absolute top-0 left-0 z-20 bg-black text-white px-2 py-1 text-[8px] font-black uppercase tracking-[0.2em]">
+          Ref. {product.slug.slice(0, 4).toUpperCase()}-{index.toString().padStart(3, '0')}
+        </div>
+
         {/* Images */}
         <div className="absolute inset-0">
           <Image
@@ -56,8 +62,8 @@ export default function ProductCard({ product }: ProductCardProps) {
           />
         </div>
 
-        {/* Mobile Quick Add - Only on mobile, very subtle */}
-        <div className="absolute bottom-4 left-4 lg:hidden z-20">
+        {/* Mobile Quick Add */}
+        <div className="absolute bottom-3 right-3 lg:hidden z-20">
           <button 
             onClick={(e) => {
               e.preventDefault();
@@ -73,24 +79,24 @@ export default function ProductCard({ product }: ProductCardProps) {
               });
               openCart();
             }}
-            className="w-10 h-10 bg-black text-white flex items-center justify-center shadow-xl active:scale-90 transition-transform"
+            className="w-12 h-12 bg-white text-black flex items-center justify-center shadow-2xl active:scale-90 transition-transform rounded-full border border-black/5"
           >
-            <ShoppingBag size={16} />
+            <ShoppingBag size={18} />
           </button>
         </div>
 
-        {/* Quick Actions Panel - Large Screens Only */}
-        <div className="hidden lg:flex absolute inset-x-0 bottom-0 p-6 flex-col gap-3 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 ease-out z-20">
+        {/* Quick Actions Panel - Desktop */}
+        <div className="hidden lg:flex absolute inset-x-0 bottom-0 p-4 flex-col gap-2 translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 ease-out z-20">
           <button 
             onClick={(e) => {
               e.preventDefault();
               openQuickLook(product);
             }}
-            className="w-full h-14 bg-white text-black text-[10px] font-black uppercase tracking-[0.2em] flex items-center justify-center gap-3 hover:bg-neutral-100 transition-all shadow-xl"
+            className="w-full h-12 bg-white/90 backdrop-blur-md text-black text-[9px] font-black uppercase tracking-[0.2em] flex items-center justify-center gap-2 hover:bg-white transition-all shadow-xl"
             data-cursor="LOOK"
           >
-            <Eye size={16} />
-            Quick Look
+            <Eye size={14} />
+            Details
           </button>
           <button 
             onClick={(e) => {
@@ -111,22 +117,22 @@ export default function ProductCard({ product }: ProductCardProps) {
               });
               openCart();
             }}
-            className="w-full h-14 bg-black text-white text-[10px] font-black uppercase tracking-[0.2em] flex items-center justify-center gap-3 hover:bg-neutral-800 transition-all shadow-xl"
+            className="w-full h-12 bg-black text-white text-[9px] font-black uppercase tracking-[0.2em] flex items-center justify-center gap-2 hover:bg-neutral-800 transition-all shadow-xl"
             data-cursor="ADD"
           >
-            <ShoppingBag size={16} />
-            {product.colors?.length > 0 || product.sizes?.length > 0 ? "Select Options" : "Quick Add"}
+            <ShoppingBag size={14} />
+            Quick Add
           </button>
         </div>
 
-        {/* Wishlist Button - Absolute Top Right */}
+        {/* Wishlist Button */}
         <button
           onClick={(e) => { e.preventDefault(); toggleItem(product._id || product.id.toString()); }}
-          className={`absolute top-4 right-4 lg:top-6 lg:right-6 z-30 transition-all duration-300 lg:translate-x-4 lg:opacity-0 group-hover:translate-x-0 group-hover:opacity-100`}
+          className={`absolute top-4 right-4 z-30 transition-all duration-300 ${isWishlisted(product._id || product.id.toString()) ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
           data-cursor={isWishlisted(product._id || product.id.toString()) ? "SAVED" : "SAVE"}
         >
           <Heart 
-            size={20} 
+            size={18} 
             className={`${isWishlisted(product._id || product.id.toString()) ? 'fill-white text-white' : 'text-white'}`} 
             strokeWidth={1.5}
           />
@@ -134,36 +140,40 @@ export default function ProductCard({ product }: ProductCardProps) {
       </Link>
 
       {/* Product Info */}
-      <div className="flex flex-col space-y-1">
-        <div className="flex justify-between items-baseline group/info">
-          <Link href={`/products/${product.slug}`} className="text-[12px] font-black uppercase tracking-[0.2em] text-black/80 hover:text-black transition-colors block">
-            {product.category?.name || "Collection"}
-          </Link>
-          <span className="text-[14px] font-medium text-black">
-            ৳{Math.round(product.priceNum || product.price).toLocaleString()}
-          </span>
+      <div className="flex flex-col space-y-2">
+        <div className="flex justify-between items-start">
+          <div className="flex flex-col">
+            <Link 
+              href={`/products/${product.slug}`}
+              className="text-[14px] md:text-[16px] font-bold text-black tracking-tight leading-tight hover:underline transition-all decoration-1 underline-offset-4"
+            >
+              {product.title}
+            </Link>
+            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-neutral-400">
+              {product.category?.name || "Uncategorized"}
+            </span>
+          </div>
+          <div className="flex flex-col items-end">
+            <span className="text-[14px] font-black text-black">
+              <span className="text-[10px] text-neutral-400 mr-1">BDT</span>
+              {Math.round(product.priceNum || product.price).toLocaleString()}
+            </span>
+          </div>
         </div>
-        
-        <Link 
-          href={`/products/${product.slug}`}
-          className="text-[18px] font-bold text-black tracking-tighter leading-tight hover:italic transition-all inline-flex items-center gap-2 group/title"
-        >
-          {product.title}
-          <ArrowRight size={16} className="opacity-0 -translate-x-4 group-hover/title:opacity-100 group-hover/title:translate-x-0 transition-all" />
-        </Link>
 
         {product.colors?.length > 1 && (
-          <div className="flex gap-1.5 pt-2">
+          <div className="flex gap-1.5 pt-1">
             {product.colors.map((c: { name: string; hex?: string }) => (
               <div 
                 key={c.name}
-                className="w-2.5 h-2.5 rounded-full ring-1 ring-black/5"
+                className="w-2.5 h-2.5 rounded-full ring-1 ring-black/10"
                 style={{ backgroundColor: c.hex || c.name.toLowerCase() }}
               />
             ))}
           </div>
         )}
       </div>
+>
     </motion.div>
   );
 }
