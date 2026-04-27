@@ -33,7 +33,7 @@ export default async function Home() {
       <ModernHero />
 
       {/* FAST MARQUEE 1 */}
-      <div className="bg-black text-white py-8 overflow-hidden pointer-events-none sticky top-0 z-[5] backdrop-blur-xl">
+      <div className="bg-black text-white py-8 overflow-hidden pointer-events-none sticky top-[140px] z-[5] backdrop-blur-xl">
         <div className="flex animate-marquee whitespace-nowrap">
           {Array(10).fill(0).map((_, i) => (
             <span key={i} className="font-display font-black text-3xl md:text-5xl uppercase tracking-tighter mx-8 opacity-20 hover:opacity-100 transition-opacity">

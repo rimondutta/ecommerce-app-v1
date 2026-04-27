@@ -71,12 +71,12 @@ export default function Header() {
   return (
     <>
       <motion.header
-        className={`fixed top-0 z-[500] w-full transition-all duration-700 pointer-events-none bg-white/95 backdrop-blur-xl border-b border-black/10 shadow-sm text-black`}
+        className={`w-full transition-all duration-700 bg-white/95 backdrop-blur-xl border-b border-black/10 shadow-sm text-black`}
         initial={{ y: -100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
       >
-        <div className="max-w-[1800px] mx-auto px-8 md:px-16 h-[100px] flex items-center justify-between pointer-events-auto">
+        <div className="max-w-[1800px] mx-auto px-8 md:px-16 h-[100px] flex items-center justify-between">
             {/* Mobile menu button */}
             <button
               className="lg:hidden p-2 -ml-2 hover:scale-110 transition-transform"

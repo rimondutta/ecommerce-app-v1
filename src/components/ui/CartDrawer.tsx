@@ -42,7 +42,7 @@ export default function CartDrawer() {
           leaveFrom="translate-x-0"
           leaveTo="translate-x-full"
         >
-          <DialogPanel className="fixed inset-y-0 right-0 w-full sm:w-[450px] bg-white border-l-4 border-black flex flex-col shadow-[0_0_50px_rgba(0,0,0,0.3)] pt-[100px]">
+          <DialogPanel className="fixed inset-y-0 right-0 w-full sm:w-[450px] bg-white border-l-4 border-black flex flex-col shadow-[0_0_50px_rgba(0,0,0,0.3)]">
             
             {/* Header */}
             <div className="flex items-center justify-between px-6 py-6 border-b-2 border-black">

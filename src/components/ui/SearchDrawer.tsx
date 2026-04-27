@@ -83,7 +83,7 @@ export default function SearchDrawer({ isOpen, onClose }: SearchDrawerProps) {
           leaveFrom="translate-x-0"
           leaveTo="translate-x-full"
         >
-          <DialogPanel className="fixed inset-y-0 right-0 w-full sm:w-[500px] bg-white border-l-4 border-black flex flex-col shadow-[0_0_50px_rgba(0,0,0,0.3)] pt-[100px]">
+          <DialogPanel className="fixed inset-y-0 right-0 w-full sm:w-[500px] bg-white border-l-4 border-black flex flex-col shadow-[0_0_50px_rgba(0,0,0,0.3)]">
             {/* Header */}
             <div className="flex items-center justify-between px-8 py-8 border-b-2 border-black/5">
               <h2 className="font-display font-black text-4xl uppercase tracking-tighter leading-none">

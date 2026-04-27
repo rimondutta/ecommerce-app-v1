@@ -23,7 +23,7 @@ export default function EditorialHero() {
   return (
     <section 
       ref={containerRef} 
-      className="relative h-[110vh] w-full overflow-hidden bg-black flex items-center justify-center"
+      className="relative h-[100vh] md:h-[110vh] w-full overflow-hidden bg-black flex items-center justify-center"
       data-cursor="SCROLL"
     >
       {/* Background Image with Parallax */}
@@ -77,9 +77,9 @@ export default function EditorialHero() {
                 initial={{ y: "110%" }}
                 animate={{ y: 0 }}
                 transition={{ 
-                  duration: 1.5, 
+                  duration: 1.2, 
                   ease: [0.16, 1, 0.3, 1],
-                  delay: 0.2 + (i * 0.15) 
+                  delay: 0.1 + (i * 0.1) 
                 }}
                 style={{ x: i % 2 === 0 ? 0 : textX }}
               >
