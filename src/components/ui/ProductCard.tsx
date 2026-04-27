@@ -24,15 +24,15 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
   const secondImage = product.images?.[1]?.url || product.images?.[1]?.src || mainImage;
 
   return (
-    <motion.div 
+    <motion.div
       className="group relative flex flex-col"
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
     >
-      <Link 
-        href={`/products/${product.slug}`} 
+      <Link
+        href={`/products/${product.slug}`}
         className="relative aspect-[4/5] overflow-hidden bg-[#f0f0f0] rounded-none mb-4 block group"
         data-cursor="VIEW"
         onMouseEnter={() => setHovered(true)}
@@ -64,7 +64,7 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
 
         {/* Mobile Quick Add */}
         <div className="absolute bottom-3 right-3 lg:hidden z-20">
-          <button 
+          <button
             onClick={(e) => {
               e.preventDefault();
               addItem({
@@ -87,7 +87,7 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
 
         {/* Quick Actions Panel - Desktop */}
         <div className="hidden lg:flex absolute inset-x-0 bottom-0 p-4 flex-col gap-2 translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 ease-out z-20">
-          <button 
+          <button
             onClick={(e) => {
               e.preventDefault();
               openQuickLook(product);
@@ -98,7 +98,7 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
             <Eye size={14} />
             Details
           </button>
-          <button 
+          <button
             onClick={(e) => {
               e.preventDefault();
               if (product.colors?.length > 0 || product.sizes?.length > 0) {
@@ -131,9 +131,9 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
           className={`absolute top-4 right-4 z-30 transition-all duration-300 ${isWishlisted(product._id || product.id.toString()) ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
           data-cursor={isWishlisted(product._id || product.id.toString()) ? "SAVED" : "SAVE"}
         >
-          <Heart 
-            size={18} 
-            className={`${isWishlisted(product._id || product.id.toString()) ? 'fill-white text-white' : 'text-white'}`} 
+          <Heart
+            size={18}
+            className={`${isWishlisted(product._id || product.id.toString()) ? 'fill-white text-white' : 'text-white'}`}
             strokeWidth={1.5}
           />
         </button>
@@ -143,7 +143,7 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
       <div className="flex flex-col space-y-2">
         <div className="flex justify-between items-start">
           <div className="flex flex-col">
-            <Link 
+            <Link
               href={`/products/${product.slug}`}
               className="text-[14px] md:text-[16px] font-bold text-black tracking-tight leading-tight hover:underline transition-all decoration-1 underline-offset-4"
             >
@@ -164,7 +164,7 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
         {product.colors?.length > 1 && (
           <div className="flex gap-1.5 pt-1">
             {product.colors.map((c: { name: string; hex?: string }) => (
-              <div 
+              <div
                 key={c.name}
                 className="w-2.5 h-2.5 rounded-full ring-1 ring-black/10"
                 style={{ backgroundColor: c.hex || c.name.toLowerCase() }}
@@ -173,7 +173,6 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
           </div>
         )}
       </div>
->
     </motion.div>
   );
 }
