@@ -32,7 +32,7 @@ export default function TopBar() {
   return (
     <div 
       ref={barRef}
-      className={`fixed top-0 left-0 w-full bg-black text-white h-[40px] flex items-center justify-between px-8 border-b-2 border-black z-[600] overflow-hidden transition-transform duration-500 ease-[0.16,1,0.3,1] ${isVisible ? 'translate-y-0' : '-translate-y-full'}`}
+      className={`absolute top-0 left-0 w-full bg-black text-white h-[40px] flex items-center justify-between px-8 border-b-2 border-black z-[600] overflow-hidden transition-transform duration-500 ease-[0.16,1,0.3,1] ${isVisible ? 'translate-y-0' : '-translate-y-full'}`}
     >
       {/* Socials / Info */}
       <div className="hidden lg:flex items-center gap-6">

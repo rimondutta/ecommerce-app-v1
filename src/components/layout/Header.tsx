@@ -110,7 +110,7 @@ export default function Header() {
           isScrolled 
           ? "bg-white/95 backdrop-blur-xl border-black/10 h-[80px]" 
           : "bg-white border-transparent h-[100px]"
-        } top-0`}
+        } top-[40px]`}
       >
         <div className="max-w-[1800px] mx-auto px-6 md:px-16 h-full flex items-center justify-between">
           
