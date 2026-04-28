@@ -2,11 +2,11 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { Heart, ShoppingBag, ArrowRight, Eye } from "lucide-react";
+import { Heart, ShoppingBag, Eye } from "lucide-react";
 import { useCart } from "@/components/providers/CartProvider";
 import { useWishlist } from "@/components/providers/WishlistProvider";
 import { useQuickLook } from "@/store/quickLookStore";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import Link from "next/link";
 
 interface ProductCardProps {

@@ -1,20 +1,13 @@
 "use client";
 
 import React, { useState, useEffect, Suspense } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { 
   SlidersHorizontal, 
   ChevronRight, 
-  LayoutGrid, 
-  StretchHorizontal, 
   Search, 
-  Activity,
-  ArrowRight,
-  Filter,
   X,
-  ShoppingBag,
-  Info
 } from 'lucide-react';
 import ProductCard from '@/components/ui/ProductCard';
 

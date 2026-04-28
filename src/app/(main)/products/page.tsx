@@ -1,13 +1,10 @@
 "use client";
-import { useState, useEffect, useMemo, Fragment, Suspense } from "react";
+import { useState, useEffect, useMemo, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import ProductCard from "@/components/ui/ProductCard";
 import EditorialSection from "@/components/ui/EditorialSection";
 import { motion, AnimatePresence } from "framer-motion";
-import { SlidersHorizontal, X, ArrowRight } from "lucide-react";
-import Link from "next/link";
-import { useCart } from "@/components/providers/CartProvider";
-import { useWishlist } from "@/components/providers/WishlistProvider";
+import { SlidersHorizontal, X } from "lucide-react";
 
 
 function ShopContent() {
@@ -28,8 +25,6 @@ function ShopContent() {
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
-  const { addItem, openCart } = useCart();
-  const { toggleItem, isWishlisted } = useWishlist();
 
   // Fetch products from DB
   useEffect(() => {

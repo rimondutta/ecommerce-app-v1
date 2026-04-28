@@ -11,15 +11,9 @@ import {
   ArrowLeft, 
   Share2, 
   Ruler, 
-  ShieldCheck, 
-  Truck, 
-  RotateCcw, 
-  Star, 
   Plus, 
   Minus, 
   ArrowRight, 
-  CreditCard, 
-  Award, 
   ChevronRight,
   Maximize2
 } from "lucide-react";

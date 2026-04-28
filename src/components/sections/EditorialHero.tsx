@@ -112,10 +112,6 @@ export default function EditorialHero() {
     initGsap();
   }, []);
 
-  const y1 = useTransform(scrollYProgress, [0, 1], [0, 300]);
-  const scale = useTransform(scrollYProgress, [0, 1], [1, 1.2]);
-  const opacity = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
-  const textX = useTransform(scrollYProgress, [0, 1], [0, 100]);
 
   return (
     <section
