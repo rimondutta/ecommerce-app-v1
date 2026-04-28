@@ -76,7 +76,7 @@ export default function MobileMenu() {
 
             {/* Nav Links */}
             <nav className="flex-1 overflow-y-auto bg-white relative z-10" aria-label="Mobile navigation">
-              {menuItems.map((item, i) => (
+              {menuItems.map((item) => (
                 <Link
                   key={item.label}
                   href={item.href}

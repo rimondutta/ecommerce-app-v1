@@ -130,7 +130,7 @@ export default function Header() {
 
           {/* Navigation */}
           <nav ref={navRef} className="hidden lg:flex items-center gap-10 h-full" aria-label="Main navigation">
-            {navLinks.map((link, idx) => (
+            {navLinks.map((link) => (
               <MagneticElement key={link.label} strength={0.1}>
                 <div
                   className="relative h-full flex items-center will-change-transform"

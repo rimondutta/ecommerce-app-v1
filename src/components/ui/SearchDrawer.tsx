@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, useState, useMemo, useEffect } from "react";
+import { Fragment, useState, useEffect } from "react";
 import { Dialog, DialogPanel, Transition, TransitionChild } from "@headlessui/react";
 import { X, Search as SearchIcon, ArrowRight } from "lucide-react";
 import Image from "next/image";
@@ -16,7 +16,7 @@ export default function SearchDrawer({ isOpen, onClose }: SearchDrawerProps) {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<any[]>([]);
   const [featured, setFeatured] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
+
 
   // Fetch featured products for empty state
   useEffect(() => {
@@ -38,16 +38,14 @@ export default function SearchDrawer({ isOpen, onClose }: SearchDrawerProps) {
         setResults([]);
         return;
       }
-      setLoading(true);
+
       try {
         const res = await fetch(`/api/store/products?search=${encodeURIComponent(query)}`);
         const data = await res.json();
         setResults(data.products || []);
       } catch (err) {
         console.error("Search failed:", err);
-      } finally {
-        setLoading(false);
-      }
+
     };
 
     const timer = setTimeout(fetchResults, 300);

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { ChevronDown, Zap } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 
 const announcements = [
   "Spring Fashion Sale — Up to 50% Off Selected Items",
