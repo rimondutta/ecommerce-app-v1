@@ -1,7 +1,7 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
-import { useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { Plus, X, Crosshair } from "lucide-react";
 import { useQuickLook } from "@/store/quickLookStore";
@@ -67,20 +67,106 @@ export default function ShopTheLook() {
   const [hoveredHotspot, setHoveredHotspot] = useState<Hotspot | null>(null);
   const { openQuickLook } = useQuickLook();
 
+  const sectionRef = useRef<HTMLElement>(null);
+  const headingRef = useRef<HTMLDivElement>(null);
+  const imageContainerRef = useRef<HTMLDivElement>(null);
+  const tabsRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const initGsap = async () => {
+      const { gsap, ScrollTrigger } = await import("@/lib/gsap");
+
+      if (!sectionRef.current) return;
+
+      const ctx = gsap.context(() => {
+        // ── Heading slide in from left ──
+        if (headingRef.current) {
+          gsap.fromTo(
+            headingRef.current,
+            { opacity: 0, x: -80 },
+            {
+              opacity: 1,
+              x: 0,
+              duration: 1.4,
+              ease: "expo.out",
+              scrollTrigger: {
+                trigger: headingRef.current,
+                start: "top 85%",
+                toggleActions: "play none none none",
+              },
+            }
+          );
+        }
+
+        // ── Tabs stagger in ──
+        if (tabsRef.current) {
+          const buttons = tabsRef.current.children;
+          gsap.fromTo(
+            buttons,
+            { opacity: 0, scale: 0.8, y: 20 },
+            {
+              opacity: 1,
+              scale: 1,
+              y: 0,
+              stagger: 0.1,
+              duration: 0.8,
+              ease: "back.out(2)",
+              scrollTrigger: {
+                trigger: tabsRef.current,
+                start: "top 90%",
+                toggleActions: "play none none none",
+              },
+            }
+          );
+        }
+
+        // ── Image container cinematic clip-path reveal ──
+        if (imageContainerRef.current) {
+          gsap.fromTo(
+            imageContainerRef.current,
+            { clipPath: "inset(15% 15% 15% 15%)", opacity: 0 },
+            {
+              clipPath: "inset(0% 0% 0% 0%)",
+              opacity: 1,
+              duration: 1.8,
+              ease: "expo.inOut",
+              scrollTrigger: {
+                trigger: imageContainerRef.current,
+                start: "top 80%",
+                toggleActions: "play none none none",
+              },
+            }
+          );
+
+          // Parallax on the image container
+          gsap.to(imageContainerRef.current, {
+            y: -40,
+            ease: "none",
+            scrollTrigger: {
+              trigger: sectionRef.current,
+              start: "top bottom",
+              end: "bottom top",
+              scrub: true,
+            },
+          });
+        }
+      }, sectionRef);
+
+      return () => ctx.revert();
+    };
+
+    initGsap();
+  }, []);
+
   return (
-    <section className="relative py-32 md:py-48 bg-[#f0ece5] overflow-hidden">
+    <section ref={sectionRef} className="relative py-32 md:py-48 bg-[#f0ece5] overflow-hidden">
       {/* Technical Background Grid */}
       <div className="absolute inset-0 pointer-events-none opacity-[0.03]" 
            style={{ backgroundImage: 'linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
 
       <div className="max-w-[1800px] mx-auto px-4 md:px-16 relative z-10">
         <div className="flex flex-col md:flex-row justify-between items-end mb-24 gap-10">
-          <motion.div
-            initial={{ opacity: 0, x: -30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 1 }}
-          >
+          <div ref={headingRef} style={{ opacity: 0 }}>
             <div className="flex items-center gap-4 mb-4">
                <div className="w-8 h-px bg-black" />
                <span className="text-[10px] font-mono font-black uppercase tracking-[0.4em] text-black/60">SYS_VIEW // Editorial</span>
@@ -95,9 +181,9 @@ export default function ShopTheLook() {
               style={{ WebkitTextStroke: '2px black' }}
               delay={0.4}
             />
-          </motion.div>
+          </div>
 
-          <div className="flex gap-2 w-full md:w-auto overflow-x-auto pb-2 md:pb-0">
+          <div ref={tabsRef} className="flex gap-2 w-full md:w-auto overflow-x-auto pb-2 md:pb-0">
             {looks.map((_, i) => (
               <button
                 key={i}
@@ -110,7 +196,7 @@ export default function ShopTheLook() {
           </div>
         </div>
 
-        <div className="relative aspect-[4/5] md:aspect-[21/9] bg-black overflow-hidden border border-black/20 group">
+        <div ref={imageContainerRef} className="relative aspect-[4/5] md:aspect-[21/9] bg-black overflow-hidden border border-black/20 group will-change-transform" style={{ opacity: 0 }}>
           <AnimatePresence mode="wait">
             <motion.div
               key={activeLook}
@@ -210,4 +296,3 @@ export default function ShopTheLook() {
     </section>
   );
 }
-

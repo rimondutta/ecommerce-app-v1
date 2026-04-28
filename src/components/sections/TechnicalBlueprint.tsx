@@ -1,22 +1,166 @@
 "use client";
 
-import { motion, useScroll, useTransform } from "framer-motion";
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
 import Image from "next/image";
 import SplitTextAnimation from "@/components/ui/SplitTextAnimation";
 
 export default function TechnicalBlueprint() {
-  const containerRef = useRef(null);
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start end", "end start"],
-  });
+  const containerRef = useRef<HTMLElement>(null);
+  const textBlockRef = useRef<HTMLDivElement>(null);
+  const descRef = useRef<HTMLDivElement>(null);
+  const imageRef = useRef<HTMLDivElement>(null);
+  const imageInnerRef = useRef<HTMLDivElement>(null);
+  const badgeRef = useRef<HTMLDivElement>(null);
+  const frameRef = useRef<HTMLDivElement>(null);
+  const specTagsRef = useRef<HTMLDivElement>(null);
 
-  const y1 = useTransform(scrollYProgress, [0, 1], [0, -200]);
-  const y2 = useTransform(scrollYProgress, [0, 1], [0, 150]);
-  const scale = useTransform(scrollYProgress, [0, 0.5, 1], [0.8, 1, 0.9]);
-  const opacity = useTransform(scrollYProgress, [0, 0.3, 0.8, 1], [0, 1, 1, 0]);
-  const rotate = useTransform(scrollYProgress, [0, 1], [0, 360]);
+  useEffect(() => {
+    const initGsap = async () => {
+      const { gsap, ScrollTrigger } = await import("@/lib/gsap");
+
+      if (!containerRef.current) return;
+
+      const ctx = gsap.context(() => {
+        // ── Pin the section for a scrub-driven experience ──
+        const pinTl = gsap.timeline({
+          scrollTrigger: {
+            trigger: containerRef.current,
+            start: "top top",
+            end: "+=150%",
+            scrub: 1,
+            pin: true,
+            anticipatePin: 1,
+          },
+        });
+
+        // ── Text block parallax ──
+        if (textBlockRef.current) {
+          pinTl.fromTo(
+            textBlockRef.current,
+            { y: 80 },
+            { y: -120, ease: "none" },
+            0
+          );
+        }
+
+        // ── Description fade + slide ──
+        if (descRef.current) {
+          gsap.fromTo(
+            descRef.current,
+            { opacity: 0, x: -50, clipPath: "inset(0 100% 0 0)" },
+            {
+              opacity: 1,
+              x: 0,
+              clipPath: "inset(0 0% 0 0)",
+              duration: 1.4,
+              ease: "expo.out",
+              scrollTrigger: {
+                trigger: descRef.current,
+                start: "top 85%",
+                toggleActions: "play none none none",
+              },
+            }
+          );
+        }
+
+        // ── Spec tags stagger ──
+        if (specTagsRef.current) {
+          const tags = specTagsRef.current.children;
+          gsap.fromTo(
+            tags,
+            { opacity: 0, y: 20 },
+            {
+              opacity: 1,
+              y: 0,
+              stagger: 0.1,
+              duration: 0.8,
+              ease: "expo.out",
+              scrollTrigger: {
+                trigger: specTagsRef.current,
+                start: "top 85%",
+                toggleActions: "play none none none",
+              },
+            }
+          );
+        }
+
+        // ── Image scale reveal ──
+        if (imageInnerRef.current) {
+          gsap.fromTo(
+            imageInnerRef.current,
+            { scale: 1.3, opacity: 0 },
+            {
+              scale: 1,
+              opacity: 1,
+              duration: 2,
+              ease: "expo.out",
+              scrollTrigger: {
+                trigger: imageRef.current,
+                start: "top 80%",
+                toggleActions: "play none none none",
+              },
+            }
+          );
+
+          // Image parallax scrub
+          pinTl.fromTo(
+            imageInnerRef.current,
+            { y: -50 },
+            { y: 50, ease: "none" },
+            0
+          );
+        }
+
+        // ── Decorative frame parallax ──
+        if (frameRef.current) {
+          pinTl.fromTo(
+            frameRef.current,
+            { y: 0 },
+            { y: 80, ease: "none" },
+            0
+          );
+        }
+
+        // ── Badge spring entrance ──
+        if (badgeRef.current) {
+          gsap.fromTo(
+            badgeRef.current,
+            { scale: 0, rotation: -45 },
+            {
+              scale: 1,
+              rotation: 0,
+              duration: 1.5,
+              ease: "elastic.out(1, 0.5)",
+              scrollTrigger: {
+                trigger: badgeRef.current,
+                start: "top 85%",
+                toggleActions: "play none none none",
+              },
+            }
+          );
+
+          // Badge rotating dashed border — continuous spin via ScrollTrigger scrub
+          const dashedBorder = badgeRef.current.querySelector("[data-dashed]");
+          if (dashedBorder) {
+            gsap.to(dashedBorder, {
+              rotation: 360,
+              ease: "none",
+              scrollTrigger: {
+                trigger: containerRef.current,
+                start: "top bottom",
+                end: "bottom top",
+                scrub: true,
+              },
+            });
+          }
+        }
+      }, containerRef);
+
+      return () => ctx.revert();
+    };
+
+    initGsap();
+  }, []);
 
   return (
     <section 
@@ -41,7 +185,7 @@ export default function TechnicalBlueprint() {
         
         {/* Abstract Philosophy Text */}
         <div className="lg:col-span-7 z-20 relative pointer-events-none text-black">
-             <motion.div style={{ y: y1 }} className="lg:block">
+             <div ref={textBlockRef} className="lg:block will-change-transform">
                 <div className="pb-4 mb-4">
                   <SplitTextAnimation 
                     text="Form"
@@ -60,32 +204,34 @@ export default function TechnicalBlueprint() {
                     delay={0.6}
                   />
                 </div>
-             </motion.div>
+             </div>
              
-             <motion.div 
+             <div 
+               ref={descRef}
                className="relative border-l border-black/20 pl-6 ml-2 md:ml-12"
-               style={{ opacity }}
+               style={{ opacity: 0 }}
              >
                 <div className="absolute -left-[3px] top-0 w-1.5 h-1.5 bg-black" />
                 <p className="font-mono text-sm md:text-lg uppercase tracking-widest leading-relaxed max-w-xl opacity-90">
                   We construct garments not as mere coverings, but as architectural extensions of the self. Every thread is considered. Every silhouette is intentional. 
                 </p>
-                <div className="mt-8 flex gap-4 font-mono text-[10px] text-black/50 tracking-widest">
+                <div ref={specTagsRef} className="mt-8 flex gap-4 font-mono text-[10px] text-black/50 tracking-widest">
                   <span>[ SPEC_01 ]</span>
                   <span>[ PRECISION ]</span>
                   <span>[ UTILITY ]</span>
                 </div>
-             </motion.div>
+             </div>
         </div>
 
         {/* Parallax Image Block */}
-        <div className="lg:col-span-5 relative h-[70vh] w-full mt-20 lg:mt-0 group cursor-crosshair">
+        <div ref={imageRef} className="lg:col-span-5 relative h-[70vh] w-full mt-20 lg:mt-0 group cursor-crosshair">
            {/* Decorative frame */}
-           <motion.div className="absolute inset-0 border border-black/10 -m-4 pointer-events-none hidden md:block" style={{ y: y2 }} />
+           <div ref={frameRef} className="absolute inset-0 border border-black/10 -m-4 pointer-events-none hidden md:block will-change-transform" />
            
-           <motion.div 
-             className="relative w-full h-full overflow-hidden bg-black"
-             style={{ scale }}
+           <div 
+             ref={imageInnerRef}
+             className="relative w-full h-full overflow-hidden bg-black will-change-transform"
+             style={{ opacity: 0 }}
            >
               <Image 
                   src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=1200&auto=format&fit=crop" 
@@ -103,19 +249,17 @@ export default function TechnicalBlueprint() {
                   <div className="w-1 h-1 bg-white" />
                 </div>
               </div>
-           </motion.div>
+           </div>
            
            {/* Rotating Data Badge */}
-           <motion.div 
-             className="absolute -bottom-12 -left-12 md:-left-24 bg-black text-white p-2 w-40 h-40 md:w-56 md:h-56 flex flex-col items-center justify-center text-center shadow-[0_0_40px_rgba(0,0,0,0.2)] border border-white/10 z-30"
-             initial={{ scale: 0 }}
-             whileInView={{ scale: 1 }}
-             viewport={{ once: true }}
-             transition={{ type: "spring", bounce: 0.5, duration: 1.5 }}
+           <div 
+             ref={badgeRef}
+             className="absolute -bottom-12 -left-12 md:-left-24 bg-black text-white p-2 w-40 h-40 md:w-56 md:h-56 flex flex-col items-center justify-center text-center shadow-[0_0_40px_rgba(0,0,0,0.2)] border border-white/10 z-30 will-change-transform"
+             style={{ transform: "scale(0)" }}
            >
-               <motion.div 
-                  className="absolute inset-2 border border-dashed border-white/20"
-                  style={{ rotate }}
+               <div 
+                  data-dashed
+                  className="absolute inset-2 border border-dashed border-white/20 will-change-transform"
                />
                <div className="relative z-10 flex flex-col items-center">
                  <span className="font-display font-black text-4xl md:text-6xl mb-0 leading-none">FW</span>
@@ -124,7 +268,7 @@ export default function TechnicalBlueprint() {
                  </span>
                </div>
                
-               {/* Circular Text (simplified with absolute positioning) */}
+               {/* Circular Text */}
                <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full animate-[spin_20s_linear_infinite] opacity-30">
                  <path id="circlePath" d="M 50, 50 m -37, 0 a 37,37 0 1,1 74,0 a 37,37 0 1,1 -74,0" fill="none" />
                  <text fontSize="8.5" fontFamily="monospace" letterSpacing="0.2em">
@@ -133,7 +277,7 @@ export default function TechnicalBlueprint() {
                    </textPath>
                  </text>
                </svg>
-           </motion.div>
+           </div>
         </div>
 
       </div>
