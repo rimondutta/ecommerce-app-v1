@@ -85,7 +85,7 @@ export default function ProductDetailsClient({ product, relatedProducts }: Produ
       <div className="fixed inset-0 pointer-events-none opacity-[0.02] z-50 bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
 
       {/* Navigation / Breadcrumbs */}
-      <div className="border-b border-black/5 sticky top-[80px] z-40 bg-white/80 backdrop-blur-md">
+      <div className="border-b border-black/5 relative z-40 bg-white">
         <div className="max-w-[1800px] mx-auto px-6 md:px-12 py-4 flex items-center justify-between">
           <nav className="flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.2em] text-black/40">
             <Link href="/" className="hover:text-black transition-colors">Home</Link>
