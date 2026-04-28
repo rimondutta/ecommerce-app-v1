@@ -24,7 +24,7 @@ interface Product {
 
 interface Category { name: string; slug: string; }
 
-export default function ModernProductGrid({ 
+export default function EditorialProductGrid({ 
   initialProducts = [], 
   categories = [] 
 }: { 

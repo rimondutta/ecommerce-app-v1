@@ -11,7 +11,7 @@ interface Category {
   count?: number;
 }
 
-export default function BrutalistCategories() {
+export default function EditorialCategories() {
   const [categories, setCategories] = useState<Category[]>([]);
   const sectionRef = useRef<HTMLElement>(null);
 

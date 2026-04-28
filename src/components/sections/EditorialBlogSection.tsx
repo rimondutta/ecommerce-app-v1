@@ -15,7 +15,7 @@ interface BlogPost {
   readingTime: string;
 }
 
-const BrutalistBlogSection = () => {
+const EditorialBlogSection = () => {
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
   const sectionRef = useRef<HTMLElement>(null);
@@ -138,4 +138,4 @@ const BrutalistBlogSection = () => {
   );
 };
 
-export default BrutalistBlogSection;
+export default EditorialBlogSection;

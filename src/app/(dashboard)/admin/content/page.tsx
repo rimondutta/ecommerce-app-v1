@@ -69,7 +69,7 @@ export default function AdminContentPage() {
           <div className="w-16 h-16 bg-white rounded-full border border-[#d2d2d2] flex items-center justify-center mb-4">
             <Layout size={32} className="text-[#616161]" />
           </div>
-          <h3 className="text-[16px] font-bold text-[#202223]">Modern Brutalist</h3>
+          <h3 className="text-[16px] font-bold text-[#202223]">Editorial Luxury</h3>
           <p className="text-[13px] text-[#616161] mt-1 mb-6 max-w-sm">
             This is the theme that customers see when they visit your store.
           </p>

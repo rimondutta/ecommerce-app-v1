@@ -109,7 +109,7 @@ export default function QuickLookDrawer() {
                     </motion.div>
                   </AnimatePresence>
 
-                  {/* Brutalist Badges */}
+                  {/* Editorial Badges */}
                   <div className="absolute top-4 left-4 lg:top-8 lg:left-8 flex flex-col gap-2 lg:gap-3">
                     <div className="bg-white border-2 border-black px-2 lg:px-4 py-1 inline-flex items-center gap-2 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] lg:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
                       <div className="w-1.5 h-1.5 lg:w-2 lg:h-2 bg-black animate-pulse" />
