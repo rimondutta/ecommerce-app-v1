@@ -121,11 +121,11 @@ export default function Header() {
     <>
       <header
         ref={headerRef}
-        className={`relative w-full z-[100] border-b ${
+        className={`fixed top-[40px] left-0 w-full z-[500] border-b ${
           isScrolled 
           ? "bg-white/90 backdrop-blur-xl border-black/10 h-[80px]" 
           : "bg-white/50 backdrop-blur-md border-transparent h-[100px]"
-        } transition-[background-color,border-color,height] duration-500`}
+        } transition-[background-color,border-color,height,top] duration-500`}
       >
         <div className="max-w-[1800px] mx-auto px-6 md:px-16 h-full flex items-center justify-between">
           
@@ -220,7 +220,7 @@ export default function Header() {
       <AnimatePresence>
         {activeMenu === "Shop" && (
           <motion.div 
-            className="fixed top-[80px] md:top-[100px] left-0 w-full bg-[#f0ece5] text-black border-b border-black/10 shadow-2xl z-[90] overflow-hidden"
+            className={`fixed ${isScrolled ? 'top-[120px]' : 'top-[140px]'} left-0 w-full bg-[#f0ece5] text-black border-b border-black/10 shadow-2xl z-[90] overflow-hidden`}
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}

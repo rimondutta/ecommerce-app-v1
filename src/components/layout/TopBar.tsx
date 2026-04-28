@@ -44,7 +44,7 @@ export default function TopBar() {
   }, []);
 
   return (
-    <div className="w-full bg-black text-white h-[40px] flex items-center justify-between px-8 border-b-2 border-black relative z-50 overflow-hidden">
+    <div className="fixed top-0 left-0 w-full bg-black text-white h-[40px] flex items-center justify-between px-8 border-b-2 border-black z-[600] overflow-hidden">
       {/* Socials / Info */}
       <div className="hidden lg:flex items-center gap-6">
         <a href="#" className="text-[11px] font-bold uppercase tracking-widest hover:text-gray-400 transition-colors">Instagram</a>
