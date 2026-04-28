@@ -6,8 +6,8 @@ import { Search, User, Heart, ShoppingBag, Menu, ArrowRight } from "lucide-react
 import { useCart } from "@/components/providers/CartProvider";
 import { useWishlist } from "@/components/providers/WishlistProvider";
 import { useSearch } from "@/components/providers/SearchProvider";
-import MobileMenu from "./MobileMenu";
 import { motion, AnimatePresence } from "framer-motion";
+import { useUIStore } from "@/store/uiStore";
 
 const navLinks = [
   { label: "Home", href: "/" },
@@ -30,7 +30,7 @@ const shopMegaMenu = {
 
 export default function Header() {
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
-  const [mobileOpen, setMobileOpen] = useState(false);
+  const { isMobileMenuOpen, openMobileMenu } = useUIStore();
   const [categories, setCategories] = useState<Category[]>([]);
   const { isOpen: isCartOpen, openCart, closeCart, count: cartCount } = useCart();
   const { count: wishlistCount } = useWishlist();
@@ -79,8 +79,8 @@ export default function Header() {
         <div className="max-w-[1800px] mx-auto px-8 md:px-16 h-[100px] flex items-center justify-between">
             {/* Mobile menu button */}
             <button
-              className="lg:hidden p-2 -ml-2 hover:scale-110 transition-transform"
-              onClick={() => setMobileOpen(true)}
+              className="lg:hidden p-2 -ml-2 hover:scale-110 transition-transform relative z-[600]"
+              onClick={openMobileMenu}
               aria-label="Open mobile menu"
               data-cursor="MENU"
             >
@@ -266,8 +266,7 @@ export default function Header() {
         )}
       </AnimatePresence>
 
-      {/* Mobile Menu */}
-      <MobileMenu isOpen={mobileOpen} onClose={() => setMobileOpen(false)} />
+
     </>
   );
 }

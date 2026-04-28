@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
+import SplitTextAnimation from "@/components/ui/SplitTextAnimation";
 
 const categories = [
   {
@@ -45,9 +46,15 @@ export default function BentoCategories() {
       <div className="mb-24 flex flex-col md:flex-row justify-between items-end gap-10 relative z-10">
         <div className="relative">
           <div className="absolute -left-8 top-4 w-4 h-4 border-t-2 border-l-2 border-black/20" />
-          <h2 className="font-display font-black text-6xl md:text-8xl uppercase tracking-tighter leading-[0.9] text-black">
-            Explore <br/><span className="italic text-black/40" style={{ WebkitTextStroke: '1px rgba(0,0,0,0.8)' }}>Silhouettes</span>
-          </h2>
+          <SplitTextAnimation 
+            text="Explore"
+            className="font-display font-black text-6xl md:text-8xl uppercase tracking-tighter leading-[0.9] text-black mb-2"
+          />
+          <SplitTextAnimation 
+            text="Silhouettes"
+            className="font-display font-black text-6xl md:text-8xl uppercase tracking-tighter leading-[0.9] italic text-black/40"
+            delay={0.4}
+          />
         </div>
         <p className="max-w-md font-mono text-[10px] md:text-xs uppercase tracking-widest leading-relaxed text-black/60 border-l-2 border-black/10 pl-6">
            Curated selections defining the contemporary wardrobe. Pieces selected for architectural form and enduring utility.

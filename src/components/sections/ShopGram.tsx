@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
+import SplitTextAnimation from "@/components/ui/SplitTextAnimation";
 
 const images = [
   "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=800&auto=format&fit=crop",
@@ -30,10 +31,16 @@ export default function ShopGram() {
               <div className="w-2 h-2 bg-black animate-pulse" />
               <span className="text-[10px] font-mono font-black uppercase tracking-[0.4em] text-black/60">SYS_NETWORK // Feed</span>
             </div>
-            <h2 className="font-display font-black text-5xl md:text-[9rem] uppercase tracking-tighter leading-[0.8] text-black">
-              Network <br />
-              <span className="text-transparent" style={{ WebkitTextStroke: '2px black' }}>Data</span>
-            </h2>
+            <SplitTextAnimation 
+              text="Network"
+              className="font-display font-black text-5xl md:text-[9rem] uppercase tracking-tighter leading-[0.8] text-black"
+            />
+            <SplitTextAnimation 
+              text="Data"
+              className="font-display font-black text-5xl md:text-[9rem] uppercase tracking-tighter leading-[0.8] text-transparent"
+              style={{ WebkitTextStroke: '2px black' }}
+              delay={0.4}
+            />
           </motion.div>
 
           <motion.a 

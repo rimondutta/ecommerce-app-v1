@@ -10,6 +10,7 @@ import { useSearch } from "@/components/providers/SearchProvider";
 const CartDrawer = dynamic(() => import("@/components/ui/CartDrawer"), { ssr: false });
 const QuickLookDrawer = dynamic(() => import("@/components/ui/QuickLookDrawer"), { ssr: false });
 const SearchDrawer = dynamic(() => import("@/components/ui/SearchDrawer"), { ssr: false });
+const MobileMenu = dynamic(() => import("@/components/layout/MobileMenu"), { ssr: false });
 
 export default function GlobalUI() {
   const { isOpen: isSearchOpen, closeSearch } = useSearch();
@@ -20,6 +21,7 @@ export default function GlobalUI() {
       <CartDrawer />
       <QuickLookDrawer />
       <SearchDrawer isOpen={isSearchOpen} onClose={closeSearch} />
+      <MobileMenu />
       <ScrollToTop />
     </>
   );

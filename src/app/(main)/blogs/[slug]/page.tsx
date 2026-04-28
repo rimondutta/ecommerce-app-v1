@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { Calendar, Clock, User, ArrowLeft, Share2 } from 'lucide-react';
 import Link from 'next/link';
+import SplitTextAnimation from '@/components/ui/SplitTextAnimation';
 
 async function getBlogPost(slug: string) {
   await dbConnect();
@@ -60,9 +61,10 @@ const SingleBlogPage = async ({
                   <Clock className="w-3 h-3" /> READ_T_{post.readingTime}
                 </span>
               </div>
-              <h1 className="font-display text-4xl md:text-8xl font-black text-black uppercase leading-[0.9] tracking-tighter mb-12">
-                {post.title}
-              </h1>
+              <SplitTextAnimation 
+                text={post.title}
+                className="font-display text-4xl md:text-8xl font-black text-black uppercase leading-[0.9] tracking-tighter mb-12"
+              />
               <div className="flex items-center justify-center gap-6 text-black border-t border-black pt-8">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-gray-200 overflow-hidden border border-black grayscale">

@@ -3,6 +3,7 @@
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
 import Image from "next/image";
+import SplitTextAnimation from "@/components/ui/SplitTextAnimation";
 
 export default function TechnicalBlueprint() {
   const containerRef = useRef(null);
@@ -41,11 +42,24 @@ export default function TechnicalBlueprint() {
         {/* Abstract Philosophy Text */}
         <div className="lg:col-span-7 z-20 relative pointer-events-none text-black">
              <motion.div style={{ y: y1 }} className="lg:block">
-               <h2 className="font-display font-black text-5xl md:text-[11vw] uppercase tracking-tighter leading-[0.85] pb-4 mb-4">
-                  <span className="block" style={{ WebkitTextStroke: '1px rgba(0,0,0,0.3)', color: 'transparent' }}>Form</span>
-                  <span className="block italic font-light text-black">Follows</span>
-                  <span className="block" style={{ WebkitTextStroke: '2px rgba(0,0,0,1)', color: 'transparent' }}>Feeling</span>
-               </h2>
+                <div className="pb-4 mb-4">
+                  <SplitTextAnimation 
+                    text="Form"
+                    className="font-display font-black text-5xl md:text-[11vw] uppercase tracking-tighter leading-[0.85]"
+                    style={{ WebkitTextStroke: '1px rgba(0,0,0,0.3)', color: 'transparent' }}
+                  />
+                  <SplitTextAnimation 
+                    text="Follows"
+                    className="font-display italic font-light text-black text-5xl md:text-[11vw] uppercase tracking-tighter leading-[0.85]"
+                    delay={0.4}
+                  />
+                  <SplitTextAnimation 
+                    text="Feeling"
+                    className="font-display font-black text-5xl md:text-[11vw] uppercase tracking-tighter leading-[0.85]"
+                    style={{ WebkitTextStroke: '2px rgba(0,0,0,1)', color: 'transparent' }}
+                    delay={0.6}
+                  />
+                </div>
              </motion.div>
              
              <motion.div 

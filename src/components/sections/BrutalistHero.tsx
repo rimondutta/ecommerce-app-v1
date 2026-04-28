@@ -4,6 +4,7 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import SplitTextAnimation from "@/components/ui/SplitTextAnimation";
 
 export default function EditorialHero() {
   const containerRef = useRef(null);
@@ -29,8 +30,6 @@ export default function EditorialHero() {
   const scale = useTransform(scrollYProgress, [0, 1], [1, 1.2]);
   const opacity = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
   const textX = useTransform(scrollYProgress, [0, 1], [0, 100]);
-
-  const words = "ARCHIVAL. TECHNICAL. FUTURE.".split(" ");
 
   return (
     <section 
@@ -103,29 +102,10 @@ export default function EditorialHero() {
           </motion.div>
         </motion.div>
 
-        <h1 className="font-display font-black text-[18vw] md:text-[11vw] leading-[0.8] tracking-tighter text-white uppercase flex flex-col items-center md:items-start relative">
-          {words.map((word, i) => (
-            <div key={i} className="overflow-hidden h-[1.1em] flex relative">
-              <motion.span
-                className={`inline-block ${
-                  i === 1 
-                    ? 'italic text-transparent ml-[2vw] md:ml-[4vw]' 
-                    : ''
-                }`}
-                style={i === 1 ? { WebkitTextStroke: '1px rgba(255,255,255,0.4)', x: textX } : { x: 0 }}
-                initial={{ y: "110%" }}
-                animate={{ y: 0 }}
-                transition={{ 
-                  duration: 1.2, 
-                  ease: [0.16, 1, 0.3, 1],
-                  delay: 0.1 + (i * 0.1) 
-                }}
-              >
-                {word}
-              </motion.span>
-            </div>
-          ))}
-        </h1>
+        <SplitTextAnimation 
+          text="ARCHIVAL. TECHNICAL. FUTURE."
+          className="font-display font-black text-[15vw] md:text-[11vw] leading-[0.8] tracking-tighter text-white uppercase flex flex-col items-center md:items-start relative"
+        />
 
         <motion.p 
           className="mt-10 text-white/60 text-[10px] md:text-sm font-mono uppercase tracking-[0.2em] max-w-[280px] md:max-w-md leading-relaxed border-l border-white/20 pl-6"
@@ -135,6 +115,7 @@ export default function EditorialHero() {
         >
           High-performance garments engineered for the modern inhabitant. Merging technical utility with brutalist silhouettes.
         </motion.p>
+
 
         <motion.div
            initial={{ opacity: 0, y: 20 }}

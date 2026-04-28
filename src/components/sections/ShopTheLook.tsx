@@ -5,6 +5,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { Plus, X, Crosshair } from "lucide-react";
 import { useQuickLook } from "@/store/quickLookStore";
+import SplitTextAnimation from "@/components/ui/SplitTextAnimation";
 
 interface Hotspot {
   x: number;
@@ -84,10 +85,16 @@ export default function ShopTheLook() {
                <div className="w-8 h-px bg-black" />
                <span className="text-[10px] font-mono font-black uppercase tracking-[0.4em] text-black/60">SYS_VIEW // Editorial</span>
             </div>
-            <h2 className="font-display font-black text-5xl md:text-8xl lg:text-[10rem] uppercase tracking-tighter leading-[0.8] mt-6 text-black">
-              Shop <br />
-              <span className="text-transparent" style={{ WebkitTextStroke: '2px black' }}>The Look</span>
-            </h2>
+            <SplitTextAnimation 
+              text="Shop"
+              className="font-display font-black text-5xl md:text-8xl lg:text-[10rem] uppercase tracking-tighter leading-[0.8] mt-6 text-black"
+            />
+            <SplitTextAnimation 
+              text="The Look"
+              className="font-display font-black text-5xl md:text-8xl lg:text-[10rem] uppercase tracking-tighter leading-[0.8] text-transparent"
+              style={{ WebkitTextStroke: '2px black' }}
+              delay={0.4}
+            />
           </motion.div>
 
           <div className="flex gap-2 w-full md:w-auto overflow-x-auto pb-2 md:pb-0">

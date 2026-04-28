@@ -14,15 +14,14 @@ const menuItems = [
   { label: "CONTACT", href: "#contact", subtitle: "SYS_COMMS" },
 ];
 
-interface MobileMenuProps {
-  isOpen: boolean;
-  onClose: () => void;
-}
+import { useUIStore } from "@/store/uiStore";
 
-export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
+export default function MobileMenu() {
+  const { isMobileMenuOpen, closeMobileMenu } = useUIStore();
+  
   return (
-    <Transition show={isOpen} as={Fragment}>
-      <Dialog open={isOpen} onClose={onClose} className="relative z-[400]">
+    <Transition show={isMobileMenuOpen} as={Fragment}>
+      <Dialog open={isMobileMenuOpen} onClose={closeMobileMenu} className="relative z-[1000]">
         <TransitionChild
           as={Fragment}
           enter="transition-opacity ease-linear duration-300"
@@ -33,9 +32,8 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
           leaveTo="opacity-0"
         >
           <div 
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm cursor-pointer" 
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm" 
             aria-hidden="true" 
-            onClick={onClose}
           />
         </TransitionChild>
 
@@ -48,7 +46,7 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
           leaveFrom="translate-x-0"
           leaveTo="-translate-x-full"
         >
-          <DialogPanel className="fixed inset-y-0 left-0 w-full sm:w-[450px] bg-[#f0ece5] border-r border-black/20 flex flex-col shadow-[0_0_50px_rgba(0,0,0,0.3)] relative overflow-hidden">
+          <DialogPanel className="fixed inset-y-0 left-0 w-full sm:w-[450px] bg-[#f0ece5] border-r border-black/20 flex flex-col shadow-[0_0_50px_rgba(0,0,0,0.3)] overflow-hidden">
             {/* Background Grid */}
             <div className="absolute inset-0 pointer-events-none opacity-[0.03] z-0" 
                  style={{ backgroundImage: 'linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
@@ -65,7 +63,7 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
                 </h2>
               </div>
               <button
-                onClick={onClose}
+                onClick={closeMobileMenu}
                 className="w-12 h-12 bg-transparent text-black border border-black hover:bg-black hover:text-white transition-all flex items-center justify-center group relative"
                 aria-label="Close menu"
               >
@@ -82,7 +80,7 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
                 <Link
                   key={item.label}
                   href={item.href}
-                  onClick={onClose}
+                  onClick={closeMobileMenu}
                   className="group flex flex-col px-8 py-8 border-b border-black/5 hover:bg-black hover:text-white transition-all relative overflow-hidden"
                 >
                   <div className="flex items-center justify-between relative z-10">
@@ -101,6 +99,7 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
                 </Link>
               ))}
             </nav>
+
 
             {/* Bottom */}
             <div className="p-8 space-y-8 bg-[#e8e4db] relative z-10 border-t border-black/10">
