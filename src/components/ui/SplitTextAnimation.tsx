@@ -28,37 +28,57 @@ export default function SplitTextAnimation({
   useEffect(() => {
     if (!textRef.current || !isInView) return;
 
-    // Use dynamic import to avoid SSR issues with GSAP and split-type
     const initAnimation = async () => {
-      const { gsap } = await import("gsap");
+      const { gsap } = await import("@/lib/gsap");
       const SplitType = (await import("split-type")).default;
       
-      if (textRef.current) {
-        const split = new SplitType(textRef.current, { types: "chars,words" });
-        
-        gsap.set(split.chars, { y: "110%", opacity: 0 });
-        
-        gsap.to(split.chars, {
-          y: 0,
+      const split = new SplitType(textRef.current, { types: "chars" });
+      const charsList = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789<>[]{}/?+*#%@!$";
+
+      gsap.set(split.chars, { 
+        opacity: 0, 
+        y: 20,
+        filter: "blur(10px)"
+      });
+      
+      split.chars.forEach((char, i) => {
+        const originalText = char.innerText;
+        const timeline = gsap.timeline({ delay: delay + (i * stagger) });
+
+        timeline.to(char, {
           opacity: 1,
-          stagger: stagger,
-          duration: duration,
-          ease: "expo.out",
-          delay: delay,
+          y: 0,
+          filter: "blur(0px)",
+          duration: 0.8,
+          ease: "expo.out"
         });
-      }
+
+        // The scramble effect
+        timeline.to(char, {
+          duration: duration,
+          onUpdate: function() {
+            const progress = this.progress();
+            if (progress < 1) {
+              char.innerText = charsList[Math.floor(Math.random() * charsList.length)];
+            } else {
+              char.innerText = originalText;
+            }
+          },
+          ease: "none"
+        }, "-=0.6");
+      });
     };
 
     initAnimation();
   }, [text, isInView, delay, stagger, duration]);
 
   return (
-    <h1 
+    <div 
       ref={textRef} 
-      className={className} 
+      className={`select-none ${className}`} 
       style={{ ...style, visibility: isInView ? "visible" : "hidden" }}
     >
       {text}
-    </h1>
+    </div>
   );
 }

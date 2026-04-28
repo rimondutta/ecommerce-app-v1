@@ -36,7 +36,7 @@ export default function EditorialHero() {
     return () => window.removeEventListener("mousemove", handleMouseMove);
   }, []);
 
-  // GSAP hero entrance + parallax
+  // GSAP hero entrance + parallax + marquee
   useEffect(() => {
     const initGsap = async () => {
       const { gsap, ScrollTrigger } = await import("@/lib/gsap");
@@ -48,14 +48,14 @@ export default function EditorialHero() {
         if (imageRef.current) {
           gsap.fromTo(
             imageRef.current,
-            { scale: 1.4, opacity: 0 },
-            { scale: 1, opacity: 1, duration: 2.5, ease: "expo.out", delay: 2.4 }
+            { scale: 1.6, filter: "blur(20px)", opacity: 0 },
+            { scale: 1, filter: "blur(0px)", opacity: 1, duration: 2.5, ease: "expo.out", delay: 1.5 }
           );
 
           // Parallax on scroll
           gsap.to(imageRef.current, {
             y: 300,
-            scale: 1.2,
+            scale: 1.1,
             ease: "none",
             scrollTrigger: {
               trigger: containerRef.current,
@@ -66,7 +66,7 @@ export default function EditorialHero() {
           });
         }
 
-        // ── HUD elements staggered entrance ──
+        // ── HUD elements staggered entrance + Flicker ──
         if (hudRef.current) {
           const hudElements = hudRef.current.querySelectorAll("[data-hud]");
           gsap.fromTo(
@@ -76,77 +76,50 @@ export default function EditorialHero() {
               opacity: 1,
               y: 0,
               scale: 1,
-              stagger: 0.2,
+              stagger: 0.1,
               duration: 1,
               ease: "expo.out",
-              delay: 3,
+              delay: 2.5,
+              onComplete: () => {
+                // Random flicker effect
+                hudElements.forEach(el => {
+                  gsap.to(el, {
+                    opacity: 0.4,
+                    duration: 0.1,
+                    repeat: -1,
+                    repeatDelay: () => Math.random() * 5 + 2,
+                    yoyo: true,
+                    ease: "none"
+                  });
+                });
+              }
             }
           );
         }
 
-        // ── Badge clip-path reveal ──
-        if (badgeRef.current) {
-          gsap.fromTo(
-            badgeRef.current,
-            { clipPath: "inset(0 100% 0 0)" },
-            {
-              clipPath: "inset(0 0% 0 0)",
-              duration: 1.2,
-              ease: "expo.inOut",
-              delay: 2.6,
+        // ── Marquee Velocity Logic ──
+        const marquee = containerRef.current.querySelector("[data-marquee]") as HTMLElement;
+        if (marquee) {
+          const marqueeInner = marquee.querySelector("[data-marquee-inner]") as HTMLElement;
+          let velocity = 1;
+          
+          const playMarquee = () => {
+            gsap.to(marqueeInner, {
+              xPercent: -50,
+              duration: 20 / velocity,
+              ease: "none",
+              repeat: -1
+            });
+          };
+
+          playMarquee();
+
+          ScrollTrigger.create({
+            onUpdate: (self) => {
+              velocity = 1 + Math.abs(self.getVelocity() / 1000);
+              gsap.to(marqueeInner, { timeScale: velocity, duration: 0.5, overwrite: true });
             }
-          );
-        }
-
-        // ── Description slide in ──
-        if (descRef.current) {
-          gsap.fromTo(
-            descRef.current,
-            { opacity: 0, x: -60, clipPath: "inset(0 100% 0 0)" },
-            {
-              opacity: 1,
-              x: 0,
-              clipPath: "inset(0 0% 0 0)",
-              duration: 1.4,
-              ease: "expo.out",
-              delay: 3.2,
-            }
-          );
-        }
-
-        // ── CTA staggered entrance ──
-        if (ctaRef.current) {
-          const ctaItems = ctaRef.current.children;
-          gsap.fromTo(
-            ctaItems,
-            { opacity: 0, y: 40 },
-            {
-              opacity: 1,
-              y: 0,
-              stagger: 0.15,
-              duration: 1.2,
-              ease: "expo.out",
-              delay: 3.4,
-            }
-          );
-        }
-
-        // ── Scroll indicator bounce ──
-        if (scrollIndicatorRef.current) {
-          gsap.fromTo(
-            scrollIndicatorRef.current,
-            { opacity: 0, y: 30 },
-            { opacity: 1, y: 0, duration: 1, ease: "expo.out", delay: 3.8 }
-          );
-        }
-
-        // ── Corner brackets expand on scroll ──
-        if (cornerTLRef.current && cornerBRRef.current) {
-          gsap.fromTo(
-            [cornerTLRef.current, cornerBRRef.current],
-            { scale: 0, opacity: 0 },
-            { scale: 1, opacity: 1, duration: 0.8, ease: "back.out(2)", delay: 2.8, stagger: 0.15 }
-          );
+          });
         }
 
         // ── Fade all content on scroll ──
@@ -163,6 +136,7 @@ export default function EditorialHero() {
                 gsap.set(content, {
                   opacity: 1 - progress * 1.5,
                   y: progress * 100,
+                  filter: `blur(${progress * 10}px)`
                 });
               }
             }
@@ -238,6 +212,24 @@ export default function EditorialHero() {
         <div className="absolute top-0 right-[5%] w-px h-full bg-gradient-to-b from-transparent via-white/10 to-transparent" />
       </div>
 
+      {/* Technical Marquee — Velocity Sensitive */}
+      <div 
+        data-marquee
+        className="absolute bottom-0 left-0 w-full bg-white text-black py-4 overflow-hidden z-20 border-t border-white/20"
+      >
+        <div 
+          data-marquee-inner
+          className="flex whitespace-nowrap font-mono text-[10px] font-black uppercase tracking-[0.5em]"
+        >
+          {Array.from({ length: 10 }).map((_, i) => (
+            <span key={i} className="px-10 flex items-center gap-10">
+              Technical Archive // System: Operational // Type: Modular Garments // Latency: 0ms // [FW-2026]
+              <div className="w-2 h-2 bg-black animate-pulse" />
+            </span>
+          ))}
+        </div>
+      </div>
+
       {/* Hero Typography */}
       <div 
         data-hero-content
@@ -263,7 +255,6 @@ export default function EditorialHero() {
         <p 
           ref={descRef}
           className="mt-10 text-white/60 text-[10px] md:text-sm font-mono uppercase tracking-[0.2em] max-w-[280px] md:max-w-md leading-relaxed border-l border-white/20 pl-6"
-          style={{ opacity: 0 }}
         >
           High-performance garments engineered for the modern inhabitant. Merging technical utility with brutalist silhouettes.
         </p>
@@ -301,8 +292,7 @@ export default function EditorialHero() {
       {/* Advanced Scroll indicator */}
       <div 
         ref={scrollIndicatorRef}
-        className="absolute bottom-8 right-8 md:bottom-12 md:right-12 flex flex-col items-end gap-3"
-        style={{ opacity: 0 }}
+        className="absolute bottom-20 right-8 md:bottom-24 md:right-12 flex flex-col items-end gap-3"
       >
         <div className="flex items-center gap-4 bg-white/5 backdrop-blur-md px-4 py-2 border border-white/10">
           <span className="font-mono text-[9px] text-white/50 uppercase tracking-[0.4em]">

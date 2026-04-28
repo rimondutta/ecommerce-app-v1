@@ -150,22 +150,46 @@ export default function Header() {
           {/* Navigation */}
           <nav ref={navRef} className="hidden lg:flex items-center gap-10 h-full" aria-label="Main navigation">
             {navLinks.map((link) => (
-              <div
-                key={link.label}
-                className="relative h-full flex items-center"
-                onMouseEnter={() => handleMouseEnter(link.label)}
-                onMouseLeave={handleMouseLeave}
-              >
-                <Link
-                  href={link.href}
-                  className="text-[10px] font-black uppercase tracking-[0.3em] text-black/60 hover:text-black transition-all"
-                  data-cursor="CLICK"
+              <MagneticElement key={link.label} strength={0.1}>
+                <div
+                  className="relative h-full flex items-center"
+                  onMouseEnter={() => handleMouseEnter(link.label)}
+                  onMouseLeave={handleMouseLeave}
                 >
-                  {link.label}
-                </Link>
-
-                <div className={`absolute bottom-0 left-0 h-[2px] bg-black transition-all duration-500 ease-[0.16,1,0.3,1] ${activeMenu === link.label ? 'w-full opacity-100' : 'w-0 opacity-0'}`} />
-              </div>
+                  <Link
+                    href={link.href}
+                    className="group flex flex-col items-center justify-center overflow-hidden h-12"
+                    data-cursor="CLICK"
+                  >
+                    <span 
+                      className="text-[10px] font-black uppercase tracking-[0.3em] text-black/60 group-hover:text-black transition-all duration-300 relative inline-block"
+                      onMouseEnter={(e) => {
+                        const target = e.currentTarget;
+                        const originalText = link.label;
+                        const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+                        import("@/lib/gsap").then(({ gsap }) => {
+                          gsap.to({}, {
+                            duration: 0.5,
+                            onUpdate: function() {
+                              const progress = this.progress();
+                              if (progress < 1) {
+                                target.innerText = Array.from({ length: originalText.length })
+                                  .map(() => chars[Math.floor(Math.random() * chars.length)])
+                                  .join("");
+                              } else {
+                                target.innerText = originalText;
+                              }
+                            }
+                          });
+                        });
+                      }}
+                    >
+                      {link.label}
+                    </span>
+                    <div className="w-0 group-hover:w-full h-px bg-black transition-all duration-500 ease-[0.16,1,0.3,1]" />
+                  </Link>
+                </div>
+              </MagneticElement>
             ))}
           </nav>
 

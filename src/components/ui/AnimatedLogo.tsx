@@ -44,47 +44,67 @@ export default function AnimatedLogo({ className = "", size = "md" }: AnimatedLo
     }
   }, []);
 
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!containerRef.current) return;
+    const { left, top, width, height } = containerRef.current.getBoundingClientRect();
+    const x = (e.clientX - left - width / 2) / 5;
+    const y = (e.clientY - top - height / 2) / 5;
+
+    gsap.to(containerRef.current, {
+      rotateY: x,
+      rotateX: -y,
+      duration: 0.6,
+      ease: "power2.out",
+      transformPerspective: 1000
+    });
+  };
+
   const handleMouseEnter = () => {
     setIsHovered(true);
     if (!textRef.current) return;
 
     const originalText = "FLEX_WEAR";
-    const duration = 0.5;
-    const iterations = 10;
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
     
-    let iteration = 0;
-    const interval = setInterval(() => {
-      textRef.current!.innerText = originalText
-        .split("")
-        .map((char, index) => {
-          if (index < iteration) return originalText[index];
-          return chars[Math.floor(Math.random() * chars.length)];
-        })
-        .join("");
-      
-      if (iteration >= originalText.length) {
-        clearInterval(interval);
+    // Scramble logic with GSAP
+    gsap.to({}, {
+      duration: 0.8,
+      onUpdate: function() {
+        const progress = this.progress();
+        if (textRef.current) {
+          textRef.current.innerText = originalText
+            .split("")
+            .map((char, index) => {
+              if (progress > (index + 1) / originalText.length) return originalText[index];
+              return chars[Math.floor(Math.random() * chars.length)];
+            })
+            .join("");
+        }
       }
-      
-      iteration += originalText.length / iterations;
-    }, 50);
+    });
 
     // Glitch effect on SVG
     if (pathRef.current) {
-      gsap.to(pathRef.current, {
-        x: () => (Math.random() - 0.5) * 4,
-        y: () => (Math.random() - 0.5) * 4,
-        duration: 0.1,
-        repeat: 3,
+      const tl = gsap.timeline();
+      tl.to(pathRef.current, {
+        x: () => (Math.random() - 0.5) * 6,
+        y: () => (Math.random() - 0.5) * 6,
+        duration: 0.05,
+        repeat: 5,
         yoyo: true,
-        ease: "none",
-        onComplete: () => gsap.set(pathRef.current, { x: 0, y: 0 })
-      });
+        ease: "none"
+      }).set(pathRef.current, { x: 0, y: 0 });
     }
   };
 
   const handleMouseLeave = () => {
     setIsHovered(false);
+    gsap.to(containerRef.current, {
+      rotateX: 0,
+      rotateY: 0,
+      duration: 1,
+      ease: "elastic.out(1, 0.3)"
+    });
   };
 
   return (
@@ -92,6 +112,7 @@ export default function AnimatedLogo({ className = "", size = "md" }: AnimatedLo
       ref={containerRef}
       className={`relative inline-flex items-center gap-3 cursor-none select-none ${className}`}
       onMouseEnter={handleMouseEnter}
+      onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
     >
       <div className="relative">
