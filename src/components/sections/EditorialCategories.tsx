@@ -29,7 +29,7 @@ export default function EditorialCategories() {
 
     // GSAP scroll animation
     const initGsap = async () => {
-      const { gsap, SdcrollTrigger } = await import("@/lib/gsap");
+      const { gsap, ScrollTrigger } = await import("@/lib/gsap");
       if (!sectionRef.current) return;
 
       const ctx = gsap.context(() => {

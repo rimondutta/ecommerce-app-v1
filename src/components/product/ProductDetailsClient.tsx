@@ -184,7 +184,7 @@ export default function ProductDetailsClient({ product, relatedProducts }: Produ
           </div>
 
           {/* Product Info Section */}
-          <div className="lg:col-span-5 lg:sticky lg:top-[160px] lg:self-start space-y-12">
+          <div className="lg:col-span-5 space-y-12">
             <div className="space-y-4">
               <div className="flex items-center gap-3">
                 <span className="text-[10px] font-black uppercase tracking-[0.3em] text-black/40">

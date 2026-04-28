@@ -401,7 +401,7 @@ export default function CheckoutPage() {
 
            {/* RIGHT COLUMN: ORDER SUMMARY SIDEBAR */}
            <div className="lg:col-span-5">
-              <div className="bg-white rounded-[32px] p-6 lg:p-10 border border-neutral-100 shadow-2xl shadow-neutral-200/50 sticky top-12">
+              <div className="bg-white rounded-[32px] p-6 lg:p-10 border border-neutral-100 shadow-2xl shadow-neutral-200/50">
                  <div className="flex items-center justify-between mb-8">
                     <h3 className="text-xl font-semibold text-neutral-900">Order Summary</h3>
                     <span className="text-[10px] font-bold bg-neutral-100 px-2 py-1 rounded-full uppercase tracking-widest text-neutral-500">

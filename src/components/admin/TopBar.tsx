@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useSession } from "next-auth/react"
-import { Search, Bell, HelpCircle, User, Menu } from "lucide-react"
+import { Search, Bell, HelpCircle, Menu } from "lucide-react"
 import AdminMobileSidebar from "./AdminMobileSidebar"
 
 export default function TopBar() {
@@ -12,7 +12,7 @@ export default function TopBar() {
   return (
     <>
       <AdminMobileSidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
-      <header className="h-20 bg-white border-b-4 border-black px-4 md:px-8 flex items-center justify-between sticky top-0 z-50">
+      <header className="h-20 bg-white border-b-4 border-black px-4 md:px-8 flex items-center justify-between">
         <div className="flex-1 max-w-[600px] hidden sm:block">
           <div className="relative group">
             <Search size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-black" />

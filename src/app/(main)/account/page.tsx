@@ -10,11 +10,9 @@ import {
   LogOut, 
   ChevronRight,
   Fingerprint,
-  Info,
-  ArrowUpRight,
   Terminal,
   ShieldCheck,
-  CreditCard,
+  ArrowUpRight,
   MapPin,
   Activity,
   Box,
@@ -122,7 +120,7 @@ export default function AccountPage() {
       <div className="max-w-[1800px] mx-auto min-h-screen flex flex-col lg:flex-row border-x border-black/5 bg-white relative">
         
         {/* LEFT NAV PANEL */}
-        <aside className="lg:w-80 xl:w-96 border-r border-black/5 flex flex-col z-20 sticky top-0 h-screen bg-white">
+        <aside className="lg:w-80 xl:w-96 border-r border-black/5 flex flex-col z-20 bg-white">
            <div className="p-10 xl:p-14 space-y-12">
               {/* Brand/Identity */}
               <div className="space-y-6">

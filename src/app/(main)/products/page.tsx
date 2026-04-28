@@ -23,7 +23,6 @@ function ShopContent() {
   const [selectedSizes, setSelectedSizes] = useState<string[]>(sizesParam ? sizesParam.split(',') : []);
   const [sortBy, setSortBy] = useState("featured");
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
 
 
   // Fetch products from DB
@@ -66,12 +65,7 @@ function ShopContent() {
     router.push(`/products?${params.toString()}`, { scroll: false });
   };
 
-  // Handle scroll for sticky effects
-  useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 100);
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+
 
   // Extract unique filter options from DB data
   const categories = useMemo(() => {

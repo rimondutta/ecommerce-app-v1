@@ -268,7 +268,7 @@ export default function QuickLookDrawer() {
                 </div>
 
                 {/* Footer Actions — Impactful & Minimal */}
-                <div className="sticky bottom-0 lg:static p-6 lg:p-10 bg-white border-t border-neutral-100 z-50">
+                <div className="relative lg:static p-6 lg:p-10 bg-white border-t border-neutral-100 z-50">
                   <div className="flex flex-col gap-4 lg:gap-6">
                     <button
                       onClick={() => {

@@ -45,7 +45,7 @@ export default function SearchDrawer({ isOpen, onClose }: SearchDrawerProps) {
         setResults(data.products || []);
       } catch (err) {
         console.error("Search failed:", err);
-
+      }
     };
 
     const timer = setTimeout(fetchResults, 300);

@@ -46,7 +46,7 @@ export default function ProductReviews({ slug }: { slug: string }) {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-24">
         
         {/* SUMMARY - LEFT (4 cols) */}
-        <div className="lg:col-span-4 space-y-12 h-fit lg:sticky lg:top-[160px]">
+        <div className="lg:col-span-4 space-y-12 h-fit">
           <div className="space-y-4">
              <span className="text-[10px] font-black uppercase tracking-[0.4em] text-black/30 block">Feedback Analysis</span>
              <h2 className="font-display font-black text-5xl md:text-7xl uppercase tracking-tighter leading-[0.85]">
