@@ -165,7 +165,7 @@ export default function TechnicalBlueprint() {
   return (
     <section 
       ref={containerRef}
-      className="relative min-h-[90vh] bg-[#f0ece5] py-20 md:py-32 px-4 md:px-16 overflow-hidden flex flex-col justify-center"
+      className="relative min-h-[90vh] bg-white py-20 md:py-32 px-4 md:px-16 overflow-hidden flex flex-col justify-center"
     >
       {/* Blueprint Grid Overlay */}
       <div className="absolute inset-0 pointer-events-none opacity-[0.03]" 

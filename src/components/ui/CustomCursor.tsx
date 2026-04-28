@@ -114,7 +114,7 @@ export default function CustomCursor() {
               </div>
             </div>
             <div className="w-full h-[1px] bg-white/50 mt-1" />
-            <div className="text-[6px] text-white/40 uppercase tracking-tighter mt-1">SYS_ACTIVE_MOD: AIM_V2</div>
+            <div className="text-[6px] text-white/40 uppercase tracking-tighter mt-1">CURATED SELECTION</div>
           </motion.div>
         )}
       </div>

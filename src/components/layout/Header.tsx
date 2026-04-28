@@ -90,6 +90,8 @@ export default function Header() {
         );
 
         // 3. Scroll Show/Hide Logic + Horizontal "Move This That"
+        const navItems = navRef.current?.querySelectorAll("a");
+        
         ScrollTrigger.create({
           start: "top top",
           end: 99999,
@@ -109,21 +111,22 @@ export default function Header() {
             }
 
             // Horizontal "Move This That" Parallax on Nav Items
-            if (navRef.current) {
-              const navItems = navRef.current.querySelectorAll("a");
+            // Capped velocity effect for subtlety and performance
+            const cappedVelocity = Math.max(-1000, Math.min(1000, velocity));
+            if (navItems && navItems.length) {
               gsap.to(navItems, {
-                x: (i) => (velocity * 0.01) * (i % 2 === 0 ? 1 : -1),
-                duration: 0.5,
+                x: (i) => (cappedVelocity * 0.005) * (i % 2 === 0 ? 1 : -1),
+                duration: 0.6,
                 ease: "power2.out",
                 overwrite: "auto"
               });
             }
 
-            // Logo horizontal shift
+            // Logo horizontal shift - capped and smoothed
             if (logoRef.current) {
               gsap.to(logoRef.current, {
-                x: velocity * 0.005,
-                duration: 0.8,
+                x: cappedVelocity * 0.002,
+                duration: 1,
                 ease: "power3.out",
                 overwrite: "auto"
               });
@@ -239,7 +242,7 @@ export default function Header() {
       <AnimatePresence>
         {activeMenu === "Shop" && (
           <motion.div 
-            className={`fixed ${isScrolled ? 'top-[80px]' : 'top-[140px]'} left-0 w-full bg-[#f0ece5] text-black border-b border-black/10 shadow-2xl z-[90] overflow-hidden`}
+            className={`fixed ${isScrolled ? 'top-[80px]' : 'top-[140px]'} left-0 w-full bg-white text-black border-b border-black/10 shadow-2xl z-[90] overflow-hidden`}
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}

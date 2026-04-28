@@ -153,7 +153,7 @@ export default function Preloader() {
         </div>
 
         <p className="font-mono text-[8px] uppercase tracking-[0.4em] text-white/30">
-          SYS_BOOT // LOADING MODULES
+          LOADING EXPERIENCE...
         </p>
       </div>
     </div>

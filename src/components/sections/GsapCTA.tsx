@@ -72,7 +72,7 @@ export default function GsapCTA() {
   return (
     <div
       ref={sectionRef}
-      className="relative z-10 bg-black text-[#f0ece5] py-32 md:py-48 flex flex-col items-center justify-center text-center overflow-hidden"
+      className="relative z-10 bg-black text-white py-32 md:py-48 flex flex-col items-center justify-center text-center overflow-hidden"
       data-cursor="EXPLORE"
     >
       {/* Background pattern */}

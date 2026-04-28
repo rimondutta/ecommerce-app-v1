@@ -75,7 +75,7 @@ const BrutalistBlogSection = () => {
           <div data-blog-heading style={{ opacity: 0 }}>
             <div className="flex items-center gap-4 mb-6">
               <div className="w-2 h-2 bg-black animate-pulse" />
-              <span className="text-[10px] font-mono font-black uppercase tracking-[0.4em] text-black/60">SYS_INDEX // Cultural</span>
+              <span className="text-[10px] font-mono font-black uppercase tracking-[0.4em] text-black/60">COLLECTION // EDITORIAL</span>
             </div>
             <h2 className="text-5xl md:text-[9rem] font-display font-black uppercase leading-[0.8] tracking-tighter text-black">
               Cultural <br /><span className="text-transparent" style={{ WebkitTextStroke: '2px black' }}>Archive</span>
@@ -123,12 +123,12 @@ const BrutalistBlogSection = () => {
               <div className="absolute inset-0 bg-[linear-gradient(transparent_50%,rgba(0,0,0,0.05)_50%)] bg-[length:100%_4px] pointer-events-none" />
               <div className="flex items-center gap-2 mb-6">
                 <div className="w-1.5 h-1.5 bg-black animate-pulse" />
-                <h5 className="text-[10px] font-mono font-bold uppercase tracking-[0.3em] text-black">Terminal // Join</h5>
+                <h5 className="text-[10px] font-mono font-bold uppercase tracking-[0.3em] text-black">JOURNAL // JOIN</h5>
               </div>
-              <p className="text-2xl font-display font-black uppercase tracking-tighter mb-8 leading-none">Initialize <br/> Transmission.</p>
+              <p className="text-2xl font-display font-black uppercase tracking-tighter mb-8 leading-none">SUBSCRIBE TO <br/> UPDATES.</p>
               <div className="flex border border-black p-1 bg-white focus-within:ring-2 ring-black/20 transition-all relative z-10">
-                <input type="email" placeholder="ENTER_DATA..." className="bg-transparent border-none text-[10px] font-mono tracking-[0.2em] w-full focus:ring-0 placeholder:text-black/30 text-black outline-none px-3 py-2" />
-                <button className="bg-black text-white text-[10px] font-mono font-black uppercase tracking-widest px-4 hover:bg-black/80 transition-colors">Exec</button>
+                <input type="email" placeholder="EMAIL ADDRESS..." className="bg-transparent border-none text-[10px] font-mono tracking-[0.2em] w-full focus:ring-0 placeholder:text-black/30 text-black outline-none px-3 py-2" />
+                <button className="bg-black text-white text-[10px] font-mono font-black uppercase tracking-widest px-4 hover:bg-black/80 transition-colors">SUBMIT</button>
               </div>
             </div>
           </div>

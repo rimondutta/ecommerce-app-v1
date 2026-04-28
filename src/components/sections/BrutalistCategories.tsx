@@ -69,7 +69,7 @@ export default function BrutalistCategories() {
   }, []);
 
   return (
-    <section ref={sectionRef} className="py-24 md:py-40 bg-[#f9f9f9] overflow-hidden relative border-y border-black/5">
+    <section ref={sectionRef} className="py-24 md:py-40 bg-white overflow-hidden relative border-y border-black/5">
       {/* Background Decorative Text */}
       <div className="absolute top-0 right-0 pointer-events-none select-none opacity-[0.02] transform rotate-90 origin-top-right translate-y-20">
         <span className="text-[20vw] font-black uppercase leading-none">COLLECTIONS</span>

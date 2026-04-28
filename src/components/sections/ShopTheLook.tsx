@@ -159,7 +159,7 @@ export default function ShopTheLook() {
   }, []);
 
   return (
-    <section ref={sectionRef} className="relative py-32 md:py-48 bg-[#f0ece5] overflow-hidden">
+    <section ref={sectionRef} className="relative py-32 md:py-48 bg-white overflow-hidden">
       {/* Technical Background Grid */}
       <div className="absolute inset-0 pointer-events-none opacity-[0.03]" 
            style={{ backgroundImage: 'linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
@@ -169,7 +169,7 @@ export default function ShopTheLook() {
           <div ref={headingRef} style={{ opacity: 0 }}>
             <div className="flex items-center gap-4 mb-4">
                <div className="w-8 h-px bg-black" />
-               <span className="text-[10px] font-mono font-black uppercase tracking-[0.4em] text-black/60">SYS_VIEW // Editorial</span>
+               <span className="text-[10px] font-mono font-black uppercase tracking-[0.4em] text-black/60">COLLECTION // EDITORIAL</span>
             </div>
             <SplitTextAnimation 
               text="Shop"
@@ -278,7 +278,7 @@ export default function ShopTheLook() {
                             <Image src={spot.product.image} alt={spot.product.name} fill className="object-cover grayscale" />
                           </div>
                           <div className="flex flex-col justify-center overflow-hidden">
-                            <span className="text-[7px] md:text-[8px] font-mono uppercase tracking-[0.3em] text-white/50 mb-1">Target_Acquired</span>
+                            <span className="text-[7px] md:text-[8px] font-mono uppercase tracking-[0.3em] text-white/50 mb-1">PRODUCT_DETAILS</span>
                             <p className="text-[9px] md:text-[10px] font-black uppercase tracking-widest leading-tight truncate">{spot.product.name}</p>
                             <p className="text-[11px] md:text-[12px] font-mono text-white mt-2">{spot.product.price}</p>
                           </div>

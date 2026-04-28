@@ -26,11 +26,11 @@ export default async function Home() {
   const sanitizedCategories = JSON.parse(JSON.stringify(categories));
 
   return (
-    <div className="bg-[#f0ece5] flex-1 min-h-screen">
+    <div className="bg-white flex-1 min-h-screen">
       {/* HERO */}
       <ModernHero />
 
-      <div className="relative z-10 bg-[#f0ece5] rounded-none overflow-hidden shadow-[0_-20px_50px_rgba(0,0,0,0.1)]">
+      <div className="relative z-10 bg-white rounded-none overflow-hidden shadow-[0_-20px_50px_rgba(0,0,0,0.1)]">
 
 
         {/* CATEGORIES */}
@@ -40,7 +40,7 @@ export default async function Home() {
         <TechnicalBlueprint />
 
         {/* REVERSE MARQUEE */}
-        <div className="bg-[#f0ece5] py-6 overflow-hidden pointer-events-none relative z-20 border-y border-black/10">
+        <div className="bg-white py-6 overflow-hidden pointer-events-none relative z-20 border-y border-black/10">
           <GsapMarquee speed={0.8} direction="right">
             {Array(5).fill(0).map((_, i) => (
               <span key={i} className="font-display font-black text-2xl md:text-4xl uppercase tracking-tighter mx-8 text-black/10">

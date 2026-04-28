@@ -6,12 +6,12 @@ import { X, ArrowRight } from "lucide-react";
 import Link from "next/link";
 
 const menuItems = [
-  { label: "HOME", href: "/", subtitle: "SYS_BEGIN" },
-  { label: "SHOP", href: "/products", subtitle: "DIR_COLLECTION" },
-  { label: "BLOG", href: "/blogs", subtitle: "DIR_JOURNAL" },
-  { label: "ACCOUNT", href: "/profile", subtitle: "USR_BUREAU" },
-  { label: "WISHLIST", href: "/wishlist", subtitle: "USR_ARCHIVE" },
-  { label: "CONTACT", href: "#contact", subtitle: "SYS_COMMS" },
+  { label: "HOME", href: "/", subtitle: "MAIN_PAGE" },
+  { label: "SHOP", href: "/products", subtitle: "COLLECTIONS" },
+  { label: "BLOG", href: "/blogs", subtitle: "JOURNAL" },
+  { label: "ACCOUNT", href: "/profile", subtitle: "MY_PROFILE" },
+  { label: "WISHLIST", href: "/wishlist", subtitle: "SAVED_ITEMS" },
+  { label: "CONTACT", href: "#contact", subtitle: "GET_IN_TOUCH" },
 ];
 
 import { useUIStore } from "@/store/uiStore";
@@ -46,20 +46,20 @@ export default function MobileMenu() {
           leaveFrom="translate-x-0"
           leaveTo="-translate-x-full"
         >
-          <DialogPanel className="fixed inset-y-0 left-0 w-full sm:w-[450px] bg-[#f0ece5] border-r border-black/20 flex flex-col shadow-[0_0_50px_rgba(0,0,0,0.3)] overflow-hidden">
+          <DialogPanel className="fixed inset-y-0 left-0 w-full sm:w-[450px] bg-white border-r border-black/20 flex flex-col shadow-[0_0_50px_rgba(0,0,0,0.3)] overflow-hidden">
             {/* Background Grid */}
             <div className="absolute inset-0 pointer-events-none opacity-[0.03] z-0" 
                  style={{ backgroundImage: 'linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
 
             {/* Header */}
-            <div className="flex items-center justify-between px-8 py-8 border-b border-black/10 relative z-10 bg-[#f0ece5]">
+            <div className="flex items-center justify-between px-8 py-8 border-b border-black/10 relative z-10 bg-white">
               <div className="flex flex-col">
                 <div className="flex items-center gap-2 mb-2">
                    <div className="w-1.5 h-1.5 bg-black animate-pulse" />
-                   <h4 className="font-mono font-black text-[10px] uppercase tracking-widest text-black/60">SYS_MENU</h4>
+                   <h4 className="font-mono font-black text-[10px] uppercase tracking-widest text-black/60">NAVIGATION</h4>
                 </div>
                 <h2 className="font-mono font-black text-2xl uppercase tracking-widest leading-none">
-                  [ ROOT_DIR ]
+                  [ DIRECTORY ]
                 </h2>
               </div>
               <button
@@ -75,7 +75,7 @@ export default function MobileMenu() {
             </div>
 
             {/* Nav Links */}
-            <nav className="flex-1 overflow-y-auto bg-[#f0ece5] relative z-10" aria-label="Mobile navigation">
+            <nav className="flex-1 overflow-y-auto bg-white relative z-10" aria-label="Mobile navigation">
               {menuItems.map((item, i) => (
                 <Link
                   key={item.label}
@@ -102,9 +102,9 @@ export default function MobileMenu() {
 
 
             {/* Bottom */}
-            <div className="p-8 space-y-8 bg-[#e8e4db] relative z-10 border-t border-black/10">
+            <div className="p-8 space-y-8 bg-gray-50 relative z-10 border-t border-black/10">
               <div>
-                <p className="text-[10px] font-mono font-black uppercase tracking-[0.4em] text-black/60 mb-4 text-center">NETWORK_NODES</p>
+                <p className="text-[10px] font-mono font-black uppercase tracking-[0.4em] text-black/60 mb-4 text-center">SOCIAL_CHANNELS</p>
                 <div className="flex justify-center gap-8 font-mono font-bold text-[9px] uppercase tracking-widest text-black/80">
                   <a href="#" className="hover:text-black hover:line-through transition-all">INSTAGRAM</a>
                   <a href="#" className="hover:text-black hover:line-through transition-all">TWITTER</a>
@@ -124,7 +124,7 @@ export default function MobileMenu() {
 
             {/* Bottom Bar */}
             <div className="p-4 bg-black text-[9px] font-mono font-bold uppercase tracking-[0.3em] text-white flex justify-between px-8 relative z-10">
-              <span>SYS_ONLINE</span>
+              <span>STATUS_ONLINE</span>
               <span className="opacity-50">LND/NYC/TKY</span>
             </div>
           </DialogPanel>

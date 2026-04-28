@@ -16,7 +16,7 @@ const BlogListingPage = async () => {
   const posts = await getBlogs();
 
   return (
-    <div className="min-h-screen bg-[#f0ece5]">
+    <div className="min-h-screen bg-white">
       
       <main className="pt-24 pb-24 px-6 relative z-10">
         <div className="absolute inset-0 pointer-events-none opacity-[0.03]" 
@@ -27,7 +27,7 @@ const BlogListingPage = async () => {
           <div className="mb-24 border-b border-black pb-12">
             <div className="flex items-center gap-3 mb-6">
               <span className="w-16 h-1 bg-black"></span>
-              <span className="font-mono text-[10px] font-black uppercase tracking-[0.4em] text-black">SYS_MANIFEST</span>
+               <span className="font-mono text-[10px] font-black uppercase tracking-[0.4em] text-black">JOURNAL</span>
             </div>
             <h1 className="font-display text-6xl md:text-9xl font-black uppercase leading-[0.8] tracking-tighter mb-8" style={{ WebkitTextStroke: "1px black", color: "transparent" }}>
               EDITORIAL<br />JOURNAL
@@ -57,7 +57,7 @@ const BlogListingPage = async () => {
                         />
                         <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors duration-500"></div>
                       </div>
-                      <div className="absolute top-0 left-0 bg-black text-[#f0ece5] font-mono text-[9px] uppercase tracking-widest px-2 py-0.5 z-10">IMAGE_DATA</div>
+                       <div className="absolute top-0 left-0 bg-black text-white font-mono text-[9px] uppercase tracking-widest px-2 py-0.5 z-10">IMAGE</div>
                     </div>
                   </div>
 
@@ -65,11 +65,11 @@ const BlogListingPage = async () => {
                   <div className={`lg:col-span-5 ${index % 2 !== 0 ? 'lg:order-1' : ''}`}>
                     <div className="flex items-center gap-4 font-mono text-[9px] font-black text-black mb-6 uppercase tracking-widest">
                       <span className="px-3 py-1 border border-black bg-white">
-                        DIR_{post.category}
+                         CATEGORY // {post.category}
                       </span>
                       <span className="flex items-center gap-1.5 border border-black bg-white px-3 py-1">
                         <Clock className="w-3 h-3" />
-                        READ_T_{post.readingTime}
+                         {post.readingTime} MIN READ
                       </span>
                     </div>
                     
@@ -81,8 +81,8 @@ const BlogListingPage = async () => {
                       {post.excerpt}
                     </p>
 
-                    <div className="flex items-center gap-4 font-mono text-[10px] font-black uppercase tracking-[0.2em] border border-black w-fit px-6 py-3 hover:bg-black hover:text-[#f0ece5] transition-colors">
-                      <span>ENTER_DISPATCH</span>
+                     <div className="flex items-center gap-4 font-mono text-[10px] font-black uppercase tracking-[0.2em] border border-black w-fit px-6 py-3 hover:bg-black hover:text-white transition-colors">
+                      <span>READ MORE</span>
                       <ArrowRight className="w-4 h-4 group-hover:translate-x-2 transition-transform" />
                     </div>
                   </div>
@@ -93,8 +93,8 @@ const BlogListingPage = async () => {
 
           {/* Load More Mockup */}
           <div className="mt-32 flex justify-center border-t border-black pt-16">
-            <button className="px-12 py-5 border border-black bg-white text-black font-mono text-[10px] font-black uppercase tracking-[0.3em] hover:bg-black hover:text-[#f0ece5] transition-colors">
-              QUERY_ALL_ARCHIVES
+             <button className="px-12 py-5 border border-black bg-white text-black font-mono text-[10px] font-black uppercase tracking-[0.3em] hover:bg-black hover:text-white transition-colors">
+               LOAD MORE
             </button>
           </div>
         </div>

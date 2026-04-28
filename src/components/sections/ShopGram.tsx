@@ -127,7 +127,7 @@ export default function ShopGram() {
   }, []);
 
   return (
-    <section ref={sectionRef} className="relative py-32 bg-[#f0ece5] overflow-hidden border-t border-black/10">
+    <section ref={sectionRef} className="relative py-32 bg-white overflow-hidden border-t border-black/10">
       {/* Background Grid */}
       <div className="absolute inset-0 pointer-events-none opacity-[0.03]" 
            style={{ backgroundImage: 'linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
@@ -137,14 +137,14 @@ export default function ShopGram() {
           <div ref={headingRef} style={{ opacity: 0 }}>
             <div className="flex items-center gap-4 mb-6">
               <div className="w-2 h-2 bg-black animate-pulse" />
-              <span className="text-[10px] font-mono font-black uppercase tracking-[0.4em] text-black/60">SYS_NETWORK // Feed</span>
+              <span className="text-[10px] font-mono font-black uppercase tracking-[0.4em] text-black/60">SHOP // INSTAGRAM</span>
             </div>
             <SplitTextAnimation 
-              text="Network"
+              text="Social"
               className="font-display font-black text-5xl md:text-[9rem] uppercase tracking-tighter leading-[0.8] text-black"
             />
             <SplitTextAnimation 
-              text="Data"
+              text="Feed"
               className="font-display font-black text-5xl md:text-[9rem] uppercase tracking-tighter leading-[0.8] text-transparent"
               style={{ WebkitTextStroke: '2px black' }}
               delay={0.4}
@@ -158,7 +158,7 @@ export default function ShopGram() {
             data-cursor="CLICK"
             style={{ opacity: 0 }}
           >
-            @flexwear_sys
+            @flexwear
             <ArrowUpRight className="w-4 h-4 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
           </a>
         </div>
@@ -176,7 +176,7 @@ export default function ShopGram() {
                 {/* Image */}
                 <img
                   src={src}
-                  alt={`Network Data ${i}`}
+                  alt={`Social Post ${i}`}
                   className="w-full h-full object-cover mix-blend-luminosity opacity-80 group-hover:opacity-100 group-hover:mix-blend-normal transition-all duration-700 group-hover:scale-105 will-change-transform"
                 />
                 
@@ -192,7 +192,7 @@ export default function ShopGram() {
                 
                 {/* ID Label */}
                 <div className="absolute bottom-6 left-6 font-mono text-[8px] tracking-[0.3em] text-white/70 uppercase">
-                  ID_{i.toString().padStart(3, '0')}
+                  PIC_{i.toString().padStart(3, '0')}
                 </div>
               </a>
             );
