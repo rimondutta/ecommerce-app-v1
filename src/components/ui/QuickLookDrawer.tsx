@@ -49,7 +49,7 @@ export default function QuickLookDrawer() {
 
   return (
     <Transition show={isOpen} as={Fragment}>
-      <Dialog onClose={handleClose} className="relative z-[700]">
+      <Dialog open={isOpen} onClose={handleClose} className="relative z-[700]">
         <TransitionChild
           as={Fragment}
           enter="transition-opacity ease-linear duration-500"

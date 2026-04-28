@@ -16,7 +16,7 @@ export default function CartDrawer() {
 
   return (
     <Transition show={isOpen} as={Fragment}>
-      <Dialog onClose={closeCart} className="relative z-50">
+      <Dialog open={isOpen} onClose={closeCart} className="relative z-50">
         <TransitionChild
           as={Fragment}
           enter="transition-opacity ease-linear duration-300"

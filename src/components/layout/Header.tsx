@@ -71,7 +71,7 @@ export default function Header() {
   return (
     <>
       <motion.header
-        className={`w-full transition-all duration-700 bg-white/95 backdrop-blur-xl border-b border-black/10 shadow-sm text-black relative z-[100]`}
+        className={`w-full transition-all duration-700 bg-white/95 backdrop-blur-xl border-b border-black/10 shadow-sm text-black sticky top-0 z-[100]`}
         initial={{ y: -100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}

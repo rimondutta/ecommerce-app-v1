@@ -22,7 +22,7 @@ interface MobileMenuProps {
 export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
   return (
     <Transition show={isOpen} as={Fragment}>
-      <Dialog onClose={onClose} className="relative z-[400]">
+      <Dialog open={isOpen} onClose={onClose} className="relative z-[400]">
         <TransitionChild
           as={Fragment}
           enter="transition-opacity ease-linear duration-300"

@@ -57,7 +57,7 @@ export default function SearchDrawer({ isOpen, onClose }: SearchDrawerProps) {
 
   return (
     <Transition show={isOpen} as={Fragment}>
-      <Dialog onClose={onClose} className="relative z-[600]">
+      <Dialog open={isOpen} onClose={onClose} className="relative z-[600]">
         <TransitionChild
           as={Fragment}
           enter="transition-opacity ease-linear duration-300"
