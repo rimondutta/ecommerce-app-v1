@@ -81,7 +81,7 @@ export default function ModernProductGrid({
         </div>
         
         {/* HUD Style Filters */}
-        <div className="flex flex-wrap gap-2 border border-black/10 p-2 bg-white/50 backdrop-blur-sm w-full lg:w-auto">
+        <div className="flex flex-row overflow-x-auto gap-2 border border-black/10 p-2 bg-white/50 backdrop-blur-sm w-full lg:w-auto no-scrollbar">
            {["all", ...categories.map(c => c.name)].map((cat) => (
              <button
                key={cat}
@@ -89,7 +89,7 @@ export default function ModernProductGrid({
                  setSelectedCategory(cat.toLowerCase());
                  setVisibleCount(8); 
                }}
-               className={`text-[10px] md:text-xs font-mono uppercase tracking-[0.2em] px-6 py-3 transition-all relative z-10 ${
+               className={`flex-none text-[10px] md:text-xs font-mono uppercase tracking-[0.2em] px-6 py-3 transition-all relative z-10 whitespace-nowrap ${
                  selectedCategory === cat.toLowerCase() 
                    ? "text-white" 
                    : "text-black/60 hover:text-black hover:bg-black/5"

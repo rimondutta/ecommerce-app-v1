@@ -29,7 +29,7 @@ const BlogListingPage = async () => {
               <span className="w-16 h-1 bg-black"></span>
               <span className="font-mono text-[10px] font-black uppercase tracking-[0.4em] text-black">SYS_MANIFEST</span>
             </div>
-            <h1 className="font-display text-7xl md:text-9xl font-black uppercase leading-[0.8] tracking-tighter mb-8" style={{ WebkitTextStroke: "1px black", color: "transparent" }}>
+            <h1 className="font-display text-6xl md:text-9xl font-black uppercase leading-[0.8] tracking-tighter mb-8" style={{ WebkitTextStroke: "1px black", color: "transparent" }}>
               EDITORIAL<br />JOURNAL
             </h1>
             <p className="font-mono text-[12px] text-black uppercase tracking-widest max-w-2xl font-bold leading-loose">
@@ -37,13 +37,12 @@ const BlogListingPage = async () => {
             </p>
           </div>
 
-          {/* Posts List */}
-          <div className="space-y-32">
+          <div className="space-y-16 lg:space-y-32">
             {posts.map((post: any, index: number) => (
               <Link 
                 key={post._id.toString()} 
                 href={`/blogs/${post.slug}`}
-                className="group block border-b border-black pb-24 last:border-0"
+                className="group block border-b border-black pb-12 lg:pb-24 last:border-0"
               >
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
                   {/* Image Column */}
@@ -74,7 +73,7 @@ const BlogListingPage = async () => {
                       </span>
                     </div>
                     
-                    <h2 className="font-display text-4xl md:text-6xl font-black uppercase leading-tight mb-8 group-hover:translate-x-4 transition-transform duration-500">
+                    <h2 className="font-display text-3xl md:text-6xl font-black uppercase leading-tight mb-8 group-hover:translate-x-4 transition-transform duration-500">
                       {post.title}
                     </h2>
                     

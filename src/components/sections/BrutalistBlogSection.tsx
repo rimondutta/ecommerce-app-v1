@@ -58,7 +58,7 @@ const BrutalistBlogSection = () => {
               <div className="w-2 h-2 bg-black animate-pulse" />
               <span className="text-[10px] font-mono font-black uppercase tracking-[0.4em] text-black/60">SYS_INDEX // Cultural</span>
             </div>
-            <h2 className="text-6xl md:text-[9rem] font-display font-black uppercase leading-[0.8] tracking-tighter text-black">
+            <h2 className="text-5xl md:text-[9rem] font-display font-black uppercase leading-[0.8] tracking-tighter text-black">
               Cultural <br />
               <span className="text-transparent" style={{ WebkitTextStroke: '2px black' }}>Archive</span>
             </h2>

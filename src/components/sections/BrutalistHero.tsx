@@ -103,7 +103,7 @@ export default function EditorialHero() {
           </motion.div>
         </motion.div>
 
-        <h1 className="font-display font-black text-[15vw] md:text-[11vw] leading-[0.8] tracking-tighter text-white uppercase flex flex-col items-center md:items-start relative">
+        <h1 className="font-display font-black text-[18vw] md:text-[11vw] leading-[0.8] tracking-tighter text-white uppercase flex flex-col items-center md:items-start relative">
           {words.map((word, i) => (
             <div key={i} className="overflow-hidden h-[1.1em] flex relative">
               <motion.span
@@ -112,7 +112,7 @@ export default function EditorialHero() {
                     ? 'italic text-transparent ml-[2vw] md:ml-[4vw]' 
                     : ''
                 }`}
-                style={i === 1 ? { WebkitTextStroke: '2px rgba(255,255,255,0.4)', x: textX } : { x: 0 }}
+                style={i === 1 ? { WebkitTextStroke: '1px rgba(255,255,255,0.4)', x: textX } : { x: 0 }}
                 initial={{ y: "110%" }}
                 animate={{ y: 0 }}
                 transition={{ 
@@ -128,7 +128,7 @@ export default function EditorialHero() {
         </h1>
 
         <motion.p 
-          className="mt-10 text-white/60 text-[11px] md:text-sm font-mono uppercase tracking-[0.2em] max-w-xs md:max-w-md leading-relaxed border-l border-white/20 pl-6"
+          className="mt-10 text-white/60 text-[10px] md:text-sm font-mono uppercase tracking-[0.2em] max-w-[280px] md:max-w-md leading-relaxed border-l border-white/20 pl-6"
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 1, delay: 1.2 }}

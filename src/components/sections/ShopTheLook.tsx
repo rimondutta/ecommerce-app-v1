@@ -84,18 +84,18 @@ export default function ShopTheLook() {
                <div className="w-8 h-px bg-black" />
                <span className="text-[10px] font-mono font-black uppercase tracking-[0.4em] text-black/60">SYS_VIEW // Editorial</span>
             </div>
-            <h2 className="font-display font-black text-6xl md:text-8xl lg:text-[10rem] uppercase tracking-tighter leading-[0.8] mt-6 text-black">
+            <h2 className="font-display font-black text-5xl md:text-8xl lg:text-[10rem] uppercase tracking-tighter leading-[0.8] mt-6 text-black">
               Shop <br />
               <span className="text-transparent" style={{ WebkitTextStroke: '2px black' }}>The Look</span>
             </h2>
           </motion.div>
 
-          <div className="flex gap-2">
+          <div className="flex gap-2 w-full md:w-auto overflow-x-auto pb-2 md:pb-0">
             {looks.map((_, i) => (
               <button
                 key={i}
                 onClick={() => setActiveLook(i)}
-                className={`w-16 h-16 flex items-center justify-center font-mono text-sm font-black transition-all border ${activeLook === i ? 'bg-black text-white border-black' : 'bg-white/50 backdrop-blur-sm border-black/10 text-black/40 hover:border-black/50 hover:text-black'}`}
+                className={`flex-none w-14 h-14 md:w-16 md:h-16 flex items-center justify-center font-mono text-sm font-black transition-all border ${activeLook === i ? 'bg-black text-white border-black' : 'bg-white/50 backdrop-blur-sm border-black/10 text-black/40 hover:border-black/50 hover:text-black'}`}
               >
                 0{i + 1}
               </button>
@@ -117,7 +117,7 @@ export default function ShopTheLook() {
                 src={looks[activeLook].image}
                 alt="Shop the look"
                 fill
-                className="object-cover opacity-80 mix-blend-luminosity group-hover:mix-blend-normal group-hover:opacity-100 transition-all duration-1000"
+                className="object-cover opacity-80 mix-blend-luminosity md:group-hover:mix-blend-normal md:group-hover:opacity-100 transition-all duration-1000"
               />
 
               {/* Grid overlay for technical feel */}
@@ -125,8 +125,8 @@ export default function ShopTheLook() {
                    style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,1) 1px, transparent 1px)', backgroundSize: '10% 10%' }} />
 
               {/* Technical Corners */}
-              <div className="absolute top-6 left-6 w-8 h-8 border-t-2 border-l-2 border-white/50 pointer-events-none transition-all duration-500 group-hover:border-white" />
-              <div className="absolute bottom-6 right-6 w-8 h-8 border-b-2 border-r-2 border-white/50 pointer-events-none transition-all duration-500 group-hover:border-white" />
+              <div className="absolute top-4 left-4 md:top-6 md:left-6 w-6 h-6 md:w-8 md:h-8 border-t-2 border-l-2 border-white/50 pointer-events-none transition-all duration-500 group-hover:border-white" />
+              <div className="absolute bottom-4 right-4 md:bottom-6 md:right-6 w-6 h-6 md:w-8 md:h-8 border-b-2 border-r-2 border-white/50 pointer-events-none transition-all duration-500 group-hover:border-white" />
 
               {/* Hotspots */}
               {looks[activeLook].hotspots.map((spot, i) => (
@@ -138,14 +138,19 @@ export default function ShopTheLook() {
                   <motion.button
                     onMouseEnter={() => setHoveredHotspot(spot)}
                     onMouseLeave={() => setHoveredHotspot(null)}
-                    onClick={() => {
-                        openQuickLook({
-                            title: spot.product.name,
-                            price: spot.product.price.replace('৳', '').replace(',', ''),
-                            images: [{ url: spot.product.image }]
-                        });
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        if (hoveredHotspot === spot) {
+                            openQuickLook({
+                                title: spot.product.name,
+                                price: spot.product.price.replace('৳', '').replace(',', ''),
+                                images: [{ url: spot.product.image }]
+                            });
+                        } else {
+                            setHoveredHotspot(spot);
+                        }
                     }}
-                    className="relative w-12 h-12 flex items-center justify-center group/btn z-20 cursor-crosshair"
+                    className="relative w-10 h-10 md:w-12 md:h-12 flex items-center justify-center group/btn z-20 cursor-crosshair"
                     initial={{ scale: 0, rotate: -90 }}
                     animate={{ scale: 1, rotate: 0 }}
                     transition={{ delay: 0.5 + i * 0.2, type: "spring", stiffness: 200, damping: 20 }}
@@ -157,38 +162,35 @@ export default function ShopTheLook() {
                     <div className="absolute left-0 right-0 top-1/2 h-[1px] bg-white/40 -translate-y-1/2 group-hover/btn:bg-white" />
                   </motion.button>
 
-                  {/* Connecting Line (Technical aesthetic) */}
-                  <AnimatePresence>
-                    {hoveredHotspot === spot && (
-                      <motion.div 
-                         initial={{ opacity: 0, width: 0 }}
-                         animate={{ opacity: 1, width: 40 }}
-                         exit={{ opacity: 0, width: 0 }}
-                         className="absolute top-1/2 left-full h-[1px] bg-white z-10"
-                      />
-                    )}
-                  </AnimatePresence>
-
                   {/* Tooltip */}
                   <AnimatePresence>
                     {hoveredHotspot === spot && (
                       <motion.div
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 40 }}
-                        exit={{ opacity: 0, x: 20 }}
-                        className="absolute top-1/2 -translate-y-1/2 left-full ml-2 w-56 bg-black/80 backdrop-blur-md text-white p-4 pointer-events-none z-50 border border-white/20"
+                        initial={{ opacity: 0, scale: 0.9, x: 20 }}
+                        animate={{ opacity: 1, scale: 1, x: 20 }}
+                        exit={{ opacity: 0, scale: 0.9, x: 20 }}
+                        className="absolute top-1/2 -translate-y-1/2 left-full ml-2 w-48 md:w-56 bg-black/90 backdrop-blur-md text-white p-3 md:p-4 pointer-events-auto z-50 border border-white/20 shadow-2xl"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            openQuickLook({
+                                title: spot.product.name,
+                                price: spot.product.price.replace('৳', '').replace(',', ''),
+                                images: [{ url: spot.product.image }]
+                            });
+                        }}
                       >
                         <div className="absolute -left-[5px] top-1/2 -translate-y-1/2 w-[5px] h-[5px] bg-white" />
-                        <div className="flex gap-4">
-                          <div className="relative w-16 h-20 flex-none border border-white/10">
+                        <div className="flex gap-3 md:gap-4">
+                          <div className="relative w-12 h-16 md:w-16 md:h-20 flex-none border border-white/10">
                             <Image src={spot.product.image} alt={spot.product.name} fill className="object-cover grayscale" />
                           </div>
-                          <div className="flex flex-col justify-center">
-                            <span className="text-[8px] font-mono uppercase tracking-[0.3em] text-white/50 mb-1">Target_Acquired</span>
-                            <p className="text-[10px] font-black uppercase tracking-widest leading-tight">{spot.product.name}</p>
-                            <p className="text-[12px] font-mono text-white mt-2">{spot.product.price}</p>
+                          <div className="flex flex-col justify-center overflow-hidden">
+                            <span className="text-[7px] md:text-[8px] font-mono uppercase tracking-[0.3em] text-white/50 mb-1">Target_Acquired</span>
+                            <p className="text-[9px] md:text-[10px] font-black uppercase tracking-widest leading-tight truncate">{spot.product.name}</p>
+                            <p className="text-[11px] md:text-[12px] font-mono text-white mt-2">{spot.product.price}</p>
                           </div>
                         </div>
+                        <div className="mt-2 text-[7px] font-mono text-white/30 uppercase tracking-[0.2em] text-right">Click to Open</div>
                       </motion.div>
                     )}
                   </AnimatePresence>

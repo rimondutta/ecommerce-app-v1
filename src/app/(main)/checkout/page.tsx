@@ -152,7 +152,7 @@ export default function CheckoutPage() {
            {/* LEFT COLUMN: CHECKOUT FLOW */}
            <div className="lg:col-span-7">
               <div className="mb-12">
-                <h1 className="text-4xl font-semibold tracking-tight text-neutral-900 mb-4">Checkout</h1>
+                <h1 className="text-3xl md:text-4xl font-semibold tracking-tight text-neutral-900 mb-4">Checkout</h1>
                 <div className="flex items-center gap-3">
                     {[1, 2, 3].map((s) => (
                         <div key={s} className="flex items-center gap-3">
@@ -401,7 +401,7 @@ export default function CheckoutPage() {
 
            {/* RIGHT COLUMN: ORDER SUMMARY SIDEBAR */}
            <div className="lg:col-span-5">
-              <div className="bg-white rounded-[32px] p-8 lg:p-10 border border-neutral-100 shadow-2xl shadow-neutral-200/50 sticky top-12">
+              <div className="bg-white rounded-[32px] p-6 lg:p-10 border border-neutral-100 shadow-2xl shadow-neutral-200/50 sticky top-12">
                  <div className="flex items-center justify-between mb-8">
                     <h3 className="text-xl font-semibold text-neutral-900">Order Summary</h3>
                     <span className="text-[10px] font-bold bg-neutral-100 px-2 py-1 rounded-full uppercase tracking-widest text-neutral-500">
@@ -448,7 +448,7 @@ export default function CheckoutPage() {
                     <div className="pt-8 flex flex-col gap-1">
                         <label className="text-[10px] font-bold uppercase tracking-[0.3em] text-neutral-600">Total Amount</label>
                         <div className="flex items-end justify-between">
-                            <div className="text-4xl font-semibold tracking-tighter text-neutral-900">
+                            <div className="text-3xl md:text-4xl font-semibold tracking-tighter text-neutral-900">
                                 ৳{Math.round(finalTotal).toLocaleString()}
                             </div>
                             <div className="w-10 h-10 bg-neutral-50 rounded-full flex items-center justify-center text-neutral-900">

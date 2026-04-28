@@ -137,7 +137,7 @@ function ShopContent() {
     <div className="flex-1 flex flex-col bg-[#F9F9F9] min-h-screen font-sans text-neutral-900 relative">
       
       {/* LUXURY EDITORIAL HERO */}
-      <section className="relative pt-40 pb-24 px-6 md:px-12 overflow-hidden bg-white">
+      <section className="relative pt-32 md:pt-40 pb-24 px-6 md:px-12 overflow-hidden bg-white">
           <div className="max-w-[1800px] mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-end">
               <motion.div 
                 initial={{ opacity: 0, x: -30 }}
@@ -146,7 +146,7 @@ function ShopContent() {
                 className="space-y-8"
               >
                   <span className="text-[10px] font-black uppercase tracking-[0.4em] text-neutral-600">Flex Wear Collection / Vol. 01</span>
-                  <h1 className="font-display font-black text-7xl md:text-9xl tracking-tighter text-neutral-900 leading-[0.85] uppercase">
+                  <h1 className="font-display font-black text-6xl md:text-9xl tracking-tighter text-neutral-900 leading-[0.85] uppercase">
                     The <br />
                     <span className="text-neutral-400 italic">Uniform</span> <br />
                     System
@@ -281,10 +281,10 @@ function ShopContent() {
                 animate={{ x: 0 }}
                 exit={{ x: "100%" }}
                 transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-                className="w-[90%] bg-white h-full p-10 overflow-y-auto flex flex-col shadow-2xl"
+                className="w-[90%] bg-white h-full p-6 md:p-10 overflow-y-auto flex flex-col shadow-2xl"
               >
                  <div className="flex justify-between items-center mb-16">
-                    <h2 className="font-black text-4xl uppercase tracking-tighter italic">Refine</h2>
+                    <h2 className="font-black text-3xl md:text-4xl uppercase tracking-tighter italic">Refine</h2>
                     <button onClick={() => setIsMobileFiltersOpen(false)} className="w-12 h-12 bg-neutral-100 rounded-full flex items-center justify-center hover:bg-neutral-200 transition-colors">
                        <X size={24} />
                     </button>

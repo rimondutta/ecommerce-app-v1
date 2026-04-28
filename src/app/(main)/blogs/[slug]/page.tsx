@@ -18,10 +18,10 @@ async function getRelatedProducts(category: string) {
   return await Product.find({ isPublished: true }).limit(4).lean();
 }
 
-const SingleBlogPage = async ({ 
-  params 
-}: { 
-  params: Promise<{ slug: string }> 
+const SingleBlogPage = async ({
+  params
+}: {
+  params: Promise<{ slug: string }>
 }) => {
   const { slug } = await params;
   const post: any = await getBlogPost(slug);
@@ -34,15 +34,15 @@ const SingleBlogPage = async ({
 
   return (
     <div className="min-h-screen bg-[#f0ece5] relative z-10">
-      <div className="absolute inset-0 pointer-events-none opacity-[0.03]" 
-             style={{ backgroundImage: 'linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
-      
+      <div className="absolute inset-0 pointer-events-none opacity-[0.03]"
+        style={{ backgroundImage: 'linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
+
       <main className="pt-8 pb-24 relative z-10">
         {/* Progress Bar Mockup */}
         <div className="fixed top-0 left-0 w-1/3 h-1 bg-black z-[100]"></div>
 
         {/* Hero Section */}
-        <div className="relative w-full h-[70vh] bg-[#f0ece5] border-y border-black overflow-hidden mt-20">
+        <div className="relative w-full h-[50vh] md:h-[70vh] bg-[#f0ece5] border-y border-black overflow-hidden mt-20">
           <Image
             src={post.featuredImage.url}
             alt={post.featuredImage.alt}
@@ -51,7 +51,7 @@ const SingleBlogPage = async ({
             priority
           />
           <div className="absolute inset-0 flex items-center justify-center px-6">
-            <div className="max-w-[1000px] text-center bg-white/90 p-12 border border-black backdrop-blur-sm">
+            <div className="max-w-[1000px] text-center bg-white/90 p-6 md:p-12 border border-black backdrop-blur-sm">
               <div className="flex items-center justify-center gap-4 mb-8">
                 <span className="px-4 py-1.5 border border-black bg-black text-[#f0ece5] font-mono text-[9px] font-black uppercase tracking-[0.2em]">
                   DIR_{post.category}
@@ -60,14 +60,14 @@ const SingleBlogPage = async ({
                   <Clock className="w-3 h-3" /> READ_T_{post.readingTime}
                 </span>
               </div>
-              <h1 className="font-display text-5xl md:text-8xl font-black text-black uppercase leading-[0.9] tracking-tighter mb-12">
+              <h1 className="font-display text-4xl md:text-8xl font-black text-black uppercase leading-[0.9] tracking-tighter mb-12">
                 {post.title}
               </h1>
               <div className="flex items-center justify-center gap-6 text-black border-t border-black pt-8">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-gray-200 overflow-hidden border border-black grayscale">
                     {post.author.avatar && (
-                        <Image src={post.author.avatar} alt={post.author.name} width={40} height={40} className="object-cover" />
+                      <Image src={post.author.avatar} alt={post.author.name} width={40} height={40} className="object-cover" />
                     )}
                   </div>
                   <span className="font-mono text-[10px] font-black uppercase tracking-widest">USR_{post.author.name}</span>
@@ -124,7 +124,7 @@ const SingleBlogPage = async ({
               <span className="font-mono text-[10px] font-black uppercase tracking-[0.4em] text-black">SYS_INTEGRATION</span>
               <h3 className="font-display text-3xl font-black uppercase tracking-tighter ml-4">FEATURED_COMPONENTS</h3>
             </div>
-            
+
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
               {relatedProducts.map((product: any) => (
                 <Link key={product._id} href={`/products/${product.slug}`} className="group block border border-black p-4 bg-[#f0ece5] hover:bg-black hover:text-[#f0ece5] transition-colors">

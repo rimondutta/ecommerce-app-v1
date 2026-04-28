@@ -192,7 +192,7 @@ export default function ProductDetailsClient({ product, relatedProducts }: Produ
               )}
             </div>
 
-            <h1 className="font-display font-black text-5xl md:text-6xl lg:text-7xl uppercase leading-[0.9] tracking-tight" style={{ WebkitTextStroke: "1px black", color: "transparent" }}>
+            <h1 className="font-display font-black text-4xl md:text-6xl lg:text-7xl uppercase leading-[0.9] tracking-tight" style={{ WebkitTextStroke: "1px black", color: "transparent" }}>
               {product.title}
             </h1>
 
@@ -362,7 +362,7 @@ export default function ProductDetailsClient({ product, relatedProducts }: Produ
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
           <div className="py-16 lg:py-24 lg:pr-16 lg:border-r border-black">
             <span className="font-mono text-[10px] font-black uppercase tracking-widest text-black/50 mb-6 block border border-black/20 w-fit px-3 py-1">SYS_DETAILS</span>
-            <h2 className="font-display font-black text-4xl md:text-5xl lg:text-6xl uppercase leading-[0.95] tracking-tight">DESIGN &<br />SPECIFICATION</h2>
+            <h2 className="font-display font-black text-3xl md:text-5xl lg:text-6xl uppercase leading-[0.95] tracking-tight">DESIGN &<br />SPECIFICATION</h2>
           </div>
           <div className="py-12 lg:py-24 lg:pl-16 flex items-center">
             <div className="space-y-8 w-full">
@@ -428,7 +428,7 @@ export default function ProductDetailsClient({ product, relatedProducts }: Produ
           <div className="absolute bottom-0 left-0 w-4 h-4 border-t border-r border-black" />
           <div className="absolute bottom-0 right-0 w-4 h-4 border-t border-l border-black" />
 
-          <h2 className="font-display font-black text-6xl md:text-8xl lg:text-9xl uppercase leading-[0.85] tracking-tight text-black mb-8" style={{ WebkitTextStroke: "2px black", color: "transparent" }}>
+          <h2 className="font-display font-black text-5xl md:text-8xl lg:text-9xl uppercase leading-[0.85] tracking-tight text-black mb-8" style={{ WebkitTextStroke: "2px black", color: "transparent" }}>
             TIMELESS<br />PIECES<br />MODERN SOUL
           </h2>
           <div className="border-t-2 border-black pt-6 flex flex-col md:flex-row gap-8">

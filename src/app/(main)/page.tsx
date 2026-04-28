@@ -72,14 +72,14 @@ export default async function Home() {
       </div>
 
       {/* FINAL CALL TO ACTION */}
-      <div className="relative z-10 bg-black text-[#f0ece5] py-40 flex flex-col items-center justify-center text-center overflow-hidden" data-cursor="EXPLORE">
+      <div className="relative z-10 bg-black text-[#f0ece5] py-24 md:py-40 flex flex-col items-center justify-center text-center overflow-hidden" data-cursor="EXPLORE">
         <Reveal direction="down" distance={100}>
-          <h2 className="relative z-10 font-display font-black text-7xl md:text-[18rem] uppercase leading-none tracking-tighter mix-blend-difference">
+          <h2 className="relative z-10 font-display font-black text-6xl md:text-[18rem] uppercase leading-none tracking-tighter mix-blend-difference">
             DIRECT
           </h2>
         </Reveal>
         <Reveal direction="up" distance={100} delay={0.4}>
-          <h2 className="relative z-10 font-display font-black text-7xl md:text-[12rem] uppercase leading-none tracking-tighter italic text-white/50">
+          <h2 className="relative z-10 font-display font-black text-6xl md:text-[12rem] uppercase leading-none tracking-tighter italic text-white/50">
             TO YOU
           </h2>
         </Reveal>

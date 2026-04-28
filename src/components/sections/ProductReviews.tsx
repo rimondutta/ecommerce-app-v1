@@ -41,13 +41,13 @@ export default function ProductReviews({ slug }: { slug: string }) {
     : 0;
 
   return (
-    <section className="mt-48 relative z-10">
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-24">
+    <section className="mt-24 md:mt-48 relative z-10">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-24">
         
         {/* SUMMARY - LEFT (4 cols) */}
         <div className="lg:col-span-4 space-y-12 h-fit lg:sticky lg:top-[160px]">
           <div className="space-y-6">
-             <h2 className="font-display font-black text-6xl md:text-8xl uppercase tracking-tighter leading-none" style={{ WebkitTextStroke: "1px black", color: "transparent" }}>
+             <h2 className="font-display font-black text-5xl md:text-8xl uppercase tracking-tighter leading-none" style={{ WebkitTextStroke: "1px black", color: "transparent" }}>
                SYS<br />LOGS
              </h2>
              <p className="font-mono text-[10px] font-bold uppercase tracking-[0.4em] text-black border border-black px-3 py-1 bg-white inline-block">DATA_ANALYSIS: {reviews.length} ENTRIES</p>
@@ -56,7 +56,7 @@ export default function ProductReviews({ slug }: { slug: string }) {
           <div className="p-10 border border-black space-y-8 bg-[#f0ece5] relative">
              <div className="absolute top-0 left-0 bg-black text-[#f0ece5] font-mono text-[9px] uppercase tracking-widest px-2 py-0.5 border-b border-r border-black">GLOBAL_SCORE</div>
              <div className="flex items-end gap-6 pt-4">
-                <span className="font-display font-black text-8xl leading-none tracking-tight">
+                <span className="font-display font-black text-7xl md:text-8xl leading-none tracking-tight">
                   {averageRating.toFixed(1)}
                 </span>
                 <div className="flex flex-col gap-2 pb-2">

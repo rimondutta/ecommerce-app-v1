@@ -9,28 +9,28 @@ const categories = [
     title: "Outerwear",
     image: "https://images.unsplash.com/photo-1551028719-00167b16eac5?q=80&w=800&auto=format&fit=crop",
     colSpan: "col-span-12 md:col-span-8",
-    height: "h-[60vh]",
+    height: "h-[40vh] md:h-[60vh]",
     speed: 1.1
   },
   {
     title: "Essentials",
     image: "https://images.unsplash.com/photo-1523381210434-271e8be1f52b?q=80&w=800&auto=format&fit=crop",
     colSpan: "col-span-12 md:col-span-4",
-    height: "h-[45vh] md:mt-32",
+    height: "h-[35vh] md:h-[45vh] md:mt-32",
     speed: 0.9
   },
   {
     title: "Accessories",
     image: "https://images.unsplash.com/photo-1606760227091-3dd870d97f1d?q=80&w=800&auto=format&fit=crop",
     colSpan: "col-span-12 md:col-span-5",
-    height: "h-[50vh] md:-mt-10",
+    height: "h-[35vh] md:h-[50vh] md:-mt-10",
     speed: 1.2
   },
   {
     title: "Footwear",
     image: "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?q=80&w=800&auto=format&fit=crop",
     colSpan: "col-span-12 md:col-span-7",
-    height: "h-[70vh]",
+    height: "h-[40vh] md:h-[70vh]",
     speed: 0.8
   }
 ];

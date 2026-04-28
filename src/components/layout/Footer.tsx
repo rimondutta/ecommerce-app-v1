@@ -116,7 +116,7 @@ export default function Footer() {
 
         {/* Archival Logo / Large Background Text */}
         <div className="pointer-events-none select-none absolute bottom-12 left-1/2 -translate-x-1/2 w-full text-center">
-          <h2 className="font-display font-black text-[15vw] leading-none uppercase tracking-tighter text-transparent" style={{ WebkitTextStroke: '1px rgba(255,255,255,0.1)' }}>Flex Wear</h2>
+          <h2 className="font-display font-black text-[12vw] md:text-[15vw] leading-none uppercase tracking-tighter text-transparent" style={{ WebkitTextStroke: '1px rgba(255,255,255,0.1)' }}>Flex Wear</h2>
         </div>
 
         {/* Bottom Bar */}

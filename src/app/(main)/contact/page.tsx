@@ -21,7 +21,7 @@ export default function ContactPage() {
               <span className="w-16 h-1 bg-black"></span>
               <span className="font-mono text-[10px] font-black uppercase tracking-[0.4em] text-black">SYS_COMMS</span>
             </div>
-            <h1 className="font-display text-7xl md:text-9xl font-black uppercase leading-[0.8] tracking-tighter mb-8" style={{ WebkitTextStroke: "1px black", color: "transparent" }}>
+            <h1 className="font-display text-6xl md:text-9xl font-black uppercase leading-[0.8] tracking-tighter mb-8" style={{ WebkitTextStroke: "1px black", color: "transparent" }}>
               BUREAU<br />CONTACT
             </h1>
             <p className="font-mono text-[12px] text-black uppercase tracking-widest max-w-2xl font-bold leading-loose border-l border-black pl-6">
