@@ -74,17 +74,15 @@ export default function Header() {
       if (!headerRef.current) return;
 
       const ctx = gsap.context(() => {
-        // 1. Initial State: Set to hidden off-screen
-        gsap.set(headerRef.current, { yPercent: -100, opacity: 0 });
-
-        // 2. Entrance Animation: Reveal after a slight delay (to sync with preloader wipe)
-        const entranceTl = gsap.timeline({ delay: 1.5 });
-        entranceTl.to(headerRef.current, {
-          yPercent: 0,
-          opacity: 1,
-          duration: 1.2,
-          ease: "expo.out"
-        });
+        // 1. Initial State: Ensure it's visible or handle entrance more gracefully
+        // We'll remove the hard set to hidden to ensure it's visible if JS fails
+        
+        // 2. Entrance Animation: Reveal after a slight delay
+        const entranceTl = gsap.timeline({ delay: 0.8 });
+        entranceTl.fromTo(headerRef.current, 
+          { yPercent: -100, opacity: 0 },
+          { yPercent: 0, opacity: 1, duration: 1.2, ease: "expo.out" }
+        );
         
         entranceTl.fromTo([logoRef.current, navRef.current, actionsRef.current],
           { opacity: 0, y: -20 },
@@ -123,7 +121,7 @@ export default function Header() {
     <>
       <header
         ref={headerRef}
-        className={`fixed top-0 left-0 w-full z-[100] border-b ${
+        className={`relative w-full z-[100] border-b ${
           isScrolled 
           ? "bg-white/90 backdrop-blur-xl border-black/10 h-[80px]" 
           : "bg-white/50 backdrop-blur-md border-transparent h-[100px]"

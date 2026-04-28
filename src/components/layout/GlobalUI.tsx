@@ -17,7 +17,6 @@ export default function GlobalUI() {
 
   return (
     <>
-      <Preloader />
       <CartDrawer />
       <QuickLookDrawer />
       <SearchDrawer isOpen={isSearchOpen} onClose={closeSearch} />
