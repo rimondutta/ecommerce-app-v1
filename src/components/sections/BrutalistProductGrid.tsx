@@ -132,8 +132,8 @@ export default function ModernProductGrid({
   }, [displayProducts.length, selectedCategory]);
 
   return (
-    <section ref={sectionRef} className="relative px-4 md:px-16 py-32 md:py-48 max-w-[1800px] mx-auto bg-[#f0ece5] overflow-hidden">
-      <div className="absolute inset-0 pointer-events-none opacity-[0.03]" 
+    <section ref={sectionRef} className="relative px-4 md:px-16 py-32 md:py-48 max-w-[1800px] mx-auto bg-white overflow-hidden">
+      <div className="absolute inset-0 pointer-events-none opacity-[0.02]" 
            style={{ backgroundImage: 'linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
 
       <div className="flex flex-col lg:flex-row items-end justify-between mb-24 md:mb-32 gap-12 relative z-10">
@@ -189,7 +189,7 @@ export default function ModernProductGrid({
                   exit={{ opacity: 0, scale: 0.95 }}
                   transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
                 >
-                  <div className="relative aspect-[3/4] bg-[#e8e4db] overflow-hidden border border-black/10" data-cursor="VIEW">
+                  <div className="relative aspect-[3/4] bg-[#fafafa] overflow-hidden border border-black/5" data-cursor="VIEW">
                     <Link href={`/products/${product.slug}`} className="absolute inset-0 z-[1]">
                       <div data-card-img className="w-full h-full will-change-transform">
                         <Image
@@ -292,7 +292,7 @@ export default function ModernProductGrid({
             className="group flex items-center gap-4 bg-white border border-black/20 pl-8 pr-2 py-2 hover:border-black transition-colors"
           >
             <span className="font-mono text-[10px] font-bold uppercase tracking-[0.3em] text-black">Load More Data</span>
-            <div className="w-10 h-10 bg-[#f0ece5] flex items-center justify-center group-hover:bg-black group-hover:text-white transition-colors">
+            <div className="w-10 h-10 bg-[#fafafa] flex items-center justify-center group-hover:bg-black group-hover:text-white transition-colors">
               <Plus size={16} strokeWidth={2} />
             </div>
           </button>

@@ -74,10 +74,10 @@ export default function Header() {
       if (!headerRef.current) return;
 
       const ctx = gsap.context(() => {
-        // 1. Initial State: Ensure visible immediately
+        // 1. Initial State
         gsap.set(headerRef.current, { yPercent: 0, opacity: 1, visibility: "visible" });
         
-        // 2. Entrance Animation: Simple reveal from top
+        // 2. Entrance Animation
         gsap.from(headerRef.current, { 
           yPercent: -100,
           duration: 1.2, 
@@ -89,12 +89,15 @@ export default function Header() {
           { opacity: 0, y: -20, duration: 0.8, stagger: 0.1, ease: "expo.out", delay: 0.2 }
         );
 
-        // 3. Scroll Show/Hide Logic
+        // 3. Scroll Show/Hide Logic + Horizontal "Move This That"
         ScrollTrigger.create({
           start: "top top",
           end: 99999,
           onUpdate: (self) => {
             const scrollY = self.scroll();
+            const velocity = self.getVelocity();
+            
+            // Vertical movement
             if (scrollY > 150) {
               if (self.direction === 1) {
                 gsap.to(headerRef.current, { yPercent: -100, duration: 0.4, ease: "power2.inOut" });
@@ -104,6 +107,28 @@ export default function Header() {
             } else {
               gsap.to(headerRef.current, { yPercent: 0, duration: 0.4, ease: "power2.out" });
             }
+
+            // Horizontal "Move This That" Parallax on Nav Items
+            if (navRef.current) {
+              const navItems = navRef.current.querySelectorAll("a");
+              gsap.to(navItems, {
+                x: (i) => (velocity * 0.01) * (i % 2 === 0 ? 1 : -1),
+                duration: 0.5,
+                ease: "power2.out",
+                overwrite: "auto"
+              });
+            }
+
+            // Logo horizontal shift
+            if (logoRef.current) {
+              gsap.to(logoRef.current, {
+                x: velocity * 0.005,
+                duration: 0.8,
+                ease: "power3.out",
+                overwrite: "auto"
+              });
+            }
+            
             setIsScrolled(scrollY > 50);
           }
         });
@@ -119,16 +144,16 @@ export default function Header() {
     <>
       <header
         ref={headerRef}
-        className={`fixed top-[40px] left-0 w-full z-[500] border-b text-black ${
+        className={`fixed left-0 w-full z-[500] border-b text-black transition-all duration-500 ease-[0.16,1,0.3,1] ${
           isScrolled 
-          ? "bg-white/95 backdrop-blur-xl border-black/10 h-[80px]" 
-          : "bg-white border-transparent h-[100px]"
-        } transition-[background-color,border-color,height,top] duration-500`}
+          ? "bg-white/95 backdrop-blur-xl border-black/10 h-[80px] top-0" 
+          : "bg-white border-transparent h-[100px] top-[40px]"
+        }`}
       >
         <div className="max-w-[1800px] mx-auto px-6 md:px-16 h-full flex items-center justify-between">
           
           {/* Logo Section */}
-          <div ref={logoRef} className="flex items-center gap-4">
+          <div ref={logoRef} className="flex items-center gap-4 will-change-transform">
             <button
               className="lg:hidden p-2 -ml-2 hover:scale-110 transition-transform"
               onClick={openMobileMenu}
@@ -143,10 +168,10 @@ export default function Header() {
 
           {/* Navigation */}
           <nav ref={navRef} className="hidden lg:flex items-center gap-10 h-full" aria-label="Main navigation">
-            {navLinks.map((link) => (
+            {navLinks.map((link, idx) => (
               <MagneticElement key={link.label} strength={0.1}>
                 <div
-                  className="relative h-full flex items-center"
+                  className="relative h-full flex items-center will-change-transform"
                   onMouseEnter={() => handleMouseEnter(link.label)}
                   onMouseLeave={handleMouseLeave}
                 >
@@ -214,7 +239,7 @@ export default function Header() {
       <AnimatePresence>
         {activeMenu === "Shop" && (
           <motion.div 
-            className={`fixed ${isScrolled ? 'top-[120px]' : 'top-[140px]'} left-0 w-full bg-[#f0ece5] text-black border-b border-black/10 shadow-2xl z-[90] overflow-hidden`}
+            className={`fixed ${isScrolled ? 'top-[80px]' : 'top-[140px]'} left-0 w-full bg-[#f0ece5] text-black border-b border-black/10 shadow-2xl z-[90] overflow-hidden`}
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}

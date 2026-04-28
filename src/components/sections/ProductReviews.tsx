@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Star, Verified, Filter, ChevronDown, CheckCircle2 } from "lucide-react";
 import ReviewForm from "@/components/forms/ReviewForm";
+import { Star as StarIcon } from "lucide-react";
 
 interface Review {
   _id: string;
@@ -41,48 +42,51 @@ export default function ProductReviews({ slug }: { slug: string }) {
     : 0;
 
   return (
-    <section className="mt-24 md:mt-48 relative z-10">
+    <section className="mt-24 md:mt-48 relative z-10 border-t border-black/5 pt-24">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-24">
         
         {/* SUMMARY - LEFT (4 cols) */}
         <div className="lg:col-span-4 space-y-12 h-fit lg:sticky lg:top-[160px]">
-          <div className="space-y-6">
-             <h2 className="font-display font-black text-5xl md:text-8xl uppercase tracking-tighter leading-none" style={{ WebkitTextStroke: "1px black", color: "transparent" }}>
-               SYS<br />LOGS
+          <div className="space-y-4">
+             <span className="text-[10px] font-black uppercase tracking-[0.4em] text-black/30 block">Feedback Analysis</span>
+             <h2 className="font-display font-black text-5xl md:text-7xl uppercase tracking-tighter leading-[0.85]">
+               Customer<br />Reviews
              </h2>
-             <p className="font-mono text-[10px] font-bold uppercase tracking-[0.4em] text-black border border-black px-3 py-1 bg-white inline-block">DATA_ANALYSIS: {reviews.length} ENTRIES</p>
           </div>
 
-          <div className="p-10 border border-black space-y-8 bg-[#f0ece5] relative">
-             <div className="absolute top-0 left-0 bg-black text-[#f0ece5] font-mono text-[9px] uppercase tracking-widest px-2 py-0.5 border-b border-r border-black">GLOBAL_SCORE</div>
-             <div className="flex items-end gap-6 pt-4">
-                <span className="font-display font-black text-7xl md:text-8xl leading-none tracking-tight">
-                  {averageRating.toFixed(1)}
+          <div className="p-12 border border-black/5 space-y-10 bg-[#fafafa] relative overflow-hidden">
+             <div className="absolute top-0 right-0 w-24 h-24 opacity-[0.03] -mr-8 -mt-8">
+                <StarIcon size={120} className="fill-black" />
+             </div>
+             
+             <div className="flex items-end gap-6">
+                <span className="font-display font-black text-7xl md:text-9xl leading-none tracking-tighter">
+                   {averageRating.toFixed(1)}
                 </span>
-                <div className="flex flex-col gap-2 pb-2">
+                <div className="flex flex-col gap-3 pb-2">
                    <div className="flex gap-1">
                       {[1, 2, 3, 4, 5].map(i => (
-                        <Star key={i} size={16} className={i <= Math.round(averageRating) ? "fill-black text-black" : "text-black/10"} />
+                        <StarIcon key={i} size={18} className={i <= Math.round(averageRating) ? "fill-black text-black" : "text-black/10"} />
                       ))}
                    </div>
-                   <span className="font-mono text-[9px] font-black uppercase tracking-widest leading-none">RATING_AVG</span>
+                   <span className="text-[10px] font-black uppercase tracking-[0.2em] text-black/40">Average Rating</span>
                 </div>
              </div>
 
-             <div className="space-y-4 border-t border-black pt-8">
+             <div className="space-y-4 pt-4">
                 {[5, 4, 3, 2, 1].map(score => {
                    const count = reviews.filter(r => r.rating === score).length;
                    const percentage = reviews.length > 0 ? (count / reviews.length) * 100 : 0;
                    return (
-                     <div key={score} className="flex items-center gap-6">
-                        <span className="font-mono text-[10px] font-black uppercase w-8">[{score}★]</span>
-                        <div className="flex-1 h-2 border border-black bg-white relative overflow-hidden">
+                     <div key={score} className="flex items-center gap-6 group">
+                        <span className="text-[11px] font-black w-10">{score}★</span>
+                        <div className="flex-1 h-1.5 bg-black/5 relative overflow-hidden">
                            <div 
-                             className="absolute inset-y-0 left-0 bg-black transition-all duration-1000" 
+                             className="absolute inset-y-0 left-0 bg-black transition-all duration-1000 ease-[0.16,1,0.3,1]" 
                              style={{ width: `${percentage}%` }} 
                            />
                         </div>
-                        <span className="font-mono text-[10px] font-bold text-black w-12 text-right">{percentage.toFixed(0)}%</span>
+                        <span className="text-[10px] font-bold text-black/30 group-hover:text-black transition-colors w-12 text-right">{percentage.toFixed(0)}%</span>
                      </div>
                    );
                 })}
@@ -90,18 +94,18 @@ export default function ProductReviews({ slug }: { slug: string }) {
 
              <button 
                onClick={() => setShowForm(!showForm)}
-               className="w-full py-4 border border-black bg-white text-black font-mono font-black uppercase tracking-[0.3em] text-[10px] hover:bg-black hover:text-[#f0ece5] transition-colors"
+               className="w-full h-16 border border-black bg-black text-white font-black uppercase tracking-[0.2em] text-[10px] hover:bg-white hover:text-black transition-all duration-500 active:scale-[0.98]"
              >
-               {showForm ? "ABORT_ENTRY" : "INIT_ARCHIVAL_ENTRY"}
+               {showForm ? "Cancel Entry" : "Write a Review"}
              </button>
           </div>
         </div>
 
         {/* LIST - RIGHT (8 cols) */}
-        <div className="lg:col-span-8 space-y-24">
+        <div className="lg:col-span-8">
           
           {showForm && (
-            <div className="animate-reveal">
+            <div className="mb-20 animate-reveal border border-black/5 p-8 bg-[#fafafa]">
               <ReviewForm slug={slug} onSuccess={() => {
                 setShowForm(false);
                 fetchReviews();
@@ -111,76 +115,80 @@ export default function ProductReviews({ slug }: { slug: string }) {
 
           <div className="space-y-12">
             {loading ? (
-              <div className="py-24 flex items-center justify-center gap-4 border border-black bg-white">
-                 <div className="w-4 h-4 bg-black animate-pulse" />
-                 <p className="font-mono text-[10px] font-black uppercase tracking-widest">FETCHING_DATA...</p>
+              <div className="py-24 flex items-center justify-center gap-6 border border-black/5">
+                 <div className="w-8 h-8 border-2 border-black border-t-transparent rounded-full animate-spin" />
+                 <p className="text-[10px] font-black uppercase tracking-[0.3em]">Loading Records...</p>
               </div>
             ) : reviews.length === 0 ? (
-              <div className="py-32 border border-black bg-white flex flex-col items-center justify-center gap-8 text-center px-12 relative">
-                 <div className="absolute top-0 left-0 bg-black text-[#f0ece5] font-mono text-[9px] uppercase tracking-widest px-2 py-0.5">STATUS</div>
-                 <div className="w-12 h-12 border border-black flex items-center justify-center">
-                    <Filter size={24} className="text-black" />
+              <div className="py-40 border border-black/5 bg-[#fafafa] flex flex-col items-center justify-center gap-8 text-center px-12">
+                 <div className="w-20 h-20 rounded-full border border-black/5 flex items-center justify-center bg-white shadow-xl">
+                    <Filter size={32} className="text-black/20" />
                  </div>
-                 <h4 className="font-display font-black text-3xl uppercase tracking-tight">NULL_DATA</h4>
-                 <p className="font-mono text-[10px] font-medium uppercase tracking-widest text-black/60 leading-loose max-w-sm">NO DOCUMENTED LOGS EXIST. INIT NEW ENTRY TO POPULATE DB.</p>
+                 <div className="space-y-2">
+                    <h4 className="font-display font-black text-4xl uppercase tracking-tighter">No Reviews Yet</h4>
+                    <p className="text-xs font-medium uppercase tracking-widest text-black/40 leading-loose max-w-xs mx-auto">Be the first to document your experience with this piece.</p>
+                 </div>
               </div>
             ) : (
-              <div className="grid grid-cols-1 gap-8">
+              <div className="grid grid-cols-1 gap-12">
                 {reviews.map((review, idx) => (
                   <div 
                     key={review._id} 
-                    className="p-8 border border-black space-y-6 bg-white relative animate-reveal"
+                    className="group space-y-8 animate-reveal"
                     style={{ animationDelay: `${idx * 0.1}s` }}
                   >
-                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-black">
+                    <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
                        <div className="flex items-center gap-6">
-                          <div className="w-12 h-12 border border-black text-black flex items-center justify-center font-display font-black text-xl uppercase bg-[#f0ece5]">
-                            {review.userName.charAt(0)}
+                          <div className="w-16 h-16 rounded-full border border-black/5 bg-white flex items-center justify-center shadow-lg group-hover:shadow-2xl transition-all duration-500 overflow-hidden">
+                             {/* Placeholder avatar or initial */}
+                             <span className="font-display font-black text-2xl uppercase">{review.userName.charAt(0)}</span>
                           </div>
-                          <div>
-                            <div className="flex items-center gap-3 mb-1">
-                               <h5 className="font-mono text-[11px] font-black uppercase tracking-widest">USER_{review.userName.replace(/\s+/g, '_')}</h5>
-                               {review.isVerifiedPurchase && (
-                                 <span className="flex items-center gap-1.5 font-mono text-[8px] font-black bg-black text-[#f0ece5] px-2 py-0.5 uppercase tracking-widest border border-black">
-                                   <CheckCircle2 size={10} /> SYS_VERIFIED
-                                 </span>
-                               )}
-                            </div>
-                            <p className="font-mono text-[9px] font-bold text-black/50 uppercase tracking-widest">
-                               LOG_DATE: {new Date(review.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\//g, '.')}
-                            </p>
+                          <div className="space-y-1">
+                             <div className="flex items-center gap-3">
+                                <h5 className="text-[12px] font-black uppercase tracking-widest">{review.userName}</h5>
+                                {review.isVerifiedPurchase && (
+                                  <div className="flex items-center gap-1.5 text-[8px] font-black text-emerald-600 bg-emerald-50 px-2 py-0.5 uppercase tracking-widest rounded-full">
+                                    <CheckCircle2 size={10} /> Verified
+                                  </div>
+                                )}
+                             </div>
+                             <p className="text-[10px] font-bold text-black/30 uppercase tracking-[0.2em]">
+                                {new Date(review.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                             </p>
                           </div>
                        </div>
-                       <div className="flex gap-1 border border-black p-2 bg-[#f0ece5]">
+                       <div className="flex gap-1 py-2 px-4 bg-[#fafafa] rounded-full border border-black/5">
                           {[1, 2, 3, 4, 5].map(star => (
-                            <Star 
+                            <StarIcon 
                               key={star} 
-                              size={12} 
+                              size={14} 
                               className={star <= review.rating ? "fill-black text-black" : "text-black/10"} 
                             />
                           ))}
                        </div>
                     </div>
 
-                    <div className="space-y-4">
-                       <p className="font-mono text-[11px] leading-[2] font-medium uppercase tracking-widest text-black">
-                         {review.comment}
+                    <div className="pl-0 md:pl-24">
+                       <p className="text-sm md:text-base leading-relaxed text-black/70 font-medium">
+                         "{review.comment}"
                        </p>
+                       
+                       <div className="flex items-center gap-8 pt-8 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                          <button className="text-[10px] font-black uppercase tracking-[0.2em] border-b-2 border-black pb-1">Was this helpful?</button>
+                          <button className="text-[10px] font-black uppercase tracking-[0.2em] text-black/30 hover:text-red-500 transition-colors">Report</button>
+                       </div>
                     </div>
-
-                    <div className="flex items-center gap-6 pt-2">
-                       <button className="font-mono text-[9px] font-black uppercase tracking-widest border border-black px-2 py-1 hover:bg-black hover:text-[#f0ece5] transition-colors">HELPFUL [0]</button>
-                       <button className="font-mono text-[9px] font-black uppercase tracking-widest text-black/40 hover:text-black border-b border-transparent hover:border-black transition-colors">REPORT_FLAG</button>
-                    </div>
+                    
+                    <div className="w-full h-px bg-black/5 pt-12" />
                   </div>
                 ))}
               </div>
             )}
 
             {reviews.length > 5 && (
-               <div className="flex justify-center pt-16">
-                  <button className="group px-12 py-4 border border-black bg-white text-black font-mono font-black uppercase tracking-widest text-[10px] hover:bg-black hover:text-[#f0ece5] transition-colors flex items-center gap-3">
-                    EXPAND_ARCHIVE <ChevronDown size={14} className="group-hover:translate-y-1 transition-transform" />
+               <div className="flex justify-center pt-20">
+                  <button className="group px-16 h-16 border border-black text-black font-black uppercase tracking-[0.3em] text-[11px] hover:bg-black hover:text-white transition-all duration-500 flex items-center gap-4">
+                    View More Reviews <ChevronDown size={18} className="group-hover:translate-y-1 transition-transform" />
                   </button>
                </div>
             )}
