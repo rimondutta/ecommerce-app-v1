@@ -68,9 +68,9 @@ export default function Header() {
     };
     fetchCategories();
 
-    // GSAP Entrance & Scroll behavior
+    // GSAP Entrance
     const initGsap = async () => {
-      const { gsap, ScrollTrigger } = await import("@/lib/gsap");
+      const { gsap } = await import("@/lib/gsap");
       if (!headerRef.current) return;
 
       const ctx = gsap.context(() => {
@@ -88,70 +88,29 @@ export default function Header() {
         gsap.from([logoRef.current, navRef.current, actionsRef.current],
           { opacity: 0, y: -20, duration: 0.8, stagger: 0.1, ease: "expo.out", delay: 0.2 }
         );
-
-        // 3. Scroll Show/Hide Logic + Horizontal "Move This That"
-        const navItems = navRef.current?.querySelectorAll("a");
-        
-        ScrollTrigger.create({
-          start: "top top",
-          end: 99999,
-          onUpdate: (self) => {
-            const scrollY = self.scroll();
-            const velocity = self.getVelocity();
-            
-            // Vertical movement
-            if (scrollY > 150) {
-              if (self.direction === 1) {
-                gsap.to(headerRef.current, { yPercent: -100, duration: 0.4, ease: "power2.inOut" });
-              } else {
-                gsap.to(headerRef.current, { yPercent: 0, duration: 0.4, ease: "power2.inOut" });
-              }
-            } else {
-              gsap.to(headerRef.current, { yPercent: 0, duration: 0.4, ease: "power2.out" });
-            }
-
-            // Horizontal "Move This That" Parallax on Nav Items
-            // Capped velocity effect for subtlety and performance
-            const cappedVelocity = Math.max(-1000, Math.min(1000, velocity));
-            if (navItems && navItems.length) {
-              gsap.to(navItems, {
-                x: (i) => (cappedVelocity * 0.005) * (i % 2 === 0 ? 1 : -1),
-                duration: 0.6,
-                ease: "power2.out",
-                overwrite: "auto"
-              });
-            }
-
-            // Logo horizontal shift - capped and smoothed
-            if (logoRef.current) {
-              gsap.to(logoRef.current, {
-                x: cappedVelocity * 0.002,
-                duration: 1,
-                ease: "power3.out",
-                overwrite: "auto"
-              });
-            }
-            
-            setIsScrolled(scrollY > 50);
-          }
-        });
       });
 
       return () => ctx.revert();
     };
 
     initGsap();
+
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 50);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   return (
     <>
       <header
         ref={headerRef}
-        className={`fixed left-0 w-full z-[500] border-b text-black transition-all duration-500 ease-[0.16,1,0.3,1] ${
+        className={`absolute left-0 w-full z-[500] border-b text-black transition-all duration-500 ease-[0.16,1,0.3,1] ${
           isScrolled 
-          ? "bg-white/95 backdrop-blur-xl border-black/10 h-[80px] top-0" 
-          : "bg-white border-transparent h-[100px] top-[40px]"
-        }`}
+          ? "bg-white/95 backdrop-blur-xl border-black/10 h-[80px]" 
+          : "bg-white border-transparent h-[100px]"
+        } top-0`}
       >
         <div className="max-w-[1800px] mx-auto px-6 md:px-16 h-full flex items-center justify-between">
           
