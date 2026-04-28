@@ -71,11 +71,11 @@ export default function Footer() {
                 <AnimatedLogo size="lg" className="text-white" />
               </Link>
               <p className="text-white/40 text-[11px] font-mono leading-relaxed max-w-sm uppercase tracking-widest">
-                High-performance archival gear for the digital nomad. Engineered for motion, designed for the future.
+                Premium apparel for the modern individual. Quality craftsmanship, timeless design, and exceptional comfort in every piece.
               </p>
             </div>
             <div className="flex gap-6">
-              {['Instagram', 'Twitter', 'Journal'].map((social) => (
+              {['Instagram', 'Twitter', 'Facebook'].map((social) => (
                 <a key={social} href="#" data-footer-link className="text-[10px] font-black uppercase tracking-widest text-white/90 hover:text-white transition-all underline outline-offset-4 decoration-white/40">
                   {social}
                 </a>
@@ -86,7 +86,7 @@ export default function Footer() {
           <div data-footer-col style={{ opacity: 0 }}>
             <div className="flex items-center gap-2 mb-10">
               <div className="w-1.5 h-1.5 bg-white" />
-              <h4 className="font-mono font-black text-[10px] uppercase tracking-[0.4em] text-white/70">Inventory</h4>
+              <h4 className="font-mono font-black text-[10px] uppercase tracking-[0.4em] text-white/70">Shop</h4>
             </div>
             <ul className="space-y-5">
               <li><Link href="/products" data-footer-link className="text-[11px] font-black uppercase tracking-widest text-white/90 hover:text-white transition-all flex items-center group"><span className="w-0 group-hover:w-4 h-[1px] bg-white mr-0 group-hover:mr-3 transition-all"></span>All Collections</Link></li>
@@ -99,10 +99,10 @@ export default function Footer() {
           <div data-footer-col style={{ opacity: 0 }}>
             <div className="flex items-center gap-2 mb-10">
               <div className="w-1.5 h-1.5 bg-white" />
-              <h4 className="font-mono font-black text-[10px] uppercase tracking-[0.4em] text-white/70">Bureau</h4>
+              <h4 className="font-mono font-black text-[10px] uppercase tracking-[0.4em] text-white/70">Company</h4>
             </div>
             <ul className="space-y-5">
-              {["Contact Us", "Shipping Logic", "Return Policy", "Size Guide", "Privacy Layer"].map((link) => (
+              {["Contact Us", "Shipping Info", "Return Policy", "Size Guide", "Privacy Policy"].map((link) => (
                 <li key={link}><a href="#" data-footer-link className="text-[11px] font-black uppercase tracking-widest text-white/90 hover:text-white transition-all flex items-center group"><span className="w-0 group-hover:w-4 h-[1px] bg-white mr-0 group-hover:mr-3 transition-all"></span>{link}</a></li>
               ))}
             </ul>
@@ -111,13 +111,13 @@ export default function Footer() {
           <div data-footer-col className="space-y-10" style={{ opacity: 0 }}>
             <div className="flex items-center gap-2">
               <div className="w-1.5 h-1.5 bg-white animate-pulse" />
-              <h4 className="font-mono font-black text-[10px] uppercase tracking-[0.4em] text-white/70">Transmission</h4>
+              <h4 className="font-mono font-black text-[10px] uppercase tracking-[0.4em] text-white/70">Newsletter</h4>
             </div>
             <div className="relative group border border-white/20 p-1 focus-within:border-white/50 transition-all">
-              <input type="email" placeholder="ENTER_DATA..." className="w-full bg-transparent p-4 text-[10px] font-mono tracking-widest uppercase outline-none placeholder:text-white/30" />
-              <button className="absolute right-2 top-1/2 -translate-y-1/2 bg-white text-black px-4 py-2 text-[10px] font-black uppercase tracking-widest hover:bg-white/80 transition-all">Exec</button>
+              <input type="email" placeholder="Email Address" className="w-full bg-transparent p-4 text-[10px] font-mono tracking-widest uppercase outline-none placeholder:text-white/30" />
+              <button className="absolute right-2 top-1/2 -translate-y-1/2 bg-white text-black px-4 py-2 text-[10px] font-black uppercase tracking-widest hover:bg-white/80 transition-all">Join</button>
             </div>
-            <p className="text-[9px] font-mono uppercase tracking-widest text-white/50 leading-relaxed">*By subscribing you agree to receive our archival transmissions.</p>
+            <p className="text-[9px] font-mono uppercase tracking-widest text-white/50 leading-relaxed">*By subscribing you agree to receive our latest updates and offers.</p>
           </div>
         </div>
         {/* Big Logo */}
@@ -128,8 +128,7 @@ export default function Footer() {
         <div data-footer-bottom className="pt-12 border-t border-white/20 flex flex-col md:flex-row justify-between items-center gap-8 relative z-10" style={{ opacity: 0 }}>
           <p className="text-[10px] font-mono font-black uppercase tracking-[0.4em] text-white/70">© 2026 Flex_Wear. All Rights Reserved.</p>
           <div className="flex gap-10">
-            <p className="text-[10px] font-mono font-black uppercase tracking-[0.4em] text-white/70">LND / NYC / TKY</p>
-            <p className="text-[10px] font-mono font-black uppercase tracking-[0.4em] text-white/70 italic opacity-50">SYS_ONLINE</p>
+            <p className="text-[10px] font-mono font-black uppercase tracking-[0.4em] text-white/70">Quality Over Quantity</p>
           </div>
         </div>
       </div>

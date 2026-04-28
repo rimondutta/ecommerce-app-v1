@@ -139,7 +139,7 @@ export default function TechnicalBlueprint() {
             }
           );
 
-          // Badge rotating dashed border — continuous spin via ScrollTrigger scrub
+          // Badge rotating dashed border
           const dashedBorder = badgeRef.current.querySelector("[data-dashed]");
           if (dashedBorder) {
             gsap.to(dashedBorder, {
@@ -170,16 +170,6 @@ export default function TechnicalBlueprint() {
       {/* Blueprint Grid Overlay */}
       <div className="absolute inset-0 pointer-events-none opacity-[0.03]" 
            style={{ backgroundImage: 'linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
-      <div className="absolute inset-0 pointer-events-none opacity-[0.05]" 
-           style={{ backgroundImage: 'linear-gradient(#000 2px, transparent 2px), linear-gradient(90deg, #000 2px, transparent 2px)', backgroundSize: '100px 100px' }} />
-
-      {/* Technical Measurement Lines */}
-      <div className="absolute top-10 left-10 right-10 h-px bg-black/10 hidden md:block">
-        <span className="absolute -top-4 right-0 font-mono text-[8px] text-black/40">W: 100% / AXIS_X</span>
-      </div>
-      <div className="absolute top-10 bottom-10 left-10 w-px bg-black/10 hidden md:block">
-        <span className="absolute bottom-0 -left-6 transform -rotate-90 origin-bottom-left font-mono text-[8px] text-black/40 whitespace-nowrap">H: 100vh / AXIS_Y</span>
-      </div>
 
       <div className="max-w-[1800px] mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-10 items-center relative z-10">
         
@@ -216,9 +206,9 @@ export default function TechnicalBlueprint() {
                   We construct garments not as mere coverings, but as architectural extensions of the self. Every thread is considered. Every silhouette is intentional. 
                 </p>
                 <div ref={specTagsRef} className="mt-8 flex gap-4 font-mono text-[10px] text-black/50 tracking-widest">
-                  <span>[ SPEC_01 ]</span>
+                  <span>[ CRAFTSMANSHIP ]</span>
                   <span>[ PRECISION ]</span>
-                  <span>[ UTILITY ]</span>
+                  <span>[ ELEGANCE ]</span>
                 </div>
              </div>
         </div>
@@ -241,7 +231,7 @@ export default function TechnicalBlueprint() {
                   className="object-cover opacity-60 grayscale mix-blend-luminosity group-hover:opacity-100 group-hover:grayscale-0 group-hover:mix-blend-normal transition-all duration-1000 group-hover:scale-110"
               />
               
-              {/* Technical crosshairs on image */}
+              {/* Decorative Crosshairs */}
               <div className="absolute inset-0 pointer-events-none flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-700">
                 <div className="w-full h-[1px] bg-white/30 absolute top-1/2" />
                 <div className="w-[1px] h-full bg-white/30 absolute left-1/2" />
@@ -251,7 +241,7 @@ export default function TechnicalBlueprint() {
               </div>
            </div>
            
-           {/* Rotating Data Badge */}
+           {/* Rotating Badge */}
            <div 
              ref={badgeRef}
              className="absolute -bottom-12 -left-12 md:-left-24 bg-black text-white p-2 w-40 h-40 md:w-56 md:h-56 flex flex-col items-center justify-center text-center shadow-[0_0_40px_rgba(0,0,0,0.2)] border border-white/10 z-30 will-change-transform"
@@ -264,7 +254,7 @@ export default function TechnicalBlueprint() {
                <div className="relative z-10 flex flex-col items-center">
                  <span className="font-display font-black text-4xl md:text-6xl mb-0 leading-none">FW</span>
                  <span className="font-mono text-[8px] md:text-[10px] uppercase tracking-[0.3em] opacity-60 mt-2 text-center">
-                   Engineered<br/>For Motion
+                   Quality Over<br/>Quantity
                  </span>
                </div>
                
@@ -273,7 +263,7 @@ export default function TechnicalBlueprint() {
                  <path id="circlePath" d="M 50, 50 m -37, 0 a 37,37 0 1,1 74,0 a 37,37 0 1,1 -74,0" fill="none" />
                  <text fontSize="8.5" fontFamily="monospace" letterSpacing="0.2em">
                    <textPath href="#circlePath" startOffset="0%">
-                     • ARCHIVAL TECHNICAL GEAR • ADVANCED SILHOUETTES
+                     • PREMIUM APPAREL • TIMELESS DESIGN •
                    </textPath>
                  </text>
                </svg>

@@ -14,7 +14,7 @@ import AnimatedLogo from "@/components/ui/AnimatedLogo";
 const navLinks = [
   { label: "Home", href: "/" },
   { label: "Shop", href: "/products" },
-  { label: "Archive", href: "/blogs" },
+  { label: "Stories", href: "/blogs" },
   { label: "Contact", href: "/contact" },
 ];
 
@@ -25,7 +25,7 @@ interface Category {
 
 const shopMegaMenu = {
   featured: [
-    { title: "THE COLLECTION AW24", image: "https://images.unsplash.com/photo-1509631179647-0177331693ae?q=80&w=800&auto=format&fit=crop", subtitle: "Limited Edition" },
+    { title: "NEW ARRIVALS", image: "https://images.unsplash.com/photo-1509631179647-0177331693ae?q=80&w=800&auto=format&fit=crop", subtitle: "Limited Edition" },
     { title: "ESSENTIALS", image: "https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=800&auto=format&fit=crop", subtitle: "Core Collection" },
   ],
 };
@@ -82,22 +82,19 @@ export default function Header() {
           yPercent: -100,
           duration: 1.2, 
           ease: "expo.out",
-          clearProps: "all" // Clear GSAP properties after animation to prevent layout issues
+          clearProps: "all"
         });
         
         gsap.from([logoRef.current, navRef.current, actionsRef.current],
           { opacity: 0, y: -20, duration: 0.8, stagger: 0.1, ease: "expo.out", delay: 0.2 }
         );
 
-        // 3. Scroll Show/Hide Logic: Direct and conflict-free
+        // 3. Scroll Show/Hide Logic
         ScrollTrigger.create({
           start: "top top",
           end: 99999,
           onUpdate: (self) => {
             const scrollY = self.scroll();
-            
-            // Hide on scroll down, show on scroll up
-            // Only hide if we've scrolled past the header height (100px)
             if (scrollY > 150) {
               if (self.direction === 1) {
                 gsap.to(headerRef.current, { yPercent: -100, duration: 0.4, ease: "power2.inOut" });
@@ -105,10 +102,8 @@ export default function Header() {
                 gsap.to(headerRef.current, { yPercent: 0, duration: 0.4, ease: "power2.inOut" });
               }
             } else {
-              // Always show at the top
               gsap.to(headerRef.current, { yPercent: 0, duration: 0.4, ease: "power2.out" });
             }
-            
             setIsScrolled(scrollY > 50);
           }
         });
@@ -138,11 +133,10 @@ export default function Header() {
               className="lg:hidden p-2 -ml-2 hover:scale-110 transition-transform"
               onClick={openMobileMenu}
               aria-label="Open mobile menu"
-              data-cursor="MENU"
             >
               <Menu size={24} />
             </button>
-            <Link href="/" className="group flex items-center" data-cursor="HOME">
+            <Link href="/" className="group flex items-center">
               <AnimatedLogo size="md" />
             </Link>
           </div>
@@ -159,31 +153,8 @@ export default function Header() {
                   <Link
                     href={link.href}
                     className="group flex flex-col items-center justify-center overflow-hidden h-12"
-                    data-cursor="CLICK"
                   >
-                    <span 
-                      className="text-[10px] font-black uppercase tracking-[0.3em] text-black/60 group-hover:text-black transition-all duration-300 relative inline-block"
-                      onMouseEnter={(e) => {
-                        const target = e.currentTarget;
-                        const originalText = link.label;
-                        const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-                        import("@/lib/gsap").then(({ gsap }) => {
-                          gsap.to({}, {
-                            duration: 0.5,
-                            onUpdate: function() {
-                              const progress = this.progress();
-                              if (progress < 1) {
-                                target.innerText = Array.from({ length: originalText.length })
-                                  .map(() => chars[Math.floor(Math.random() * chars.length)])
-                                  .join("");
-                              } else {
-                                target.innerText = originalText;
-                              }
-                            }
-                          });
-                        });
-                      }}
-                    >
+                    <span className="text-[10px] font-black uppercase tracking-[0.3em] text-black/60 group-hover:text-black transition-all duration-300 relative inline-block">
                       {link.label}
                     </span>
                     <div className="w-0 group-hover:w-full h-px bg-black transition-all duration-500 ease-[0.16,1,0.3,1]" />
@@ -199,7 +170,6 @@ export default function Header() {
               <button
                 onClick={() => { closeCart(); isSearchOpen ? closeSearch() : openSearch(); }}
                 className="p-2 hover:bg-black/5 rounded-none transition-colors"
-                data-cursor="SEARCH"
               >
                 {isSearchOpen ? <X size={20} /> : <Search size={20} strokeWidth={2} />}
               </button>
@@ -208,14 +178,12 @@ export default function Header() {
             <Link
               href="/account"
               className="p-2 hover:bg-black/5 rounded-none transition-colors hidden sm:block"
-              data-cursor="LOGIN"
             >
               <User size={20} strokeWidth={2} />
             </Link>
 
             <button
               className="p-2 hover:bg-black/5 rounded-none transition-colors relative hidden sm:block"
-              data-cursor="WISHLIST"
             >
               <Heart size={20} strokeWidth={2} fill={wishlistCount > 0 ? "black" : "none"} />
               {wishlistCount > 0 && (
@@ -229,7 +197,6 @@ export default function Header() {
               <button
                 onClick={() => { closeSearch(); isCartOpen ? closeCart() : openCart(); }}
                 className="p-2 hover:bg-black/5 rounded-none transition-colors relative"
-                data-cursor="CART"
               >
                 <ShoppingBag size={20} strokeWidth={2} />
                 {cartCount > 0 && (
@@ -261,7 +228,7 @@ export default function Header() {
             <div className="max-w-[1800px] mx-auto px-16 py-16 grid grid-cols-12 gap-16 relative z-10">
                 <div className="col-span-4 grid grid-cols-2 gap-12">
                    <div className="space-y-8">
-                      <h4 className="font-mono font-black text-[9px] uppercase tracking-[0.3em] text-black/40 mb-6">Navigation</h4>
+                      <h4 className="font-mono font-black text-[9px] uppercase tracking-[0.3em] text-black/40 mb-6">Explore</h4>
                       <ul className="space-y-4">
                         {["New Arrivals", "Best Sellers", "Sale Collection"].map((l, i) => (
                           <li key={l}>
@@ -294,7 +261,6 @@ export default function Header() {
                       key={idx} 
                       href="/products" 
                       className="relative group overflow-hidden bg-black border border-black/10"
-                      data-cursor="VIEW"
                     >
                       <img 
                         src={item.image} 
