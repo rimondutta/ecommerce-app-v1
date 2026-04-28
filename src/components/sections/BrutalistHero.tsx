@@ -97,31 +97,7 @@ export default function EditorialHero() {
           );
         }
 
-        // ── Marquee Velocity Logic ──
-        if (!containerRef.current) return;
-        const marquee = containerRef.current.querySelector("[data-marquee]") as HTMLElement;
-        if (marquee) {
-          const marqueeInner = marquee.querySelector("[data-marquee-inner]") as HTMLElement;
-          let velocity = 1;
-          
-          const playMarquee = () => {
-            gsap.to(marqueeInner, {
-              xPercent: -50,
-              duration: 20 / velocity,
-              ease: "none",
-              repeat: -1
-            });
-          };
 
-          playMarquee();
-
-          ScrollTrigger.create({
-            onUpdate: (self) => {
-              velocity = 1 + Math.abs(self.getVelocity() / 1000);
-              gsap.to(marqueeInner, { timeScale: velocity, duration: 0.5, overwrite: true });
-            }
-          });
-        }
 
         // ── Fade all content on scroll ──
         ScrollTrigger.create({
@@ -213,23 +189,7 @@ export default function EditorialHero() {
         <div className="absolute top-0 right-[5%] w-px h-full bg-gradient-to-b from-transparent via-white/10 to-transparent" />
       </div>
 
-      {/* Technical Marquee — Velocity Sensitive */}
-      <div 
-        data-marquee
-        className="absolute bottom-0 left-0 w-full bg-white text-black py-4 overflow-hidden z-20 border-t border-white/20"
-      >
-        <div 
-          data-marquee-inner
-          className="flex whitespace-nowrap font-mono text-[10px] font-black uppercase tracking-[0.5em]"
-        >
-          {Array.from({ length: 10 }).map((_, i) => (
-            <span key={i} className="px-10 flex items-center gap-10">
-              Technical Archive // System: Operational // Type: Modular Garments // Latency: 0ms // [FW-2026]
-              <div className="w-2 h-2 bg-black animate-pulse" />
-            </span>
-          ))}
-        </div>
-      </div>
+
 
       {/* Hero Typography */}
       <div 
