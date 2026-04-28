@@ -87,7 +87,7 @@ export default function EditorialHero() {
                     opacity: 0.4,
                     duration: 0.1,
                     repeat: -1,
-                    repeatDelay: () => Math.random() * 5 + 2,
+                    repeatDelay: Math.random() * 5 + 2,
                     yoyo: true,
                     ease: "none"
                   });
@@ -98,6 +98,7 @@ export default function EditorialHero() {
         }
 
         // ── Marquee Velocity Logic ──
+        if (!containerRef.current) return;
         const marquee = containerRef.current.querySelector("[data-marquee]") as HTMLElement;
         if (marquee) {
           const marqueeInner = marquee.querySelector("[data-marquee-inner]") as HTMLElement;

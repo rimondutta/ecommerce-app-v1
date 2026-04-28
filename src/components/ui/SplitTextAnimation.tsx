@@ -22,8 +22,8 @@ export default function SplitTextAnimation({
   once = true,
   style = {},
 }: SplitTextAnimationProps) {
-  const textRef = useRef<HTMLHeadingElement>(null);
-  const isInView = useInView(textRef, { once });
+  const textRef = useRef<HTMLDivElement>(null);
+  const isInView = useInView(textRef as React.RefObject<Element>, { once });
 
   useEffect(() => {
     if (!textRef.current || !isInView) return;
@@ -32,41 +32,44 @@ export default function SplitTextAnimation({
       const { gsap } = await import("@/lib/gsap");
       const SplitType = (await import("split-type")).default;
       
+      if (!textRef.current) return;
       const split = new SplitType(textRef.current, { types: "chars" });
       const charsList = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789<>[]{}/?+*#%@!$";
 
-      gsap.set(split.chars, { 
-        opacity: 0, 
-        y: 20,
-        filter: "blur(10px)"
-      });
-      
-      split.chars.forEach((char, i) => {
-        const originalText = char.innerText;
-        const timeline = gsap.timeline({ delay: delay + (i * stagger) });
-
-        timeline.to(char, {
-          opacity: 1,
-          y: 0,
-          filter: "blur(0px)",
-          duration: 0.8,
-          ease: "expo.out"
+      if (split.chars) {
+        gsap.set(split.chars, { 
+          opacity: 0, 
+          y: 20,
+          filter: "blur(10px)"
         });
+        
+        split.chars.forEach((char, i) => {
+          const originalText = char.innerText;
+          const timeline = gsap.timeline({ delay: delay + (i * stagger) });
 
-        // The scramble effect
-        timeline.to(char, {
-          duration: duration,
-          onUpdate: function() {
-            const progress = this.progress();
-            if (progress < 1) {
-              char.innerText = charsList[Math.floor(Math.random() * charsList.length)];
-            } else {
-              char.innerText = originalText;
-            }
-          },
-          ease: "none"
-        }, "-=0.6");
-      });
+          timeline.to(char, {
+            opacity: 1,
+            y: 0,
+            filter: "blur(0px)",
+            duration: 0.8,
+            ease: "expo.out"
+          });
+
+          // The scramble effect
+          timeline.to(char, {
+            duration: duration,
+            onUpdate: function() {
+              const progress = this.progress();
+              if (progress < 1) {
+                char.innerText = charsList[Math.floor(Math.random() * charsList.length)];
+              } else {
+                char.innerText = originalText;
+              }
+            },
+            ease: "none"
+          }, "-=0.6");
+        });
+      }
     };
 
     initAnimation();
