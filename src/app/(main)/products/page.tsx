@@ -179,7 +179,7 @@ function ShopContent() {
       <div className="max-w-[1800px] mx-auto w-full px-6 md:px-12 relative">
 
         {/* SHOP CONTROLS - MINIMAL TACTICAL BAR */}
-        <section className={`sticky top-[140px] z-40 flex items-center justify-between gap-6 transition-all duration-700 py-6 border-b border-black/5 bg-[#F9F9F9]/80 backdrop-blur-md`}>
+        <section className={`relative z-40 flex items-center justify-between gap-6 transition-all duration-700 py-6 border-b border-black/5 bg-[#F9F9F9]`}>
           <div className="flex items-center gap-6 md:gap-12">
             <button 
               onClick={() => setIsMobileFiltersOpen(true)}

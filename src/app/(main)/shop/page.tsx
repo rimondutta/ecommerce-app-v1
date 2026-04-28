@@ -151,7 +151,7 @@ function ShopContent() {
         </section>
 
         {/* SHOP CONTROLS */}
-        <section className={`sticky top-[140px] z-40 py-4 flex flex-wrap items-center justify-between gap-6 transition-all duration-500 ${isScrolled ? 'bg-white/95 backdrop-blur-md border-b border-black/5 px-6 -mx-6 md:px-12 md:-mx-12 shadow-sm' : 'bg-transparent border-transparent'}`}>
+        <section className={`relative z-40 py-4 flex flex-wrap items-center justify-between gap-6 transition-all duration-500 ${isScrolled ? 'bg-white border-b border-black/5 px-6 -mx-6 md:px-12 md:-mx-12' : 'bg-transparent border-transparent'}`}>
           <div className="flex items-center gap-8">
             <button 
               onClick={() => setIsMobileFiltersOpen(true)}

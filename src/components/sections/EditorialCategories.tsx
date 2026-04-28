@@ -29,19 +29,19 @@ export default function EditorialCategories() {
 
     // GSAP scroll animation
     const initGsap = async () => {
-      const { gsap, ScrollTrigger } = await import("@/lib/gsap");
+      const { gsap, SdcrollTrigger } = await import("@/lib/gsap");
       if (!sectionRef.current) return;
 
       const ctx = gsap.context(() => {
         const cards = sectionRef.current!.querySelectorAll("[data-cat-card]");
-        gsap.fromTo(cards, 
+        gsap.fromTo(cards,
           { opacity: 0, y: 50, rotateX: -15 },
-          { 
-            opacity: 1, 
-            y: 0, 
+          {
+            opacity: 1,
+            y: 0,
             rotateX: 0,
-            stagger: 0.1, 
-            duration: 1, 
+            stagger: 0.1,
+            duration: 1,
             ease: "expo.out",
             scrollTrigger: {
               trigger: sectionRef.current,
@@ -87,13 +87,13 @@ export default function EditorialCategories() {
               Shop By<br />Category
             </h2>
           </div>
-          
+
           <div className="max-w-md text-right flex flex-col items-end gap-8">
             <p className="text-[11px] md:text-xs font-medium uppercase tracking-widest text-black/40 leading-relaxed max-w-[300px]">
               Discover our carefully curated selections designed for versatile styling and daily functionality.
             </p>
-            <Link 
-              href="/products" 
+            <Link
+              href="/products"
               className="group flex items-center gap-4 bg-black text-white px-8 py-4 text-[10px] font-black uppercase tracking-[0.3em] transition-all hover:pr-12"
               data-cursor="ALL_PRODUCTS"
             >
@@ -115,7 +115,7 @@ export default function EditorialCategories() {
             >
               {/* Card Background Overlay */}
               <div className="absolute inset-0 bg-black translate-y-full group-hover:translate-y-0 transition-transform duration-700 ease-[0.16,1,0.3,1] z-10" />
-              
+
               <div className="absolute inset-0 p-8 md:p-12 flex flex-col justify-between h-full relative z-20 transition-colors duration-500 group-hover:text-white">
                 <div className="flex justify-between items-start">
                   <span className="font-mono text-[10px] font-black border border-current px-3 py-1 uppercase tracking-widest">
@@ -146,7 +146,7 @@ export default function EditorialCategories() {
               </div>
             </Link>
           ))}
-          
+
           {/* Custom Additions if few categories */}
           {categories.length < 4 && Array.from({ length: 4 - categories.length }).map((_, i) => (
             <div key={i} className="bg-black/5 border border-dashed border-black/10 flex items-center justify-center h-[500px] md:h-[650px]">
