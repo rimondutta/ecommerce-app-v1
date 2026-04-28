@@ -33,7 +33,7 @@ export default function SplitTextAnimation({
       const SplitType = (await import("split-type")).default;
       
       if (!textRef.current) return;
-      const split = new SplitType(textRef.current, { types: "chars" });
+      const split = new SplitType(textRef.current, { types: "words,chars" });
       const charsList = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789<>[]{}/?+*#%@!$";
 
       if (split.chars) {

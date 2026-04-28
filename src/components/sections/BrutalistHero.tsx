@@ -250,7 +250,7 @@ export default function EditorialHero() {
 
         <SplitTextAnimation 
           text="ARCHIVAL. TECHNICAL. FUTURE."
-          className="font-display font-black text-[15vw] md:text-[11vw] leading-[0.8] tracking-tighter text-white uppercase flex flex-col items-center md:items-start relative"
+          className="font-display font-black text-[15vw] md:text-[11vw] leading-[0.8] tracking-tighter text-white uppercase relative"
         />
 
         <p 
