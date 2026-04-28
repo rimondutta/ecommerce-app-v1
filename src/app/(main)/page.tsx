@@ -31,16 +31,7 @@ export default async function Home() {
       <ModernHero />
 
       <div className="relative z-10 bg-[#f0ece5] rounded-none overflow-hidden shadow-[0_-20px_50px_rgba(0,0,0,0.1)]">
-        {/* GSAP VELOCITY MARQUEE */}
-        <div className="bg-black text-white py-8 overflow-hidden pointer-events-none relative z-20 border-y border-white/10">
-          <GsapMarquee speed={1.2} direction="left">
-            {Array(5).fill(0).map((_, i) => (
-              <span key={i} className="font-display font-black text-3xl md:text-5xl uppercase tracking-tighter mx-8 opacity-30">
-                Flex Wear // ARCHIVAL TECHNICAL GEAR // ✳
-              </span>
-            ))}
-          </GsapMarquee>
-        </div>
+
 
         {/* CATEGORIES */}
         <BentoCategories />
