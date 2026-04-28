@@ -26,7 +26,7 @@ import {
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination, Thumbs, EffectFade } from "swiper/modules";
 import ProductReviews from "@/components/sections/ProductReviews";
-import BrutalistProductGrid from "@/components/sections/BrutalistProductGrid";
+import EditorialProductGrid from "@/components/sections/EditorialProductGrid";
 
 // Import Swiper styles
 import "swiper/css";
@@ -394,7 +394,7 @@ export default function ProductDetailsClient({ product, relatedProducts }: Produ
         
         {relatedProducts.length > 0 && (
           <div className="max-w-[1800px] mx-auto">
-            <BrutalistProductGrid initialProducts={relatedProducts} />
+            <EditorialProductGrid initialProducts={relatedProducts} />
           </div>
         )}
       </div>

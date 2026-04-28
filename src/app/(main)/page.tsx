@@ -1,8 +1,8 @@
-import ModernHero from "@/components/sections/BrutalistHero";
-import BentoCategories from "@/components/sections/BrutalistCategories";
+import EditorialHero from "@/components/sections/EditorialHero";
+import EditorialCategories from "@/components/sections/EditorialCategories";
 import TechnicalBlueprint from "@/components/sections/TechnicalBlueprint";
-import ModernProductGrid from "@/components/sections/BrutalistProductGrid";
-import BrutalistBlogSection from "@/components/sections/BrutalistBlogSection";
+import EditorialProductGrid from "@/components/sections/EditorialProductGrid";
+import EditorialBlogSection from "@/components/sections/EditorialBlogSection";
 import ShopGram from "@/components/sections/ShopGram";
 import ShopTheLook from "@/components/sections/ShopTheLook";
 import connectToDatabase from "@/lib/db";
@@ -28,13 +28,13 @@ export default async function Home() {
   return (
     <div className="bg-white flex-1 min-h-screen">
       {/* HERO */}
-      <ModernHero />
+      <EditorialHero />
 
       <div className="relative z-10 bg-white rounded-none overflow-hidden shadow-[0_-20px_50px_rgba(0,0,0,0.1)]">
 
 
         {/* CATEGORIES */}
-        <BentoCategories />
+        <EditorialCategories />
 
         {/* TECHNICAL BLUEPRINT */}
         <TechnicalBlueprint />
@@ -54,9 +54,9 @@ export default async function Home() {
         <ShopTheLook />
 
         {/* PRODUCTS */}
-        <ModernProductGrid initialProducts={sanitizedProducts} categories={sanitizedCategories} />
+        <EditorialProductGrid initialProducts={sanitizedProducts} categories={sanitizedCategories} />
         
-        <BrutalistBlogSection />
+        <EditorialBlogSection />
         
         <ShopGram />
       </div>

@@ -90,7 +90,7 @@ export default function EditorialHero() {
           start: "top top",
           end: "70% top",
           scrub: true,
-          onUpdate: (self) => {
+          onUpdate: (self: any) => {
             const progress = self.progress;
             if (containerRef.current) {
               const content = containerRef.current.querySelector("[data-hero-content]") as HTMLElement;
@@ -230,7 +230,7 @@ export default function EditorialHero() {
             SCROLL TO EXPLORE
           </span>
           <div className="flex gap-1.5">
-            <div className="w-1.5 h-1.5 bg-green-500 animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.8)]" />
+            <div className="w-1.5 h-1.5 bg-white animate-pulse" />
             <div className="w-1.5 h-1.5 bg-white/20" />
             <div className="w-1.5 h-1.5 bg-white/20" />
           </div>

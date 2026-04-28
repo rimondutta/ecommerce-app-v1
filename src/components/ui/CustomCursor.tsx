@@ -62,59 +62,36 @@ export default function CustomCursor() {
       }}
       transition={{ opacity: { duration: 0.2 } }}
     >
-      {/* Tactical Gun Point / Reticle Design */}
+      {/* Minimalist Editorial Cursor */}
       <div className="relative flex items-center justify-center">
-        {/* Precise Crosshair */}
-        <div className="absolute w-[24px] h-[1px] bg-white" />
-        <div className="absolute w-[1px] h-[24px] bg-white" />
+        {/* Main Cursor Ring */}
+        <motion.div 
+          className="w-4 h-4 border-2 border-white rounded-full"
+          animate={{
+            scale: cursorType !== "default" ? 2.5 : 1,
+            borderWidth: cursorType !== "default" ? "1px" : "2px",
+          }}
+          transition={{ type: "spring", stiffness: 300, damping: 30 }}
+        />
         
-        {/* Tactical Brackets */}
+        {/* Center Point */}
         <motion.div 
-          className="absolute w-8 h-8 flex items-center justify-center"
+          className="absolute w-1 h-1 bg-white rounded-full"
           animate={{
-            rotate: cursorType !== "default" ? 45 : 0,
-            scale: cursorType !== "default" ? 1.5 : 1,
+            scale: cursorType !== "default" ? 0 : 1,
           }}
-          transition={{ type: "spring", stiffness: 300, damping: 20 }}
-        >
-          {/* Top Left */}
-          <div className="absolute top-0 left-0 w-2.5 h-2.5 border-t-2 border-l-2 border-white" />
-          {/* Top Right */}
-          <div className="absolute top-0 right-0 w-2.5 h-2.5 border-t-2 border-r-2 border-white" />
-          {/* Bottom Left */}
-          <div className="absolute bottom-0 left-0 w-2.5 h-2.5 border-b-2 border-l-2 border-white" />
-          {/* Bottom Right */}
-          <div className="absolute bottom-0 right-0 w-2.5 h-2.5 border-b-2 border-r-2 border-white" />
-        </motion.div>
-
-        {/* Outer Pulsing Ring */}
-        <motion.div 
-          className="absolute w-12 h-12 border border-white/20 rounded-full"
-          animate={{
-            scale: cursorType !== "default" ? [1, 1.2, 1] : 1,
-            opacity: cursorType !== "default" ? 0.8 : 0.2,
-          }}
-          transition={{ repeat: Infinity, duration: 1.5 }}
         />
 
-        {/* Center Precision Dot */}
-        <div className="w-1.5 h-1.5 bg-white rounded-full shadow-[0_0_10px_white]" />
-
-        {/* HUD Label Readout */}
+        {/* Editorial Label */}
         {cursorType !== "default" && cursorType !== "pointer" && (
           <motion.div 
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 35 }}
-            className="absolute left-full ml-4 flex flex-col items-start"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 30 }}
+            className="absolute top-full flex flex-col items-center"
           >
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-white animate-pulse" />
-              <div className="bg-white text-black px-2 py-0.5 text-[10px] font-black uppercase tracking-widest whitespace-nowrap">
-                {cursorType}
-              </div>
+            <div className="text-white text-[10px] font-bold uppercase tracking-[0.3em] whitespace-nowrap">
+              {cursorType}
             </div>
-            <div className="w-full h-[1px] bg-white/50 mt-1" />
-            <div className="text-[6px] text-white/40 uppercase tracking-tighter mt-1">CURATED SELECTION</div>
           </motion.div>
         )}
       </div>
