@@ -74,39 +74,42 @@ export default function Header() {
       if (!headerRef.current) return;
 
       const ctx = gsap.context(() => {
-        // 1. Initial State: Ensure it's visible or handle entrance more gracefully
-        // We'll remove the hard set to hidden to ensure it's visible if JS fails
+        // 1. Initial State: Ensure visible immediately
+        gsap.set(headerRef.current, { yPercent: 0, opacity: 1, visibility: "visible" });
         
-        // 2. Entrance Animation: Reveal immediately
-        const entranceTl = gsap.timeline();
-        entranceTl.from(headerRef.current, { 
+        // 2. Entrance Animation: Simple reveal from top
+        gsap.from(headerRef.current, { 
           yPercent: -100,
           duration: 1.2, 
-          ease: "expo.out" 
+          ease: "expo.out",
+          clearProps: "all" // Clear GSAP properties after animation to prevent layout issues
         });
         
-        entranceTl.from([logoRef.current, navRef.current, actionsRef.current],
-          { opacity: 0, y: -20, duration: 0.8, stagger: 0.1, ease: "expo.out" },
-          "-=0.8"
+        gsap.from([logoRef.current, navRef.current, actionsRef.current],
+          { opacity: 0, y: -20, duration: 0.8, stagger: 0.1, ease: "expo.out", delay: 0.2 }
         );
 
-        // 3. Scroll Show/Hide Logic
-        const showAnim = gsap.from(headerRef.current, { 
-          yPercent: -100,
-          paused: true,
-          duration: 0.4,
-          ease: "power2.out"
-        }).progress(1);
-
+        // 3. Scroll Show/Hide Logic: Direct and conflict-free
         ScrollTrigger.create({
           start: "top top",
           end: 99999,
           onUpdate: (self) => {
-            // Only trigger if entrance is finished
-            if (entranceTl.progress() === 1) {
-              self.direction === -1 ? showAnim.play() : showAnim.reverse();
+            const scrollY = self.scroll();
+            
+            // Hide on scroll down, show on scroll up
+            // Only hide if we've scrolled past the header height (100px)
+            if (scrollY > 150) {
+              if (self.direction === 1) {
+                gsap.to(headerRef.current, { yPercent: -100, duration: 0.4, ease: "power2.inOut" });
+              } else {
+                gsap.to(headerRef.current, { yPercent: 0, duration: 0.4, ease: "power2.inOut" });
+              }
+            } else {
+              // Always show at the top
+              gsap.to(headerRef.current, { yPercent: 0, duration: 0.4, ease: "power2.out" });
             }
-            setIsScrolled(self.scroll() > 50);
+            
+            setIsScrolled(scrollY > 50);
           }
         });
       });
