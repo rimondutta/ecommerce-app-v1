@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
+import AnimatedLogo from "@/components/ui/AnimatedLogo";
 
 interface Category { name: string; slug: string; }
 
@@ -65,12 +66,14 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16 lg:gap-24 mb-32">
           {/* Brand */}
           <div data-footer-col className="space-y-10" style={{ opacity: 0 }}>
-            <div className="font-mono font-black text-4xl tracking-tighter flex items-center gap-2">
-              <span className="text-white/40">[</span><span>Flex_Wear</span><span className="text-white/40">]</span>
+            <div className="flex flex-col gap-8">
+              <Link href="/" className="inline-block" data-cursor="HOME">
+                <AnimatedLogo size="lg" className="text-white" />
+              </Link>
+              <p className="text-white/40 text-[11px] font-mono leading-relaxed max-w-sm uppercase tracking-widest">
+                High-performance archival gear for the digital nomad. Engineered for motion, designed for the future.
+              </p>
             </div>
-            <p className="text-[10px] font-mono uppercase tracking-[0.2em] leading-relaxed text-white/70 max-w-xs">
-              <span className="text-white mr-2">&gt;</span> Engineered garments for the modern inhabitant. Merging archival technicalities with contemporary silhouettes.
-            </p>
             <div className="flex gap-6">
               {['Instagram', 'Twitter', 'Journal'].map((social) => (
                 <a key={social} href="#" data-footer-link className="text-[10px] font-black uppercase tracking-widest text-white/90 hover:text-white transition-all underline outline-offset-4 decoration-white/40">

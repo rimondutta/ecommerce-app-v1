@@ -9,6 +9,7 @@ import { useSearch } from "@/components/providers/SearchProvider";
 import { motion, AnimatePresence } from "framer-motion";
 import { useUIStore } from "@/store/uiStore";
 import MagneticElement from "@/components/ui/MagneticElement";
+import AnimatedLogo from "@/components/ui/AnimatedLogo";
 
 const navLinks = [
   { label: "Home", href: "/" },
@@ -40,8 +41,8 @@ export default function Header() {
   const closeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   
   const headerRef = useRef<HTMLElement>(null);
-  const navRef = useRef<HTMLDivElement>(null);
   const logoRef = useRef<HTMLDivElement>(null);
+  const navRef = useRef<HTMLDivElement>(null);
   const actionsRef = useRef<HTMLDivElement>(null);
 
   const handleMouseEnter = (menu: string) => {
@@ -73,20 +74,25 @@ export default function Header() {
       if (!headerRef.current) return;
 
       const ctx = gsap.context(() => {
-        // Entrance animation
-        const tl = gsap.timeline();
-        tl.fromTo(headerRef.current, 
-          { y: -100, opacity: 0 },
-          { y: 0, opacity: 1, duration: 1.2, ease: "expo.out", delay: 0.5 }
-        );
+        // 1. Initial State: Set to hidden off-screen
+        gsap.set(headerRef.current, { yPercent: -100, opacity: 0 });
+
+        // 2. Entrance Animation: Reveal after a slight delay (to sync with preloader wipe)
+        const entranceTl = gsap.timeline({ delay: 1.5 });
+        entranceTl.to(headerRef.current, {
+          yPercent: 0,
+          opacity: 1,
+          duration: 1.2,
+          ease: "expo.out"
+        });
         
-        tl.fromTo([logoRef.current, navRef.current, actionsRef.current],
+        entranceTl.fromTo([logoRef.current, navRef.current, actionsRef.current],
           { opacity: 0, y: -20 },
           { opacity: 1, y: 0, duration: 0.8, stagger: 0.1, ease: "expo.out" },
           "-=0.6"
         );
 
-        // Hide header on scroll down, show on scroll up
+        // 3. Scroll Show/Hide Logic
         const showAnim = gsap.from(headerRef.current, { 
           yPercent: -100,
           paused: true,
@@ -98,7 +104,10 @@ export default function Header() {
           start: "top top",
           end: 99999,
           onUpdate: (self) => {
-            self.direction === -1 ? showAnim.play() : showAnim.reverse();
+            // Only trigger if entrance is finished
+            if (entranceTl.progress() === 1) {
+              self.direction === -1 ? showAnim.play() : showAnim.reverse();
+            }
             setIsScrolled(self.scroll() > 50);
           }
         });
@@ -114,12 +123,11 @@ export default function Header() {
     <>
       <header
         ref={headerRef}
-        className={`fixed top-0 left-0 w-full z-[100] transition-all duration-500 border-b ${
+        className={`fixed top-0 left-0 w-full z-[100] border-b ${
           isScrolled 
           ? "bg-white/90 backdrop-blur-xl border-black/10 h-[80px]" 
           : "bg-white/50 backdrop-blur-md border-transparent h-[100px]"
-        }`}
-        style={{ opacity: 0 }} // Hidden initially for GSAP
+        } transition-[background-color,border-color,height] duration-500`}
       >
         <div className="max-w-[1800px] mx-auto px-6 md:px-16 h-full flex items-center justify-between">
           
@@ -133,11 +141,8 @@ export default function Header() {
             >
               <Menu size={24} />
             </button>
-            <Link href="/" className="group flex items-center gap-1.5" data-cursor="HOME">
-              <span className="font-display font-black text-2xl uppercase tracking-tighter text-black">
-                Flex<span className="text-black/30 group-hover:text-black transition-colors">Wear</span>
-              </span>
-              <div className="w-1.5 h-1.5 bg-black rounded-full animate-pulse" />
+            <Link href="/" className="group flex items-center" data-cursor="HOME">
+              <AnimatedLogo size="md" />
             </Link>
           </div>
 
@@ -158,7 +163,6 @@ export default function Header() {
                   {link.label}
                 </Link>
 
-                {/* GSAP Animated Underline (handled via CSS/hover here for simplicity, but could be GSAP) */}
                 <div className={`absolute bottom-0 left-0 h-[2px] bg-black transition-all duration-500 ease-[0.16,1,0.3,1] ${activeMenu === link.label ? 'w-full opacity-100' : 'w-0 opacity-0'}`} />
               </div>
             ))}

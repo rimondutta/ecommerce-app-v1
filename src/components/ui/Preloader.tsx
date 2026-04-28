@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import AnimatedLogo from "@/components/ui/AnimatedLogo";
 
 export default function Preloader() {
   const [visible, setVisible] = useState(true);
@@ -120,11 +121,7 @@ export default function Preloader() {
       <div className="absolute inset-0 z-[3] flex flex-col items-center justify-center gap-8">
         {/* Brand */}
         <div ref={brandRef} className="opacity-0 flex flex-col items-center gap-4">
-          <div className="font-mono font-black text-3xl md:text-5xl tracking-tighter text-white flex items-center gap-2">
-            <span className="text-white/40">[</span>
-            <span>Flex_Wear</span>
-            <span className="text-white/40">]</span>
-          </div>
+          <AnimatedLogo size="lg" className="text-white" />
           <p className="font-mono text-[9px] uppercase tracking-[0.5em] text-white/40">
             Archival System Initializing
           </p>
