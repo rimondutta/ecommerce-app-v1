@@ -146,13 +146,13 @@ export default function AnimatedLogo({ className = "", size = "md" }: AnimatedLo
 
       <span 
         ref={textRef}
-        className={`font-display font-black uppercase tracking-tighter leading-none ${sizeClasses[size]} ${isHovered ? "text-black" : "text-black/80"}`}
+        className={`font-display font-black uppercase tracking-tighter leading-none ${sizeClasses[size]} ${isHovered ? "text-current" : "text-current"}`}
       >
         FLEX_WEAR
       </span>
 
       {/* Terminal cursor style blinker */}
-      <div className={`w-1.5 h-[1.2em] bg-black transition-opacity duration-300 ${isHovered ? "opacity-100" : "opacity-0 animate-pulse"}`} />
+      <div className={`w-1.5 h-[1.2em] bg-current transition-opacity duration-300 ${isHovered ? "opacity-100" : "opacity-0 animate-pulse"}`} />
     </div>
   );
 }

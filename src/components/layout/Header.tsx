@@ -106,12 +106,11 @@ export default function Header() {
     <>
       <header
         ref={headerRef}
-        className={`fixed left-0 w-full z-[500] text-zinc-900 transition-all duration-500 ease-[0.16,1,0.3,1] ${
+        className={`fixed left-1/2 -translate-x-1/2 z-[500] transition-all duration-700 ease-[0.16,1,0.3,1] ${
           isScrolled 
-          ? "bg-white/80 backdrop-blur-xl shadow-sm border-b border-zinc-200/50 h-[72px]" 
-          : "bg-white/50 backdrop-blur-md border-transparent h-[88px]"
+          ? "bg-white/80 backdrop-blur-2xl shadow-[0_20px_50px_rgba(0,0,0,0.1)] border border-white/20 h-[72px] rounded-full top-6 w-[90%] md:w-[80%] max-w-[1200px] px-8 text-zinc-900" 
+          : "bg-transparent h-[100px] w-full px-6 md:px-12 top-0 text-white"
         }`}
-        style={{ top: `${topOffset}px` }}
       >
         <div className="max-w-[1800px] mx-auto px-6 md:px-12 h-full flex items-center justify-between">
           

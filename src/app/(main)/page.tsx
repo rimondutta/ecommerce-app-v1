@@ -9,6 +9,8 @@ import connectToDatabase from "@/lib/db";
 import Product from "@/models/Product";
 import Category from "@/models/Category";
 import GsapCTA from "@/components/sections/GsapCTA";
+import KineticMarquee from "@/components/ui/KineticMarquee";
+import HorizontalCollection from "@/components/sections/HorizontalCollection";
 
 export default async function Home() {
   await connectToDatabase();
@@ -24,33 +26,45 @@ export default async function Home() {
   const sanitizedCategories = JSON.parse(JSON.stringify(categories));
 
   return (
-    <div className="bg-zinc-50 flex-1 min-h-screen noise-bg">
-      {/* HERO */}
+    <main className="bg-zinc-950 flex-1 min-h-screen noise-bg">
+      {/* HERO SECTION - Immersive 3D Experience */}
       <EditorialHero />
 
-      <div className="relative z-10 bg-white rounded-t-[2.5rem] -mt-10 overflow-hidden shadow-[0_-8px_30px_rgba(0,0,0,0.04)] pb-24">
+      <div className="relative z-10 bg-white rounded-t-[5rem] -mt-24 overflow-hidden shadow-[0_-30px_100px_rgba(0,0,0,0.2)]">
+        {/* KINETIC TYPOGRAPHY */}
+        <KineticMarquee />
 
-        {/* CATEGORIES */}
+        {/* CATEGORIES GRID with 3D Interaction */}
         <EditorialCategories />
 
-        {/* PRODUCTS */}
-        <EditorialProductGrid initialProducts={sanitizedProducts} categories={sanitizedCategories} />
+        {/* HORIZONTAL SCROLL FEATURE */}
+        <HorizontalCollection />
+
+        {/* PRODUCT ARCHIVE */}
+        <div className="py-20">
+          <EditorialProductGrid initialProducts={sanitizedProducts} categories={sanitizedCategories} />
+        </div>
 
         {/* TECHNICAL BLUEPRINT */}
         <TechnicalBlueprint />
 
-        {/* SHOP THE LOOK */}
-        <ShopTheLook />
-        
-        {/* BLOGS */}
-        <EditorialBlogSection />
-        
-        {/* INSTAGRAM/SOCIAL */}
-        <ShopGram />
-      </div>
+        {/* KINETIC REPEAT */}
+        <div className="bg-zinc-950">
+           <KineticMarquee />
+        </div>
 
-      {/* FINAL CALL TO ACTION */}
-      <GsapCTA />
-    </div>
+        {/* EDITORIAL CONTENT */}
+        <div className="bg-zinc-50">
+          <ShopTheLook />
+          <EditorialBlogSection />
+        </div>
+        
+        {/* SOCIAL SYSTEMS */}
+        <ShopGram />
+        
+        {/* FINAL CTA */}
+        <GsapCTA />
+      </div>
+    </main>
   );
 }
