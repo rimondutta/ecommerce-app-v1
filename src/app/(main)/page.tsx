@@ -8,8 +8,6 @@ import ShopTheLook from "@/components/sections/ShopTheLook";
 import connectToDatabase from "@/lib/db";
 import Product from "@/models/Product";
 import Category from "@/models/Category";
-
-import GsapMarquee from "@/components/ui/GsapMarquee";
 import GsapCTA from "@/components/sections/GsapCTA";
 
 export default async function Home() {
@@ -26,38 +24,28 @@ export default async function Home() {
   const sanitizedCategories = JSON.parse(JSON.stringify(categories));
 
   return (
-    <div className="bg-white flex-1 min-h-screen">
+    <div className="bg-zinc-50 flex-1 min-h-screen">
       {/* HERO */}
       <EditorialHero />
 
-      <div className="relative z-10 bg-white rounded-none overflow-hidden shadow-[0_-20px_50px_rgba(0,0,0,0.1)]">
-
+      <div className="relative z-10 bg-white rounded-t-[2.5rem] -mt-10 overflow-hidden shadow-[0_-8px_30px_rgba(0,0,0,0.04)] pb-24">
 
         {/* CATEGORIES */}
         <EditorialCategories />
 
+        {/* PRODUCTS */}
+        <EditorialProductGrid initialProducts={sanitizedProducts} categories={sanitizedCategories} />
+
         {/* TECHNICAL BLUEPRINT */}
         <TechnicalBlueprint />
 
-        {/* REVERSE MARQUEE */}
-        <div className="bg-white py-6 overflow-hidden pointer-events-none relative z-20 border-y border-black/10">
-          <GsapMarquee speed={0.8} direction="right">
-            {Array(5).fill(0).map((_, i) => (
-              <span key={i} className="font-display font-black text-2xl md:text-4xl uppercase tracking-tighter mx-8 text-black/10">
-                FORM // FOLLOWS // FEELING // ENGINEERED // FOR // MOTION //
-              </span>
-            ))}
-          </GsapMarquee>
-        </div>
-
         {/* SHOP THE LOOK */}
         <ShopTheLook />
-
-        {/* PRODUCTS */}
-        <EditorialProductGrid initialProducts={sanitizedProducts} categories={sanitizedCategories} />
         
+        {/* BLOGS */}
         <EditorialBlogSection />
         
+        {/* INSTAGRAM/SOCIAL */}
         <ShopGram />
       </div>
 
