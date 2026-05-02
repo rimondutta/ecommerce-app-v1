@@ -44,44 +44,8 @@ export default function EditorialHero() {
 
     window.addEventListener("mousemove", handleMouseMove);
     
-    let ctx: any;
-    const initGsap = async () => {
-      const { gsap } = await import("@/lib/gsap");
-
-      if (!containerRef.current) return;
-
-      ctx = gsap.context(() => {
-        if (imageRef.current) {
-          gsap.fromTo(
-            imageRef.current,
-            { scale: 1.2, filter: "blur(20px)", opacity: 0 },
-            { scale: 1, filter: "blur(0px)", opacity: 1, duration: 2.5, ease: "power4.out" }
-          );
-        }
-
-        if (contentRef.current) {
-          const elements = contentRef.current.children;
-          gsap.fromTo(
-            elements,
-            { opacity: 0, y: 50, rotateX: -20 },
-            {
-              opacity: 1,
-              y: 0,
-              rotateX: 0,
-              stagger: 0.15,
-              duration: 1.5,
-              ease: "expo.out",
-              delay: 0.8
-            }
-          );
-        }
-      }, containerRef);
-    };
-
-    initGsap();
 
     return () => {
-      if (ctx) ctx.revert();
       window.removeEventListener("mousemove", handleMouseMove);
     };
   }, [mouseX, mouseY]);
@@ -129,8 +93,11 @@ export default function EditorialHero() {
         {/* Background Image */}
         <motion.div
           ref={imageRef}
+          initial={{ scale: 1.2, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 2, ease: [0.16, 1, 0.3, 1] }}
           className="absolute inset-0 w-full h-full will-change-transform"
-          style={{ y }}
+          style={{ y, opacity }}
         >
           <Image
             src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=2040&auto=format&fit=crop"
@@ -171,6 +138,9 @@ export default function EditorialHero() {
         {/* Hero Typography */}
         <motion.div
           ref={contentRef}
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1.5, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
           style={{ 
             rotateX,
             rotateY,

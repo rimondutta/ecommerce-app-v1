@@ -70,11 +70,13 @@ function ShopContent() {
 
   // Extract unique filter options from DB data
   const categories = useMemo(() => {
-    const cats = new Set<string>();
+    const catsMap = new Map<string, string>(); // slug -> name
     products.forEach((p: any) => {
-      if (p.category?.name) cats.add(p.category.name);
+      if (p.category?.name && p.category?.slug) {
+        catsMap.set(p.category.slug, p.category.name);
+      }
     });
-    return Array.from(cats);
+    return Array.from(catsMap.entries()).map(([slug, name]) => ({ slug, name }));
   }, [products]);
 
   const allColors = useMemo(() => {
@@ -92,7 +94,8 @@ function ShopContent() {
   // Filter and Sort Logic
   const filteredProducts = useMemo(() => {
     let result = products.filter((p: any) => {
-      const categoryMatch = !selectedCategory || p.category?.name === selectedCategory;
+      // Use slug for matching if possible
+      const categoryMatch = !selectedCategory || p.category?.slug === selectedCategory || p.category?.name === selectedCategory;
       const colorMatch = selectedColors.length === 0 || p.colors?.some((c: any) => selectedColors.includes(c.name));
       const sizeMatch = selectedSizes.length === 0 || p.sizes?.some((s: string) => selectedSizes.includes(s));
       return categoryMatch && colorMatch && sizeMatch;
@@ -157,6 +160,11 @@ function ShopContent() {
                     transition={{ duration: 1.2, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
                     className="relative aspect-[16/9] lg:aspect-square rounded-[2rem] overflow-hidden shadow-soft-2xl"
                   >
+                      <motion.div
+                        ref={imageRef}
+                        className="absolute inset-0 w-full h-full will-change-transform"
+                        style={{ y, opacity }}
+                      >
                       <Image 
                         src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=2070&auto=format&fit=crop"
                         alt="Shop Header"
@@ -165,6 +173,7 @@ function ShopContent() {
                         priority
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+                      </motion.div>
                   </motion.div>
               </div>
           </div>
@@ -292,13 +301,13 @@ function ShopContent() {
                     <div className="space-y-8">
                        <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-400">Shop By Category</h3>
                        <div className="flex flex-col gap-3">
-                         {categories.map((cat: string) => (
+                         {categories.map((cat: any) => (
                            <button 
-                             key={cat}
-                             onClick={() => updateFilters('category', selectedCategory === cat ? null : cat)}
-                             className={`p-6 rounded-2xl text-left text-sm font-bold uppercase tracking-widest transition-all ${selectedCategory === cat ? 'bg-zinc-900 text-white shadow-soft-xl' : 'bg-zinc-50 text-zinc-500 hover:bg-zinc-100'}`}
+                             key={cat.slug}
+                             onClick={() => updateFilters('category', selectedCategory === cat.slug ? null : cat.slug)}
+                             className={`p-6 rounded-2xl text-left text-sm font-bold uppercase tracking-widest transition-all ${selectedCategory === cat.slug ? 'bg-zinc-900 text-white shadow-soft-xl' : 'bg-zinc-50 text-zinc-500 hover:bg-zinc-100'}`}
                            >
-                             {cat}
+                             {cat.name}
                            </button>
                          ))}
                        </div>

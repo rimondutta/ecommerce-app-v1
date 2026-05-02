@@ -14,3 +14,4 @@ gsap.defaults({
 });
 
 export { gsap, ScrollTrigger };
+

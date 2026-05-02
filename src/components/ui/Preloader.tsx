@@ -85,6 +85,14 @@ export default function Preloader() {
     };
 
     initAnimation();
+
+    // Safety timeout: Ensure preloader hides even if GSAP fails
+    const timeout = setTimeout(() => {
+      setVisible(false);
+      document.body.style.overflow = "";
+    }, 5000);
+
+    return () => clearTimeout(timeout);
   }, []);
 
   if (!visible) return null;
