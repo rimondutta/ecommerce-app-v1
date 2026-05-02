@@ -56,7 +56,7 @@ export default function Footer() {
               </li>
               {categories.slice(0, 4).map((cat) => (
                 <li key={cat.slug}>
-                  <Link href={`/products?category=${cat.name}`} className="text-[11px] font-black uppercase tracking-widest text-white/70 hover:text-white transition-all flex items-center group">
+                  <Link href={`/products?category=${cat.slug}`} className="text-[11px] font-black uppercase tracking-widest text-white/70 hover:text-white transition-all flex items-center group">
                     <span className="w-0 group-hover:w-4 h-[1px] bg-white mr-0 group-hover:mr-3 transition-all"></span>
                     {cat.name}
                   </Link>
