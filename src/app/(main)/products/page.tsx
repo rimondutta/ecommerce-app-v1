@@ -160,11 +160,6 @@ function ShopContent() {
                     transition={{ duration: 1.2, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
                     className="relative aspect-[16/9] lg:aspect-square rounded-[2rem] overflow-hidden shadow-soft-2xl"
                   >
-                      <motion.div
-                        ref={imageRef}
-                        className="absolute inset-0 w-full h-full will-change-transform"
-                        style={{ y, opacity }}
-                      >
                       <Image 
                         src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=2070&auto=format&fit=crop"
                         alt="Shop Header"
@@ -173,7 +168,6 @@ function ShopContent() {
                         priority
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
-                      </motion.div>
                   </motion.div>
               </div>
           </div>
