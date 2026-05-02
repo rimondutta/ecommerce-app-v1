@@ -6,6 +6,40 @@ import Image from "next/image";
 import Link from "next/link";
 import MagneticElement from "@/components/ui/MagneticElement";
 
+// Internal component for scattering to keep random values stable
+const ScatteredWord = ({ word, progress }: { word: string; progress: any }) => {
+  // Generate stable random values for each character
+  const chars = word.split("");
+  
+  return (
+    <span className="inline-block whitespace-nowrap mr-[0.2em]">
+      {chars.map((char, i) => {
+        // Use a deterministic-ish approach or just accept that it's client-only
+        const randomX = (Math.sin(i * 123.456) * 400);
+        const randomY = (Math.cos(i * 456.789) * 400);
+        const randomZ = (Math.sin(i * 789.012) * 500);
+        const randomRotate = (Math.cos(i * 12.34) * 360);
+        
+        const x = useTransform(progress, [0, 0.5], [0, randomX]);
+        const y = useTransform(progress, [0, 0.5], [0, randomY]);
+        const z = useTransform(progress, [0, 0.5], [0, randomZ]);
+        const rotate = useTransform(progress, [0, 0.5], [0, randomRotate]);
+        const charOpacity = useTransform(progress, [0, 0.4], [1, 0]);
+
+        return (
+          <motion.span
+            key={i}
+            style={{ x, y, z, rotate, opacity: charOpacity, display: "inline-block" }}
+            className="will-change-transform"
+          >
+            {char}
+          </motion.span>
+        );
+      })}
+    </span>
+  );
+};
+
 export default function EditorialHero() {
   const containerRef = useRef<HTMLDivElement>(null);
   const imageRef = useRef<HTMLDivElement>(null);
@@ -50,41 +84,6 @@ export default function EditorialHero() {
     };
   }, [mouseX, mouseY]);
 
-// Internal component for scattering to keep random values stable
-const ScatteredWord = ({ word, progress }: { word: string; progress: any }) => {
-  // Generate stable random values for each character
-  const chars = word.split("");
-  
-  return (
-    <span className="inline-block whitespace-nowrap mr-[0.2em]">
-      {chars.map((char, i) => {
-        // Use a deterministic-ish approach or just accept that it's client-only
-        const randomX = (Math.sin(i * 123.456) * 400);
-        const randomY = (Math.cos(i * 456.789) * 400);
-        const randomZ = (Math.sin(i * 789.012) * 500);
-        const randomRotate = (Math.cos(i * 12.34) * 360);
-        
-        const x = useTransform(progress, [0, 0.5], [0, randomX]);
-        const y = useTransform(progress, [0, 0.5], [0, randomY]);
-        const z = useTransform(progress, [0, 0.5], [0, randomZ]);
-        const rotate = useTransform(progress, [0, 0.5], [0, randomRotate]);
-        const charOpacity = useTransform(progress, [0, 0.4], [1, 0]);
-
-        return (
-          <motion.span
-            key={i}
-            style={{ x, y, z, rotate, opacity: charOpacity, display: "inline-block" }}
-            className="will-change-transform"
-          >
-            {char}
-          </motion.span>
-        );
-      })}
-    </span>
-  );
-};
-
-export default function EditorialHero() {
   return (
     <section
       ref={containerRef}
