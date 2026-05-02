@@ -17,7 +17,7 @@ export default function EditorialHero() {
   });
 
   const y = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
-  const opacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
   
   // Mouse tracking for 3D effect
   const mouseX = useMotionValue(0);
@@ -50,40 +50,41 @@ export default function EditorialHero() {
     };
   }, [mouseX, mouseY]);
 
-  // Internal component for scattering to keep random values stable
-  const ScatteredWord = ({ word, progress }: { word: string; progress: any }) => {
-    // Generate stable random values for each character
-    const chars = word.split("");
-    
-    return (
-      <span className="inline-block whitespace-nowrap mr-[0.2em]">
-        {chars.map((char, i) => {
-          // Use a deterministic-ish approach or just accept that it's client-only
-          const randomX = (Math.sin(i * 123.456) * 400);
-          const randomY = (Math.cos(i * 456.789) * 400);
-          const randomZ = (Math.sin(i * 789.012) * 500);
-          const randomRotate = (Math.cos(i * 12.34) * 360);
-          
-          const x = useTransform(progress, [0, 0.5], [0, randomX]);
-          const y = useTransform(progress, [0, 0.5], [0, randomY]);
-          const z = useTransform(progress, [0, 0.5], [0, randomZ]);
-          const rotate = useTransform(progress, [0, 0.5], [0, randomRotate]);
-          const charOpacity = useTransform(progress, [0, 0.4], [1, 0]);
+// Internal component for scattering to keep random values stable
+const ScatteredWord = ({ word, progress }: { word: string; progress: any }) => {
+  // Generate stable random values for each character
+  const chars = word.split("");
+  
+  return (
+    <span className="inline-block whitespace-nowrap mr-[0.2em]">
+      {chars.map((char, i) => {
+        // Use a deterministic-ish approach or just accept that it's client-only
+        const randomX = (Math.sin(i * 123.456) * 400);
+        const randomY = (Math.cos(i * 456.789) * 400);
+        const randomZ = (Math.sin(i * 789.012) * 500);
+        const randomRotate = (Math.cos(i * 12.34) * 360);
+        
+        const x = useTransform(progress, [0, 0.5], [0, randomX]);
+        const y = useTransform(progress, [0, 0.5], [0, randomY]);
+        const z = useTransform(progress, [0, 0.5], [0, randomZ]);
+        const rotate = useTransform(progress, [0, 0.5], [0, randomRotate]);
+        const charOpacity = useTransform(progress, [0, 0.4], [1, 0]);
 
-          return (
-            <motion.span
-              key={i}
-              style={{ x, y, z, rotate, opacity: charOpacity, display: "inline-block" }}
-              className="will-change-transform"
-            >
-              {char}
-            </motion.span>
-          );
-        })}
-      </span>
-    );
-  };
+        return (
+          <motion.span
+            key={i}
+            style={{ x, y, z, rotate, opacity: charOpacity, display: "inline-block" }}
+            className="will-change-transform"
+          >
+            {char}
+          </motion.span>
+        );
+      })}
+    </span>
+  );
+};
 
+export default function EditorialHero() {
   return (
     <section
       ref={containerRef}
@@ -96,8 +97,8 @@ export default function EditorialHero() {
           initial={{ scale: 1.2, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 2, ease: [0.16, 1, 0.3, 1] }}
-          className="absolute inset-0 w-full h-full will-change-transform"
-          style={{ y, opacity }}
+          className="absolute inset-0 w-full h-full will-change-transform bg-zinc-900"
+          style={{ y, opacity: heroOpacity }}
         >
           <Image
             src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=2040&auto=format&fit=crop"
