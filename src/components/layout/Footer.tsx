@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import AnimatedLogo from "@/components/ui/AnimatedLogo";
-import { Instagram, Twitter, Facebook, ArrowUpRight, Mail } from "lucide-react";
+import { Camera, Send, Share, ArrowUpRight, Mail } from "lucide-react";
 
 interface Category { name: string; slug: string; }
 
@@ -76,9 +76,9 @@ export default function Footer() {
             </p>
             <div className="flex gap-4">
               {[
-                { icon: <Instagram size={18} />, label: "Instagram" },
-                { icon: <Twitter size={18} />, label: "Twitter" },
-                { icon: <Facebook size={18} />, label: "Facebook" }
+                { icon: <Camera size={18} />, label: "Instagram" },
+                { icon: <Send size={18} />, label: "Twitter" },
+                { icon: <Share size={18} />, label: "Facebook" }
               ].map((social) => (
                 <a 
                   key={social.label} 

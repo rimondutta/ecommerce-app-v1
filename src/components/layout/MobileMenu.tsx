@@ -2,7 +2,7 @@
 
 import { Fragment } from "react";
 import { Dialog, DialogPanel, Transition, TransitionChild } from "@headlessui/react";
-import { X, ArrowRight, Instagram, Twitter, MessageSquare, Heart, ShoppingBag, User } from "lucide-react";
+import { X, ArrowRight, Camera, Send, MessageSquare, Heart, ShoppingBag, User } from "lucide-react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { useUIStore } from "@/store/uiStore";
@@ -102,10 +102,10 @@ export default function MobileMenu() {
               <div className="flex flex-col gap-6">
                 <div className="flex items-center gap-6">
                   <a href="#" className="w-10 h-10 rounded-full bg-white border border-zinc-200 flex items-center justify-center text-zinc-600 hover:text-zinc-900 hover:border-zinc-900 transition-all shadow-soft">
-                    <Instagram size={20} />
+                    <Camera size={20} />
                   </a>
                   <a href="#" className="w-10 h-10 rounded-full bg-white border border-zinc-200 flex items-center justify-center text-zinc-600 hover:text-zinc-900 hover:border-zinc-900 transition-all shadow-soft">
-                    <Twitter size={20} />
+                    <Send size={20} />
                   </a>
                 </div>
                 
