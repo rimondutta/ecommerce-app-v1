@@ -106,7 +106,8 @@ export default function Header() {
     <>
       <header
         ref={headerRef}
-        className={`fixed left-1/2 -translate-x-1/2 z-[500] transition-all duration-700 ease-[0.16,1,0.3,1] ${
+        style={{ transformStyle: "preserve-3d", transform: "translateZ(1000px)" }}
+        className={`fixed left-1/2 -translate-x-1/2 z-[9999] transition-all duration-700 ease-[0.16,1,0.3,1] ${
           isScrolled 
           ? "bg-white/80 backdrop-blur-2xl shadow-[0_20px_50px_rgba(0,0,0,0.1)] border border-white/20 h-[72px] rounded-full top-6 w-[90%] md:w-[80%] max-w-[1200px] px-8 text-zinc-900" 
           : "bg-transparent h-[100px] w-full px-6 md:px-12 top-0 text-white"

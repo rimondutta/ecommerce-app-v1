@@ -64,26 +64,36 @@ export default function HorizontalCollection() {
         </div>
         
         <motion.div style={{ x }} className="flex gap-8 px-10">
-          {products.map((product) => (
-            <div 
+          {products.map((product, idx) => (
+            <motion.div 
               key={product.id} 
-              className="group relative flex-shrink-0 w-[80vw] md:w-[450px] aspect-[4/5] bg-zinc-900 rounded-3xl overflow-hidden cursor-pointer"
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: idx * 0.1 }}
+              viewport={{ once: true }}
+              className="group relative flex-shrink-0 w-[85vw] md:w-[450px] aspect-[4/5] bg-zinc-900 rounded-3xl overflow-hidden cursor-pointer shadow-2xl"
               data-cursor-text="View"
             >
               <Image
                 src={product.image}
                 alt={product.name}
                 fill
-                className="object-cover transition-transform duration-700 group-hover:scale-110"
+                className="object-cover transition-transform duration-1000 group-hover:scale-110"
+                sizes="(max-width: 768px) 85vw, 450px"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              {/* Permanent subtle gradient for readability + hover intensification */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-60 group-hover:opacity-100 transition-opacity duration-500" />
               
-              <div className="absolute bottom-0 left-0 w-full p-8 translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
-                <p className="text-white/50 text-xs font-mono uppercase tracking-[0.3em] mb-2">{product.category}</p>
-                <h3 className="text-white text-2xl font-bold mb-1">{product.name}</h3>
-                <p className="text-white font-mono">{product.price}</p>
+              <div className="absolute bottom-0 left-0 w-full p-8 md:p-10 transform translate-y-2 group-hover:translate-y-0 transition-transform duration-500 ease-out">
+                <p className="text-white/60 text-[10px] md:text-xs font-mono uppercase tracking-[0.4em] mb-3">{product.category}</p>
+                <h3 className="text-white text-2xl md:text-3xl font-bold mb-2 tracking-tight">{product.name}</h3>
+                <div className="flex items-center gap-4">
+                  <p className="text-white font-mono text-lg">{product.price}</p>
+                  <span className="w-8 h-[1px] bg-white/30" />
+                  <span className="text-white/40 text-[10px] uppercase tracking-widest group-hover:text-white transition-colors">Details</span>
+                </div>
               </div>
-            </div>
+            </motion.div>
           ))}
         </motion.div>
 
