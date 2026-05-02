@@ -51,19 +51,22 @@ export default function HorizontalCollection() {
   const x = useTransform(scrollYProgress, [0, 1], ["1%", "-75%"]);
 
   return (
-    <section ref={targetRef} className="relative h-[400vh] bg-zinc-950">
+    <section ref={targetRef} className="relative h-[300vh] bg-zinc-950 overflow-clip">
       <div className="sticky top-0 h-screen flex flex-col justify-center overflow-hidden">
-        <div className="px-10 mb-10">
+        {/* Subtle noise texture */}
+        <div className="absolute inset-0 opacity-[0.03] pointer-events-none mix-blend-overlay bg-[url('https://res.cloudinary.com/dcb9v7q9s/image/upload/v1707577544/noise_vvym8y.png')]" />
+        
+        <div className="px-10 mb-10 relative z-10">
           <motion.h2 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, x: -20 }}
+            whileInView={{ opacity: 1, x: 0 }}
             className="font-display font-black text-4xl md:text-7xl text-white uppercase tracking-tighter"
           >
             Featured<br/>Drop.
           </motion.h2>
         </div>
         
-        <motion.div style={{ x }} className="flex gap-8 px-10">
+        <motion.div style={{ x }} className="flex gap-8 px-10 relative z-10">
           {products.map((product, idx) => (
             <motion.div 
               key={product.id} 
