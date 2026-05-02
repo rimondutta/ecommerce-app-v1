@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
+import PerspectiveCard from "../ui/PerspectiveCard";
 
 interface Category {
   name: string;
@@ -100,32 +101,33 @@ export default function EditorialCategories() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {categories.slice(0, 4).map((cat, index) => (
-            <Link
-              key={cat.slug}
-              href={`/products?category=${cat.name}`}
-              data-cat-card
-              className="group relative h-[450px] md:h-[550px] overflow-hidden rounded-3xl bg-zinc-100 block"
-            >
-              <Image 
-                src={placeholderImages[index % placeholderImages.length]} 
-                alt={cat.name} 
-                fill 
-                className="object-cover transition-transform duration-700 ease-[0.16,1,0.3,1] group-hover:scale-105" 
-              />
-              
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
+            <PerspectiveCard key={cat.slug} strength={10} className="w-full">
+              <Link
+                href={`/products?category=${cat.name}`}
+                data-cat-card
+                className="group relative h-[450px] md:h-[550px] overflow-hidden rounded-3xl bg-zinc-100 block shadow-soft-sm hover:shadow-soft-xl transition-all"
+              >
+                <Image 
+                  src={placeholderImages[index % placeholderImages.length]} 
+                  alt={cat.name} 
+                  fill 
+                  className="object-cover transition-transform duration-700 ease-[0.16,1,0.3,1] group-hover:scale-105" 
+                />
+                
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
 
-              <div className="absolute inset-0 p-8 flex flex-col justify-end h-full relative z-20">
-                <div className="flex items-center justify-between">
-                  <h3 className="font-display font-bold text-3xl md:text-4xl text-white tracking-tight">
-                    {cat.name}
-                  </h3>
-                  <div className="w-10 h-10 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 -translate-x-4 group-hover:translate-x-0 transition-all duration-300">
-                    <ArrowRight size={18} />
+                <div className="absolute inset-0 p-8 flex flex-col justify-end h-full relative z-20">
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-display font-bold text-3xl md:text-4xl text-white tracking-tight">
+                      {cat.name}
+                    </h3>
+                    <div className="w-10 h-10 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 -translate-x-4 group-hover:translate-x-0 transition-all duration-300">
+                      <ArrowRight size={18} />
+                    </div>
                   </div>
                 </div>
-              </div>
-            </Link>
+              </Link>
+            </PerspectiveCard>
           ))}
 
           {categories.length < 4 && Array.from({ length: 4 - categories.length }).map((_, i) => (

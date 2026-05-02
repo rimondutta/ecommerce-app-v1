@@ -131,6 +131,40 @@ body {
   transform: translateY(0);
 }
 
+/* Premium Effects */
+.noise-bg {
+  position: relative;
+}
+
+.noise-bg::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.03;
+  z-index: 1;
+  pointer-events: none;
+  background-image: url("https://res.cloudinary.com/dzvp7p5sc/image/upload/v1712214414/noise_f7v3j9.png");
+}
+
+.mesh-gradient {
+  background-color: #09090b;
+  background-image: 
+    radial-gradient(at 0% 0%, hsla(240,5%,10%,1) 0, transparent 50%), 
+    radial-gradient(at 50% 0%, hsla(240,5%,15%,1) 0, transparent 50%), 
+    radial-gradient(at 100% 0%, hsla(240,5%,10%,1) 0, transparent 50%);
+}
+
+.perspective-1000 {
+  perspective: 1000px;
+}
+
+.preserve-3d {
+  transform-style: preserve-3d;
+}
+
 /* Scroll Snap for Section feel */
 .snap-container {
   scroll-snap-type: y proximity;

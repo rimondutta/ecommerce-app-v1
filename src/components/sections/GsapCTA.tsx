@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import Link from "next/link";
+import { motion } from "framer-motion";
 import MagneticElement from "@/components/ui/MagneticElement";
 
 export default function GsapCTA() {
@@ -61,34 +62,61 @@ export default function GsapCTA() {
   return (
     <div
       ref={sectionRef}
-      className="relative bg-zinc-900 text-white py-32 md:py-48 flex flex-col items-center justify-center text-center overflow-hidden rounded-[3rem] mx-4 md:mx-8 mb-12 shadow-2xl"
+      className="relative bg-zinc-950 text-white py-32 md:py-56 flex flex-col items-center justify-center text-center overflow-hidden rounded-[4rem] mx-4 md:mx-10 mb-16 shadow-2xl perspective-1000"
     >
-      <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent pointer-events-none" />
+      {/* 3D Animated Sphere Background */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <motion.div 
+           animate={{ 
+             scale: [1, 1.2, 1],
+             rotate: [0, 180, 360],
+             opacity: [0.1, 0.2, 0.1]
+           }}
+           transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+           className="absolute -top-[20%] -right-[10%] w-[600px] h-[600px] rounded-full bg-gradient-to-br from-white/20 to-transparent blur-3xl"
+        />
+        <motion.div 
+           animate={{ 
+             scale: [1.2, 1, 1.2],
+             rotate: [360, 180, 0],
+             opacity: [0.1, 0.15, 0.1]
+           }}
+           transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+           className="absolute -bottom-[20%] -left-[10%] w-[500px] h-[500px] rounded-full bg-gradient-to-tr from-zinc-500/20 to-transparent blur-3xl"
+        />
+      </div>
 
-      <div className="relative z-10 flex flex-col items-center gap-6 px-6">
+      <div className="relative z-10 flex flex-col items-center gap-8 px-6 preserve-3d">
+        <div className="flex flex-col items-center gap-2 mb-4">
+           <div className="w-12 h-[1px] bg-white/20 mb-4" />
+           <p className="text-[10px] font-bold uppercase tracking-[0.4em] text-white/50">Final Call</p>
+        </div>
+
         <h2
           data-cta-direct
-          className="font-display font-bold text-5xl md:text-8xl lg:text-[10rem] leading-[0.9] tracking-tight will-change-transform"
-          style={{ opacity: 0 }}
+          className="font-display font-bold text-6xl md:text-8xl lg:text-[12rem] leading-[0.85] tracking-tighter will-change-transform"
+          style={{ opacity: 0, transform: "translateZ(100px)" }}
         >
-          Elevate Your
+          OWN THE<br/>
+          MOMENT.
         </h2>
+        
         <h2
           data-cta-toyou
-          className="font-display font-medium text-4xl md:text-7xl lg:text-[9rem] leading-[0.9] tracking-tight text-white/50 italic will-change-transform"
-          style={{ opacity: 0 }}
+          className="font-display font-medium text-4xl md:text-7xl lg:text-[8rem] leading-[0.9] tracking-tight text-zinc-500 italic will-change-transform"
+          style={{ opacity: 0, transform: "translateZ(50px)" }}
         >
-          Everyday Style.
+          Style Re-imagined.
         </h2>
 
-        <div data-cta-btn className="mt-12 md:mt-16" style={{ opacity: 0 }}>
-          <MagneticElement strength={0.2}>
+        <div data-cta-btn className="mt-16 md:mt-24" style={{ opacity: 0, transform: "translateZ(80px)" }}>
+          <MagneticElement strength={0.25}>
             <Link
               href="/products"
-              className="group relative overflow-hidden bg-white text-zinc-900 px-8 py-4 md:px-10 md:py-5 rounded-full flex items-center justify-center hover:shadow-[0_0_40px_rgba(255,255,255,0.3)] transition-all active:scale-95"
+              className="group relative overflow-hidden bg-white text-zinc-950 px-14 py-6 rounded-full flex items-center justify-center hover:shadow-[0_0_60px_rgba(255,255,255,0.4)] transition-all active:scale-95"
             >
-              <span className="relative z-10 font-semibold text-sm md:text-base tracking-wide transition-all duration-300">
-                Explore Collection
+              <span className="relative z-10 font-bold text-sm md:text-base tracking-[0.1em] uppercase">
+                Shop the Drop
               </span>
             </Link>
           </MagneticElement>

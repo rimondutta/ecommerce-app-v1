@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useScroll, useTransform, useMotionValue, useSpring } from "framer-motion";
 import { useRef, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -18,8 +18,27 @@ export default function EditorialHero() {
 
   const y = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
   const opacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
+  
+  // Mouse tracking for 3D effect
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+  
+  const springX = useSpring(mouseX, { stiffness: 50, damping: 20 });
+  const springY = useSpring(mouseY, { stiffness: 50, damping: 20 });
+  
+  const rotateX = useTransform(springY, [-0.5, 0.5], [5, -5]);
+  const rotateY = useTransform(springX, [-0.5, 0.5], [-5, 5]);
 
   useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      const x = e.clientX / window.innerWidth - 0.5;
+      const y = e.clientY / window.innerHeight - 0.5;
+      mouseX.set(x);
+      mouseY.set(y);
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    
     const initGsap = async () => {
       const { gsap } = await import("@/lib/gsap");
 
@@ -29,8 +48,8 @@ export default function EditorialHero() {
         if (imageRef.current) {
           gsap.fromTo(
             imageRef.current,
-            { scale: 1.1, filter: "blur(10px)", opacity: 0 },
-            { scale: 1, filter: "blur(0px)", opacity: 1, duration: 2, ease: "power3.out" }
+            { scale: 1.2, filter: "blur(20px)", opacity: 0 },
+            { scale: 1, filter: "blur(0px)", opacity: 1, duration: 2.5, ease: "power4.out" }
           );
         }
 
@@ -38,29 +57,33 @@ export default function EditorialHero() {
           const elements = contentRef.current.children;
           gsap.fromTo(
             elements,
-            { opacity: 0, y: 30 },
+            { opacity: 0, y: 50, rotateX: -20 },
             {
               opacity: 1,
               y: 0,
+              rotateX: 0,
               stagger: 0.15,
-              duration: 1.2,
-              ease: "power3.out",
-              delay: 0.5
+              duration: 1.5,
+              ease: "expo.out",
+              delay: 0.8
             }
           );
         }
       }, containerRef);
 
-      return () => ctx.revert();
+      return () => {
+        ctx.revert();
+        window.removeEventListener("mousemove", handleMouseMove);
+      };
     };
 
     initGsap();
-  }, []);
+  }, [mouseX, mouseY]);
 
   return (
     <section
       ref={containerRef}
-      className="relative h-[100vh] min-h-[700px] w-full overflow-hidden bg-zinc-50 flex items-center justify-center"
+      className="relative h-[100vh] min-h-[800px] w-full overflow-hidden bg-zinc-950 flex items-center justify-center perspective-1000"
     >
       {/* Background Image with Framer Motion Parallax */}
       <motion.div
@@ -72,53 +95,87 @@ export default function EditorialHero() {
           src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=2040&auto=format&fit=crop"
           alt="Premium Fashion"
           fill
-          className="object-cover object-center"
+          className="object-cover object-center scale-110"
           sizes="100vw"
           priority
         />
-        {/* Soft elegant gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-b from-zinc-900/40 via-zinc-900/20 to-zinc-900/60" />
+        {/* Deep modern gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-b from-zinc-950/60 via-zinc-950/20 to-zinc-950/80" />
       </motion.div>
+
+      {/* Floating 3D Glass Elements */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <motion.div 
+           animate={{ 
+             y: [0, -30, 0],
+             rotate: [0, 10, 0],
+             x: [0, 20, 0]
+           }}
+           transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+           className="absolute top-[20%] left-[10%] w-64 h-64 rounded-full bg-white/5 backdrop-blur-3xl border border-white/10 shadow-2xl"
+           style={{ x: useTransform(springX, [-0.5, 0.5], [40, -40]), y: useTransform(springY, [-0.5, 0.5], [40, -40]) }}
+        />
+        <motion.div 
+           animate={{ 
+             y: [0, 40, 0],
+             rotate: [0, -15, 0],
+             x: [0, -30, 0]
+           }}
+           transition={{ duration: 12, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+           className="absolute bottom-[15%] right-[5%] w-96 h-96 rounded-[4rem] rotate-12 bg-zinc-400/5 backdrop-blur-2xl border border-white/5 shadow-2xl"
+           style={{ x: useTransform(springX, [-0.5, 0.5], [-60, 60]), y: useTransform(springY, [-0.5, 0.5], [-60, 60]) }}
+        />
+      </div>
 
       {/* Hero Typography */}
       <motion.div
         ref={contentRef}
-        style={{ opacity }}
-        className="relative z-10 flex flex-col items-center text-center px-6 md:px-24 w-full max-w-5xl mx-auto will-change-transform mt-20"
+        style={{ 
+          opacity,
+          rotateX,
+          rotateY,
+          transformStyle: "preserve-3d"
+        }}
+        className="relative z-10 flex flex-col items-center text-center px-6 md:px-24 w-full max-w-6xl mx-auto will-change-transform mt-20"
       >
-        <div className="mb-8">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white/90 text-xs font-medium tracking-wide">
-            <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-            New Collection 2024
+        <div className="mb-10" style={{ transform: "translateZ(50px)" }}>
+          <div className="inline-flex items-center gap-2 px-6 py-2 rounded-full bg-white/10 backdrop-blur-xl border border-white/20 text-white text-xs font-bold uppercase tracking-[0.2em]">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            Collection 2026
           </div>
         </div>
 
-        <h1 className="font-display font-bold text-5xl md:text-7xl lg:text-[8vw] leading-[1.1] tracking-tight text-white mb-6">
-          Modern.<br/>
-          Elegant.<br/>
-          Timeless.
+        <h1 
+          className="font-display font-bold text-6xl md:text-8xl lg:text-[10vw] leading-[0.95] tracking-tighter text-white mb-8"
+          style={{ transform: "translateZ(100px)" }}
+        >
+          FUTURE<br/>
+          OF WEAR.
         </h1>
 
-        <p className="text-white/80 text-sm md:text-lg font-medium max-w-xl leading-relaxed mb-10">
-          Exquisite apparel designed for the modern individual. Merging superior comfort with contemporary silhouettes and premium craftsmanship.
+        <p 
+          className="text-white/70 text-base md:text-xl font-medium max-w-2xl leading-relaxed mb-12"
+          style={{ transform: "translateZ(60px)" }}
+        >
+          Architectural silhouettes meets high-performance textiles. Redefining the boundary between form, function, and technology.
         </p>
 
-        <div className="flex flex-col sm:flex-row gap-4 items-center">
-          <MagneticElement strength={0.1}>
+        <div className="flex flex-col sm:flex-row gap-6 items-center" style={{ transform: "translateZ(80px)" }}>
+          <MagneticElement strength={0.15}>
             <Link
               href="/products"
-              className="bg-white text-zinc-900 hover:bg-zinc-100 px-8 py-4 rounded-full font-semibold text-sm transition-all shadow-soft-xl hover:shadow-soft-2xl hover:-translate-y-0.5 active:translate-y-0"
+              className="bg-white text-zinc-950 hover:scale-105 px-12 py-5 rounded-full font-bold text-sm transition-all shadow-[0_20px_50px_rgba(255,255,255,0.2)] active:scale-95"
             >
-              Shop Collection
+              Explore Drops
             </Link>
           </MagneticElement>
 
-          <MagneticElement strength={0.1}>
+          <MagneticElement strength={0.15}>
             <Link
               href="/lookbook"
-              className="bg-zinc-900/30 backdrop-blur-md text-white border border-white/20 hover:bg-zinc-900/50 px-8 py-4 rounded-full font-semibold text-sm transition-all"
+              className="bg-transparent backdrop-blur-md text-white border border-white/30 hover:bg-white/10 px-12 py-5 rounded-full font-bold text-sm transition-all"
             >
-              View Lookbook
+              View Film
             </Link>
           </MagneticElement>
         </div>

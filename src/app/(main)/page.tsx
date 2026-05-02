@@ -24,7 +24,7 @@ export default async function Home() {
   const sanitizedCategories = JSON.parse(JSON.stringify(categories));
 
   return (
-    <div className="bg-zinc-50 flex-1 min-h-screen">
+    <div className="bg-zinc-50 flex-1 min-h-screen noise-bg">
       {/* HERO */}
       <EditorialHero />
 
