@@ -38,6 +38,7 @@ export default function Header() {
   const { count: wishlistCount } = useWishlist();
   const { isOpen: isSearchOpen, openSearch, closeSearch } = useSearch();
   const [isScrolled, setIsScrolled] = useState(false);
+  const [topOffset, setTopOffset] = useState(40);
   const closeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   
   const headerRef = useRef<HTMLElement>(null);
@@ -93,7 +94,9 @@ export default function Header() {
     initGsap();
 
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
+      const scrollY = window.scrollY;
+      setIsScrolled(scrollY > 50);
+      setTopOffset(Math.max(0, 40 - scrollY));
     };
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
@@ -103,13 +106,14 @@ export default function Header() {
     <>
       <header
         ref={headerRef}
-        className={`absolute left-0 w-full z-[500] text-zinc-900 transition-all duration-500 ease-[0.16,1,0.3,1] ${
+        className={`fixed left-0 w-full z-[500] text-zinc-900 transition-all duration-500 ease-[0.16,1,0.3,1] ${
           isScrolled 
           ? "bg-white/80 backdrop-blur-xl shadow-sm border-b border-zinc-200/50 h-[72px]" 
-          : "bg-white/50 backdrop-blur-sm border-transparent h-[88px]"
-        } top-[40px]`}
+          : "bg-white/50 backdrop-blur-md border-transparent h-[88px]"
+        }`}
+        style={{ top: `${topOffset}px` }}
       >
-        <div className="max-w-[1800px] mx-auto px-6 md:px-16 h-full flex items-center justify-between">
+        <div className="max-w-[1800px] mx-auto px-6 md:px-12 h-full flex items-center justify-between">
           
           {/* Logo Section */}
           <div ref={logoRef} className="flex items-center gap-4 will-change-transform">
@@ -193,7 +197,8 @@ export default function Header() {
       <AnimatePresence>
         {activeMenu === "Shop" && (
           <motion.div 
-            className={`fixed ${isScrolled ? 'top-[72px]' : 'top-[128px]'} left-0 w-full bg-white/95 backdrop-blur-xl text-zinc-900 border-b border-zinc-200/50 shadow-soft-xl z-[90] overflow-hidden`}
+            className={`fixed left-0 w-full bg-white/95 backdrop-blur-xl text-zinc-900 border-b border-zinc-200/50 shadow-soft-xl z-[90] overflow-hidden`}
+            style={{ top: `${isScrolled ? topOffset + 72 : topOffset + 88}px` }}
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
