@@ -5,7 +5,11 @@ import BlogPost from '@/models/BlogPost';
 import Category from '@/models/Category';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = process.env.NEXTAUTH_URL || 'https://flexwear.com';
+  // Use a more robust way to get the base URL
+  let baseUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXTAUTH_URL || 'https://flexwear.com';
+  
+  // Remove trailing slash if present to avoid double slashes in paths
+  baseUrl = baseUrl.replace(/\/$/, '');
 
   await connectToDatabase();
 
@@ -29,19 +33,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     {
       url: baseUrl,
       lastModified: new Date(),
-      changeFrequency: 'daily',
+      changeFrequency: 'daily' as const,
       priority: 1,
     },
     {
       url: `${baseUrl}/products`,
       lastModified: new Date(),
-      changeFrequency: 'daily',
+      changeFrequency: 'daily' as const,
       priority: 0.9,
     },
     {
       url: `${baseUrl}/blogs`,
       lastModified: new Date(),
-      changeFrequency: 'weekly',
+      changeFrequency: 'weekly' as const,
       priority: 0.7,
     },
   ];
@@ -62,7 +66,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.6,
   }));
 
-  // Category filter pages
+  // Category filter pages - ensuring canonical-style URLs
   const categoryPages: MetadataRoute.Sitemap = categories.map((cat: any) => ({
     url: `${baseUrl}/products?category=${cat.slug}`,
     lastModified: cat.updatedAt || new Date(),
