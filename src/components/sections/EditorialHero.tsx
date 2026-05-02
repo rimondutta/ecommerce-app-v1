@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, useScroll, useTransform, useMotionValue, useSpring } from "framer-motion";
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import MagneticElement from "@/components/ui/MagneticElement";
@@ -29,38 +29,12 @@ export default function EditorialHero() {
   const rotateX = useTransform(springY, [-0.5, 0.5], [5, -5]);
   const rotateY = useTransform(springX, [-0.5, 0.5], [-5, 5]);
 
-  // Scattering Effect Component
-  const ScatteredWord = ({ word, progress }: { word: string; progress: any }) => {
-    return (
-      <span className="inline-block whitespace-nowrap mr-[0.2em]">
-        {word.split("").map((char, i) => {
-          // Random scatter values for each character
-          const randomX = (Math.random() - 0.5) * 800;
-          const randomY = (Math.random() - 0.5) * 800;
-          const randomZ = (Math.random() - 0.5) * 1000;
-          const randomRotate = (Math.random() - 0.5) * 720;
-          
-          const x = useTransform(progress, [0, 0.5], [0, randomX]);
-          const y = useTransform(progress, [0, 0.5], [0, randomY]);
-          const z = useTransform(progress, [0, 0.5], [0, randomZ]);
-          const rotate = useTransform(progress, [0, 0.5], [0, randomRotate]);
-          const charOpacity = useTransform(progress, [0, 0.4], [1, 0]);
-
-          return (
-            <motion.span
-              key={i}
-              style={{ x, y, z, rotate, opacity: charOpacity, display: "inline-block" }}
-              className="will-change-transform"
-            >
-              {char}
-            </motion.span>
-          );
-        })}
-      </span>
-    );
-  };
+  // Use state to track if we're on the client to avoid hydration mismatch
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
+    
     const handleMouseMove = (e: MouseEvent) => {
       const x = e.clientX / window.innerWidth - 0.5;
       const y = e.clientY / window.innerHeight - 0.5;
@@ -70,12 +44,13 @@ export default function EditorialHero() {
 
     window.addEventListener("mousemove", handleMouseMove);
     
+    let ctx: any;
     const initGsap = async () => {
       const { gsap } = await import("@/lib/gsap");
 
       if (!containerRef.current) return;
 
-      const ctx = gsap.context(() => {
+      ctx = gsap.context(() => {
         if (imageRef.current) {
           gsap.fromTo(
             imageRef.current,
@@ -101,15 +76,49 @@ export default function EditorialHero() {
           );
         }
       }, containerRef);
-
-      return () => {
-        ctx.revert();
-        window.removeEventListener("mousemove", handleMouseMove);
-      };
     };
 
     initGsap();
+
+    return () => {
+      if (ctx) ctx.revert();
+      window.removeEventListener("mousemove", handleMouseMove);
+    };
   }, [mouseX, mouseY]);
+
+  // Internal component for scattering to keep random values stable
+  const ScatteredWord = ({ word, progress }: { word: string; progress: any }) => {
+    // Generate stable random values for each character
+    const chars = word.split("");
+    
+    return (
+      <span className="inline-block whitespace-nowrap mr-[0.2em]">
+        {chars.map((char, i) => {
+          // Use a deterministic-ish approach or just accept that it's client-only
+          const randomX = (Math.sin(i * 123.456) * 400);
+          const randomY = (Math.cos(i * 456.789) * 400);
+          const randomZ = (Math.sin(i * 789.012) * 500);
+          const randomRotate = (Math.cos(i * 12.34) * 360);
+          
+          const x = useTransform(progress, [0, 0.5], [0, randomX]);
+          const y = useTransform(progress, [0, 0.5], [0, randomY]);
+          const z = useTransform(progress, [0, 0.5], [0, randomZ]);
+          const rotate = useTransform(progress, [0, 0.5], [0, randomRotate]);
+          const charOpacity = useTransform(progress, [0, 0.4], [1, 0]);
+
+          return (
+            <motion.span
+              key={i}
+              style={{ x, y, z, rotate, opacity: charOpacity, display: "inline-block" }}
+              className="will-change-transform"
+            >
+              {char}
+            </motion.span>
+          );
+        })}
+      </span>
+    );
+  };
 
   return (
     <section
@@ -117,11 +126,11 @@ export default function EditorialHero() {
       className="relative h-[200vh] w-full bg-zinc-950 perspective-1000"
     >
       <div className="sticky top-0 h-screen w-full flex items-center justify-center overflow-hidden">
-        {/* Background Image with Framer Motion Parallax */}
+        {/* Background Image */}
         <motion.div
           ref={imageRef}
           className="absolute inset-0 w-full h-full will-change-transform"
-          style={{ y, opacity: 0 }}
+          style={{ y }}
         >
           <Image
             src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=2040&auto=format&fit=crop"
@@ -180,18 +189,18 @@ export default function EditorialHero() {
             className="font-display font-bold text-6xl md:text-8xl lg:text-[10vw] leading-[0.95] tracking-tighter text-white mb-8 flex flex-wrap justify-center overflow-visible"
             style={{ transform: "translateZ(100px)" }}
           >
-            {"FUTURE OF WEAR.".split(" ").map((word, i) => (
+            {mounted ? "FUTURE OF WEAR.".split(" ").map((word, i) => (
               <ScatteredWord key={i} word={word} progress={scrollYProgress} />
-            ))}
+            )) : "FUTURE OF WEAR."}
           </h1>
 
           <div 
             className="text-white/70 text-base md:text-xl font-medium max-w-2xl leading-relaxed mb-12 flex flex-wrap justify-center"
             style={{ transform: "translateZ(60px)" }}
           >
-            {"Architectural silhouettes meets high-performance textiles.".split(" ").map((word, i) => (
+            {mounted ? "Architectural silhouettes meets high-performance textiles.".split(" ").map((word, i) => (
               <ScatteredWord key={i} word={word} progress={scrollYProgress} />
-            ))}
+            )) : "Architectural silhouettes meets high-performance textiles."}
           </div>
 
           <motion.div 

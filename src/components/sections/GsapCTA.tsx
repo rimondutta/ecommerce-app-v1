@@ -1,19 +1,23 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import MagneticElement from "@/components/ui/MagneticElement";
 
 export default function GsapCTA() {
   const sectionRef = useRef<HTMLDivElement>(null);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
+    let ctx: any;
+    
     const initGsap = async () => {
       const { gsap } = await import("@/lib/gsap");
       if (!sectionRef.current) return;
 
-      const ctx = gsap.context(() => {
+      ctx = gsap.context(() => {
         const tl = gsap.timeline({
           scrollTrigger: {
             trigger: sectionRef.current,
@@ -52,11 +56,12 @@ export default function GsapCTA() {
           );
         }
       }, sectionRef);
-
-      return () => ctx.revert();
     };
 
     initGsap();
+    return () => {
+      if (ctx) ctx.revert();
+    };
   }, []);
 
   return (
