@@ -2,11 +2,11 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { Heart, ShoppingBag, Eye } from "lucide-react";
+import { Heart, ShoppingBag, Eye, Plus } from "lucide-react";
 import { useCart } from "@/components/providers/CartProvider";
 import { useWishlist } from "@/components/providers/WishlistProvider";
 import { useQuickLook } from "@/store/quickLookStore";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 
 interface ProductCardProps {
@@ -23,25 +23,45 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
   const mainImage = product.images?.[0]?.url || product.images?.[0]?.src || "https://placehold.co/600x800?text=No+Image";
   const secondImage = product.images?.[1]?.url || product.images?.[1]?.src || mainImage;
 
+  const handleQuickAdd = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (product.colors?.length > 0 || product.sizes?.length > 0) {
+      openQuickLook(product);
+      return;
+    }
+    addItem({
+      id: product._id || product.id.toString(),
+      slug: product.slug,
+      title: product.title,
+      price: product.priceNum || product.price,
+      quantity: 1,
+      color: "Default",
+      size: "Default",
+      image: mainImage
+    });
+    openCart();
+  };
+
   return (
     <motion.div
       className="group relative flex flex-col"
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+      transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: index * 0.05 }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
     >
       <Link
         href={`/products/${product.slug}`}
-        className="relative aspect-[4/5] overflow-hidden bg-[#f0f0f0] rounded-none mb-4 block group"
-        data-cursor="VIEW"
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
+        className="relative aspect-[4/5] overflow-hidden bg-zinc-50 rounded-[2rem] mb-5 block group border border-zinc-100"
       >
-        {/* Archival Tag */}
-        <div className="absolute top-0 left-0 z-20 bg-black text-white px-2 py-1 text-[8px] font-black uppercase tracking-[0.2em]">
-          Ref. {product.slug.slice(0, 4).toUpperCase()}-{index.toString().padStart(3, '0')}
-        </div>
+        {/* Badge - Optional */}
+        {index === 0 && (
+          <div className="absolute top-4 left-4 z-20 bg-white/80 backdrop-blur-md px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider text-zinc-900 border border-white/20 shadow-soft">
+            New Arrival
+          </div>
+        )}
 
         {/* Images */}
         <div className="absolute inset-0">
@@ -49,7 +69,7 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
             src={mainImage}
             alt={product.title}
             fill
-            className={`object-cover transition-transform duration-[3s] ease-out group-hover:scale-110 ${hovered ? 'opacity-0' : 'opacity-100'}`}
+            className={`object-cover transition-all duration-[1.5s] ease-[0.16,1,0.3,1] group-hover:scale-105 ${hovered ? 'opacity-0' : 'opacity-100'}`}
             sizes="(max-width: 768px) 50vw, (max-width: 1280px) 33vw, 25vw"
             priority
           />
@@ -57,117 +77,81 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
             src={secondImage}
             alt={product.title}
             fill
-            className={`object-cover transition-transform duration-[1.2s] ease-out ${hovered ? 'scale-100 opacity-100' : 'scale-105 opacity-0'}`}
+            className={`object-cover transition-all duration-[1.5s] ease-[0.16,1,0.3,1] ${hovered ? 'scale-105 opacity-100' : 'scale-110 opacity-0'}`}
             sizes="(max-width: 768px) 50vw, (max-width: 1280px) 33vw, 25vw"
           />
         </div>
 
         {/* Mobile Quick Add */}
-        <div className="absolute bottom-3 right-3 lg:hidden z-20">
+        <div className="absolute bottom-4 right-4 lg:hidden z-20">
           <button
-            onClick={(e) => {
-              e.preventDefault();
-              addItem({
-                id: product._id || product.id.toString(),
-                slug: product.slug,
-                title: product.title,
-                price: product.priceNum || product.price,
-                quantity: 1,
-                color: "Default",
-                size: "Default",
-                image: mainImage
-              });
-              openCart();
-            }}
-            className="w-12 h-12 bg-white text-black flex items-center justify-center shadow-2xl active:scale-90 transition-transform rounded-full border border-black/5"
+            onClick={handleQuickAdd}
+            className="w-12 h-12 bg-white text-zinc-900 flex items-center justify-center shadow-soft-xl active:scale-95 transition-all rounded-full"
           >
-            <ShoppingBag size={18} />
+            <Plus size={20} />
           </button>
         </div>
 
         {/* Quick Actions Panel - Desktop */}
-        <div className="hidden lg:flex absolute inset-x-0 bottom-0 p-4 flex-col gap-2 translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 ease-out z-20">
+        <div className="hidden lg:flex absolute inset-x-4 bottom-4 gap-2 z-20 translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 ease-[0.16,1,0.3,1]">
           <button
             onClick={(e) => {
               e.preventDefault();
               openQuickLook(product);
             }}
-            className="w-full h-12 bg-white/90 backdrop-blur-md text-black text-[9px] font-black uppercase tracking-[0.2em] flex items-center justify-center gap-2 hover:bg-white transition-all shadow-xl"
-            data-cursor="LOOK"
+            className="flex-1 h-12 bg-white/80 backdrop-blur-md text-zinc-900 text-xs font-bold rounded-2xl flex items-center justify-center gap-2 hover:bg-white transition-all shadow-soft"
           >
-            <Eye size={14} />
-            Details
+            <Eye size={16} className="text-zinc-400" />
+            Quick Look
           </button>
           <button
-            onClick={(e) => {
-              e.preventDefault();
-              if (product.colors?.length > 0 || product.sizes?.length > 0) {
-                openQuickLook(product);
-                return;
-              }
-              addItem({
-                id: product._id || product.id.toString(),
-                slug: product.slug,
-                title: product.title,
-                price: product.priceNum || product.price,
-                quantity: 1,
-                color: "Default",
-                size: "Default",
-                image: mainImage
-              });
-              openCart();
-            }}
-            className="w-full h-12 bg-black text-white text-[9px] font-black uppercase tracking-[0.2em] flex items-center justify-center gap-2 hover:bg-neutral-800 transition-all shadow-xl"
-            data-cursor="ADD"
+            onClick={handleQuickAdd}
+            className="w-12 h-12 bg-zinc-900 text-white rounded-2xl flex items-center justify-center hover:bg-zinc-800 transition-all shadow-soft-xl"
           >
-            <ShoppingBag size={14} />
-            Quick Add
+            <ShoppingBag size={18} />
           </button>
         </div>
 
         {/* Wishlist Button */}
         <button
           onClick={(e) => { e.preventDefault(); toggleItem(product._id || product.id.toString()); }}
-          className={`absolute top-4 right-4 z-30 transition-all duration-300 ${isWishlisted(product._id || product.id.toString()) ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
-          data-cursor={isWishlisted(product._id || product.id.toString()) ? "SAVED" : "SAVE"}
+          className={`absolute top-4 right-4 z-30 w-10 h-10 flex items-center justify-center rounded-full bg-white/20 backdrop-blur-sm border border-white/30 transition-all duration-300 hover:bg-white/40 ${isWishlisted(product._id || product.id.toString()) ? 'bg-white/80 !text-rose-500 border-white' : 'text-white'}`}
         >
           <Heart
             size={18}
-            className={`${isWishlisted(product._id || product.id.toString()) ? 'fill-white text-white' : 'text-white'}`}
-            strokeWidth={1.5}
+            className={`${isWishlisted(product._id || product.id.toString()) ? 'fill-current' : ''}`}
+            strokeWidth={2}
           />
         </button>
       </Link>
 
       {/* Product Info */}
-      <div className="flex flex-col space-y-2">
-        <div className="flex justify-between items-start">
-          <div className="flex flex-col">
+      <div className="px-1 flex flex-col gap-1.5">
+        <div className="flex justify-between items-start gap-4">
+          <div className="flex-1 min-w-0">
             <Link
               href={`/products/${product.slug}`}
-              className="text-[14px] md:text-[16px] font-bold text-black tracking-tight leading-tight hover:underline transition-all decoration-1 underline-offset-4"
+              className="text-base font-bold text-zinc-900 tracking-tight leading-tight hover:text-zinc-600 transition-colors block truncate"
             >
               {product.title}
             </Link>
-            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-neutral-400">
-              {product.category?.name || "Uncategorized"}
+            <span className="text-[11px] font-medium text-zinc-400 uppercase tracking-wider">
+              {product.category?.name || "Premium Collection"}
             </span>
           </div>
-          <div className="flex flex-col items-end">
-            <span className="text-[14px] font-black text-black">
-              <span className="text-[10px] text-neutral-400 mr-1">BDT</span>
-              {Math.round(product.priceNum || product.price).toLocaleString()}
-            </span>
-          </div>
+          <p className="text-base font-bold text-zinc-900">
+            ৳{Math.round(product.priceNum || product.price).toLocaleString()}
+          </p>
         </div>
 
         {product.colors?.length > 1 && (
-          <div className="flex gap-1.5 pt-1">
+          <div className="flex gap-2 mt-0.5">
             {product.colors.map((c: { name: string; hex?: string }) => (
               <div
                 key={c.name}
-                className="w-2.5 h-2.5 rounded-full ring-1 ring-black/10"
+                className="w-3 h-3 rounded-full ring-1 ring-zinc-200"
                 style={{ backgroundColor: c.hex || c.name.toLowerCase() }}
+                title={c.name}
               />
             ))}
           </div>

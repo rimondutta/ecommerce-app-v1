@@ -2,19 +2,20 @@
 
 import { Fragment } from "react";
 import { Dialog, DialogPanel, Transition, TransitionChild } from "@headlessui/react";
-import { X, ArrowRight } from "lucide-react";
+import { X, ArrowRight, Instagram, Twitter, MessageSquare, Heart, ShoppingBag, User } from "lucide-react";
 import Link from "next/link";
+import { motion } from "framer-motion";
+import { useUIStore } from "@/store/uiStore";
+import AnimatedLogo from "@/components/ui/AnimatedLogo";
 
 const menuItems = [
-  { label: "HOME", href: "/", subtitle: "MAIN_PAGE" },
-  { label: "SHOP", href: "/products", subtitle: "COLLECTIONS" },
-  { label: "BLOG", href: "/blogs", subtitle: "JOURNAL" },
-  { label: "ACCOUNT", href: "/profile", subtitle: "MY_PROFILE" },
-  { label: "WISHLIST", href: "/wishlist", subtitle: "SAVED_ITEMS" },
-  { label: "CONTACT", href: "#contact", subtitle: "GET_IN_TOUCH" },
+  { label: "Home", href: "/", icon: <ArrowRight size={18} /> },
+  { label: "Shop", href: "/products", icon: <ShoppingBag size={18} /> },
+  { label: "Stories", href: "/blogs", icon: <MessageSquare size={18} /> },
+  { label: "Wishlist", href: "/wishlist", icon: <Heart size={18} /> },
+  { label: "Account", href: "/account", icon: <User size={18} /> },
+  { label: "Contact", href: "/contact", icon: <ArrowRight size={18} /> },
 ];
-
-import { useUIStore } from "@/store/uiStore";
 
 export default function MobileMenu() {
   const { isMobileMenuOpen, closeMobileMenu } = useUIStore();
@@ -22,110 +23,110 @@ export default function MobileMenu() {
   return (
     <Transition show={isMobileMenuOpen} as={Fragment}>
       <Dialog open={isMobileMenuOpen} onClose={closeMobileMenu} className="relative z-[1000]">
+        {/* Backdrop with soft blur */}
         <TransitionChild
           as={Fragment}
-          enter="transition-opacity ease-linear duration-300"
+          enter="transition-opacity ease-out duration-500"
           enterFrom="opacity-0"
           enterTo="opacity-100"
-          leave="transition-opacity ease-linear duration-200"
+          leave="transition-opacity ease-in duration-300"
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
           <div 
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm" 
+            className="fixed inset-0 bg-zinc-900/40 backdrop-blur-md" 
             aria-hidden="true" 
           />
         </TransitionChild>
 
+        {/* Menu Panel */}
         <TransitionChild
           as={Fragment}
-          enter="transform transition ease-in-out duration-300"
+          enter="transform transition ease-[0.16,1,0.3,1] duration-700"
           enterFrom="-translate-x-full"
           enterTo="translate-x-0"
-          leave="transform transition ease-in-out duration-200"
+          leave="transform transition ease-[0.16,1,0.3,1] duration-500"
           leaveFrom="translate-x-0"
           leaveTo="-translate-x-full"
         >
-          <DialogPanel className="fixed inset-y-0 left-0 w-full sm:w-[450px] bg-white border-r border-black/20 flex flex-col shadow-[0_0_50px_rgba(0,0,0,0.3)] overflow-hidden">
-            {/* Background Grid */}
-            <div className="absolute inset-0 pointer-events-none opacity-[0.03] z-0" 
-                 style={{ backgroundImage: 'linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
+          <DialogPanel className="fixed inset-y-0 left-0 w-full max-w-[400px] bg-white flex flex-col shadow-soft-2xl overflow-hidden rounded-r-[2rem]">
+            {/* Soft Ambient Glow */}
+            <div className="absolute top-0 right-0 w-64 h-64 bg-zinc-100 rounded-full blur-3xl -mr-32 -mt-32 opacity-50 pointer-events-none" />
 
             {/* Header */}
-            <div className="flex items-center justify-between px-8 py-8 border-b border-black/10 relative z-10 bg-white">
-              <div className="flex flex-col">
-                <div className="flex items-center gap-2 mb-2">
-                   <div className="w-1.5 h-1.5 bg-black animate-pulse" />
-                   <h4 className="font-mono font-black text-[10px] uppercase tracking-widest text-black/60">NAVIGATION</h4>
-                </div>
-                <h2 className="font-mono font-black text-2xl uppercase tracking-widest leading-none">
-                  [ DIRECTORY ]
-                </h2>
-              </div>
+            <div className="flex items-center justify-between px-8 py-8 relative z-10">
+              <Link href="/" onClick={closeMobileMenu}>
+                <AnimatedLogo size="md" />
+              </Link>
               <button
                 onClick={closeMobileMenu}
-                className="w-12 h-12 bg-transparent text-black border border-black hover:bg-black hover:text-white transition-all flex items-center justify-center group relative"
+                className="w-12 h-12 bg-zinc-50 text-zinc-900 rounded-full hover:bg-zinc-100 transition-colors flex items-center justify-center group relative border border-zinc-200/50"
                 aria-label="Close menu"
               >
-                <X size={20} className="group-hover:rotate-90 transition-transform duration-500 relative z-10" />
-                {/* Corner Accents */}
-                <div className="absolute top-0 left-0 w-1.5 h-1.5 border-t border-l border-black group-hover:border-white transition-colors" />
-                <div className="absolute bottom-0 right-0 w-1.5 h-1.5 border-b border-r border-black group-hover:border-white transition-colors" />
+                <X size={20} className="group-hover:rotate-90 transition-transform duration-500" />
               </button>
             </div>
 
             {/* Nav Links */}
-            <nav className="flex-1 overflow-y-auto bg-white relative z-10" aria-label="Mobile navigation">
-              {menuItems.map((item) => (
-                <Link
-                  key={item.label}
-                  href={item.href}
-                  onClick={closeMobileMenu}
-                  className="group flex flex-col px-8 py-8 border-b border-black/5 hover:bg-black hover:text-white transition-all relative overflow-hidden"
-                >
-                  <div className="flex items-center justify-between relative z-10">
-                    <div className="flex flex-col">
-                      <span className="text-[9px] font-mono font-black uppercase tracking-[0.4em] opacity-40 group-hover:opacity-100 transition-opacity mb-2">
-                        {item.subtitle}
-                      </span>
-                      <span className="font-display font-black text-4xl uppercase tracking-tighter leading-none block group-hover:text-transparent transition-all duration-300" style={{ WebkitTextStroke: '1px currentColor' }}>
-                        {item.label}
-                      </span>
-                    </div>
-                    <ArrowRight size={20} className="opacity-0 group-hover:opacity-100 -translate-x-4 group-hover:translate-x-0 transition-all duration-300" />
-                  </div>
-                  {/* Hover Scanline */}
-                  <div className="absolute top-0 left-0 w-full h-[1px] bg-white opacity-0 group-hover:opacity-20 group-hover:animate-scanline" />
-                </Link>
-              ))}
+            <nav className="flex-1 overflow-y-auto px-6 py-4 relative z-10" aria-label="Mobile navigation">
+              <div className="space-y-2">
+                {menuItems.map((item, idx) => (
+                  <motion.div
+                    key={item.label}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.1 + idx * 0.05, duration: 0.5 }}
+                  >
+                    <Link
+                      href={item.href}
+                      onClick={closeMobileMenu}
+                      className="group flex items-center justify-between p-4 rounded-2xl hover:bg-zinc-50 transition-all duration-300 border border-transparent hover:border-zinc-100"
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 rounded-xl bg-zinc-50 flex items-center justify-center text-zinc-500 group-hover:bg-white group-hover:text-zinc-900 transition-colors shadow-sm">
+                          {item.icon}
+                        </div>
+                        <span className="font-display font-bold text-2xl text-zinc-900 tracking-tight">
+                          {item.label}
+                        </span>
+                      </div>
+                      <ArrowRight size={20} className="text-zinc-300 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-300" />
+                    </Link>
+                  </motion.div>
+                ))}
+              </div>
             </nav>
 
-
-            {/* Bottom */}
-            <div className="p-8 space-y-8 bg-gray-50 relative z-10 border-t border-black/10">
-              <div>
-                <p className="text-[10px] font-mono font-black uppercase tracking-[0.4em] text-black/60 mb-4 text-center">SOCIAL_CHANNELS</p>
-                <div className="flex justify-center gap-8 font-mono font-bold text-[9px] uppercase tracking-widest text-black/80">
-                  <a href="#" className="hover:text-black hover:line-through transition-all">INSTAGRAM</a>
-                  <a href="#" className="hover:text-black hover:line-through transition-all">TWITTER</a>
-                  <a href="#" className="hover:text-black hover:line-through transition-all">PINTEREST</a>
+            {/* Bottom Content */}
+            <div className="p-8 space-y-8 bg-zinc-50/50 relative z-10 border-t border-zinc-100 mt-auto">
+              <div className="flex flex-col gap-6">
+                <div className="flex items-center gap-6">
+                  <a href="#" className="w-10 h-10 rounded-full bg-white border border-zinc-200 flex items-center justify-center text-zinc-600 hover:text-zinc-900 hover:border-zinc-900 transition-all shadow-soft">
+                    <Instagram size={20} />
+                  </a>
+                  <a href="#" className="w-10 h-10 rounded-full bg-white border border-zinc-200 flex items-center justify-center text-zinc-600 hover:text-zinc-900 hover:border-zinc-900 transition-all shadow-soft">
+                    <Twitter size={20} />
+                  </a>
+                </div>
+                
+                <div className="space-y-1">
+                  <p className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Get in Touch</p>
+                  <a 
+                    href="mailto:hello@flexwear.com" 
+                    className="text-lg font-bold text-zinc-900 hover:text-zinc-600 transition-colors"
+                  >
+                    hello@flexwear.com
+                  </a>
                 </div>
               </div>
               
-              <div className="pt-8 border-t border-black/10 text-center">
-                <a 
-                  href="mailto:contact@flexwear.com" 
-                  className="font-mono font-black text-xs uppercase tracking-widest hover:italic transition-all opacity-80 hover:opacity-100"
-                >
-                  &gt; contact@flexwear.com
-                </a>
+              <div className="pt-6 border-t border-zinc-200/50 flex justify-between items-center">
+                <span className="text-xs font-medium text-zinc-500">© 2024 Flex Wear</span>
+                <span className="text-xs font-semibold text-zinc-900 flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  Store Online
+                </span>
               </div>
-            </div>
-
-            {/* Bottom Bar */}
-            <div className="p-4 bg-black text-[9px] font-mono font-bold uppercase tracking-[0.3em] text-white flex justify-between px-8 relative z-10">
-              <span>STATUS_ONLINE</span>
-              <span className="opacity-50">LND/NYC/TKY</span>
             </div>
           </DialogPanel>
         </TransitionChild>
@@ -133,3 +134,4 @@ export default function MobileMenu() {
     </Transition>
   );
 }
+

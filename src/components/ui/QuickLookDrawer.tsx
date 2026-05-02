@@ -2,7 +2,7 @@
 
 import { Fragment, useState, useEffect } from "react";
 import { Dialog, DialogPanel, Transition, TransitionChild } from "@headlessui/react";
-import { X, ShoppingBag, Heart, ArrowRight, Minus, Plus, Star, Maximize2 } from "lucide-react";
+import { X, ShoppingBag, Heart, ArrowRight, Minus, Plus, Star, Maximize2, Check } from "lucide-react";
 import Image from "next/image";
 import { useQuickLook } from "@/store/quickLookStore";
 import { useCart } from "@/store/cartStore";
@@ -33,69 +33,60 @@ export default function QuickLookDrawer() {
 
   const images = product.images?.map((img: any) => {
     const src = img.url || img.src || "";
-    // Defensive check for invalid/short URLs
     return (src && src.length > 5) ? src : "/placeholder.jpg";
   }) || ["/placeholder.jpg"];
 
   const colors = product.colors || [];
   const sizes = product.sizes || [];
-
-  const handleClose = () => {
-    closeQuickLook();
-  };
-
   const currentPrice = product.priceNum || product.price;
   const wishlisted = isWishlisted(product._id || product.id);
 
   return (
     <Transition show={isOpen} as={Fragment}>
-      <Dialog open={isOpen} onClose={handleClose} className="relative z-[700]">
+      <Dialog open={isOpen} onClose={closeQuickLook} className="relative z-[700]">
         <TransitionChild
           as={Fragment}
-          enter="transition-opacity ease-linear duration-500"
+          enter="transition-opacity ease-out duration-500"
           enterFrom="opacity-0"
           enterTo="opacity-100"
-          leave="transition-opacity ease-linear duration-400"
+          leave="transition-opacity ease-in duration-300"
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" aria-hidden="true" />
+          <div className="fixed inset-0 bg-zinc-900/40 backdrop-blur-md" aria-hidden="true" />
         </TransitionChild>
 
-        {/* Centered Modal */}
-        <div className="fixed inset-0 flex items-center justify-center p-2 md:p-6">
+        <div className="fixed inset-0 flex items-center justify-center p-0 md:p-6 lg:p-12">
           <TransitionChild
             as={Fragment}
             enter="transform transition ease-[0.16,1,0.3,1] duration-700"
-            enterFrom="scale-95 opacity-0 translate-y-4"
+            enterFrom="scale-95 opacity-0 translate-y-8"
             enterTo="scale-100 opacity-100 translate-y-0"
             leave="transform transition ease-[0.16,1,0.3,1] duration-500"
             leaveFrom="scale-100 opacity-100 translate-y-0"
-            leaveTo="scale-95 opacity-0 translate-y-4"
+            leaveTo="scale-95 opacity-0 translate-y-8"
           >
-            <DialogPanel className="relative w-full max-w-6xl h-full lg:h-auto max-h-[100vh] lg:max-h-[96vh] bg-white rounded-none border-0 lg:border-4 border-black shadow-none lg:shadow-[16px_16px_0px_0px_rgba(0,0,0,1)] overflow-y-auto lg:overflow-hidden flex flex-col lg:flex-row">
-
-              {/* Close Button - Technical Style */}
+            <DialogPanel className="relative w-full max-w-6xl h-full lg:h-auto max-h-screen lg:max-h-[90vh] bg-white rounded-t-[2.5rem] lg:rounded-[3rem] shadow-soft-2xl overflow-hidden flex flex-col lg:flex-row">
+              
+              {/* Close Button */}
               <button
-                onClick={handleClose}
-                className="fixed lg:absolute top-4 right-4 lg:top-6 lg:right-6 z-[60] w-10 h-10 lg:w-12 lg:h-12 bg-white border-4 border-black hover:bg-black text-black hover:text-white flex items-center justify-center transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px]"
+                onClick={closeQuickLook}
+                className="absolute top-6 right-6 z-[60] w-12 h-12 flex items-center justify-center rounded-full bg-white/80 backdrop-blur-md text-zinc-500 hover:text-zinc-900 shadow-soft transition-all active:scale-95"
                 aria-label="Close"
               >
-                <X size={20} strokeWidth={3} className="lg:hidden" />
-                <X size={24} strokeWidth={3} className="hidden lg:block" />
+                <X size={24} />
               </button>
 
-              {/* LEFT — Image Gallery */}
-              <div className="relative w-full lg:w-[60%] bg-[#f8f8f8] flex flex-col border-b lg:border-b-0 lg:border-r border-black/10">
-                {/* Main Image Container */}
-                <div className="relative flex-1 min-h-[350px] md:min-h-[500px] lg:min-h-0 aspect-[4/5] lg:aspect-auto overflow-hidden group">
+              {/* Left: Image Gallery */}
+              <div className="w-full lg:w-[55%] relative bg-zinc-50 flex flex-col h-[50vh] lg:h-auto">
+                <div className="relative flex-1 overflow-hidden group">
                   <AnimatePresence mode="wait">
                     <motion.div
                       key={activeImageIndex}
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
-                      transition={{ duration: 0.4, ease: "circOut" }}
+                      transition={{ duration: 0.5, ease: "easeInOut" }}
                       className="absolute inset-0"
                     >
                       <Image
@@ -103,114 +94,104 @@ export default function QuickLookDrawer() {
                         alt={product.title}
                         fill
                         className="object-cover"
-                        sizes="(max-width: 1024px) 100vw, 60vw"
+                        sizes="(max-width: 1024px) 100vw, 55vw"
                         priority
                       />
                     </motion.div>
                   </AnimatePresence>
 
-                  {/* Editorial Badges */}
-                  <div className="absolute top-4 left-4 lg:top-8 lg:left-8 flex flex-col gap-2 lg:gap-3">
-                    <div className="bg-white border-2 border-black px-2 lg:px-4 py-1 inline-flex items-center gap-2 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] lg:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-                      <div className="w-1.5 h-1.5 lg:w-2 lg:h-2 bg-black animate-pulse" />
-                      <span className="text-[9px] lg:text-[11px] font-black uppercase tracking-[0.2em] text-black">New Release</span>
+                  {/* Badges */}
+                  <div className="absolute top-8 left-8 flex flex-col gap-3 pointer-events-none">
+                    <div className="bg-white/90 backdrop-blur-md px-4 py-1.5 rounded-full shadow-sm flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-zinc-900 animate-pulse" />
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-zinc-900">New Arrival</span>
                     </div>
-                    {images.length > 1 && (
-                      <div className="bg-black text-white px-3 py-1 inline-flex w-fit shadow-[4px_4px_0px_0px_rgba(255,255,255,0.2)]">
-                        <span className="text-[10px] font-black tracking-widest">GALLERY {activeImageIndex + 1}/{images.length}</span>
-                      </div>
-                    )}
                   </div>
 
-                  {/* Floating Action: Wishlist */}
-                  <button
-                    onClick={() => toggleItem(product._id || product.id)}
-                    className={`absolute top-4 right-16 lg:top-8 lg:right-24 z-40 w-10 h-10 lg:w-12 lg:h-12 border-4 border-black flex items-center justify-center transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-1 active:translate-y-1 ${wishlisted ? 'bg-red-500' : 'bg-white hover:bg-neutral-50'}`}
-                  >
-                    <Heart
-                      size={18}
-                      strokeWidth={3}
-                      className={wishlisted ? 'text-white fill-white' : 'text-black lg:hidden'}
-                    />
-                    <Heart
-                      size={20}
-                      strokeWidth={3}
-                      className={wishlisted ? 'text-white fill-white' : 'text-black hidden lg:block'}
-                    />
-                  </button>
-                </div>
-
-                  <div className="flex gap-4 p-6 bg-white overflow-x-auto no-scrollbar border-t-2 border-black">
-                    {images.map((img: string, idx: number) => (
+                  {/* Thumbnail Navigation (Mobile overlay) */}
+                  <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 lg:hidden">
+                    {images.map((_: any, idx: number) => (
                       <button
                         key={idx}
                         onClick={() => setActiveImageIndex(idx)}
-                        className={`relative flex-shrink-0 w-24 h-28 border-2 transition-all ${activeImageIndex === idx ? 'border-black ring-4 ring-black/10 scale-105 z-10 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]' : 'border-black/5 opacity-40 hover:opacity-100'}`}
-                      >
-                        <Image src={img} alt="" fill className="object-cover" sizes="100px" />
-                      </button>
+                        className={`w-2 h-2 rounded-full transition-all ${activeImageIndex === idx ? 'w-6 bg-zinc-900' : 'bg-zinc-900/20'}`}
+                      />
                     ))}
                   </div>
+                </div>
+
+                {/* Thumbnails (Desktop) */}
+                <div className="hidden lg:flex gap-4 p-8 bg-white border-t border-zinc-100 overflow-x-auto scrollbar-hide">
+                  {images.map((img: string, idx: number) => (
+                    <button
+                      key={idx}
+                      onClick={() => setActiveImageIndex(idx)}
+                      className={`relative flex-shrink-0 w-20 h-24 rounded-2xl overflow-hidden transition-all duration-300 ${activeImageIndex === idx ? 'ring-2 ring-zinc-900 scale-105 shadow-soft' : 'opacity-40 hover:opacity-100 hover:scale-105'}`}
+                    >
+                      <Image src={img} alt="" fill className="object-cover" sizes="80px" />
+                    </button>
+                  ))}
+                </div>
               </div>
 
-              {/* RIGHT — Product Details & Interaction */}
-              <div className="w-full lg:w-[40%] flex flex-col bg-white">
-                <div className="flex-1 lg:overflow-y-auto no-scrollbar px-6 lg:px-12 py-8 lg:py-16 space-y-8 lg:space-y-10">
-
-                  {/* Header: Identity & Specs */}
-                  <div className="space-y-6">
+              {/* Right: Details */}
+              <div className="w-full lg:w-[45%] flex flex-col bg-white overflow-y-auto scrollbar-hide">
+                <div className="flex-1 px-8 lg:px-12 py-10 lg:py-16 space-y-10">
+                  
+                  {/* Title & Price */}
+                  <div className="space-y-4">
                     <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-mono font-bold uppercase tracking-[0.4em] text-neutral-600">
-                        {product.category?.name || "COLLECTION"}
+                      <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-zinc-400">
+                        {product.category?.name || "Premium Collection"}
                       </span>
-                      <span className="text-[10px] font-mono font-medium text-neutral-500">SKU: {product._id?.slice(-6).toUpperCase() || "NEW-SS24"}</span>
+                      <button 
+                        onClick={() => toggleItem(product._id || product.id)}
+                        className={`p-2.5 rounded-full transition-all ${wishlisted ? 'bg-red-50 text-red-500' : 'bg-zinc-50 text-zinc-400 hover:text-zinc-900 hover:bg-zinc-100'}`}
+                      >
+                        <Heart size={20} fill={wishlisted ? "currentColor" : "none"} strokeWidth={2} />
+                      </button>
                     </div>
-
-                    <div className="space-y-2">
-                      <h2 className="text-2xl md:text-3xl lg:text-5xl font-black uppercase tracking-tight leading-[0.9] lg:leading-[0.85] text-black">
-                        {product.title}
-                      </h2>
-                      <div className="flex items-center gap-6 pt-2">
-                        <p className="text-3xl font-bold tracking-tighter text-black">
-                          ৳{Math.round(currentPrice).toLocaleString()}
-                        </p>
-                        <div className="flex items-center gap-1">
-                          <Star size={10} className="fill-black text-black" />
-                          <span className="text-[10px] font-mono font-bold">4.9</span>
-                          <span className="text-[10px] font-mono text-neutral-600 ml-1">/ 128 REVIEWS</span>
-                        </div>
+                    <h2 className="text-3xl lg:text-5xl font-display font-bold text-zinc-900 tracking-tight leading-tight">
+                      {product.title}
+                    </h2>
+                    <div className="flex items-center gap-6 pt-2">
+                      <p className="text-3xl font-display font-bold text-zinc-900">
+                        ৳{Math.round(currentPrice).toLocaleString()}
+                      </p>
+                      <div className="flex items-center gap-1.5 px-3 py-1 bg-zinc-50 rounded-full">
+                        <Star size={14} className="fill-yellow-400 text-yellow-400" />
+                        <span className="text-xs font-bold text-zinc-900">4.9</span>
+                        <span className="text-[11px] font-medium text-zinc-400 ml-1">128 Reviews</span>
                       </div>
                     </div>
                   </div>
 
-                  {/* Description — Technical Readout Style */}
+                  {/* Description */}
                   <div className="space-y-3">
-                    <h4 className="text-[10px] font-mono font-bold uppercase tracking-[0.3em] text-neutral-500 border-b border-neutral-100 pb-2">Description</h4>
-                    <p className="text-neutral-700 text-[13px] leading-relaxed font-medium">
+                    <h4 className="text-xs font-bold uppercase tracking-wider text-zinc-900">About this item</h4>
+                    <p className="text-zinc-500 text-[15px] leading-relaxed">
                       {product.description || "Designed for ultimate durability and comfort. Features high-performance fabric composition with engineered seams for maximum mobility and aesthetic impact."}
                     </p>
                   </div>
 
-                  {/* Variants Section */}
+                  {/* Options */}
                   <div className="space-y-10">
-                    {/* Finish Selector */}
+                    {/* Color */}
                     {colors.length > 0 && (
                       <div className="space-y-4">
                         <div className="flex items-center justify-between">
-                          <h4 className="text-[10px] font-mono font-bold uppercase tracking-[0.3em] text-black">Color</h4>
-                          {selectedColor && (
-                            <span className="text-[10px] font-mono font-bold text-neutral-600 uppercase tracking-widest">{selectedColor.name}</span>
-                          )}
+                          <h4 className="text-xs font-bold uppercase tracking-wider text-zinc-900">Color</h4>
+                          {selectedColor && <span className="text-xs font-medium text-zinc-400">{selectedColor.name}</span>}
                         </div>
-                        <div className="flex flex-wrap gap-4">
+                        <div className="flex flex-wrap gap-3">
                           {colors.map((c: any) => (
                             <button
                               key={c.name}
                               onClick={() => setSelectedColor(c)}
-                              className={`group relative w-12 h-12 border-2 border-black transition-all ${selectedColor?.name === c.name ? 'ring-4 ring-black/20 scale-110 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]' : 'hover:scale-105'}`}
+                              className={`w-10 h-10 rounded-full border-2 p-0.5 transition-all ${selectedColor?.name === c.name ? 'border-zinc-900 scale-110 shadow-soft' : 'border-transparent hover:scale-105'}`}
                             >
                               <div
-                                className="absolute inset-0"
+                                className="w-full h-full rounded-full"
                                 style={{ backgroundColor: c.hex || c.name.toLowerCase() }}
                               />
                             </button>
@@ -219,16 +200,19 @@ export default function QuickLookDrawer() {
                       </div>
                     )}
 
-                    {/* Size Grid */}
+                    {/* Size */}
                     {sizes.length > 0 && (
                       <div className="space-y-4">
-                        <h4 className="text-[10px] font-mono font-bold uppercase tracking-[0.3em] text-black">Select Size</h4>
-                        <div className="grid grid-cols-4 gap-2">
+                        <div className="flex items-center justify-between">
+                          <h4 className="text-xs font-bold uppercase tracking-wider text-zinc-900">Select Size</h4>
+                          <button className="text-[11px] font-bold uppercase tracking-wider text-zinc-400 hover:text-zinc-900 transition-colors">Size Guide</button>
+                        </div>
+                        <div className="grid grid-cols-4 gap-3">
                           {sizes.map((s: string) => (
                             <button
                               key={s}
                               onClick={() => setSelectedSize(s)}
-                              className={`h-14 border-2 border-black transition-all text-xs font-black uppercase ${selectedSize === s ? 'bg-black text-white shadow-none translate-x-1 translate-y-1' : 'bg-white text-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]'}`}
+                              className={`h-12 rounded-2xl text-sm font-bold transition-all border ${selectedSize === s ? 'bg-zinc-900 text-white border-zinc-900 shadow-soft-xl scale-[1.02]' : 'bg-white text-zinc-500 border-zinc-100 hover:border-zinc-900 hover:text-zinc-900'}`}
                             >
                               {s}
                             </button>
@@ -237,39 +221,33 @@ export default function QuickLookDrawer() {
                       </div>
                     )}
 
+                    {/* Quantity */}
                     <div className="space-y-4">
-                      <h4 className="text-[10px] font-mono font-bold uppercase tracking-[0.3em] text-black">Quantity</h4>
-                      <div className="flex items-center border-2 border-black bg-white w-fit h-14 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                      <h4 className="text-xs font-bold uppercase tracking-wider text-zinc-900">Quantity</h4>
+                      <div className="flex items-center bg-zinc-100 rounded-2xl w-fit h-14 p-1.5 border border-zinc-200/50 shadow-sm">
                         <button
                           onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                          className="w-14 h-full flex items-center justify-center hover:bg-black hover:text-white transition-colors border-r-2 border-black"
+                          className="w-11 h-11 flex items-center justify-center rounded-xl hover:bg-white text-zinc-500 hover:text-zinc-900 transition-all shadow-sm active:scale-95"
                         >
-                          <Minus size={16} strokeWidth={3} />
+                          <Minus size={18} />
                         </button>
-                        <span className="w-16 text-center text-sm font-black text-black">
+                        <span className="w-14 text-center text-base font-bold text-zinc-900">
                           {quantity}
                         </span>
                         <button
                           onClick={() => setQuantity(quantity + 1)}
-                          className="w-14 h-full flex items-center justify-center hover:bg-black hover:text-white transition-colors border-l-2 border-black"
+                          className="w-11 h-11 flex items-center justify-center rounded-xl hover:bg-white text-zinc-500 hover:text-zinc-900 transition-all shadow-sm active:scale-95"
                         >
-                          <Plus size={16} strokeWidth={3} />
+                          <Plus size={18} />
                         </button>
-                      </div>
-                    </div>
-                    {/* Stock Status & Actions */}
-                    <div className="space-y-4 pt-4">
-                      <div className="flex items-center gap-2 px-1">
-                        <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-                        <span className="text-[10px] font-mono font-bold text-green-600 uppercase tracking-[0.2em]">Ready for Delivery</span>
                       </div>
                     </div>
                   </div>
                 </div>
 
-                {/* Footer Actions — Impactful & Minimal */}
-                <div className="relative lg:static p-6 lg:p-10 bg-white border-t border-neutral-100 z-50">
-                  <div className="flex flex-col gap-4 lg:gap-6">
+                {/* Sticky Footer Actions */}
+                <div className="p-8 lg:p-12 bg-white/80 backdrop-blur-md border-t border-zinc-100 sticky bottom-0">
+                  <div className="flex flex-col gap-4">
                     <button
                       onClick={() => {
                         if ((colors.length > 0 && !selectedColor) || (sizes.length > 0 && !selectedSize)) return;
@@ -283,35 +261,34 @@ export default function QuickLookDrawer() {
                           size: selectedSize || "Default",
                           image: images[0]
                         });
-                        handleClose();
+                        closeQuickLook();
                         openCart();
                       }}
                       disabled={(colors.length > 0 && !selectedColor) || (sizes.length > 0 && !selectedSize)}
-                      className="w-full h-16 lg:h-20 bg-black text-white text-[12px] lg:text-[14px] font-black uppercase tracking-[0.2em] lg:tracking-[0.3em] hover:bg-neutral-800 transition-all flex items-center justify-between px-6 lg:px-10 group disabled:bg-neutral-200 disabled:text-neutral-500 disabled:cursor-not-allowed shadow-[6px_6px_0px_0px_rgba(0,0,0,0.2)] lg:shadow-[8px_8px_0px_0px_rgba(0,0,0,0.2)] hover:shadow-none hover:translate-x-1 hover:translate-y-1"
+                      className="w-full h-16 lg:h-20 bg-zinc-900 text-white rounded-[1.5rem] text-sm lg:text-base font-bold flex items-center justify-between px-8 lg:px-10 group disabled:bg-zinc-100 disabled:text-zinc-300 disabled:cursor-not-allowed shadow-soft-2xl hover:bg-zinc-800 transition-all active:scale-[0.98]"
                     >
                       <span className="flex items-center gap-4">
-                        <ShoppingBag size={20} strokeWidth={3} />
+                        <ShoppingBag size={20} />
                         {(!selectedColor && colors.length > 0) 
-                          ? "SELECT COLOR" 
+                          ? "Select Color" 
                           : (!selectedSize && sizes.length > 0) 
-                            ? "SELECT SIZE" 
-                            : "ADD TO BAG"}
+                            ? "Select Size" 
+                            : "Add to Bag"}
                       </span>
                       <div className="flex items-center gap-4">
-                        <span className="font-black">
+                        <span className="font-bold">
                           ৳{Math.round(currentPrice * quantity).toLocaleString()}
                         </span>
-                        <ArrowRight size={22} strokeWidth={3} className="group-hover:translate-x-2 transition-transform" />
+                        <ArrowRight size={20} className="group-hover:translate-x-2 transition-transform" />
                       </div>
                     </button>
 
                     <Link
                       href={`/products/${product.slug}`}
-                      onClick={handleClose}
-                      className="inline-flex items-center justify-center gap-3 text-[10px] font-mono font-bold uppercase tracking-[0.3em] text-neutral-600 hover:text-black transition-all group"
+                      onClick={closeQuickLook}
+                      className="inline-flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider text-zinc-400 hover:text-zinc-900 transition-all group"
                     >
-                      View Full Details
-                      <div className="w-8 h-px bg-neutral-200 group-hover:w-12 group-hover:bg-black transition-all" />
+                      View full details
                       <Maximize2 size={12} />
                     </Link>
                   </div>

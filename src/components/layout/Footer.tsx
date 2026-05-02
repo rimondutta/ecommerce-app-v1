@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import AnimatedLogo from "@/components/ui/AnimatedLogo";
+import { Instagram, Twitter, Facebook, ArrowUpRight, Mail } from "lucide-react";
 
 interface Category { name: string; slug: string; }
 
@@ -23,36 +24,37 @@ export default function Footer() {
     fetchCategories();
   }, []);
 
-  // GSAP footer animations
   useEffect(() => {
     const initGsap = async () => {
-      const { gsap, ScrollTrigger } = await import("@/lib/gsap");
+      const { gsap } = await import("@/lib/gsap");
       if (!footerRef.current) return;
+      
       const ctx = gsap.context(() => {
-        // Stagger all grid columns
         const cols = footerRef.current!.querySelectorAll("[data-footer-col]");
-        gsap.fromTo(cols, { opacity: 0, y: 60 }, {
-          opacity: 1, y: 0, stagger: 0.15, duration: 1.2, ease: "expo.out",
-          scrollTrigger: { trigger: footerRef.current, start: "top 85%" },
-        });
-        // Big logo text reveal
-        const logo = footerRef.current!.querySelector("[data-footer-logo]");
-        if (logo) gsap.fromTo(logo, { opacity: 0, y: 100, scale: 0.9 }, {
-          opacity: 1, y: 0, scale: 1, duration: 2, ease: "expo.out",
-          scrollTrigger: { trigger: footerRef.current, start: "top 70%" },
-        });
-        // Bottom bar slide up
+        gsap.fromTo(cols, 
+          { opacity: 0, y: 40 }, 
+          {
+            opacity: 1, 
+            y: 0, 
+            stagger: 0.1, 
+            duration: 1, 
+            ease: "power3.out",
+            scrollTrigger: { trigger: footerRef.current, start: "top 85%" },
+          }
+        );
+
         const bottom = footerRef.current!.querySelector("[data-footer-bottom]");
-        if (bottom) gsap.fromTo(bottom, { opacity: 0, y: 30 }, {
-          opacity: 1, y: 0, duration: 1, ease: "expo.out",
-          scrollTrigger: { trigger: bottom, start: "top 95%" },
-        });
-        // Link items stagger
-        const links = footerRef.current!.querySelectorAll("[data-footer-link]");
-        gsap.fromTo(links, { opacity: 0, x: -20 }, {
-          opacity: 1, x: 0, stagger: 0.05, duration: 0.8, ease: "expo.out",
-          scrollTrigger: { trigger: footerRef.current, start: "top 80%" },
-        });
+        if (bottom) {
+          gsap.fromTo(bottom, 
+            { opacity: 0 }, 
+            {
+              opacity: 1, 
+              duration: 1.5, 
+              ease: "power3.out",
+              scrollTrigger: { trigger: bottom, start: "top 95%" },
+            }
+          );
+        }
       }, footerRef);
       return () => ctx.revert();
     };
@@ -60,78 +62,98 @@ export default function Footer() {
   }, [categories]);
 
   return (
-    <footer ref={footerRef} className="bg-black text-white pt-32 pb-12 overflow-hidden relative border-t border-white/20">
-      <div className="absolute inset-0 pointer-events-none opacity-[0.05]" style={{ backgroundImage: 'linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
-      <div className="max-w-[1800px] mx-auto px-6 md:px-12 relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16 lg:gap-24 mb-32">
-          {/* Brand */}
-          <div data-footer-col className="space-y-10" style={{ opacity: 0 }}>
-            <div className="flex flex-col gap-8">
-              <Link href="/" className="inline-block" data-cursor="HOME">
-                <AnimatedLogo size="lg" className="text-white" />
-              </Link>
-              <p className="text-white/40 text-[11px] font-mono leading-relaxed max-w-sm uppercase tracking-widest">
-                Premium apparel for the modern individual. Quality craftsmanship, timeless design, and exceptional comfort in every piece.
-              </p>
-            </div>
-            <div className="flex gap-6">
-              {['Instagram', 'Twitter', 'Facebook'].map((social) => (
-                <a key={social} href="#" data-footer-link className="text-[10px] font-black uppercase tracking-widest text-white/90 hover:text-white transition-all underline outline-offset-4 decoration-white/40">
-                  {social}
+    <footer ref={footerRef} className="bg-zinc-950 text-white pt-24 pb-12 overflow-hidden relative">
+      <div className="max-w-[1800px] mx-auto px-6 md:px-16 relative z-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-16 lg:gap-8 mb-24">
+          
+          {/* Brand Column */}
+          <div data-footer-col className="lg:col-span-4 space-y-8" style={{ opacity: 0 }}>
+            <Link href="/" className="inline-block">
+              <AnimatedLogo size="lg" className="text-white" />
+            </Link>
+            <p className="text-zinc-400 text-sm leading-relaxed max-w-sm">
+              Crafting premium apparel that blends timeless elegance with modern functionality. Designed for those who value craftsmanship and quality.
+            </p>
+            <div className="flex gap-4">
+              {[
+                { icon: <Instagram size={18} />, label: "Instagram" },
+                { icon: <Twitter size={18} />, label: "Twitter" },
+                { icon: <Facebook size={18} />, label: "Facebook" }
+              ].map((social) => (
+                <a 
+                  key={social.label} 
+                  href="#" 
+                  className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-zinc-400 hover:text-white hover:bg-white/10 hover:border-white/20 transition-all shadow-sm"
+                >
+                  {social.icon}
                 </a>
               ))}
             </div>
           </div>
-          {/* Navigation */}
-          <div data-footer-col style={{ opacity: 0 }}>
-            <div className="flex items-center gap-2 mb-10">
-              <div className="w-1.5 h-1.5 bg-white" />
-              <h4 className="font-mono font-black text-[10px] uppercase tracking-[0.4em] text-white/70">Shop</h4>
-            </div>
-            <ul className="space-y-5">
-              <li><Link href="/products" data-footer-link className="text-[11px] font-black uppercase tracking-widest text-white/90 hover:text-white transition-all flex items-center group"><span className="w-0 group-hover:w-4 h-[1px] bg-white mr-0 group-hover:mr-3 transition-all"></span>All Collections</Link></li>
+
+          {/* Links Columns */}
+          <div data-footer-col className="lg:col-span-2 space-y-8" style={{ opacity: 0 }}>
+            <h4 className="text-xs font-semibold uppercase tracking-wider text-zinc-500">Shop</h4>
+            <ul className="space-y-4">
+              <li><Link href="/products" className="text-sm text-zinc-400 hover:text-white transition-colors">All Products</Link></li>
               {categories.slice(0, 4).map((cat) => (
-                <li key={cat.slug}><Link href={`/products?category=${cat.name}`} data-footer-link className="text-[11px] font-black uppercase tracking-widest text-white/90 hover:text-white transition-all flex items-center group"><span className="w-0 group-hover:w-4 h-[1px] bg-white mr-0 group-hover:mr-3 transition-all"></span>{cat.name}</Link></li>
+                <li key={cat.slug}>
+                  <Link href={`/products?category=${cat.name}`} className="text-sm text-zinc-400 hover:text-white transition-colors">
+                    {cat.name}
+                  </Link>
+                </li>
               ))}
             </ul>
           </div>
-          {/* Support */}
-          <div data-footer-col style={{ opacity: 0 }}>
-            <div className="flex items-center gap-2 mb-10">
-              <div className="w-1.5 h-1.5 bg-white" />
-              <h4 className="font-mono font-black text-[10px] uppercase tracking-[0.4em] text-white/70">Company</h4>
-            </div>
-            <ul className="space-y-5">
-              {["Contact Us", "Shipping Info", "Return Policy", "Size Guide", "Privacy Policy"].map((link) => (
-                <li key={link}><a href="#" data-footer-link className="text-[11px] font-black uppercase tracking-widest text-white/90 hover:text-white transition-all flex items-center group"><span className="w-0 group-hover:w-4 h-[1px] bg-white mr-0 group-hover:mr-3 transition-all"></span>{link}</a></li>
+
+          <div data-footer-col className="lg:col-span-2 space-y-8" style={{ opacity: 0 }}>
+            <h4 className="text-xs font-semibold uppercase tracking-wider text-zinc-500">Support</h4>
+            <ul className="space-y-4">
+              {["Contact Us", "Shipping Info", "Return Policy", "Size Guide"].map((link) => (
+                <li key={link}>
+                  <a href="#" className="text-sm text-zinc-400 hover:text-white transition-colors">{link}</a>
+                </li>
               ))}
             </ul>
           </div>
-          {/* Newsletter */}
-          <div data-footer-col className="space-y-10" style={{ opacity: 0 }}>
-            <div className="flex items-center gap-2">
-              <div className="w-1.5 h-1.5 bg-white animate-pulse" />
-              <h4 className="font-mono font-black text-[10px] uppercase tracking-[0.4em] text-white/70">Newsletter</h4>
+
+          {/* Newsletter Column */}
+          <div data-footer-col className="lg:col-span-4 space-y-8" style={{ opacity: 0 }}>
+            <h4 className="text-xs font-semibold uppercase tracking-wider text-zinc-500">Newsletter</h4>
+            <div className="space-y-4">
+              <p className="text-sm text-zinc-400">Join our community for exclusive access and updates.</p>
+              <div className="relative group">
+                <input 
+                  type="email" 
+                  placeholder="Email Address" 
+                  className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-6 text-sm outline-none focus:border-white/30 focus:bg-white/10 transition-all placeholder:text-zinc-600" 
+                />
+                <button className="absolute right-2 top-1/2 -translate-y-1/2 bg-white text-zinc-950 px-5 py-2 rounded-xl text-sm font-bold hover:bg-zinc-200 transition-all flex items-center gap-2 group/btn">
+                  Join
+                  <ArrowUpRight size={16} className="group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform" />
+                </button>
+              </div>
             </div>
-            <div className="relative group border border-white/20 p-1 focus-within:border-white/50 transition-all">
-              <input type="email" placeholder="Email Address" className="w-full bg-transparent p-4 text-[10px] font-mono tracking-widest uppercase outline-none placeholder:text-white/30" />
-              <button className="absolute right-2 top-1/2 -translate-y-1/2 bg-white text-black px-4 py-2 text-[10px] font-black uppercase tracking-widest hover:bg-white/80 transition-all">Join</button>
-            </div>
-            <p className="text-[9px] font-mono uppercase tracking-widest text-white/50 leading-relaxed">*By subscribing you agree to receive our latest updates and offers.</p>
           </div>
         </div>
-        {/* Big Logo */}
-        <div data-footer-logo className="pointer-events-none select-none absolute bottom-12 left-1/2 -translate-x-1/2 w-full text-center" style={{ opacity: 0 }}>
-          <h2 className="font-display font-black text-[12vw] md:text-[15vw] leading-none uppercase tracking-tighter text-transparent" style={{ WebkitTextStroke: '1px rgba(255,255,255,0.1)' }}>Flex Wear</h2>
-        </div>
+
         {/* Bottom Bar */}
-        <div data-footer-bottom className="pt-12 border-t border-white/20 flex flex-col md:flex-row justify-between items-center gap-8 relative z-10" style={{ opacity: 0 }}>
-          <p className="text-[10px] font-mono font-black uppercase tracking-[0.4em] text-white/70">© 2026 Flex_Wear. All Rights Reserved.</p>
-          <div className="flex gap-10">
-            <p className="text-[10px] font-mono font-black uppercase tracking-[0.4em] text-white/70">Quality Over Quantity</p>
+        <div data-footer-bottom className="pt-12 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-8 relative z-10" style={{ opacity: 0 }}>
+          <div className="flex flex-col md:flex-row items-center gap-4 md:gap-8 text-xs text-zinc-500">
+            <span>© 2024 Flex Wear. All Rights Reserved.</span>
+            <div className="flex gap-6">
+              <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
+              <a href="#" className="hover:text-white transition-colors">Terms of Service</a>
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-2 text-xs font-semibold text-zinc-400 uppercase tracking-widest">
+            <span className="w-1.5 h-1.5 rounded-full bg-zinc-500" />
+            Designed for Excellence
           </div>
         </div>
       </div>
     </footer>
   );
 }
+

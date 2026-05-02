@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useCart } from "@/components/providers/CartProvider";
 import { useWishlist } from "@/components/providers/WishlistProvider";
 import Link from "next/link";
@@ -8,19 +8,21 @@ import Image from "next/image";
 import { 
   Heart, 
   ShoppingBag, 
-  ArrowLeft, 
-  Share2, 
-  Ruler, 
-  Plus, 
-  Minus, 
-  ArrowRight, 
   ChevronRight,
-  Maximize2
+  Maximize2,
+  Plus,
+  Minus,
+  ArrowRight,
+  Share2,
+  ShieldCheck,
+  Truck,
+  RotateCcw
 } from "lucide-react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination, Thumbs, EffectFade } from "swiper/modules";
 import ProductReviews from "@/components/sections/ProductReviews";
 import EditorialProductGrid from "@/components/sections/EditorialProductGrid";
+import { motion, AnimatePresence } from "framer-motion";
 
 // Import Swiper styles
 import "swiper/css";
@@ -39,7 +41,7 @@ export default function ProductDetailsClient({ product, relatedProducts }: Produ
   const [selectedSize, setSelectedSize] = useState<string>("");
   const [quantity, setQuantity] = useState(1);
   const [thumbsSwiper, setThumbsSwiper] = useState<any>(null);
-  const [activeAccordion, setActiveAccordion] = useState<string | null>(null);
+  const [activeAccordion, setActiveAccordion] = useState<string | null>("Composition & Care");
   const [imageZoom, setImageZoom] = useState(false);
 
   const { addItem, openCart } = useCart();
@@ -64,52 +66,38 @@ export default function ProductDetailsClient({ product, relatedProducts }: Produ
     openCart();
   };
 
-  const isLightColor = (hex: string) => {
-    const c = hex.replace('#', '');
-    const r = parseInt(c.substring(0, 2), 16);
-    const g = parseInt(c.substring(2, 4), 16);
-    const b = parseInt(c.substring(4, 6), 16);
-    const brightness = (r * 299 + g * 587 + b * 114) / 1000;
-    return brightness > 155;
-  };
-
   return (
-    <main className="min-h-screen bg-white text-black font-sans selection:bg-black selection:text-white">
-      {/* Subtle Grain Overlay */}
-      <div className="fixed inset-0 pointer-events-none opacity-[0.02] z-50 bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
-
+    <main className="min-h-screen bg-zinc-50/50">
       {/* Navigation / Breadcrumbs */}
-      <div className="border-b border-black/5 relative z-40 bg-white">
-        <div className="max-w-[1800px] mx-auto px-6 md:px-12 py-4 flex items-center justify-between">
-          <nav className="flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.2em] text-black/40">
-            <Link href="/" className="hover:text-black transition-colors">Home</Link>
-            <ChevronRight size={10} className="text-black/20" />
-            <Link href="/shop" className="hover:text-black transition-colors">Collection</Link>
-            <ChevronRight size={10} className="text-black/20" />
+      <div className="relative z-40">
+        <div className="max-w-7xl mx-auto px-6 md:px-12 py-8 flex items-center justify-between">
+          <nav className="flex items-center gap-3 text-[10px] font-bold uppercase tracking-widest text-zinc-400">
+            <Link href="/" className="hover:text-zinc-900 transition-colors">Home</Link>
+            <ChevronRight size={10} className="text-zinc-300" />
+            <Link href="/shop" className="hover:text-zinc-900 transition-colors">Shop</Link>
+            <ChevronRight size={10} className="text-zinc-300" />
             {categoryName && (
               <>
-                <span className="hover:text-black transition-colors cursor-pointer">{categoryName}</span>
-                <ChevronRight size={10} className="text-black/20" />
+                <span className="text-zinc-400">{categoryName}</span>
+                <ChevronRight size={10} className="text-zinc-300" />
               </>
             )}
-            <span className="text-black">{product.title}</span>
+            <span className="text-zinc-900 truncate max-w-[150px]">{product.title}</span>
           </nav>
           
-          <div className="flex items-center gap-6">
-            <button className="flex items-center gap-2 group">
-               <span className="text-[10px] font-black uppercase tracking-widest text-black/40 group-hover:text-black transition-colors">Share</span>
-               <Share2 size={12} className="text-black/40 group-hover:text-black transition-colors" />
-            </button>
-          </div>
+          <button className="flex items-center gap-2 group px-4 py-2 rounded-full bg-white border border-zinc-100 shadow-soft-sm hover:shadow-soft transition-all">
+             <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 group-hover:text-zinc-900">Share</span>
+             <Share2 size={12} className="text-zinc-400 group-hover:text-zinc-900" />
+          </button>
         </div>
       </div>
 
-      <div className="max-w-[1800px] mx-auto px-6 md:px-12 py-12">
+      <div className="max-w-7xl mx-auto px-6 md:px-12 pb-24">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20">
           
           {/* Gallery Section */}
-          <div className="lg:col-span-7 space-y-4">
-            <div className="relative group border border-black/5 bg-[#fafafa]">
+          <div className="lg:col-span-7 space-y-6">
+            <div className="relative group bg-white rounded-[2.5rem] overflow-hidden shadow-soft-xl">
               <Swiper
                 modules={[Navigation, Pagination, Thumbs, EffectFade]}
                 effect="fade"
@@ -118,7 +106,7 @@ export default function ProductDetailsClient({ product, relatedProducts }: Produ
               >
                 {product.images?.map((img: any, idx: number) => (
                   <SwiperSlide key={idx}>
-                    <div className="relative w-full h-full overflow-hidden">
+                    <div className="relative w-full h-full">
                       <Image
                         src={(img.url && img.url.length > 1) ? img.url : "/placeholder.jpg"}
                         alt={product.title}
@@ -134,14 +122,14 @@ export default function ProductDetailsClient({ product, relatedProducts }: Produ
 
               <button 
                 onClick={() => setImageZoom(!imageZoom)}
-                className="absolute bottom-6 right-6 z-10 w-12 h-12 bg-white border border-black flex items-center justify-center hover:bg-black hover:text-white transition-all duration-500 rounded-full shadow-xl"
+                className="absolute bottom-8 right-8 z-10 w-12 h-12 bg-white/80 backdrop-blur-md text-zinc-900 flex items-center justify-center hover:bg-white transition-all rounded-full shadow-soft-2xl border border-white/20"
               >
                 <Maximize2 size={18} />
               </button>
 
               {product.badge && (
-                <div className="absolute top-6 left-6 z-10">
-                  <span className="bg-black text-white text-[9px] font-black uppercase tracking-[0.3em] px-4 py-2">
+                <div className="absolute top-8 left-8 z-10">
+                  <span className="bg-zinc-900/90 backdrop-blur-md text-white text-[9px] font-bold uppercase tracking-widest px-4 py-2 rounded-full">
                     {product.badge}
                   </span>
                 </div>
@@ -149,65 +137,63 @@ export default function ProductDetailsClient({ product, relatedProducts }: Produ
             </div>
 
             {/* Thumbnails */}
-            <div className="flex items-center gap-4">
-              <button className="swiper-prev-custom w-12 h-12 border border-black/10 flex items-center justify-center hover:border-black transition-colors bg-white">
-                <ArrowLeft size={16} />
-              </button>
-              <div className="flex-1 overflow-hidden">
-                <Swiper
-                  onSwiper={setThumbsSwiper}
-                  spaceBetween={12}
-                  slidesPerView={5}
-                  watchSlidesProgress
-                  modules={[Navigation]}
-                  className="w-full"
-                >
-                  {product.images?.map((img: any, idx: number) => (
-                    <SwiperSlide key={idx} className="cursor-pointer">
-                      <div className={`aspect-[4/5] bg-[#fafafa] border transition-all duration-500 overflow-hidden ${thumbsSwiper?.activeIndex === idx ? 'border-black' : 'border-black/5 opacity-40 hover:opacity-100'}`}>
-                        <Image
-                          src={(img.url && img.url.length > 1) ? img.url : "/placeholder.jpg"}
-                          alt="thumbnail"
-                          fill
-                          className="object-cover"
-                          sizes="150px"
-                        />
-                      </div>
-                    </SwiperSlide>
-                  ))}
-                </Swiper>
-              </div>
-              <button className="swiper-next-custom w-12 h-12 border border-black/10 flex items-center justify-center hover:border-black transition-colors bg-white">
-                <ArrowRight size={16} />
-              </button>
+            <div className="px-2">
+              <Swiper
+                onSwiper={setThumbsSwiper}
+                spaceBetween={16}
+                slidesPerView={4}
+                watchSlidesProgress
+                modules={[Navigation]}
+                breakpoints={{
+                  640: { slidesPerView: 5 },
+                  1024: { slidesPerView: 6 },
+                }}
+                className="w-full"
+              >
+                {product.images?.map((img: any, idx: number) => (
+                  <SwiperSlide key={idx} className="cursor-pointer">
+                    <div className={`aspect-[4/5] rounded-2xl transition-all duration-500 overflow-hidden border-2 ${thumbsSwiper?.activeIndex === idx ? 'border-zinc-900 shadow-soft' : 'border-transparent opacity-50 hover:opacity-100'}`}>
+                      <Image
+                        src={(img.url && img.url.length > 1) ? img.url : "/placeholder.jpg"}
+                        alt="thumbnail"
+                        fill
+                        className="object-cover"
+                        sizes="150px"
+                      />
+                    </div>
+                  </SwiperSlide>
+                ))}
+              </Swiper>
             </div>
           </div>
 
           {/* Product Info Section */}
-          <div className="lg:col-span-5 space-y-12">
-            <div className="space-y-4">
+          <div className="lg:col-span-5 space-y-10 py-4">
+            <div className="space-y-6">
               <div className="flex items-center gap-3">
-                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-black/40">
+                <div className="px-3 py-1 bg-zinc-100 rounded-full text-[10px] font-bold uppercase tracking-widest text-zinc-500">
                   {categoryName || "Collection"}
-                </span>
-                <span className="w-1 h-1 rounded-full bg-black/20" />
-                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-emerald-600">In Stock</span>
+                </div>
+                <div className="flex items-center gap-1.5 px-3 py-1 bg-emerald-50 rounded-full text-[10px] font-bold uppercase tracking-widest text-emerald-600">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  In Stock
+                </div>
               </div>
               
-              <h1 className="font-display font-black text-5xl md:text-7xl lg:text-8xl uppercase leading-[0.85] tracking-tighter">
+              <h1 className="font-display font-bold text-5xl md:text-6xl text-zinc-900 leading-tight tracking-tight">
                 {product.title}
               </h1>
 
-              <div className="flex items-center gap-6 pt-4">
-                <span className="text-4xl font-black font-display tracking-tight">
+              <div className="flex items-center gap-6">
+                <span className="text-4xl font-display font-bold text-zinc-900">
                   ৳{Math.round(product.price).toLocaleString()}
                 </span>
                 {product.compareAtPrice && product.compareAtPrice > product.price && (
                   <div className="flex items-center gap-3">
-                    <span className="text-xl font-bold text-black/20 line-through">
+                    <span className="text-xl font-medium text-zinc-300 line-through">
                       ৳{Math.round(product.compareAtPrice).toLocaleString()}
                     </span>
-                    <span className="text-[10px] font-black bg-black text-white px-2 py-1 uppercase tracking-widest">
+                    <span className="px-2 py-1 bg-zinc-900 text-white text-[10px] font-bold rounded-lg uppercase tracking-widest">
                       -{Math.round(((product.compareAtPrice - product.price) / product.compareAtPrice) * 100)}%
                     </span>
                   </div>
@@ -215,20 +201,20 @@ export default function ProductDetailsClient({ product, relatedProducts }: Produ
               </div>
             </div>
 
-            <p className="text-sm font-medium leading-relaxed text-black/60 max-w-md">
-              {product.description || "Refined silhouette engineered with precision. A testament to modern minimalism and superior textile engineering."}
+            <p className="text-zinc-500 text-lg leading-relaxed font-medium">
+              {product.description || "A masterclass in modern textile engineering, offering unparalleled comfort and a silhouette that defines contemporary elegance."}
             </p>
 
             {/* Selection Controls */}
-            <div className="space-y-8">
+            <div className="space-y-10 pt-4">
               {/* Colors */}
               {product.colors?.length > 0 && (
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-black uppercase tracking-[0.3em]">Select Color</span>
-                    <span className="text-[10px] font-bold text-black/40 uppercase tracking-widest">{selectedColor?.name || "Required"}</span>
+                    <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Available Colors</span>
+                    <span className="text-[10px] font-bold text-zinc-900 uppercase tracking-widest">{selectedColor?.name || "Select"}</span>
                   </div>
-                  <div className="flex flex-wrap gap-3">
+                  <div className="flex flex-wrap gap-4">
                     {product.colors.map((color: any) => {
                       const isSelected = selectedColor?.name === color.name;
                       const colorHex = color.hex || color.value || '#000';
@@ -236,20 +222,12 @@ export default function ProductDetailsClient({ product, relatedProducts }: Produ
                         <button
                           key={color.name}
                           onClick={() => setSelectedColor(color)}
-                          className={`relative w-12 h-12 flex items-center justify-center group transition-all duration-500 ${isSelected ? 'scale-110' : 'hover:scale-105'}`}
+                          className={`relative w-10 h-10 rounded-full transition-all duration-300 ${isSelected ? 'ring-2 ring-zinc-900 ring-offset-4' : 'hover:scale-110'}`}
                         >
                           <div 
-                            className={`w-full h-full rounded-full transition-all duration-500 border ${isSelected ? 'border-black scale-110' : 'border-transparent'}`}
-                            style={{ padding: '4px' }}
-                          >
-                            <div 
-                              className="w-full h-full rounded-full border border-black/5"
-                              style={{ backgroundColor: colorHex }}
-                            />
-                          </div>
-                          {isSelected && (
-                            <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-1 h-1 bg-black rounded-full" />
-                          )}
+                            className="w-full h-full rounded-full border border-zinc-100 shadow-sm"
+                            style={{ backgroundColor: colorHex }}
+                          />
                         </button>
                       );
                     })}
@@ -261,17 +239,17 @@ export default function ProductDetailsClient({ product, relatedProducts }: Produ
               {product.sizes?.length > 0 && (
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-black uppercase tracking-[0.3em]">Select Size</span>
-                    <button className="text-[10px] font-bold text-black/40 uppercase tracking-widest flex items-center gap-2 hover:text-black transition-colors border-b border-black/10 pb-0.5">
-                      <Ruler size={12} /> Size Guide
+                    <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Select Size</span>
+                    <button className="text-[10px] font-bold text-zinc-400 hover:text-zinc-900 transition-colors uppercase tracking-widest underline decoration-zinc-200 underline-offset-4">
+                      Size Guide
                     </button>
                   </div>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-wrap gap-3">
                     {product.sizes.map((size: string) => (
                       <button
                         key={size}
                         onClick={() => setSelectedSize(size)}
-                        className={`min-w-[64px] h-12 px-4 flex items-center justify-center border text-[11px] font-black uppercase tracking-widest transition-all duration-500 ${selectedSize === size ? 'bg-black text-white border-black' : 'bg-white text-black border-black/10 hover:border-black'}`}
+                        className={`flex-1 min-w-[70px] h-12 flex items-center justify-center rounded-2xl text-xs font-bold uppercase tracking-widest transition-all duration-300 ${selectedSize === size ? 'bg-zinc-900 text-white shadow-soft-xl' : 'bg-white text-zinc-500 border border-zinc-100 hover:border-zinc-200 hover:bg-zinc-50'}`}
                       >
                         {size}
                       </button>
@@ -281,30 +259,40 @@ export default function ProductDetailsClient({ product, relatedProducts }: Produ
               )}
 
               {/* Quantity & Actions */}
-              <div className="pt-6 space-y-4">
+              <div className="pt-2 space-y-4">
                 <div className="flex items-center gap-4">
-                  <div className="flex items-center border border-black/10 h-14 bg-white">
-                    <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="w-14 h-full flex items-center justify-center hover:bg-black/5 transition-colors"><Minus size={14} /></button>
-                    <span className="w-14 text-center font-display font-black text-lg tabular-nums">{quantity}</span>
-                    <button onClick={() => setQuantity(quantity + 1)} className="w-14 h-full flex items-center justify-center hover:bg-black/5 transition-colors"><Plus size={14} /></button>
+                  <div className="flex items-center bg-white border border-zinc-100 rounded-3xl h-16 p-1.5 shadow-soft-sm">
+                    <button 
+                      onClick={() => setQuantity(Math.max(1, quantity - 1))} 
+                      className="w-12 h-full flex items-center justify-center rounded-2xl hover:bg-zinc-50 transition-colors text-zinc-400 hover:text-zinc-900"
+                    >
+                      <Minus size={16} />
+                    </button>
+                    <span className="w-10 text-center font-display font-bold text-lg tabular-nums text-zinc-900">{quantity}</span>
+                    <button 
+                      onClick={() => setQuantity(quantity + 1)} 
+                      className="w-12 h-full flex items-center justify-center rounded-2xl hover:bg-zinc-50 transition-colors text-zinc-400 hover:text-zinc-900"
+                    >
+                      <Plus size={16} />
+                    </button>
                   </div>
                   
                   <button
                     onClick={handleAddToCart}
                     disabled={(product.sizes?.length > 0 && !selectedSize) || (product.colors?.length > 0 && !selectedColor)}
-                    className={`flex-1 h-14 flex items-center justify-between px-8 border transition-all duration-500 uppercase tracking-[0.2em] font-black text-[11px] ${
+                    className={`flex-1 h-16 flex items-center justify-center gap-3 rounded-3xl transition-all duration-500 font-bold text-sm uppercase tracking-widest ${
                       (product.sizes?.length > 0 && !selectedSize) || (product.colors?.length > 0 && !selectedColor)
-                      ? 'bg-neutral-100 border-neutral-200 text-neutral-400 cursor-not-allowed'
-                      : 'bg-black text-white border-black hover:bg-neutral-900 active:scale-[0.98]'
+                      ? 'bg-zinc-100 text-zinc-300 cursor-not-allowed'
+                      : 'bg-zinc-900 text-white hover:bg-zinc-800 shadow-soft-xl active:scale-[0.98]'
                     }`}
                   >
-                    <span>{(!selectedSize && product.sizes?.length > 0) || (!selectedColor && product.colors?.length > 0) ? 'Select Options' : 'Add to bag'}</span>
+                    <span>{(!selectedSize && product.sizes?.length > 0) || (!selectedColor && product.colors?.length > 0) ? 'Select Options' : 'Add to Bag'}</span>
                     <ShoppingBag size={18} />
                   </button>
 
                   <button
                     onClick={(e) => { e.preventDefault(); toggleItem(product._id); }}
-                    className={`w-14 h-14 flex items-center justify-center border transition-all duration-500 ${isWishlisted(product._id) ? 'bg-black text-white border-black' : 'border-black/10 hover:border-black text-black'}`}
+                    className={`w-16 h-16 flex items-center justify-center rounded-3xl transition-all duration-500 ${isWishlisted(product._id) ? 'bg-zinc-900 text-white shadow-soft-xl' : 'bg-white border border-zinc-100 text-zinc-400 hover:text-zinc-900 shadow-soft-sm'}`}
                   >
                     <Heart size={20} fill={isWishlisted(product._id) ? "currentColor" : "none"} />
                   </button>
@@ -312,24 +300,52 @@ export default function ProductDetailsClient({ product, relatedProducts }: Produ
               </div>
             </div>
 
-            {/* Features Accordion */}
-            <div className="border-t border-black/10">
+            {/* Benefits */}
+            <div className="grid grid-cols-3 gap-4 pt-4">
+              <div className="flex flex-col items-center gap-2 p-4 bg-white rounded-3xl border border-zinc-100 shadow-soft-sm">
+                <Truck size={18} className="text-zinc-400" />
+                <span className="text-[9px] font-bold uppercase tracking-widest text-zinc-500">Fast Delivery</span>
+              </div>
+              <div className="flex flex-col items-center gap-2 p-4 bg-white rounded-3xl border border-zinc-100 shadow-soft-sm">
+                <RotateCcw size={18} className="text-zinc-400" />
+                <span className="text-[9px] font-bold uppercase tracking-widest text-zinc-500">Easy Returns</span>
+              </div>
+              <div className="flex flex-col items-center gap-2 p-4 bg-white rounded-3xl border border-zinc-100 shadow-soft-sm">
+                <ShieldCheck size={18} className="text-zinc-400" />
+                <span className="text-[9px] font-bold uppercase tracking-widest text-zinc-500">Secure Payment</span>
+              </div>
+            </div>
+
+            {/* Accordions */}
+            <div className="pt-6">
               {[
-                { title: "Composition & Care", content: "Main: 100% Cotton. Machine wash at 30°C. Do not tumble dry. Cool iron on reverse." },
-                { title: "Shipping & Returns", content: "Complimentary worldwide shipping on orders over ৳3000. 14-day free return policy." },
-                { title: "Payment Info", content: "Secure transactions with bKash, Visa, and Mastercard. Cash on delivery available." }
+                { title: "Composition & Care", content: "Expertly crafted from 100% premium grade cotton. We recommend a gentle machine wash at 30°C to preserve the textile's integrity. Air dry only. Cool iron if necessary." },
+                { title: "Shipping & Returns", content: "Complimentary express shipping on all orders over ৳1,000. We offer a seamless 14-day return window for a full refund or exchange." },
+                { title: "Technical Blueprint", content: "Designed with an ergonomic fit to facilitate effortless movement. Reinforced seams at high-stress points for enhanced durability." }
               ].map((item) => (
-                <div key={item.title} className="border-b border-black/10">
+                <div key={item.title} className="group border-b border-zinc-100 last:border-0">
                   <button 
                     onClick={() => setActiveAccordion(activeAccordion === item.title ? null : item.title)}
-                    className="w-full py-6 flex items-center justify-between group"
+                    className="w-full py-6 flex items-center justify-between"
                   >
-                    <span className="text-[10px] font-black uppercase tracking-[0.3em]">{item.title}</span>
-                    <Plus size={14} className={`transition-transform duration-500 ${activeAccordion === item.title ? 'rotate-45' : ''}`} />
+                    <span className="text-xs font-bold uppercase tracking-widest text-zinc-900">{item.title}</span>
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${activeAccordion === item.title ? 'bg-zinc-900 text-white rotate-45' : 'bg-zinc-100 text-zinc-400 group-hover:bg-zinc-200'}`}>
+                      <Plus size={14} />
+                    </div>
                   </button>
-                  <div className={`overflow-hidden transition-all duration-700 ease-[0.16,1,0.3,1] ${activeAccordion === item.title ? 'max-h-40 pb-6' : 'max-h-0'}`}>
-                    <p className="text-[11px] leading-relaxed text-black/50 font-medium">{item.content}</p>
-                  </div>
+                  <AnimatePresence>
+                    {activeAccordion === item.title && (
+                      <motion.div 
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                        className="overflow-hidden"
+                      >
+                        <p className="pb-8 text-sm leading-relaxed text-zinc-500 font-medium">{item.content}</p>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
               ))}
             </div>
@@ -337,88 +353,62 @@ export default function ProductDetailsClient({ product, relatedProducts }: Produ
         </div>
       </div>
 
-      {/* Editorial Section */}
-      <div className="border-y border-black/5 py-24 md:py-40 bg-[#fafafa] relative overflow-hidden">
-        <div className="max-w-[1800px] mx-auto px-6 md:px-12 grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
-           <div className="space-y-10">
-              <span className="text-[10px] font-black uppercase tracking-[0.4em] text-black/30 block">Technical Specification</span>
-              <h2 className="font-display font-black text-5xl md:text-7xl lg:text-8xl uppercase leading-[0.85] tracking-tighter">
-                Crafted For<br />Perfection
-              </h2>
-              <p className="text-base md:text-lg leading-relaxed text-black/60 max-w-xl">
-                Every stitch is a testament to our commitment to excellence. We source only the finest fabrics and employ master tailors to ensure each piece meets our rigorous standards of quality and aesthetic integrity.
-              </p>
-              
-              <div className="grid grid-cols-2 gap-8 pt-6">
-                <div>
-                   <span className="text-[10px] font-black uppercase tracking-widest text-black/30 block mb-2">Material</span>
-                   <p className="text-sm font-bold uppercase tracking-widest">Premium Egyptian Cotton</p>
-                </div>
-                <div>
-                   <span className="text-[10px] font-black uppercase tracking-widest text-black/30 block mb-2">Origin</span>
-                   <p className="text-sm font-bold uppercase tracking-widest">Ethically Made in BD</p>
-                </div>
-              </div>
-           </div>
-
-           <div className="relative aspect-[4/3] group overflow-hidden border border-black/5">
-              <Image 
-                src={product.images?.[1]?.url || product.images?.[0]?.url || "/placeholder.jpg"} 
-                alt="Detail" 
-                fill 
-                className="object-cover group-hover:scale-105 transition-transform duration-[2s] ease-[0.16,1,0.3,1]"
-              />
-              <div className="absolute inset-0 bg-black/5 mix-blend-overlay" />
-           </div>
-        </div>
-      </div>
-
       {/* Recommended Section */}
-      <div className="py-24">
-        <div className="max-w-[1800px] mx-auto px-6 md:px-12 flex items-end justify-between mb-16">
-          <div className="space-y-4">
-            <span className="text-[10px] font-black uppercase tracking-[0.4em] text-black/30">Curated For You</span>
-            <h3 className="font-display font-black text-4xl md:text-6xl uppercase tracking-tighter">You May Also Like</h3>
+      <div className="py-24 bg-white rounded-t-[4rem] shadow-soft">
+        <div className="max-w-7xl mx-auto px-6 md:px-12 flex items-end justify-between mb-16">
+          <div>
+            <span className="inline-block px-3 py-1 bg-zinc-100 rounded-full text-[10px] font-bold uppercase tracking-widest text-zinc-500 mb-4">Curated For You</span>
+            <h3 className="font-display font-bold text-4xl md:text-5xl text-zinc-900 tracking-tight">You May Also Like</h3>
           </div>
-          <Link href="/shop" className="group flex items-center gap-4 border-b border-black pb-2 mb-2">
-            <span className="text-[10px] font-black uppercase tracking-[0.3em]">View All</span>
-            <ArrowRight size={14} className="group-hover:translate-x-2 transition-transform" />
+          <Link href="/shop" className="group flex items-center gap-3 text-[10px] font-bold uppercase tracking-widest text-zinc-400 hover:text-zinc-900 transition-all">
+            Browse All
+            <div className="w-10 h-10 rounded-full bg-zinc-50 flex items-center justify-center group-hover:bg-zinc-900 group-hover:text-white transition-all">
+              <ArrowRight size={14} />
+            </div>
           </Link>
         </div>
         
         {relatedProducts.length > 0 && (
-          <div className="max-w-[1800px] mx-auto">
+          <div className="max-w-7xl mx-auto px-6 md:px-12">
             <EditorialProductGrid initialProducts={relatedProducts} />
           </div>
         )}
       </div>
 
       {/* Reviews Section */}
-      <div className="max-w-[1400px] mx-auto px-6 md:px-12 pb-32">
+      <div className="max-w-7xl mx-auto px-6 md:px-12 py-24">
         <ProductReviews slug={product.slug} />
       </div>
 
-      {/* Brand Footer CTA */}
-      <div className="bg-black py-40 relative overflow-hidden">
-        <div className="absolute inset-0 opacity-20 bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
-        <div className="max-w-[1800px] mx-auto px-6 md:px-12 text-center space-y-12 relative z-10">
-          <h2 className="font-display font-black text-6xl md:text-9xl lg:text-[12rem] text-white uppercase leading-[0.8] tracking-tighter opacity-10">
-            Timeless Piece
-          </h2>
-          <div className="max-w-2xl mx-auto space-y-8">
-            <p className="text-white/60 font-mono text-sm tracking-widest leading-relaxed uppercase">
-              Subscribe to join our inner circle and receive exclusive access to new drops, limited editions, and curated editorial content.
-            </p>
-            <div className="flex flex-col md:flex-row gap-4">
+      {/* Newsletter / Brand Footer */}
+      <div className="px-6 md:px-12 pb-12">
+        <div className="bg-zinc-900 rounded-[3.5rem] py-24 md:py-32 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl pointer-events-none" />
+          
+          <div className="max-w-3xl mx-auto text-center space-y-12 relative z-10 px-6">
+            <div className="space-y-6">
+              <h2 className="font-display font-bold text-5xl md:text-7xl text-white tracking-tight leading-none">
+                Stay in the <span className="text-zinc-500">Loop</span>
+              </h2>
+              <p className="text-zinc-400 text-lg font-medium leading-relaxed">
+                Join our collective for early access to limited drops, unique collaborations, and curated editorial pieces.
+              </p>
+            </div>
+            
+            <form onSubmit={(e) => e.preventDefault()} className="flex flex-col md:flex-row gap-4 max-w-xl mx-auto">
                <input 
                  type="email" 
-                 placeholder="ENTER YOUR EMAIL" 
-                 className="flex-1 bg-white/5 border border-white/20 px-8 h-16 text-white font-mono text-xs focus:outline-none focus:border-white transition-colors text-center md:text-left"
+                 placeholder="Enter your email" 
+                 className="flex-1 bg-white/10 backdrop-blur-md border border-white/10 px-8 h-16 rounded-3xl text-white placeholder:text-zinc-500 text-sm focus:outline-none focus:ring-2 focus:ring-white/20 transition-all"
                />
-               <button className="h-16 px-12 bg-white text-black font-black uppercase text-xs tracking-[0.3em] hover:bg-neutral-200 transition-colors">
-                 Join Us
+               <button className="h-16 px-12 bg-white text-zinc-900 font-bold rounded-3xl uppercase text-xs tracking-widest hover:bg-zinc-100 transition-all shadow-soft-xl active:scale-95">
+                 Join Now
                </button>
-            </div>
+            </form>
+            
+            <p className="text-zinc-600 text-[10px] font-bold uppercase tracking-widest">
+              By subscribing, you agree to our Privacy Policy and Terms of Service.
+            </p>
           </div>
         </div>
       </div>

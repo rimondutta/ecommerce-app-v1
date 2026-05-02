@@ -1,15 +1,17 @@
 "use client";
 
 import React, { useState, useEffect, Suspense } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { 
   SlidersHorizontal, 
   ChevronRight, 
   Search, 
   X,
+  Plus,
+  ArrowUpRight,
 } from 'lucide-react';
 import ProductCard from '@/components/ui/ProductCard';
+import { motion, AnimatePresence } from 'framer-motion';
 
 // Define the Product interface
 interface ProductType {
@@ -87,106 +89,103 @@ function ShopContent() {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
-        <div className="w-10 h-10 border-4 border-black border-t-transparent rounded-full animate-spin" />
-        <span className="text-[12px] font-bold uppercase tracking-widest">Loading Collection...</span>
+      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-6">
+        <div className="w-12 h-12 border-4 border-zinc-100 border-t-zinc-900 rounded-full animate-spin" />
+        <span className="text-sm font-bold text-zinc-400 uppercase tracking-widest animate-pulse">Refining Collection...</span>
       </div>
     );
   }
 
   return (
-    <div className="flex-1 flex flex-col pb-20 relative bg-[#FAFAFA]">
+    <div className="flex-1 flex flex-col pb-20 relative bg-zinc-50">
       {/* Header Section */}
-      <section className="bg-white border-b border-neutral-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20">
-          <div className="flex flex-col gap-6 md:gap-8">
-            <div className="flex items-center gap-3 text-neutral-400">
-              <Link href="/" className="hover:text-black transition-colors text-xs uppercase tracking-widest font-bold">Home</Link>
+      <section className="bg-white px-6 md:px-16 pt-32 pb-16 md:pb-24 rounded-b-[3rem] shadow-soft">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-col gap-10">
+            <div className="flex items-center gap-3 text-zinc-400">
+              <Link href="/" className="hover:text-zinc-900 transition-colors text-xs font-bold uppercase tracking-widest">Home</Link>
               <ChevronRight size={14} />
-              <span className="text-black font-bold text-xs uppercase tracking-widest">Collections</span>
+              <span className="text-zinc-900 font-bold text-xs uppercase tracking-widest">Shop All</span>
             </div>
-            <div className="flex flex-col gap-4">
-              <h1 className="text-5xl md:text-8xl font-black tracking-tighter text-black uppercase leading-[0.9]">
-                Our <span className="text-neutral-300">Catalog</span>
-              </h1>
-              <p className="text-neutral-500 max-w-2xl font-medium text-sm md:text-base leading-relaxed">
-                Discover our latest collection of premium high-performance apparel, designed for utility, comfort, and modern style.
-              </p>
+            
+            <div className="flex flex-col md:flex-row justify-between items-end gap-8">
+              <div className="max-w-2xl">
+                <h1 className="text-5xl md:text-7xl font-display font-bold text-zinc-900 tracking-tight leading-none mb-6">
+                  Discover Our <br/>
+                  <span className="text-zinc-300">New Essentials</span>
+                </h1>
+                <p className="text-zinc-500 text-lg md:text-xl font-medium leading-relaxed">
+                  Carefully crafted garments for the modern explorer. Melding performance with timeless aesthetics.
+                </p>
+              </div>
+              <div className="flex items-center gap-2 p-1.5 bg-zinc-100 rounded-full">
+                <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-zinc-900 shadow-sm font-bold text-xs">
+                  {sortedProducts.length}
+                </div>
+                <span className="pr-4 text-xs font-bold text-zinc-500 uppercase tracking-widest">Items Found</span>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Grid Pattern Background */}
-      <div 
-        className="fixed inset-0 opacity-[0.03] pointer-events-none z-0" 
-        style={{ backgroundImage: 'radial-gradient(circle, #000 1px, transparent 1px)', backgroundSize: '24px 24px' }} 
-      />
-
-      <div className="max-w-[1700px] mx-auto w-full px-6 md:px-12 relative z-10 flex flex-col gap-10 mt-10">
+      <div className="max-w-7xl mx-auto w-full px-6 md:px-16 relative z-10 flex flex-col gap-16 mt-16">
 
         {/* PROMO BANNER */}
-        <section className="relative bg-black text-white p-8 md:p-12 overflow-hidden group shadow-2xl">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl" />
-            <div className="flex flex-col md:flex-row justify-between items-center gap-8">
+        <section className="relative bg-zinc-900 text-white p-8 md:p-12 rounded-[2.5rem] overflow-hidden shadow-soft-2xl group">
+            <div className="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl group-hover:scale-110 transition-transform duration-1000" />
+            <div className="flex flex-col md:flex-row justify-between items-center gap-8 relative z-10">
               <div className="text-center md:text-left">
-                <span className="text-[10px] font-bold tracking-[0.4em] text-white/40 uppercase mb-4 block">Seasonal Offer</span>
-                <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tighter mb-2">Free Shipping</h2>
-                <p className="text-white/60 text-xs font-medium uppercase tracking-widest">On all orders above 1000 BDT // Limited Time Only</p>
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-white/80 text-[10px] font-bold uppercase tracking-widest mb-4">
+                  <span className="w-1 h-1 rounded-full bg-white animate-pulse" />
+                  Seasonal Perk
+                </div>
+                <h2 className="text-3xl md:text-5xl font-display font-bold tracking-tight mb-2">Complimentary Shipping</h2>
+                <p className="text-zinc-400 text-sm font-medium">On all orders above ৳1,000. Limited time luxury experience.</p>
               </div>
               <Link 
-                href="/new-arrivals"
-                className="px-8 py-4 bg-white text-black text-[10px] font-black uppercase tracking-[0.2em] hover:bg-neutral-200 transition-all"
+                href="/shop"
+                className="group flex items-center gap-3 px-8 py-4 bg-white text-zinc-900 rounded-full font-bold text-sm hover:bg-zinc-100 transition-all shadow-soft"
               >
-                View New Arrivals
+                Shop Latest
+                <ArrowUpRight size={18} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
               </Link>
             </div>
         </section>
 
         {/* SHOP CONTROLS */}
-        <section className={`relative z-40 py-4 flex flex-wrap items-center justify-between gap-6 transition-all duration-500 ${isScrolled ? 'bg-white border-b border-black/5 px-6 -mx-6 md:px-12 md:-mx-12' : 'bg-transparent border-transparent'}`}>
-          <div className="flex items-center gap-8">
+        <section className={`flex flex-wrap items-center justify-between gap-6 pb-2`}>
+          <div className="flex items-center gap-4">
             <button 
               onClick={() => setIsMobileFiltersOpen(true)}
-              className="lg:hidden flex items-center gap-3 font-black uppercase text-[10px] tracking-widest px-6 py-3 border-2 border-black hover:bg-black hover:text-white transition-all"
+              className="lg:hidden flex items-center gap-2 font-bold text-sm bg-white px-6 py-3 rounded-full border border-zinc-200 hover:border-zinc-300 transition-all shadow-soft"
             >
-              <SlidersHorizontal size={14} /> Filters
+              <SlidersHorizontal size={16} /> Filters
             </button>
-            <div className="hidden lg:flex flex-col gap-1">
-              <span className="text-[8px] font-bold text-neutral-400 uppercase tracking-[0.4em]">Browse Collection</span>
-              <div className="flex items-center gap-2">
-                <span className="text-[12px] font-black uppercase tracking-widest text-black">
-                  {sortedProducts.length} Items Found
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-6">
+            
             {/* Desktop Filters */}
-            <div className="hidden lg:flex items-center bg-black/[0.03] p-1 rounded-sm">
+            <div className="hidden lg:flex items-center gap-2 p-1.5 bg-white border border-zinc-100 rounded-full shadow-soft">
               {categories.map((cat) => (
                 <button
                   key={cat}
                   onClick={() => setActiveCategory(cat)}
-                  className={`px-6 py-2 text-[10px] font-black uppercase tracking-widest transition-all rounded-sm ${
-                    activeCategory === cat ? 'bg-black text-white shadow-lg' : 'hover:bg-black/5 text-neutral-500'
+                  className={`px-6 py-2.5 text-xs font-bold uppercase tracking-widest rounded-full transition-all ${
+                    activeCategory === cat ? 'bg-zinc-900 text-white shadow-soft-xl' : 'text-zinc-500 hover:text-zinc-900 hover:bg-zinc-50'
                   }`}
                 >
                   {cat}
                 </button>
               ))}
             </div>
+          </div>
 
-            <div className="h-8 w-[1px] bg-black/10 hidden lg:block" />
-
-            {/* Sort Options */}
-            <div className="flex items-center gap-2">
-              <span className="text-[8px] font-bold text-neutral-400 uppercase tracking-widest hidden sm:block">Sort By:</span>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3 bg-white px-5 py-3 rounded-full border border-zinc-100 shadow-soft">
+              <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Sort:</span>
               <select 
                 value={activeSort}
                 onChange={(e) => setActiveSort(e.target.value)}
-                className="bg-transparent border-none text-[10px] font-black uppercase tracking-widest focus:ring-0 cursor-pointer pr-8"
+                className="bg-transparent border-none text-xs font-bold text-zinc-900 p-0 focus:ring-0 cursor-pointer pr-8"
               >
                 {sortOptions.map(opt => (
                   <option key={opt.value} value={opt.value}>{opt.name}</option>
@@ -197,49 +196,74 @@ function ShopContent() {
         </section>
 
         {/* PRODUCT GRID */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-12 md:gap-x-8 md:gap-y-16">
-          {sortedProducts.map((product, idx) => (
-            <div key={product._id} className="relative">
-              <ProductCard product={product} index={idx} />
-            </div>
-          ))}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-12 md:gap-x-10 md:gap-y-16">
+          <AnimatePresence mode="popLayout">
+            {sortedProducts.map((product, idx) => (
+              <motion.div
+                key={product._id}
+                layout
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+              >
+                <ProductCard product={product} index={idx} />
+              </motion.div>
+            ))}
+          </AnimatePresence>
         </div>
 
         {/* Empty State */}
         {sortedProducts.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-40 bg-neutral-50 border border-neutral-100">
-            <Search size={40} className="text-neutral-200 mb-6" />
-            <h3 className="text-xl font-black uppercase tracking-widest text-black">No matches found</h3>
-            <p className="text-neutral-400 text-xs font-medium mt-2 uppercase tracking-widest">Try adjusting your filters or search terms</p>
+          <div className="flex flex-col items-center justify-center py-32 px-6 bg-white rounded-[3rem] border border-zinc-100 shadow-soft">
+            <div className="w-20 h-20 bg-zinc-50 rounded-full flex items-center justify-center text-zinc-200 mb-8">
+              <Search size={40} />
+            </div>
+            <h3 className="text-2xl font-display font-bold text-zinc-900 mb-2">No matching products</h3>
+            <p className="text-zinc-500 text-center max-w-sm mb-10">We couldn't find any items matching your current filters. Try broadening your search.</p>
             <button 
               onClick={clearFilters}
-              className="mt-8 px-10 py-4 bg-black text-white text-[10px] font-black uppercase tracking-[0.2em] hover:bg-neutral-800 transition-all shadow-xl"
+              className="flex items-center gap-2 px-10 py-4 bg-zinc-900 text-white rounded-full font-bold text-sm hover:bg-zinc-800 transition-all shadow-soft-xl"
             >
-              Clear All Filters
+              Reset Filters
+              <X size={16} />
             </button>
           </div>
         )}
       </div>
 
       {/* MOBILE FILTERS DRAWER */}
-      {isMobileFiltersOpen && (
-        <div className="fixed inset-0 z-[600] bg-black/40 backdrop-blur-sm lg:hidden transition-all duration-500">
-          <div className="absolute right-0 top-0 w-[85%] max-w-sm h-full bg-white shadow-2xl animate-in slide-in-from-right duration-500">
-            <div className="flex flex-col h-full p-8">
-              <div className="flex items-center justify-between mb-12">
-                <h2 className="text-2xl font-black text-black uppercase tracking-tighter">Filters</h2>
+      <AnimatePresence>
+        {isMobileFiltersOpen && (
+          <>
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsMobileFiltersOpen(false)}
+              className="fixed inset-0 z-[600] bg-zinc-900/40 backdrop-blur-md lg:hidden"
+            />
+            <motion.div 
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+              className="fixed right-0 top-0 bottom-0 w-[85%] max-w-sm h-full bg-white shadow-soft-2xl z-[700] rounded-l-[2.5rem] lg:hidden flex flex-col"
+            >
+              <div className="flex items-center justify-between p-8 border-b border-zinc-100">
+                <h2 className="text-2xl font-display font-bold text-zinc-900">Filters</h2>
                 <button 
                   onClick={() => setIsMobileFiltersOpen(false)}
-                  className="p-2 hover:bg-neutral-100 rounded-full transition-all"
+                  className="w-10 h-10 flex items-center justify-center rounded-full bg-zinc-50 text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100 transition-colors"
                 >
                   <X size={20} />
                 </button>
               </div>
 
-              <div className="flex flex-col gap-10">
+              <div className="flex-1 overflow-y-auto p-8 flex flex-col gap-10">
                 <div className="flex flex-col gap-6">
-                  <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-[0.4em]">Categories</span>
-                  <div className="flex flex-col gap-2">
+                  <span className="text-xs font-bold text-zinc-400 uppercase tracking-widest">By Category</span>
+                  <div className="flex flex-col gap-3">
                     {categories.map((cat) => (
                       <button
                         key={cat}
@@ -247,8 +271,8 @@ function ShopContent() {
                           setActiveCategory(cat);
                           setIsMobileFiltersOpen(false);
                         }}
-                        className={`px-6 py-4 text-[11px] font-bold uppercase tracking-widest text-left transition-all ${
-                          activeCategory === cat ? 'bg-black text-white' : 'bg-neutral-50 text-neutral-600 hover:bg-neutral-100'
+                        className={`w-full px-6 py-4 text-sm font-bold rounded-2xl text-left transition-all ${
+                          activeCategory === cat ? 'bg-zinc-900 text-white shadow-soft-xl' : 'bg-zinc-50 text-zinc-600 hover:bg-zinc-100'
                         }`}
                       >
                         {cat}
@@ -258,18 +282,21 @@ function ShopContent() {
                 </div>
               </div>
               
-              <div className="mt-auto">
+              <div className="p-8 border-t border-zinc-100">
                 <button 
-                  onClick={clearFilters}
-                  className="w-full py-4 text-[10px] font-bold uppercase tracking-widest text-neutral-400 hover:text-black transition-all"
+                  onClick={() => {
+                    clearFilters();
+                    setIsMobileFiltersOpen(false);
+                  }}
+                  className="w-full py-4 text-sm font-bold text-zinc-400 hover:text-zinc-900 transition-all flex items-center justify-center gap-2"
                 >
-                  Reset All Filters
+                  Clear all filters
                 </button>
               </div>
-            </div>
-          </div>
-        </div>
-      )}
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
@@ -277,9 +304,9 @@ function ShopContent() {
 export default function ShopPage() {
   return (
     <Suspense fallback={
-      <div className="flex flex-col items-center justify-center min-h-screen gap-4">
-        <div className="w-10 h-10 border-4 border-black border-t-transparent rounded-full animate-spin" />
-        <span className="text-[10px] font-bold uppercase tracking-widest animate-pulse">Initializing Store...</span>
+      <div className="flex flex-col items-center justify-center min-h-screen gap-6">
+        <div className="w-12 h-12 border-4 border-zinc-100 border-t-zinc-900 rounded-full animate-spin" />
+        <span className="text-sm font-bold text-zinc-400 uppercase tracking-widest animate-pulse">Initializing Boutique...</span>
       </div>
     }>
       <ShopContent />
