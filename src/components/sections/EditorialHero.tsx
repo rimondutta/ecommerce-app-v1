@@ -3,6 +3,8 @@
 import { motion, useScroll, useTransform, useMotionValue, useSpring } from "framer-motion";
 import { useRef, useEffect, useState } from "react";
 import dynamic from "next/dynamic";
+import Link from "next/link";
+import MagneticButton from "@/components/ui/MagneticButton";
 
 const HeroShape = dynamic(() => import("@/components/3d/HeroShape"), { ssr: false });
 
@@ -141,10 +143,16 @@ export default function EditorialHero() {
             <h2 className="text-zinc-800 font-light text-xl tracking-wide uppercase leading-tight">
               Style that<br />defines you
             </h2>
-            <div className="w-16 h-[1px] bg-zinc-800 relative">
+            <div className="w-16 h-[1px] bg-zinc-800 relative mb-4">
               <div className="absolute right-0 top-1/2 -translate-y-1/2 w-2 h-[1px] bg-zinc-800 rotate-45 origin-right" />
               <div className="absolute right-0 top-1/2 -translate-y-1/2 w-2 h-[1px] bg-zinc-800 -rotate-45 origin-right" />
             </div>
+
+            <MagneticButton strength={60}>
+              <Link href="/shop" className="pointer-events-auto inline-flex items-center justify-center px-8 py-3 bg-zinc-900 text-white rounded-full text-sm font-medium tracking-widest uppercase hover:bg-black transition-colors shadow-xl" data-cursor-text="SHOP">
+                Explore Collection
+              </Link>
+            </MagneticButton>
           </motion.div>
 
         </div>

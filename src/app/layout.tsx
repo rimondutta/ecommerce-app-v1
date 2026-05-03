@@ -38,6 +38,10 @@ export const metadata: Metadata = {
   },
 };
 
+import dynamic from "next/dynamic";
+
+const GlobalBackground = dynamic(() => import("@/components/3d/GlobalBackground"), { ssr: false });
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -46,6 +50,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} antialiased`} data-scroll-behavior="smooth">
       <body className="relative min-h-screen flex flex-col font-sans" suppressHydrationWarning>
+        <GlobalBackground />
         <div className="noise-overlay" />
         <div className="scanline" />
         <Preloader />

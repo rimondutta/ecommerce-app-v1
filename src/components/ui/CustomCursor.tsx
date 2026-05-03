@@ -16,6 +16,13 @@ export default function CustomCursor() {
   const cursorY = useSpring(mouseY, springConfig);
 
   useEffect(() => {
+    // Hide default cursor globally
+    document.body.style.cursor = "none";
+    // Also hide cursor on all links and buttons
+    const style = document.createElement("style");
+    style.innerHTML = `* { cursor: none !important; }`;
+    document.head.appendChild(style);
+
     const moveCursor = (e: MouseEvent) => {
       mouseX.set(e.clientX);
       mouseY.set(e.clientY);
@@ -35,6 +42,8 @@ export default function CustomCursor() {
     window.addEventListener("mouseover", handleMouseOver);
 
     return () => {
+      document.body.style.cursor = "auto";
+      document.head.removeChild(style);
       window.removeEventListener("mousemove", moveCursor);
       window.removeEventListener("mouseover", handleMouseOver);
     };
