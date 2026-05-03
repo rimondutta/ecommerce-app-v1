@@ -2,7 +2,9 @@
 
 import { motion, useScroll, useTransform, useMotionValue, useSpring } from "framer-motion";
 import { useRef, useEffect, useState } from "react";
-import HeroShape from "@/components/3d/HeroShape";
+import dynamic from "next/dynamic";
+
+const HeroShape = dynamic(() => import("@/components/3d/HeroShape"), { ssr: false });
 
 export default function EditorialHero() {
   const containerRef = useRef<HTMLDivElement>(null);
