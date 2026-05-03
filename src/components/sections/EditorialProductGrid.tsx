@@ -54,67 +54,47 @@ export default function EditorialProductGrid({
 
   const displayProducts = filteredProducts.slice(0, visibleCount);
 
-  // GSAP animations for the section header and grid
-  useEffect(() => {
-    const initGsap = async () => {
-      const { gsap, ScrollTrigger } = await import("@/lib/gsap");
-      if (!sectionRef.current) return;
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.05
+      }
+    }
+  };
 
-      const ctx = gsap.context(() => {
-        const heading = sectionRef.current!.querySelector("[data-grid-heading]");
-        if (heading) {
-          gsap.fromTo(heading, { opacity: 0, y: 30 }, {
-            opacity: 1, y: 0, duration: 1, ease: "power3.out",
-            scrollTrigger: { trigger: heading, start: "top 85%" },
-          });
-        }
-
-        const filters = sectionRef.current!.querySelector("[data-grid-filters]");
-        if (filters) {
-          gsap.fromTo(filters, { opacity: 0, y: 20 }, {
-            opacity: 1, y: 0, duration: 1, ease: "power3.out",
-            scrollTrigger: { trigger: filters, start: "top 90%" },
-          });
-        }
-
-        const cards = sectionRef.current!.querySelectorAll("[data-product-card]");
-        if (cards.length > 0) {
-          gsap.fromTo(cards, 
-            { opacity: 0, y: 40 },
-            {
-              opacity: 1, y: 0,
-              stagger: 0.1, duration: 0.8, ease: "power3.out",
-              scrollTrigger: { trigger: cards[0], start: "top 88%" },
-            }
-          );
-        }
-
-        const loadMore = sectionRef.current!.querySelector("[data-load-more]");
-        if (loadMore) {
-          gsap.fromTo(loadMore, { opacity: 0, y: 20 }, {
-            opacity: 1, y: 0, duration: 0.8, ease: "power3.out",
-            scrollTrigger: { trigger: loadMore, start: "top 95%" },
-          });
-        }
-      }, sectionRef);
-
-      return () => ctx.revert();
-    };
-
-    initGsap();
-  }, [displayProducts.length, selectedCategory]);
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] as any }
+    }
+  };
 
   return (
     <section ref={sectionRef} className="relative px-6 md:px-16 py-24 md:py-32 max-w-7xl mx-auto bg-white rounded-[2.5rem]">
       <div className="flex flex-col md:flex-row items-end justify-between mb-16 gap-8 relative z-10">
-        <div data-grid-heading style={{ opacity: 0 }}>
+        <motion.div 
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-100px" }}
+          variants={itemVariants}
+        >
           <span className="text-zinc-500 font-semibold text-xs tracking-wider uppercase mb-3 block">Shop Collection</span>
           <h2 className="font-display font-bold text-4xl md:text-5xl text-zinc-900 tracking-tight">
             Latest Arrivals
           </h2>
-        </div>
+        </motion.div>
         
-        <div data-grid-filters className="flex flex-row overflow-x-auto gap-2 p-1.5 bg-zinc-100/80 backdrop-blur-md rounded-full w-full md:w-auto no-scrollbar" style={{ opacity: 0 }}>
+        <motion.div 
+          initial={{ opacity: 0, x: 20 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8, delay: 0.2 }}
+          className="flex flex-row overflow-x-auto gap-2 p-1.5 bg-zinc-100/80 backdrop-blur-md rounded-full w-full md:w-auto no-scrollbar"
+        >
            {["all", ...categories.map(c => c.name)].map((cat) => (
              <button
                key={cat}
@@ -129,7 +109,7 @@ export default function EditorialProductGrid({
                )}
              </button>
            ))}
-        </div>
+        </motion.div>
       </div>
 
       {filteredProducts.length === 0 ? (
@@ -139,19 +119,30 @@ export default function EditorialProductGrid({
            </div>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-12 relative z-10">
+        <motion.div 
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-50px" }}
+          variants={containerVariants}
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-12 relative z-10"
+        >
           <AnimatePresence mode="popLayout">
             {displayProducts.map((product, idx) => (
-              <div key={product._id || idx} data-product-card>
+              <motion.div key={product._id || idx} variants={itemVariants} layout>
                 <ProductCard product={product} index={idx} />
-              </div>
+              </motion.div>
             ))}
           </AnimatePresence>
-        </div>
+        </motion.div>
       )}
 
       {visibleCount < filteredProducts.length && (
-        <div data-load-more className="mt-20 flex justify-center relative z-10" style={{ opacity: 0 }}>
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="mt-20 flex justify-center relative z-10"
+        >
           <button
             onClick={() => setVisibleCount(prev => prev + 8)}
             className="flex items-center gap-2 bg-white border border-zinc-200 px-8 py-3.5 rounded-full hover:border-zinc-300 hover:shadow-sm transition-all text-zinc-900 font-semibold text-sm group"
@@ -159,7 +150,7 @@ export default function EditorialProductGrid({
             Load More
             <Plus size={16} className="group-hover:rotate-90 transition-transform duration-300" />
           </button>
-        </div>
+        </motion.div>
       )}
     </section>
   );

@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useEffect } from "react";
-import { motion } from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
 import Image from "next/image";
 import SplitTextAnimation from "@/components/ui/SplitTextAnimation";
 
@@ -12,79 +12,33 @@ export default function TechnicalBlueprint() {
   const imageRef = useRef<HTMLDivElement>(null);
   const imageInnerRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const initGsap = async () => {
-      const { gsap } = await import("@/lib/gsap");
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
 
-      if (!containerRef.current) return;
+  const itemVariants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 1, ease: [0.16, 1, 0.3, 1] as any }
+    }
+  };
 
-      const ctx = gsap.context(() => {
-        if (textBlockRef.current) {
-          gsap.fromTo(
-            textBlockRef.current,
-            { y: 50, opacity: 0 },
-            { 
-              y: 0, opacity: 1, duration: 1, ease: "power3.out",
-              scrollTrigger: {
-                trigger: containerRef.current,
-                start: "top 75%",
-              }
-            }
-          );
-        }
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start end", "end start"]
+  });
 
-        if (descRef.current) {
-          gsap.fromTo(
-            descRef.current,
-            { opacity: 0, y: 30 },
-            {
-              opacity: 1,
-              y: 0,
-              duration: 1,
-              ease: "power3.out",
-              delay: 0.2,
-              scrollTrigger: {
-                trigger: containerRef.current,
-                start: "top 75%",
-              },
-            }
-          );
-        }
-
-        if (imageInnerRef.current) {
-          gsap.fromTo(
-            imageInnerRef.current,
-            { scale: 1.1, opacity: 0 },
-            {
-              scale: 1,
-              opacity: 1,
-              duration: 1.5,
-              ease: "power3.out",
-              scrollTrigger: {
-                trigger: imageRef.current,
-                start: "top 80%",
-              },
-            }
-          );
-
-          gsap.to(imageInnerRef.current, {
-            y: 40,
-            ease: "none",
-            scrollTrigger: {
-              trigger: containerRef.current,
-              start: "top bottom",
-              end: "bottom top",
-              scrub: true,
-            }
-          });
-        }
-      }, containerRef);
-
-      return () => ctx.revert();
-    };
-
-    initGsap();
-  }, []);
+  const imageY = useTransform(scrollYProgress, [0, 1], [0, 100]);
+  const imageScale = useTransform(scrollYProgress, [0, 0.5], [1.1, 1]);
+  const imageOpacity = useTransform(scrollYProgress, [0, 0.2], [0, 1]);
 
   return (
     <section 
@@ -124,24 +78,26 @@ export default function TechnicalBlueprint() {
       <div className="max-w-[1800px] mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-32 items-center relative z-10">
         
         {/* Philosophy Text */}
-        <div className="z-20 relative text-white order-2 lg:order-1">
-             <div ref={textBlockRef} className="lg:block will-change-transform mb-10">
+        <motion.div 
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-100px" }}
+          variants={containerVariants}
+          className="z-20 relative text-white order-2 lg:order-1"
+        >
+             <motion.div variants={itemVariants} className="lg:block will-change-transform mb-10">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-10 h-[1px] bg-zinc-500" />
-                  <span className="text-zinc-500 font-bold text-xs tracking-[0.3em] uppercase">Core DNA</span>
+                  <span className="text-zinc-500 font-semibold text-xs tracking-wider uppercase">Core DNA</span>
                 </div>
                 <h2 className="font-display font-bold text-5xl md:text-7xl tracking-tighter leading-[0.9] mb-8">
                   Engineered for<br/>
-                  <span className="text-zinc-400">Human Motion.</span>
+                  <span className="text-zinc-400 italic">Human Motion.</span>
                 </h2>
-             </div>
+             </motion.div>
              
-             <div 
-               ref={descRef}
-               className="relative"
-               style={{ opacity: 0 }}
-             >
-                <p className="text-zinc-400 text-lg md:text-xl leading-relaxed max-w-lg mb-12">
+             <motion.div variants={itemVariants} className="relative">
+                <p className="text-zinc-400 text-lg md:text-xl leading-relaxed max-w-lg mb-12 font-medium">
                   Our process begins at the molecular level. We develop custom proprietary fabrics that respond dynamically to your body's temperature and kinetic energy.
                 </p>
                 
@@ -158,25 +114,28 @@ export default function TechnicalBlueprint() {
                     </div>
                   ))}
                 </div>
-             </div>
-        </div>
+              </motion.div>
+        </motion.div>
 
         {/* 3D-Like Parallax Image Block */}
-        <div ref={imageRef} className="relative h-[60vh] md:h-[80vh] w-full rounded-[3rem] overflow-hidden shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)] order-1 lg:order-2 border border-zinc-800">
-           <div 
-             ref={imageInnerRef}
-             className="absolute inset-0 w-full h-[120%] -top-[10%] scale-110 will-change-transform"
-             style={{ opacity: 0 }}
+        <div ref={imageRef} className="relative h-[60vh] md:h-[80vh] w-full rounded-[3rem] overflow-hidden shadow-2xl order-1 lg:order-2 border border-zinc-800">
+           <motion.div 
+             className="absolute inset-0 w-full h-[120%] -top-[10%] will-change-transform"
+             style={{ 
+               y: imageY,
+               scale: imageScale,
+               opacity: imageOpacity
+             }}
            >
               <Image 
                   src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=1200&auto=format&fit=crop" 
                   alt="Philosophy Visual"
                   fill
                   sizes="(max-width: 1024px) 100vw, 50vw"
-                  className="object-cover grayscale brightness-75 contrast-125"
+                  className="object-cover grayscale brightness-90 contrast-110"
               />
-              <div className="absolute inset-0 bg-zinc-950/20 mix-blend-overlay" />
-           </div>
+              <div className="absolute inset-0 bg-zinc-950/30 mix-blend-overlay" />
+           </motion.div>
            
            {/* Technical Overlays */}
            <div className="absolute inset-0 pointer-events-none border-[20px] border-zinc-950/20 backdrop-blur-[2px]" />

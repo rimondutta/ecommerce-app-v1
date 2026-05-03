@@ -35,49 +35,37 @@ export default function EditorialCategories() {
       }
     };
     fetchCategories();
-
-    const initGsap = async () => {
-      const { gsap } = await import("@/lib/gsap");
-      if (!sectionRef.current) return;
-
-      const ctx = gsap.context(() => {
-        const cards = sectionRef.current!.querySelectorAll("[data-cat-card]");
-        gsap.fromTo(cards,
-          { opacity: 0, y: 30 },
-          {
-            opacity: 1,
-            y: 0,
-            stagger: 0.1,
-            duration: 1,
-            ease: "power3.out",
-            scrollTrigger: {
-              trigger: sectionRef.current,
-              start: "top 75%",
-            }
-          }
-        );
-
-        gsap.from(sectionRef.current!.querySelector("[data-cat-header]"), {
-          opacity: 0,
-          y: 20,
-          duration: 1,
-          ease: "power3.out",
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: "top 85%",
-          }
-        });
-      }, sectionRef);
-
-      return () => ctx.revert();
-    };
-    initGsap();
   }, []);
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 1, ease: [0.16, 1, 0.3, 1] as any }
+    }
+  };
 
   return (
     <section ref={sectionRef} className="py-24 md:py-32 bg-white overflow-hidden relative">
       <div className="max-w-[1800px] mx-auto px-6 md:px-16 relative z-10">
-        <div data-cat-header className="flex flex-col md:flex-row justify-between items-end gap-12 mb-16 md:mb-24">
+        <motion.div 
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-100px" }}
+          variants={itemVariants}
+          className="flex flex-col md:flex-row justify-between items-end gap-12 mb-16 md:mb-24"
+        >
           <div className="space-y-4">
             <span className="text-zinc-500 font-semibold text-xs tracking-wider uppercase block">Collections</span>
             <h2 className="font-display font-bold text-4xl md:text-5xl lg:text-6xl text-zinc-900 tracking-tight leading-tight">
@@ -97,22 +85,28 @@ export default function EditorialCategories() {
               <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
             </Link>
           </div>
-        </div>
+        </motion.div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <motion.div 
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-50px" }}
+          variants={containerVariants}
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+        >
           {categories.slice(0, 4).map((cat, index) => (
-            <PerspectiveCard key={cat.slug} strength={10} className="w-full">
-              <Link
-                href={`/products?category=${cat.name}`}
-                data-cat-card
-                className="group relative h-[450px] md:h-[550px] overflow-hidden rounded-3xl bg-zinc-100 block shadow-soft-sm hover:shadow-soft-xl transition-all"
-              >
-                <Image 
-                  src={placeholderImages[index % placeholderImages.length]} 
-                  alt={cat.name} 
-                  fill 
-                  className="object-cover transition-transform duration-700 ease-[0.16,1,0.3,1] group-hover:scale-105" 
-                />
+            <motion.div key={cat.slug} variants={itemVariants}>
+              <PerspectiveCard strength={10} className="w-full">
+                <Link
+                  href={`/products?category=${cat.name}`}
+                  className="group relative h-[450px] md:h-[550px] overflow-hidden rounded-3xl bg-zinc-100 block shadow-soft-sm hover:shadow-soft-xl transition-all"
+                >
+                  <Image 
+                    src={placeholderImages[index % placeholderImages.length]} 
+                    alt={cat.name} 
+                    fill 
+                    className="object-cover transition-transform duration-700 ease-[0.16,1,0.3,1] group-hover:scale-105" 
+                  />
                 
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
 
@@ -128,6 +122,7 @@ export default function EditorialCategories() {
                 </div>
               </Link>
             </PerspectiveCard>
+          </motion.div>
           ))}
 
           {categories.length < 4 && Array.from({ length: 4 - categories.length }).map((_, i) => (
@@ -135,7 +130,7 @@ export default function EditorialCategories() {
               <span className="text-sm text-zinc-400 font-medium">Coming Soon</span>
             </div>
           ))}
-        </div>
+        </motion.div>
       </div>
     </section>
   );
