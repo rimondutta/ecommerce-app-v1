@@ -46,65 +46,60 @@ export default function HorizontalCollection() {
   const targetRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: targetRef,
+    offset: ["start start", "end start"]
   });
 
-  const x = useTransform(scrollYProgress, [0, 1], ["1%", "-75%"]);
+  const x = useTransform(scrollYProgress, [0, 1], ["0%", "-60%"]);
 
   return (
-    <section ref={targetRef} className="relative h-[300vh] bg-zinc-950 overflow-clip">
+    <section ref={targetRef} className="relative h-[250vh] bg-zinc-50">
       <div className="sticky top-0 h-screen flex flex-col justify-center overflow-hidden">
-        {/* Subtle noise texture */}
-        <div className="absolute inset-0 opacity-[0.03] pointer-events-none mix-blend-overlay bg-[url('https://res.cloudinary.com/dcb9v7q9s/image/upload/v1707577544/noise_vvym8y.png')]" />
         
-        <div className="px-10 mb-10 relative z-10">
-          <motion.h2 
-            initial={{ opacity: 0, x: -20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            className="font-display font-black text-4xl md:text-7xl text-white uppercase tracking-tighter"
-          >
-            Featured<br/>Drop.
-          </motion.h2>
+        <div className="px-6 md:px-16 mb-12 md:mb-16 relative z-10 max-w-[1800px] mx-auto w-full">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+            <div>
+              <span className="text-zinc-500 font-semibold text-xs tracking-wider uppercase block mb-3">Limited Edition</span>
+              <h2 className="font-display font-bold text-4xl md:text-5xl text-zinc-900 tracking-tight">
+                Featured Drop
+              </h2>
+            </div>
+            <p className="text-zinc-500 text-sm md:text-base max-w-sm leading-relaxed">
+              Discover our latest capsule collection. Architecturally inspired silhouettes crafted from premium materials.
+            </p>
+          </div>
         </div>
         
-        <motion.div style={{ x }} className="flex gap-8 px-10 relative z-10">
-          {products.map((product, idx) => (
-            <motion.div 
-              key={product.id} 
-              initial={{ opacity: 0, y: 50 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: idx * 0.1 }}
-              viewport={{ once: true }}
-              className="group relative flex-shrink-0 w-[85vw] md:w-[450px] aspect-[4/5] bg-zinc-900 rounded-3xl overflow-hidden cursor-pointer shadow-2xl"
-              data-cursor-text="View"
-            >
-              <Image
-                src={product.image}
-                alt={product.name}
-                fill
-                className="object-cover transition-transform duration-1000 group-hover:scale-110"
-                sizes="(max-width: 768px) 85vw, 450px"
-              />
-              {/* Permanent subtle gradient for readability + hover intensification */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-60 group-hover:opacity-100 transition-opacity duration-500" />
-              
-              <div className="absolute bottom-0 left-0 w-full p-8 md:p-10 transform translate-y-2 group-hover:translate-y-0 transition-transform duration-500 ease-out">
-                <p className="text-white/60 text-[10px] md:text-xs font-mono uppercase tracking-[0.4em] mb-3">{product.category}</p>
-                <h3 className="text-white text-2xl md:text-3xl font-bold mb-2 tracking-tight">{product.name}</h3>
-                <div className="flex items-center gap-4">
-                  <p className="text-white font-mono text-lg">{product.price}</p>
-                  <span className="w-8 h-[1px] bg-white/30" />
-                  <span className="text-white/40 text-[10px] uppercase tracking-widest group-hover:text-white transition-colors">Details</span>
+        <div className="pl-6 md:pl-16 relative z-10">
+          <motion.div style={{ x }} className="flex gap-6 md:gap-8 w-max pr-16">
+            {products.map((product, idx) => (
+              <motion.div 
+                key={product.id} 
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: idx * 0.1, ease: [0.16, 1, 0.3, 1] as any }}
+                viewport={{ once: true, margin: "-100px" }}
+                className="group w-[75vw] md:w-[400px] flex flex-col gap-5 cursor-pointer"
+              >
+                <div className="relative aspect-[4/5] bg-zinc-100 rounded-3xl overflow-hidden shadow-soft-sm group-hover:shadow-soft-xl transition-all duration-500">
+                  <Image
+                    src={product.image}
+                    alt={product.name}
+                    fill
+                    className="object-cover transition-transform duration-700 ease-[0.16,1,0.3,1] group-hover:scale-105"
+                    sizes="(max-width: 768px) 75vw, 400px"
+                  />
                 </div>
-              </div>
-            </motion.div>
-          ))}
-        </motion.div>
-
-        {/* Background Watermark */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 -z-10 pointer-events-none select-none">
-          <h2 className="text-[30vw] font-black text-white/[0.02] leading-none uppercase italic">
-            ARCHIVE
-          </h2>
+                
+                <div className="flex flex-col gap-1 px-2">
+                  <p className="text-zinc-500 text-xs font-semibold uppercase tracking-wider">{product.category}</p>
+                  <div className="flex justify-between items-center gap-4">
+                    <h3 className="text-zinc-900 text-lg font-bold tracking-tight">{product.name}</h3>
+                    <p className="text-zinc-900 font-medium">{product.price}</p>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </motion.div>
         </div>
       </div>
     </section>
