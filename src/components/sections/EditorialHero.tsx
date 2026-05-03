@@ -2,6 +2,7 @@
 
 import { motion, useScroll, useTransform, useMotionValue, useSpring } from "framer-motion";
 import { useRef, useEffect, useState } from "react";
+import HeroShape from "@/components/3d/HeroShape";
 
 export default function EditorialHero() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -100,34 +101,15 @@ export default function EditorialHero() {
           </svg>
         </div>
 
-        {/* The Green Abstract Shape (Middle layer) */}
+        {/* Real 3D Hero Shape (Middle layer) */}
         <motion.div 
-          initial={{ opacity: 0, y: 50 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 1, delay: 0.2 }}
-          className="relative flex items-center justify-center"
+          className="absolute inset-0 flex items-center justify-center"
           style={{ transform: "translateZ(0px)" }}
         >
-          {/* Main Green Frosted Body - Approximated as an abstract overlapping shape */}
-          <div className="relative w-[300px] md:w-[400px] h-[350px] md:h-[450px]">
-            {/* Soft Glow */}
-            <div className="absolute inset-0 bg-[#00d084] blur-[100px] opacity-60 rounded-full" />
-            
-            {/* Top Block */}
-            <div className="absolute top-0 right-0 w-[80%] h-[40%] bg-gradient-to-br from-[#00d084] to-[#00b06b] rounded-2xl shadow-[inset_0_0_20px_rgba(255,255,255,0.4)] backdrop-blur-md border border-white/20" />
-            
-            {/* Middle connecting block */}
-            <div className="absolute top-[30%] left-[20%] w-[40%] h-[40%] bg-gradient-to-br from-[#00e691] to-[#00d084] rounded-2xl shadow-[inset_0_0_20px_rgba(255,255,255,0.4)] backdrop-blur-md border border-white/20" />
-            
-            {/* Bottom Block */}
-            <div className="absolute bottom-0 left-0 w-[80%] h-[40%] bg-gradient-to-br from-[#00d084] to-[#00b06b] rounded-2xl shadow-[inset_0_0_20px_rgba(255,255,255,0.4)] backdrop-blur-md border border-white/20">
-              {/* Fake white glowing inner section */}
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60%] h-[20%] bg-white rounded-full blur-[8px] opacity-80" />
-            </div>
-            
-            {/* Edge highlights simulating 3D bevel */}
-            <div className="absolute inset-0 rounded-2xl border-[3px] border-[#fbbf24] opacity-20 blur-[2px]" />
-          </div>
+          <HeroShape />
         </motion.div>
 
         {/* Foreground Elements (Front layer) */}
