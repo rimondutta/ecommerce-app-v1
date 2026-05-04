@@ -13,23 +13,23 @@ const items = [
 
 export default function KineticMarquee() {
   return (
-    <div className="relative w-full py-10 md:py-20 overflow-hidden bg-white text-black border-y border-black">
-      <div className="flex whitespace-nowrap">
+    <div className="relative w-full py-12 md:py-24 overflow-hidden bg-black text-white">
+      <div className="flex whitespace-nowrap overflow-hidden">
         <motion.div
-          animate={{ x: [0, -1000] }}
+          animate={{ x: [0, -1035] }}
           transition={{
-            duration: 20,
+            duration: 30,
             repeat: Infinity,
             ease: "linear",
           }}
-          className="flex items-center gap-10 pr-10"
+          className="flex items-center gap-16 pr-16"
         >
           {[...items, ...items, ...items].map((item, i) => (
-            <div key={i} className="flex items-center gap-10">
-              <span className="text-4xl md:text-8xl font-display font-black uppercase tracking-tighter italic">
+            <div key={i} className="flex items-center gap-16">
+              <span className={`text-4xl md:text-9xl font-display font-black uppercase tracking-[-0.05em] ${i % 2 === 0 ? 'text-white' : 'text-zinc-800 italic'}`}>
                 {item}
               </span>
-              <span className="w-4 h-4 md:w-8 md:h-8 rounded-full bg-black" />
+              <div className="w-2 h-2 md:w-3 md:h-3 rounded-full bg-zinc-700" />
             </div>
           ))}
         </motion.div>

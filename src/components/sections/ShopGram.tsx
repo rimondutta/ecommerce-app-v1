@@ -76,23 +76,24 @@ export default function ShopGram() {
   return (
     <section ref={sectionRef} className="relative py-24 md:py-32 bg-white overflow-hidden">
       <div className="max-w-[1800px] mx-auto px-6 md:px-16 relative z-10">
-        <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-8">
-          <div>
-            <div className="flex items-center gap-2 text-zinc-500 mb-3">
-              <Camera size={16} />
-              <span className="font-semibold text-xs tracking-wider uppercase">Follow Us</span>
+        <div className="flex flex-col md:flex-row justify-between items-end mb-24 gap-12 relative z-20">
+          <div className="max-w-2xl">
+            <div className="flex items-center gap-3 mb-6">
+              <Camera size={14} className="text-zinc-400" />
+              <span className="text-zinc-500 font-bold text-[10px] md:text-xs tracking-[0.3em] uppercase">Visual Journal</span>
             </div>
-            <h2 className="font-display font-bold text-4xl md:text-5xl lg:text-6xl text-zinc-900 tracking-tight leading-tight">
-              Community Feed
+            <h2 className="font-display font-black text-5xl md:text-8xl text-zinc-900 tracking-tighter leading-[0.85]">
+              Community<br/>
+              <span className="text-zinc-400 italic">Feed.</span>
             </h2>
           </div>
 
           <a 
             href="#" 
-            className="group flex items-center gap-2 bg-zinc-900 text-white px-6 py-3 rounded-full text-sm font-semibold hover:bg-zinc-800 transition-all shadow-soft"
+            className="group relative flex items-center gap-4 bg-black text-white px-8 py-4 rounded-full text-[11px] font-black uppercase tracking-widest hover:scale-105 transition-all shadow-2xl overflow-hidden"
           >
-            @flexwear
-            <ArrowUpRight className="w-4 h-4 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+            <span className="relative z-10">Follow @flexwear</span>
+            <div className="absolute inset-0 bg-zinc-800 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-[0.16,1,0.3,1]" />
           </a>
         </div>
 
@@ -103,21 +104,26 @@ export default function ShopGram() {
                 href="#"
                 key={i}
                 ref={(el) => { cardsRef.current[i] = el; }}
-                className="relative flex-none w-[70vw] sm:w-[50vw] md:w-[30vw] lg:w-[22vw] aspect-[4/5] rounded-3xl overflow-hidden bg-zinc-100 group shadow-soft"
+                className="relative flex-none w-[80vw] sm:w-[60vw] md:w-[40vw] lg:w-[32vw] aspect-[4/5] rounded-[2.5rem] md:rounded-[3.5rem] overflow-hidden bg-zinc-100 group shadow-soft-xl"
+                data-cursor-text="FOLLOW"
               >
                 <Image
                   src={src}
                   alt={`Social Post ${i}`}
                   fill
-                  className="object-cover transition-transform duration-700 ease-[0.16,1,0.3,1] group-hover:scale-105"
+                  className="object-cover transition-transform duration-1000 ease-[0.16,1,0.3,1] group-hover:scale-110"
                 />
                 
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-500" />
+                <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 
-                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                   <div className="w-12 h-12 bg-white/30 backdrop-blur-md rounded-full flex items-center justify-center text-white shadow-soft">
-                     <Camera size={24} />
+                <div className="absolute inset-0 flex items-center justify-center translate-y-10 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-700 ease-[0.16,1,0.3,1]">
+                   <div className="w-16 h-16 bg-white/20 backdrop-blur-xl rounded-full flex items-center justify-center text-white border border-white/30">
+                     <Camera size={28} />
                    </div>
+                </div>
+
+                <div className="absolute bottom-10 left-10 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                  <span className="text-white text-[10px] font-black uppercase tracking-[0.2em]">Flexwear / Journal</span>
                 </div>
               </a>
             );

@@ -4,6 +4,7 @@ import { motion, useScroll, useTransform, useMotionValue, useSpring } from "fram
 import { useRef, useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 import MagneticButton from "@/components/ui/MagneticButton";
 
 const HeroShape = dynamic(() => import("@/components/3d/HeroShape"), { ssr: false });
@@ -119,39 +120,42 @@ export default function EditorialHero() {
         {/* Foreground Elements (Front layer) */}
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none" style={{ transform: "translateZ(80px)" }}>
           
-          {/* Star Circle - Monochrome */}
+          {/* Sophisticated Badge */}
           <motion.div 
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ type: "spring", bounce: 0.5, delay: 0.5 }}
-            className="absolute ml-[150px] mt-[-50px] w-24 h-24 rounded-full border border-dashed border-zinc-800 bg-white/30 backdrop-blur-sm flex items-center justify-center shadow-lg"
+            initial={{ scale: 0, rotate: -20 }}
+            animate={{ scale: 1, rotate: 0 }}
+            transition={{ type: "spring", damping: 15, delay: 0.5 }}
+            className="absolute ml-[180px] mt-[-80px] w-28 h-28 rounded-full border border-zinc-200 bg-white/40 backdrop-blur-md flex flex-col items-center justify-center shadow-2xl border-white/20"
           >
-            {/* Glowing Star - Grayscale */}
-            <div className="relative w-12 h-12 flex items-center justify-center grayscale">
-              <div className="absolute inset-0 bg-zinc-400 blur-xl opacity-50 rounded-full" />
-              <span className="text-4xl drop-shadow-md relative z-10">⭐</span>
-            </div>
+            <span className="text-[10px] font-black tracking-[0.2em] uppercase text-zinc-400 mb-1">New</span>
+            <span className="text-xl font-display font-black text-black">2026</span>
+            <span className="text-[8px] font-bold tracking-[0.1em] uppercase text-zinc-500 mt-1">Core DNA</span>
           </motion.div>
 
           {/* Typography block */}
           <motion.div 
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.7 }}
-            className="absolute bottom-12 md:bottom-auto md:ml-[220px] md:mt-[100px] flex flex-col items-center md:items-start gap-4"
+            transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] as any, delay: 0.6 }}
+            className="absolute bottom-12 md:bottom-auto md:ml-[260px] md:mt-[120px] flex flex-col items-center md:items-start gap-6"
           >
-            <h2 className="text-black font-light text-lg md:text-xl tracking-wide uppercase leading-tight text-center md:text-left">
-              Style that<br />defines you
+            <h2 className="text-black font-display font-black text-4xl md:text-6xl tracking-[-0.04em] leading-[0.9] text-center md:text-left">
+              BEYOND<br />
+              <span className="text-zinc-400 italic">UTILITY.</span>
             </h2>
-            <div className="hidden md:block w-16 h-[1px] bg-black relative mb-4">
-              <div className="absolute right-0 top-1/2 -translate-y-1/2 w-2 h-[1px] bg-black rotate-45 origin-right" />
-              <div className="absolute right-0 top-1/2 -translate-y-1/2 w-2 h-[1px] bg-black -rotate-45 origin-right" />
-            </div>
-
-            <div className="pointer-events-auto">
-              <Link href="/shop" className="inline-flex items-center justify-center px-8 py-4 md:py-3 bg-black text-white rounded-full text-xs md:text-sm font-medium tracking-widest uppercase hover:bg-zinc-800 transition-colors shadow-xl" data-cursor-text="SHOP">
-                Explore Collection
+            
+            <div className="pointer-events-auto flex flex-col md:flex-row items-center gap-6">
+              <Link href="/shop" className="group relative inline-flex items-center justify-center px-10 py-5 bg-black text-white rounded-full text-xs font-bold tracking-[0.2em] uppercase overflow-hidden shadow-2xl transition-transform hover:scale-105 active:scale-95">
+                <span className="relative z-10">Shop Now</span>
+                <div className="absolute inset-0 bg-zinc-800 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-[0.16,1,0.3,1]" />
               </Link>
+              
+              <div className="hidden md:flex items-center gap-3 group cursor-pointer">
+                <div className="w-10 h-10 rounded-full border border-zinc-200 flex items-center justify-center group-hover:bg-zinc-50 transition-colors">
+                  <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                </div>
+                <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">The Story</span>
+              </div>
             </div>
           </motion.div>
 

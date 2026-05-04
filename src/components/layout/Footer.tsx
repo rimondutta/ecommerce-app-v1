@@ -25,19 +25,19 @@ export default function Footer() {
   return (
     <footer className="bg-black text-white pt-32 pb-12 overflow-hidden relative">
       <div className="max-w-[1800px] mx-auto px-6 md:px-12 relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16 lg:gap-24 mb-32">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-20 lg:gap-32 mb-40">
           {/* Brand Column */}
-          <div className="space-y-10">
-            <div className="font-display font-black text-4xl tracking-tighter flex items-center gap-2">
-              <span>FLEX</span>
-              <span className="w-8 h-8 bg-white text-black flex items-center justify-center text-xs rounded-full">W</span>
+          <div className="space-y-12">
+            <div className="font-display font-black text-5xl tracking-[-0.05em] flex flex-col leading-[0.8]">
+              <span className="text-white">FLEX</span>
+              <span className="text-zinc-600">WEAR.</span>
             </div>
-            <p className="text-[11px] uppercase tracking-[0.2em] leading-loose text-white/70 max-w-xs">
-              Engineered garments for the modern inhabitant. Merging archival technicalities with contemporary silhouettes of the future.
+            <p className="text-[11px] uppercase tracking-[0.3em] leading-[2] text-white/50 max-w-[280px]">
+              Engineered garments for the modern inhabitant. Merging archival technicalities with contemporary silhouettes.
             </p>
-            <div className="flex gap-6">
+            <div className="flex gap-8">
               {['Instagram', 'Twitter', 'Archive'].map((social) => (
-                <a key={social} href="#" className="text-[10px] font-black uppercase tracking-widest text-white/70 hover:text-white transition-all underline outline-offset-4 decoration-white/40">
+                <a key={social} href="#" className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 hover:text-white transition-all underline decoration-zinc-800 underline-offset-8">
                   {social}
                 </a>
               ))}
@@ -46,18 +46,18 @@ export default function Footer() {
 
           {/* Navigation */}
           <div>
-            <h4 className="font-display font-black text-[10px] uppercase tracking-[0.4em] mb-10 text-white/50">Inventory</h4>
-            <ul className="space-y-5">
+            <h4 className="font-display font-black text-[10px] uppercase tracking-[0.5em] mb-12 text-zinc-500">Inventory</h4>
+            <ul className="space-y-6">
               <li>
-                <Link href="/products" className="text-[11px] font-black uppercase tracking-widest text-white/70 hover:text-white transition-all flex items-center group">
-                  <span className="w-0 group-hover:w-4 h-[1px] bg-white mr-0 group-hover:mr-3 transition-all"></span>
-                  All Collections
+                <Link href="/products" className="group flex items-center text-[11px] font-black uppercase tracking-[0.2em] text-white/60 hover:text-white transition-all">
+                  <span className="w-0 group-hover:w-6 h-[1px] bg-white mr-0 group-hover:mr-4 transition-all duration-500"></span>
+                  Collections
                 </Link>
               </li>
               {categories.slice(0, 4).map((cat) => (
                 <li key={cat.slug}>
-                  <Link href={`/products?category=${cat.slug}`} className="text-[11px] font-black uppercase tracking-widest text-white/70 hover:text-white transition-all flex items-center group">
-                    <span className="w-0 group-hover:w-4 h-[1px] bg-white mr-0 group-hover:mr-3 transition-all"></span>
+                  <Link href={`/products?category=${cat.slug}`} className="group flex items-center text-[11px] font-black uppercase tracking-[0.2em] text-white/60 hover:text-white transition-all">
+                    <span className="w-0 group-hover:w-6 h-[1px] bg-white mr-0 group-hover:mr-4 transition-all duration-500"></span>
                     {cat.name}
                   </Link>
                 </li>
@@ -65,14 +65,14 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Support */}
+          {/* Bureau */}
           <div>
-            <h4 className="font-display font-black text-[10px] uppercase tracking-[0.4em] mb-10 text-white/50">Bureau</h4>
-            <ul className="space-y-5">
-              {["Contact Us", "Shipping Logic", "Return Policy", "Size Guide", "Privacy Layer"].map((link) => (
+            <h4 className="font-display font-black text-[10px] uppercase tracking-[0.5em] mb-12 text-zinc-500">Bureau</h4>
+            <ul className="space-y-6">
+              {["Contact Us", "Shipping", "Returns", "Size Guide", "Privacy"].map((link) => (
                 <li key={link}>
-                  <a href="#" className="text-[11px] font-black uppercase tracking-widest text-white/70 hover:text-white transition-all flex items-center group">
-                    <span className="w-0 group-hover:w-4 h-[1px] bg-white mr-0 group-hover:mr-3 transition-all"></span>
+                  <a href="#" className="group flex items-center text-[11px] font-black uppercase tracking-[0.2em] text-white/60 hover:text-white transition-all">
+                    <span className="w-0 group-hover:w-6 h-[1px] bg-white mr-0 group-hover:mr-4 transition-all duration-500"></span>
                     {link}
                   </a>
                 </li>
@@ -81,37 +81,51 @@ export default function Footer() {
           </div>
 
           {/* Newsletter */}
-          <div className="space-y-10">
-            <h4 className="font-display font-black text-[10px] uppercase tracking-[0.4em] text-white/50">Transmission</h4>
-            <div className="relative group">
-              <input
-                type="email"
-                placeholder="EMAIL@ADDRESS.COM"
-                className="w-full bg-white/5 border border-white/10 p-6 text-[10px] tracking-widest uppercase focus:bg-white/10 outline-none transition-all placeholder:text-white/50"
-              />
-              <button className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-black uppercase tracking-widest text-white hover:italic transition-all">
-                Join
-              </button>
+          <div className="space-y-12">
+            <h4 className="font-display font-black text-[10px] uppercase tracking-[0.5em] text-zinc-500">Transmission</h4>
+            <div className="space-y-6">
+              <div className="relative group border-b border-white/20 pb-4">
+                <input
+                  type="email"
+                  placeholder="EMAIL ADDRESS"
+                  className="w-full bg-transparent text-[10px] tracking-[0.3em] uppercase outline-none placeholder:text-white/20 text-white"
+                />
+                <button className="absolute right-0 top-0 text-[10px] font-black uppercase tracking-[0.2em] text-white/40 hover:text-white transition-all">
+                  Submit
+                </button>
+              </div>
+              <p className="text-[9px] uppercase tracking-[0.2em] text-white/30 leading-relaxed">
+                Join our archival network for early access and seasonal transmissions.
+              </p>
             </div>
-            <p className="text-[9px] uppercase tracking-widest text-white/60 leading-relaxed">
-              *By subscribing you agree to receive our archival transmissions.
-            </p>
           </div>
         </div>
 
-        {/* Archival Logo / Large Background Text */}
-        <div className="pointer-events-none select-none opacity-[0.03] absolute bottom-12 left-1/2 -translate-x-1/2 w-full text-center">
-          <h2 className="font-display font-black text-[20vw] leading-none uppercase tracking-tighter">FLEXWEAR</h2>
+        {/* Large Statement Branding */}
+        <div className="mb-20 overflow-hidden py-10 border-y border-white/5">
+           <div className="flex gap-20 animate-marquee whitespace-nowrap">
+              {Array.from({length: 4}).map((_, i) => (
+                <span key={i} className="font-display font-black text-[12vw] leading-none text-white tracking-[-0.05em] uppercase mix-blend-difference">
+                  FLEXWEAR ARCHIVE
+                </span>
+              ))}
+           </div>
         </div>
 
         {/* Bottom Bar */}
-        <div className="pt-12 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-8 relative z-10">
-          <p className="text-[9px] font-black uppercase tracking-[0.4em] text-white/50">
-            © 2024 FLEXWEAR ARCHIVE. ALL RIGHTS RESERVED.
+        <div className="pt-12 flex flex-col md:flex-row justify-between items-center gap-8 relative z-10">
+          <p className="text-[9px] font-black uppercase tracking-[0.5em] text-white/30">
+            © 2026 ARCHIVE. ALL RIGHTS RESERVED.
           </p>
-          <div className="flex gap-10">
-            <p className="text-[9px] font-black uppercase tracking-[0.4em] text-white/50">LND / NYC / TKY</p>
-            <p className="text-[9px] font-black uppercase tracking-[0.4em] text-white/50 italic">00:00:24</p>
+          <div className="flex gap-12">
+            <div className="flex flex-col items-end">
+              <span className="text-[8px] font-black uppercase tracking-[0.4em] text-zinc-600 mb-1">Timezone</span>
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/50">LND / NYC / TKY</span>
+            </div>
+            <div className="flex flex-col items-end">
+              <span className="text-[8px] font-black uppercase tracking-[0.4em] text-zinc-600 mb-1">Status</span>
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/50 animate-pulse">Online</span>
+            </div>
           </div>
         </div>
       </div>

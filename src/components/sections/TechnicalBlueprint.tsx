@@ -90,10 +90,27 @@ export default function TechnicalBlueprint() {
                   <div className="w-10 h-[1px] bg-zinc-500" />
                   <span className="text-zinc-500 font-semibold text-xs tracking-wider uppercase">Core DNA</span>
                 </div>
-                 <h2 className="font-display font-bold text-4xl md:text-7xl tracking-tighter leading-[0.9] mb-8 text-center md:text-left">
-                  Engineered for<br/>
-                  <span className="text-zinc-400 italic">Human Motion.</span>
+                 <h2 className="font-display font-black text-5xl md:text-8xl tracking-[-0.05em] leading-[0.8] mb-12 text-center md:text-left mix-blend-difference">
+                  ENGINEERED FOR<br/>
+                  <span className="text-zinc-500 italic">HUMAN MOTION.</span>
                 </h2>
+
+                <div className="grid grid-cols-2 gap-8 md:gap-12 mt-16">
+                  {[
+                    { label: "Stability", value: "98.4%", desc: "Neural Knit Tech" },
+                    { label: "Comfort", value: "10/10", desc: "Aero Shell 01" }
+                  ].map((stat, i) => (
+                    <motion.div 
+                      key={i}
+                      variants={itemVariants}
+                      className="border-l border-zinc-800 pl-6 group cursor-crosshair"
+                    >
+                      <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500 group-hover:text-white transition-colors">{stat.label}</span>
+                      <div className="text-3xl font-display font-black text-white my-1">{stat.value}</div>
+                      <p className="text-[10px] text-zinc-600 uppercase font-bold">{stat.desc}</p>
+                    </motion.div>
+                  ))}
+                </div>
              </motion.div>
              
              <motion.div variants={itemVariants} className="relative">

@@ -106,12 +106,14 @@ export default function Header() {
     <>
       <header
         ref={headerRef}
-        className={`fixed left-1/2 -translate-x-1/2 z-[9999] transition-all duration-700 ease-[0.16,1,0.3,1] ${
+        className={`fixed left-1/2 -translate-x-1/2 z-[9999] transition-all duration-1000 ease-[0.16,1,0.3,1] ${
           isScrolled 
-          ? "bg-white/80 backdrop-blur-2xl shadow-lg border border-white/20 h-[64px] md:h-[72px] rounded-full top-4 md:top-6 w-[95%] md:w-[80%] max-w-[1200px] px-4 md:px-8 text-zinc-900" 
-          : "bg-transparent h-[70px] md:h-[100px] w-full px-4 md:px-12 top-[40px] text-zinc-900"
+          ? "bg-white/70 backdrop-blur-3xl shadow-[0_8px_32px_rgba(0,0,0,0.08)] border border-white/40 h-[60px] md:h-[68px] rounded-full top-6 w-[92%] md:w-[70%] max-w-[1000px] px-6 md:px-10 text-black" 
+          : "bg-transparent h-[70px] md:h-[100px] w-full px-4 md:px-12 top-[0px] text-black"
         }`}
       >
+        {/* Subtle Grain Overlay on Header */}
+        {isScrolled && <div className="absolute inset-0 opacity-[0.03] pointer-events-none rounded-full" style={{ backgroundImage: 'url("https://grainy-gradients.vercel.app/noise.svg")' }} />}
         <div className="max-w-[1800px] mx-auto px-6 md:px-12 h-full flex items-center justify-between">
           
           {/* Logo Section */}
@@ -129,24 +131,29 @@ export default function Header() {
           </div>
 
           {/* Navigation */}
-          <nav ref={navRef} className="hidden lg:flex items-center gap-8 h-full" aria-label="Main navigation">
+          <nav ref={navRef} className="hidden lg:flex items-center gap-10 h-full" aria-label="Main navigation">
             {navLinks.map((link) => (
-              <div
-                key={link.label}
-                className="relative h-full flex items-center will-change-transform"
-                onMouseEnter={() => handleMouseEnter(link.label)}
-                onMouseLeave={handleMouseLeave}
-              >
-                <Link
-                  href={link.href}
-                  className="group flex flex-col items-center justify-center overflow-hidden h-12 px-3"
+              <MagneticElement key={link.label}>
+                <div
+                  className="relative h-full flex items-center will-change-transform"
+                  onMouseEnter={() => handleMouseEnter(link.label)}
+                  onMouseLeave={handleMouseLeave}
                 >
-                  <span className="text-sm font-medium text-zinc-600 group-hover:text-zinc-900 transition-colors duration-300 relative inline-block">
-                    {link.label}
-                  </span>
-                  <div className="w-0 group-hover:w-full h-0.5 bg-zinc-900 rounded-full transition-all duration-300 ease-out mt-1 opacity-0 group-hover:opacity-100" />
-                </Link>
-              </div>
+                  <Link
+                    href={link.href}
+                    className="group flex flex-col items-center justify-center h-10 px-2"
+                  >
+                    <span className="text-[11px] font-black uppercase tracking-[0.2em] text-zinc-500 group-hover:text-black transition-colors duration-300">
+                      {link.label}
+                    </span>
+                    <motion.div 
+                      className="absolute bottom-0 w-1 h-1 bg-black rounded-full opacity-0 group-hover:opacity-100"
+                      initial={false}
+                      animate={{ scale: activeMenu === link.label ? 1.5 : 1 }}
+                    />
+                  </Link>
+                </div>
+              </MagneticElement>
             ))}
           </nav>
 
