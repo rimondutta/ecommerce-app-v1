@@ -106,26 +106,25 @@ export default function Header() {
     <>
       <header
         ref={headerRef}
-        style={{ transformStyle: "preserve-3d", transform: "translateZ(1000px)" }}
         className={`fixed left-1/2 -translate-x-1/2 z-[9999] transition-all duration-700 ease-[0.16,1,0.3,1] ${
           isScrolled 
-          ? "bg-white/80 backdrop-blur-2xl shadow-[0_20px_50px_rgba(0,0,0,0.1)] border border-white/20 h-[72px] rounded-full top-6 w-[90%] md:w-[80%] max-w-[1200px] px-8 text-zinc-900" 
-          : "bg-transparent h-[100px] w-full px-6 md:px-12 top-[40px] text-zinc-900"
+          ? "bg-white/80 backdrop-blur-2xl shadow-lg border border-white/20 h-[64px] md:h-[72px] rounded-full top-4 md:top-6 w-[95%] md:w-[80%] max-w-[1200px] px-4 md:px-8 text-zinc-900" 
+          : "bg-transparent h-[70px] md:h-[100px] w-full px-4 md:px-12 top-[40px] text-zinc-900"
         }`}
       >
         <div className="max-w-[1800px] mx-auto px-6 md:px-12 h-full flex items-center justify-between">
           
           {/* Logo Section */}
-          <div ref={logoRef} className="flex items-center gap-4 will-change-transform">
+          <div ref={logoRef} className="flex items-center gap-2 md:gap-4">
             <button
               className="lg:hidden p-2 -ml-2 hover:bg-zinc-100 rounded-full transition-colors"
               onClick={openMobileMenu}
               aria-label="Open mobile menu"
             >
-              <Menu size={24} />
+              <Menu size={20} />
             </button>
-            <Link href="/" className="group flex items-center">
-              <AnimatedLogo size="md" />
+            <Link href="/" className="flex items-center">
+              <AnimatedLogo size="sm" />
             </Link>
           </div>
 

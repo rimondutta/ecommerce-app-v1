@@ -55,9 +55,9 @@ export default function Preloader() {
           }}
           className="fixed inset-0 z-[99999] bg-black flex flex-col items-center justify-center overflow-hidden"
         >
-          {/* Grid overlay */}
+          {/* Grid overlay - Hidden on Mobile */}
           <div
-            className="absolute inset-0 pointer-events-none opacity-[0.05]"
+            className="hidden md:block absolute inset-0 pointer-events-none opacity-[0.05]"
             style={{
               backgroundImage:
                 "linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)",
@@ -87,7 +87,7 @@ export default function Preloader() {
                 transition={{ duration: 2, ease: "easeInOut" }}
                 className="w-16 md:w-32 h-px bg-white/30 origin-right"
               />
-              <span className="font-display font-black text-7xl md:text-[10rem] text-white leading-none tracking-tighter tabular-nums">
+              <span className="font-display font-black text-6xl md:text-[10rem] text-white leading-none tracking-tighter tabular-nums">
                 {count.toString().padStart(3, "0")}
               </span>
               <motion.div

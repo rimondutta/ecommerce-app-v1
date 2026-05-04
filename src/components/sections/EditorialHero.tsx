@@ -44,16 +44,16 @@ export default function EditorialHero() {
       ref={containerRef}
       className="relative h-screen w-full bg-white overflow-hidden perspective-1000 flex items-center justify-center border-x border-zinc-100"
     >
-      {/* Top Left Dots - Monochrome */}
-      <div className="absolute top-12 left-12 flex gap-1.5 z-20">
+      {/* Top Left Dots - Monochrome - Hidden on Mobile */}
+      <div className="hidden md:flex absolute top-12 left-12 gap-1.5 z-20">
         <div className="w-2.5 h-2.5 rounded-full bg-black" />
         <div className="w-2.5 h-2.5 rounded-full bg-zinc-400" />
         <div className="w-2.5 h-2.5 rounded-full bg-zinc-200" />
         <div className="w-2.5 h-2.5 rounded-full bg-zinc-100" />
       </div>
 
-      {/* Bottom Left Icons - Grayscale (using icons instead of emojis if possible, but emojis can stay if simple) */}
-      <div className="absolute bottom-12 left-12 flex gap-3 text-lg z-20 opacity-30 grayscale">
+      {/* Bottom Left Icons - Grayscale - Hidden on Mobile */}
+      <div className="hidden md:flex absolute bottom-12 left-12 gap-3 text-lg z-20 opacity-30 grayscale">
         <span>🏀</span>
         <span>🎉</span>
         <span>🌲</span>
@@ -61,8 +61,8 @@ export default function EditorialHero() {
         <span>🏓</span>
       </div>
 
-      {/* Bottom Right Wave - Monochrome */}
-      <div className="absolute bottom-12 right-12 z-20 opacity-40">
+      {/* Bottom Right Wave - Monochrome - Hidden on Mobile */}
+      <div className="hidden md:flex absolute bottom-12 right-12 z-20 opacity-40">
         <svg width="100" height="20" viewBox="0 0 100 20" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M0 10 Q 12.5 0, 25 10 T 50 10 T 75 10 T 100 10" stroke="#000" strokeWidth="1.5" fill="none" />
           <path d="M0 10 Q 12.5 20, 25 10 T 50 10 T 75 10 T 100 10" stroke="#888" strokeWidth="1.5" fill="none" />
@@ -75,7 +75,7 @@ export default function EditorialHero() {
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 1.5, ease: "easeOut" }}
-          className="text-[22vw] font-black text-zinc-50 leading-none tracking-tight whitespace-nowrap"
+          className="text-[25vw] md:text-[22vw] font-black text-zinc-50 leading-none tracking-tight whitespace-nowrap"
         >
           FLEXWEAR
         </motion.h1>
@@ -135,24 +135,24 @@ export default function EditorialHero() {
 
           {/* Typography block */}
           <motion.div 
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.7 }}
-            className="absolute ml-[220px] mt-[100px] flex flex-col items-start gap-4"
+            className="absolute bottom-12 md:bottom-auto md:ml-[220px] md:mt-[100px] flex flex-col items-center md:items-start gap-4"
           >
-            <h2 className="text-black font-light text-xl tracking-wide uppercase leading-tight">
+            <h2 className="text-black font-light text-lg md:text-xl tracking-wide uppercase leading-tight text-center md:text-left">
               Style that<br />defines you
             </h2>
-            <div className="w-16 h-[1px] bg-black relative mb-4">
+            <div className="hidden md:block w-16 h-[1px] bg-black relative mb-4">
               <div className="absolute right-0 top-1/2 -translate-y-1/2 w-2 h-[1px] bg-black rotate-45 origin-right" />
               <div className="absolute right-0 top-1/2 -translate-y-1/2 w-2 h-[1px] bg-black -rotate-45 origin-right" />
             </div>
 
-            <MagneticButton strength={60}>
-              <Link href="/shop" className="pointer-events-auto inline-flex items-center justify-center px-8 py-3 bg-black text-white rounded-full text-sm font-medium tracking-widest uppercase hover:bg-zinc-800 transition-colors shadow-xl" data-cursor-text="SHOP">
+            <div className="pointer-events-auto">
+              <Link href="/shop" className="inline-flex items-center justify-center px-8 py-4 md:py-3 bg-black text-white rounded-full text-xs md:text-sm font-medium tracking-widest uppercase hover:bg-zinc-800 transition-colors shadow-xl" data-cursor-text="SHOP">
                 Explore Collection
               </Link>
-            </MagneticButton>
+            </div>
           </motion.div>
 
         </div>

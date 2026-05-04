@@ -74,7 +74,7 @@ export default function EditorialProductGrid({
   };
 
   return (
-    <section ref={sectionRef} className="relative px-6 md:px-16 py-24 md:py-32 max-w-7xl mx-auto bg-white rounded-[2.5rem]">
+    <section ref={sectionRef} className="relative px-4 md:px-16 py-16 md:py-32 max-w-7xl mx-auto bg-white md:rounded-[2.5rem]">
       <div className="flex flex-col md:flex-row items-end justify-between mb-16 gap-8 relative z-10">
         <motion.div 
           initial="hidden"
@@ -82,8 +82,8 @@ export default function EditorialProductGrid({
           viewport={{ once: true, margin: "-100px" }}
           variants={itemVariants}
         >
-          <span className="text-zinc-500 font-semibold text-xs tracking-wider uppercase mb-3 block">Shop Collection</span>
-          <h2 className="font-display font-bold text-4xl md:text-5xl text-zinc-900 tracking-tight">
+          <span className="text-zinc-500 font-semibold text-[10px] md:text-xs tracking-wider uppercase mb-2 md:mb-3 block">Shop Collection</span>
+          <h2 className="font-display font-bold text-3xl md:text-5xl text-zinc-900 tracking-tight">
             Latest Arrivals
           </h2>
         </motion.div>
@@ -95,20 +95,20 @@ export default function EditorialProductGrid({
           transition={{ duration: 0.8, delay: 0.2 }}
           className="flex flex-row overflow-x-auto gap-2 p-1.5 bg-zinc-100/80 backdrop-blur-md rounded-full w-full md:w-auto no-scrollbar"
         >
-           {["all", ...categories.map(c => c.name)].map((cat) => (
-             <button
-               key={cat}
-               onClick={() => { setSelectedCategory(cat.toLowerCase()); setVisibleCount(8); }}
-               className={`flex-none text-sm font-medium px-5 py-2.5 rounded-full transition-all relative z-10 whitespace-nowrap ${
-                 selectedCategory === cat.toLowerCase() ? "text-zinc-900 shadow-sm" : "text-zinc-500 hover:text-zinc-900"
-               }`}
-             >
-               {cat}
-               {selectedCategory === cat.toLowerCase() && (
-                 <motion.div layoutId="activeCategory" className="absolute inset-0 bg-white rounded-full -z-10" />
-               )}
-             </button>
-           ))}
+            {["all", ...categories.map(c => c.name)].map((cat) => (
+              <button
+                key={cat}
+                onClick={() => { setSelectedCategory(cat.toLowerCase()); setVisibleCount(8); }}
+                className={`flex-none text-xs md:text-sm font-medium px-4 md:px-5 py-2 md:py-2.5 rounded-full transition-all relative z-10 whitespace-nowrap ${
+                  selectedCategory === cat.toLowerCase() ? "text-zinc-900 shadow-sm" : "text-zinc-500 hover:text-zinc-900"
+                }`}
+              >
+                {cat}
+                {selectedCategory === cat.toLowerCase() && (
+                  <motion.div layoutId="activeCategory" className="absolute inset-0 bg-white rounded-full -z-10" />
+                )}
+              </button>
+            ))}
         </motion.div>
       </div>
 

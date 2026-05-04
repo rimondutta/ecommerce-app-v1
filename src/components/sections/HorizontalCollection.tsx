@@ -52,7 +52,7 @@ export default function HorizontalCollection() {
   const x = useTransform(scrollYProgress, [0, 1], ["0%", "-60%"]);
 
   return (
-    <section ref={targetRef} className="relative h-[250vh] bg-zinc-50">
+    <section ref={targetRef} className="relative h-[150vh] md:h-[250vh] bg-zinc-50">
       <div className="sticky top-0 h-screen flex flex-col justify-center overflow-hidden">
         
         <div className="px-6 md:px-16 mb-12 md:mb-16 relative z-10 max-w-[1800px] mx-auto w-full">
@@ -69,8 +69,11 @@ export default function HorizontalCollection() {
           </div>
         </div>
         
-        <div className="pl-6 md:pl-16 relative z-10">
-          <motion.div style={{ x }} className="flex gap-6 md:gap-8 w-max pr-16">
+        <div className="pl-6 md:pl-16 relative z-10 w-full overflow-x-auto md:overflow-visible no-scrollbar">
+          <motion.div 
+            style={{ x: typeof window !== 'undefined' && window.innerWidth > 768 ? x : 0 }} 
+            className="flex gap-6 md:gap-8 w-max pr-16"
+          >
             {products.map((product, idx) => (
               <motion.div 
                 key={product.id} 

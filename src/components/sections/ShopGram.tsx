@@ -27,18 +27,20 @@ export default function ShopGram() {
         // Horizontal Scroll
         if (trackRef.current) {
           const totalScrollWidth = trackRef.current.scrollWidth - trackRef.current.offsetWidth;
-
-          gsap.to(trackRef.current, {
-            x: -totalScrollWidth,
-            ease: "none",
-            scrollTrigger: {
-              trigger: sectionRef.current,
-              start: "top 60%",
-              end: `+=${totalScrollWidth}`,
-              scrub: 1,
-              invalidateOnRefresh: true,
-            },
-          });
+          
+          if (window.innerWidth > 768) {
+            gsap.to(trackRef.current, {
+              x: -totalScrollWidth,
+              ease: "none",
+              scrollTrigger: {
+                trigger: sectionRef.current,
+                start: "top 60%",
+                end: `+=${totalScrollWidth}`,
+                scrub: 1,
+                invalidateOnRefresh: true,
+              },
+            });
+          }
         }
 
         // Cards fade up
@@ -94,7 +96,7 @@ export default function ShopGram() {
           </a>
         </div>
 
-        <div ref={trackRef} className="flex gap-6 overflow-visible pb-10">
+        <div ref={trackRef} className="flex gap-6 overflow-x-auto md:overflow-visible pb-10 no-scrollbar">
           {images.map((src, i) => {
             return (
               <a

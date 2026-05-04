@@ -43,10 +43,10 @@ export default function TechnicalBlueprint() {
   return (
     <section 
       ref={containerRef}
-      className="relative min-h-[100vh] bg-black py-24 md:py-32 px-6 md:px-16 overflow-hidden flex flex-col justify-center rounded-[3.5rem] mt-24 mx-4 md:mx-10"
+      className="relative min-h-[70vh] md:min-h-[100vh] bg-black py-16 md:py-32 px-4 md:px-16 overflow-hidden flex flex-col justify-center md:rounded-[3.5rem] md:mt-24 md:mx-10"
     >
-      {/* 3D Technical Grid Background */}
-      <div className="absolute inset-0 z-0 opacity-20 pointer-events-none">
+      {/* 3D Technical Grid Background - Hidden on Mobile */}
+      <div className="hidden md:block absolute inset-0 z-0 opacity-20 pointer-events-none">
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
       </div>
 
@@ -86,11 +86,11 @@ export default function TechnicalBlueprint() {
           className="z-20 relative text-white order-2 lg:order-1"
         >
              <motion.div variants={itemVariants} className="lg:block will-change-transform mb-10">
-                <div className="flex items-center gap-3 mb-6">
+                <div className="flex items-center justify-center lg:justify-start gap-3 mb-6">
                   <div className="w-10 h-[1px] bg-zinc-500" />
                   <span className="text-zinc-500 font-semibold text-xs tracking-wider uppercase">Core DNA</span>
                 </div>
-                <h2 className="font-display font-bold text-5xl md:text-7xl tracking-tighter leading-[0.9] mb-8">
+                 <h2 className="font-display font-bold text-4xl md:text-7xl tracking-tighter leading-[0.9] mb-8 text-center md:text-left">
                   Engineered for<br/>
                   <span className="text-zinc-400 italic">Human Motion.</span>
                 </h2>
@@ -137,12 +137,12 @@ export default function TechnicalBlueprint() {
               <div className="absolute inset-0 bg-zinc-950/30 mix-blend-overlay" />
            </motion.div>
            
-           {/* Technical Overlays */}
-           <div className="absolute inset-0 pointer-events-none border-[20px] border-zinc-950/20 backdrop-blur-[2px]" />
-           <div className="absolute top-10 left-10 p-4 rounded-2xl bg-zinc-950/40 backdrop-blur-md border border-white/10 text-[10px] font-mono text-zinc-400 uppercase tracking-widest">
+           {/* Technical Overlays - Hidden on Mobile */}
+           <div className="hidden md:block absolute inset-0 pointer-events-none border-[20px] border-zinc-950/20 backdrop-blur-[2px]" />
+           <div className="hidden md:block absolute top-10 left-10 p-4 rounded-2xl bg-zinc-950/40 backdrop-blur-md border border-white/10 text-[10px] font-mono text-zinc-400 uppercase tracking-widest">
              System Scan: Active
            </div>
-           <div className="absolute bottom-10 right-10 p-4 rounded-2xl bg-zinc-950/40 backdrop-blur-md border border-white/10 text-[10px] font-mono text-zinc-400 uppercase tracking-widest">
+           <div className="hidden md:block absolute bottom-10 right-10 p-4 rounded-2xl bg-zinc-950/40 backdrop-blur-md border border-white/10 text-[10px] font-mono text-zinc-400 uppercase tracking-widest">
              Coord: 23.8103° N, 90.4125° E
            </div>
         </div>

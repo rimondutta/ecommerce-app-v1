@@ -91,6 +91,7 @@ body {
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  width: 100%;
 }
 
 /* Custom Selection */
@@ -256,4 +257,13 @@ body {
 @keyframes scanline {
   0% { transform: translateY(0); }
   100% { transform: translateY(200vh); }
+}
+
+/* Custom Utilities */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }

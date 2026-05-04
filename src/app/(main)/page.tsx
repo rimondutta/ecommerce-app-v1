@@ -30,7 +30,7 @@ export default async function Home() {
       {/* HERO SECTION - Immersive 3D Experience */}
       <EditorialHero />
 
-      <div className="relative z-10 bg-white rounded-t-[5rem] -mt-24 overflow-hidden shadow-[0_-30px_100px_rgba(0,0,0,0.2)]">
+      <div className="relative z-10 bg-white md:rounded-t-[5rem] md:-mt-24 overflow-hidden shadow-[0_-30px_100px_rgba(0,0,0,0.1)]">
         {/* KINETIC TYPOGRAPHY */}
         <KineticMarquee />
 

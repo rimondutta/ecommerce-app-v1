@@ -96,33 +96,55 @@ export default function EditorialCategories() {
         >
           {categories.slice(0, 4).map((cat, index) => (
             <motion.div key={cat.slug} variants={itemVariants}>
-              <PerspectiveCard strength={10} className="w-full">
+              <div className="md:hidden">
                 <Link
                   href={`/products?category=${cat.name}`}
-                  className="group relative h-[450px] md:h-[550px] overflow-hidden rounded-3xl bg-zinc-100 block shadow-soft-sm hover:shadow-soft-xl transition-all"
+                  className="group relative h-[400px] overflow-hidden rounded-3xl bg-zinc-100 block shadow-soft-sm"
                 >
                   <Image 
                     src={placeholderImages[index % placeholderImages.length]} 
                     alt={cat.name} 
                     fill 
-                    className="object-cover transition-transform duration-700 ease-[0.16,1,0.3,1] group-hover:scale-105" 
+                    className="object-cover" 
                   />
-                
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
-
-                <div className="absolute inset-0 p-8 flex flex-col justify-end h-full relative z-20">
-                  <div className="flex items-center justify-between">
-                    <h3 className="font-display font-bold text-3xl md:text-4xl text-white tracking-tight">
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
+                  <div className="absolute inset-0 p-8 flex flex-col justify-end">
+                    <h3 className="font-display font-bold text-3xl text-white tracking-tight">
                       {cat.name}
                     </h3>
-                    <div className="w-10 h-10 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 -translate-x-4 group-hover:translate-x-0 transition-all duration-300">
-                      <ArrowRight size={18} />
-                    </div>
                   </div>
-                </div>
-              </Link>
-            </PerspectiveCard>
-          </motion.div>
+                </Link>
+              </div>
+
+              <div className="hidden md:block">
+                <PerspectiveCard strength={10} className="w-full">
+                  <Link
+                    href={`/products?category=${cat.name}`}
+                    className="group relative h-[550px] overflow-hidden rounded-3xl bg-zinc-100 block shadow-soft-sm hover:shadow-soft-xl transition-all"
+                  >
+                    <Image 
+                      src={placeholderImages[index % placeholderImages.length]} 
+                      alt={cat.name} 
+                      fill 
+                      className="object-cover transition-transform duration-700 ease-[0.16,1,0.3,1] group-hover:scale-105" 
+                    />
+                  
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
+
+                    <div className="absolute inset-0 p-8 flex flex-col justify-end h-full relative z-20">
+                      <div className="flex items-center justify-between">
+                        <h3 className="font-display font-bold text-4xl text-white tracking-tight">
+                          {cat.name}
+                        </h3>
+                        <div className="w-10 h-10 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 -translate-x-4 group-hover:translate-x-0 transition-all duration-300">
+                          <ArrowRight size={18} />
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
+                </PerspectiveCard>
+              </div>
+            </motion.div>
           ))}
 
           {categories.length < 4 && Array.from({ length: 4 - categories.length }).map((_, i) => (
