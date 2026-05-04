@@ -63,26 +63,37 @@ export default function EditorialCategories() {
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-100px" }}
-          variants={itemVariants}
-          className="flex flex-col md:flex-row justify-between items-end gap-12 mb-16 md:mb-24"
+          variants={{
+            hidden: { opacity: 0, y: 50 },
+            visible: { 
+              opacity: 1, 
+              y: 0,
+              transition: { duration: 1.2, ease: [0.16, 1, 0.3, 1] }
+            }
+          }}
+          className="flex flex-col md:flex-row justify-between items-end gap-12 mb-24 relative z-20"
         >
-          <div className="space-y-4">
-            <span className="text-zinc-500 font-semibold text-xs tracking-wider uppercase block">Collections</span>
-            <h2 className="font-display font-bold text-4xl md:text-5xl lg:text-6xl text-zinc-900 tracking-tight leading-tight">
-              Shop By Category
+          <div className="max-w-2xl">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-10 h-[1px] bg-zinc-300" />
+              <span className="text-zinc-500 font-bold text-[10px] md:text-xs tracking-[0.3em] uppercase">The Archive</span>
+            </div>
+            <h2 className="font-display font-black text-5xl md:text-8xl text-zinc-900 tracking-[-0.05em] leading-[0.85]">
+              Shop By<br/>
+              <span className="text-zinc-400 italic">Category.</span>
             </h2>
           </div>
 
-          <div className="max-w-md md:text-right flex flex-col md:items-end gap-6">
-            <p className="text-sm md:text-base text-zinc-600 leading-relaxed max-w-[300px]">
+          <div className="max-w-md md:text-right flex flex-col md:items-end gap-8">
+            <p className="text-[11px] uppercase tracking-[0.2em] leading-relaxed text-zinc-500 max-w-[280px]">
               Discover our carefully curated selections designed for versatile styling and daily functionality.
             </p>
             <Link
               href="/products"
-              className="group inline-flex items-center gap-2 bg-zinc-900 text-white px-6 py-3 rounded-full text-sm font-semibold transition-all hover:bg-zinc-800 shadow-soft"
+              className="group relative inline-flex items-center gap-4 bg-black text-white px-10 py-5 rounded-full text-[11px] font-black uppercase tracking-widest hover:scale-105 transition-all shadow-2xl overflow-hidden"
             >
-              Browse Catalog
-              <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
+              <span className="relative z-10">Browse Catalog</span>
+              <div className="absolute inset-0 bg-zinc-800 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-[0.16,1,0.3,1]" />
             </Link>
           </div>
         </motion.div>
@@ -95,55 +106,61 @@ export default function EditorialCategories() {
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
         >
           {categories.slice(0, 4).map((cat, index) => (
-            <motion.div key={cat.slug} variants={itemVariants}>
-              <div className="md:hidden">
-                <Link
-                  href={`/products?category=${cat.name}`}
-                  className="group relative h-[400px] overflow-hidden rounded-3xl bg-zinc-100 block shadow-soft-sm"
-                >
+            <motion.div 
+              key={cat.slug} 
+              variants={{
+                hidden: { opacity: 0, y: 100 },
+                visible: { 
+                  opacity: 1, 
+                  y: 0,
+                  transition: { duration: 1.5, ease: [0.16, 1, 0.3, 1] }
+                }
+              }}
+              className="group relative"
+            >
+              <Link
+                href={`/products?category=${cat.name}`}
+                className="relative h-[450px] md:h-[650px] overflow-hidden rounded-[2.5rem] md:rounded-[3.5rem] bg-zinc-100 block shadow-soft-xl group-hover:shadow-soft-2xl transition-all duration-700"
+              >
+                <div className="absolute inset-0 transition-transform duration-[2s] ease-[0.16,1,0.3,1] group-hover:scale-110">
                   <Image 
                     src={placeholderImages[index % placeholderImages.length]} 
                     alt={cat.name} 
                     fill 
                     className="object-cover" 
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
-                  <div className="absolute inset-0 p-8 flex flex-col justify-end">
-                    <h3 className="font-display font-bold text-3xl text-white tracking-tight">
-                      {cat.name}
-                    </h3>
-                  </div>
-                </Link>
-              </div>
+                </div>
+              
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-700" />
 
-              <div className="hidden md:block">
-                <PerspectiveCard strength={10} className="w-full">
-                  <Link
-                    href={`/products?category=${cat.name}`}
-                    className="group relative h-[550px] overflow-hidden rounded-3xl bg-zinc-100 block shadow-soft-sm hover:shadow-soft-xl transition-all"
-                  >
-                    <Image 
-                      src={placeholderImages[index % placeholderImages.length]} 
-                      alt={cat.name} 
-                      fill 
-                      className="object-cover transition-transform duration-700 ease-[0.16,1,0.3,1] group-hover:scale-105" 
-                    />
-                  
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
-
-                    <div className="absolute inset-0 p-8 flex flex-col justify-end h-full relative z-20">
-                      <div className="flex items-center justify-between">
-                        <h3 className="font-display font-bold text-4xl text-white tracking-tight">
-                          {cat.name}
-                        </h3>
-                        <div className="w-10 h-10 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 -translate-x-4 group-hover:translate-x-0 transition-all duration-300">
-                          <ArrowRight size={18} />
+                <div className="absolute inset-0 p-10 flex flex-col justify-end">
+                   <motion.div 
+                     initial={{ y: 20, opacity: 0 }}
+                     whileInView={{ y: 0, opacity: 1 }}
+                     transition={{ duration: 0.8, delay: 0.2 + index * 0.1 }}
+                     className="space-y-4 translate-y-6 group-hover:translate-y-0 transition-transform duration-700 ease-[0.16,1,0.3,1]"
+                   >
+                      <span className="text-white/60 text-[10px] font-black uppercase tracking-[0.3em] block">Volume 0{index + 1}</span>
+                      <h3 className="font-display font-black text-4xl md:text-6xl text-white tracking-tighter leading-none group-hover:italic transition-all duration-700">
+                        {cat.name}
+                      </h3>
+                      <div className="flex items-center gap-6">
+                        <div className="w-12 h-12 bg-white/10 backdrop-blur-2xl rounded-full flex items-center justify-center text-white border border-white/20 opacity-0 group-hover:opacity-100 transition-all duration-500 scale-50 group-hover:scale-100">
+                          <ArrowRight size={24} />
                         </div>
+                        <span className="text-white/40 text-[9px] font-black uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all duration-700 delay-100">Explore Collection</span>
                       </div>
-                    </div>
-                  </Link>
-                </PerspectiveCard>
-              </div>
+                   </motion.div>
+                </div>
+
+                {/* Technical Overlay */}
+                <div className="absolute top-10 right-10 opacity-0 group-hover:opacity-100 transition-opacity duration-700">
+                   <span className="text-white/40 text-[9px] font-mono uppercase tracking-widest">FW-2026-CAT-0{index + 1}</span>
+                </div>
+
+                {/* Noise Layer */}
+                <div className="absolute inset-0 opacity-[0.03] pointer-events-none noise-overlay" />
+              </Link>
             </motion.div>
           ))}
 
