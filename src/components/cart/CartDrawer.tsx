@@ -39,22 +39,25 @@ export default function CartDrawer() {
           leaveFrom="translate-x-0"
           leaveTo="translate-x-full"
         >
-          <DialogPanel className="fixed inset-y-0 right-0 w-full sm:w-[500px] bg-white flex flex-col shadow-soft-2xl rounded-l-[2rem] overflow-hidden">
+          <DialogPanel className="fixed inset-y-0 right-0 w-full sm:w-[550px] bg-white flex flex-col shadow-soft-2xl rounded-l-[3rem] overflow-hidden">
             
             {/* Header */}
-            <div className="flex items-center justify-between px-8 py-8 border-b border-zinc-100">
-              <div className="flex items-center gap-3">
-                <ShoppingBag size={24} className="text-zinc-900" />
-                <h2 className="font-display font-bold text-2xl text-zinc-900 tracking-tight">
-                  Shopping Bag <span className="text-zinc-400 font-medium ml-1">({count})</span>
+            <div className="flex items-center justify-between px-10 py-10 border-b border-zinc-100">
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center gap-3">
+                  <div className="w-2 h-2 rounded-full bg-zinc-900 animate-pulse" />
+                  <span className="text-zinc-400 font-black text-[9px] uppercase tracking-[0.3em]">Vault Selection</span>
+                </div>
+                <h2 className="font-display font-black text-4xl text-zinc-900 tracking-[-0.05em] leading-none">
+                  Shopping Bag <span className="text-zinc-300 ml-2">({count})</span>
                 </h2>
               </div>
               <button
                 onClick={closeCart}
-                className="w-10 h-10 flex items-center justify-center rounded-full bg-zinc-50 text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100 transition-colors"
+                className="group w-12 h-12 flex items-center justify-center rounded-full bg-zinc-50 text-zinc-400 hover:text-zinc-900 hover:bg-zinc-100 transition-all duration-500"
                 aria-label="Close cart"
               >
-                <X size={20} />
+                <X size={24} className="group-hover:rotate-90 transition-transform duration-500" />
               </button>
             </div>
 
@@ -83,113 +86,128 @@ export default function CartDrawer() {
             </div>
 
             {/* Cart Items */}
-            <div className="flex-1 overflow-y-auto px-8 py-8 space-y-8 scrollbar-hide">
+            <div className="flex-1 overflow-y-auto px-10 py-10 space-y-10 scrollbar-hide">
               {items.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-32 text-center">
-                  <div className="w-20 h-20 bg-zinc-50 rounded-full flex items-center justify-center text-zinc-300 mb-6">
-                    <ShoppingBag size={40} />
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="flex flex-col items-center justify-center py-32 text-center"
+                >
+                  <div className="w-24 h-24 bg-zinc-50 rounded-full flex items-center justify-center text-zinc-200 mb-8">
+                    <ShoppingBag size={48} />
                   </div>
-                  <p className="font-display font-bold text-xl text-zinc-900 mb-2">Your bag is empty</p>
-                  <p className="text-zinc-500 text-sm mb-8 max-w-[240px]">Looks like you haven't added anything to your bag yet.</p>
+                  <p className="font-display font-black text-2xl text-zinc-900 mb-3 tracking-tight">Empty Archive</p>
+                  <p className="text-zinc-400 text-xs font-bold uppercase tracking-[0.2em] mb-10 max-w-[280px]">Your collection is currently unoccupied.</p>
                   <button
                     onClick={closeCart}
-                    className="px-8 py-3.5 bg-zinc-900 text-white text-sm font-bold rounded-full hover:bg-zinc-800 transition-all shadow-soft"
+                    className="group relative px-12 py-5 bg-black text-white text-[10px] font-black uppercase tracking-[0.3em] rounded-full overflow-hidden transition-all hover:scale-105 shadow-2xl"
                   >
-                    Start Shopping
+                    <span className="relative z-10">Begin Acquisition</span>
+                    <div className="absolute inset-0 bg-zinc-800 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-[0.16,1,0.3,1]" />
                   </button>
-                </div>
+                </motion.div>
               ) : (
-                items.map((item) => (
-                  <div key={`${item.id}-${item.color}-${item.size}`} className="flex gap-6 group">
-                    <div className="w-28 h-36 relative rounded-2xl overflow-hidden bg-zinc-100 shrink-0 shadow-sm border border-zinc-200/50">
+                items.map((item, idx) => (
+                  <motion.div 
+                    key={`${item.id}-${item.color}-${item.size}`} 
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.8, delay: idx * 0.1, ease: [0.16, 1, 0.3, 1] }}
+                    className="flex gap-8 group"
+                  >
+                    <div className="w-32 h-44 relative rounded-[2rem] overflow-hidden bg-zinc-50 shrink-0 shadow-soft-xl border border-zinc-100">
                       <Image
                         src={item.image}
                         alt={item.title}
                         fill
-                        className="object-cover transition-transform duration-700 ease-[0.16,1,0.3,1] group-hover:scale-105"
-                        sizes="112px"
+                        className="object-cover transition-transform duration-[1.5s] ease-[0.16,1,0.3,1] group-hover:scale-110"
+                        sizes="128px"
                       />
+                      <div className="absolute inset-0 opacity-[0.03] pointer-events-none noise-overlay" />
                     </div>
-                    <div className="flex-1 flex flex-col justify-between py-1">
+                    <div className="flex-1 flex flex-col justify-between py-2">
                       <div>
-                        <div className="flex justify-between items-start mb-1">
+                        <div className="flex justify-between items-start mb-2">
                           <Link 
                             href={`/products/${item.slug}`} 
                             onClick={closeCart}
-                            className="font-display font-bold text-lg text-zinc-900 hover:text-zinc-600 transition-colors leading-tight line-clamp-2"
+                            className="font-display font-black text-xl text-zinc-900 hover:text-zinc-400 transition-colors leading-[1.1] tracking-tighter line-clamp-2"
                           >
                             {item.title}
                           </Link>
                           <button
                             onClick={() => removeItem(item.id)}
-                            className="text-zinc-400 hover:text-red-500 transition-colors ml-2"
+                            className="text-zinc-300 hover:text-zinc-900 transition-colors ml-4 p-1"
                             aria-label="Remove item"
                           >
-                            <Trash2 size={18} />
+                            <Trash2 size={20} />
                           </button>
                         </div>
-                        <p className="text-xs font-semibold text-zinc-400 uppercase tracking-wider mt-1">
-                          {item.color} • {item.size}
-                        </p>
+                        <div className="flex items-center gap-3 mt-3">
+                          <span className="text-[9px] font-black text-zinc-400 uppercase tracking-[0.2em]">{item.color}</span>
+                          <div className="w-1 h-1 rounded-full bg-zinc-200" />
+                          <span className="text-[9px] font-black text-zinc-400 uppercase tracking-[0.2em]">{item.size}</span>
+                        </div>
                       </div>
                       
-                      <div className="flex items-center justify-between mt-auto pt-4">
-                        <div className="flex items-center bg-zinc-100 rounded-xl h-10 px-1 border border-zinc-200/50">
+                      <div className="flex items-center justify-between mt-auto">
+                        <div className="flex items-center bg-zinc-50 rounded-[1.5rem] h-12 px-2 border border-zinc-100">
                           <button
                             onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                            className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white hover:text-zinc-900 text-zinc-500 transition-all shadow-sm"
+                            className="w-9 h-9 flex items-center justify-center rounded-xl hover:bg-white hover:text-zinc-900 text-zinc-400 transition-all"
                             aria-label="Decrease quantity"
                           >
                             <Minus size={14} />
                           </button>
-                          <span className="w-10 h-full flex items-center justify-center text-sm font-bold text-zinc-900 tabular-nums">
+                          <span className="w-12 h-full flex items-center justify-center text-sm font-black text-zinc-900 tabular-nums">
                             {item.quantity}
                           </span>
                           <button
                             onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                            className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white hover:text-zinc-900 text-zinc-500 transition-all shadow-sm"
+                            className="w-9 h-9 flex items-center justify-center rounded-xl hover:bg-white hover:text-zinc-900 text-zinc-400 transition-all"
                             aria-label="Increase quantity"
                           >
                             <Plus size={14} />
                           </button>
                         </div>
-                        <p className="font-display font-bold text-xl text-zinc-900">
+                        <p className="font-display font-black text-2xl text-zinc-900 tracking-tighter">
                           ৳{Math.round(item.price * item.quantity).toLocaleString()}
                         </p>
                       </div>
                     </div>
-                  </div>
+                  </motion.div>
                 ))
               )}
             </div>
 
             {/* Bottom */}
             {items.length > 0 && (
-              <div className="border-t border-zinc-100 p-8 bg-white space-y-6">
+              <div className="border-t border-zinc-100 p-10 bg-white space-y-8">
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <span className="text-zinc-500 font-medium">Subtotal</span>
-                    <span className="font-display font-bold text-2xl text-zinc-900">৳{Math.round(total).toLocaleString()}</span>
+                    <span className="text-zinc-400 font-bold text-[10px] uppercase tracking-[0.3em]">Total Assessment</span>
+                    <span className="font-display font-black text-4xl text-zinc-900 tracking-tighter">৳{Math.round(total).toLocaleString()}</span>
                   </div>
-                  <p className="text-[11px] text-zinc-400 leading-relaxed">
-                    Shipping and taxes calculated at checkout. Enjoy our premium packaging on every order.
+                  <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-[0.2em] leading-relaxed">
+                    Logistic fees and fiscal duties will be computed during the finalization phase.
                   </p>
                 </div>
 
-                <div className="flex flex-col gap-3 pt-2">
+                <div className="flex flex-col gap-4 pt-2">
                   <Link
                     href="/checkout"
                     onClick={closeCart}
-                    className="w-full bg-zinc-900 text-white py-5 rounded-2xl text-sm font-bold flex items-center justify-between px-8 group transition-all hover:bg-zinc-800 shadow-soft-xl active:scale-[0.98]"
+                    className="group relative w-full bg-black text-white py-6 rounded-[2rem] text-[11px] font-black uppercase tracking-[0.3em] flex items-center justify-center gap-6 overflow-hidden transition-all hover:scale-[1.02] active:scale-[0.98] shadow-2xl"
                   >
-                    <span>Proceed to Checkout</span>
-                    <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                    <span className="relative z-10">Proceed to Finalization</span>
+                    <ArrowRight size={18} className="relative z-10 group-hover:translate-x-1 transition-transform" />
+                    <div className="absolute inset-0 bg-zinc-800 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-[0.16,1,0.3,1]" />
                   </Link>
                   <button
                     onClick={closeCart}
-                    className="w-full bg-zinc-50 text-zinc-600 py-4 rounded-2xl text-xs font-bold uppercase tracking-wider hover:bg-zinc-100 transition-all"
+                    className="w-full bg-zinc-50 text-zinc-400 py-5 rounded-[2rem] text-[9px] font-black uppercase tracking-[0.3em] hover:bg-zinc-100 hover:text-zinc-900 transition-all"
                   >
-                    Continue Shopping
+                    Resume Exploration
                   </button>
                 </div>
               </div>

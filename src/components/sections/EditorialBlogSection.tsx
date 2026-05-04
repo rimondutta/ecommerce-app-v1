@@ -61,27 +61,34 @@ const EditorialBlogSection = () => {
 
   return (
     <section ref={sectionRef} className="py-24 md:py-32 bg-white relative overflow-hidden">
-      <div className="max-w-[1800px] mx-auto px-6 md:px-12 relative z-10">
-        
-        <motion.div 
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] as any }}
-          className="flex flex-col md:flex-row md:items-end justify-between mb-24 gap-12"
-        >
-          <div className="max-w-2xl">
-            <span className="text-zinc-400 font-bold text-[10px] md:text-xs tracking-[0.3em] uppercase mb-4 block">Archive</span>
-            <h2 className="text-5xl md:text-8xl font-display font-black text-zinc-900 tracking-[-0.05em] leading-[0.85]">
-              Stories &<br/>
-              <span className="text-zinc-400 italic">Insights.</span>
+      <div className="max-w-7xl mx-auto px-6 md:px-12">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-20">
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="space-y-6"
+          >
+            <div className="flex items-center gap-4">
+              <span className="text-zinc-400 font-black text-[10px] uppercase tracking-[0.4em]">Chronicles</span>
+              <div className="h-[1px] w-12 bg-zinc-200" />
+            </div>
+            <h2 className="font-display font-black text-6xl md:text-8xl text-zinc-900 tracking-[-0.05em] leading-[0.85]">
+              Editorial <br />
+              <span className="text-zinc-300 italic">Journal</span>
             </h2>
-          </div>
-          <Link href="/blogs" className="group relative flex items-center gap-4 bg-black text-white px-8 py-4 rounded-full text-[11px] font-black uppercase tracking-widest hover:scale-105 transition-all shadow-2xl overflow-hidden">
-            <span className="relative z-10">View Journal</span>
-            <div className="absolute inset-0 bg-zinc-800 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-[0.16,1,0.3,1]" />
-          </Link>
-        </motion.div>
+          </motion.div>
+          
+          <motion.p 
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.2 }}
+            className="max-w-md text-zinc-500 text-lg font-medium leading-relaxed"
+          >
+            A curated perspective on contemporary culture, design philosophy, and technical excellence.
+          </motion.p>
+        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20">
           {/* Main Featured Post */}
@@ -132,29 +139,66 @@ const EditorialBlogSection = () => {
                   </h4>
               </Link>
             ))}
-
-            <div className="mt-4 bg-zinc-900 rounded-[2.5rem] p-10 md:p-12 text-white shadow-soft-2xl relative overflow-hidden group">
-              <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none transition-transform group-hover:scale-110 duration-1000" />
-              <span className="text-[10px] font-black tracking-[0.3em] uppercase text-zinc-500 mb-4 block">Transmission</span>
-              <p className="text-3xl font-display font-black leading-none tracking-tighter mb-8">Stay informed on archival releases.</p>
-              
-              <div className="relative border-b border-white/20 pb-4 mb-8 group-focus-within:border-white transition-colors">
-                <input 
-                  type="email" 
-                  placeholder="EMAIL ADDRESS" 
-                  className="bg-transparent w-full text-[10px] font-black tracking-[0.2em] outline-none placeholder:text-white/20" 
-                />
-                <button className="absolute right-0 top-0 text-[10px] font-black uppercase tracking-[0.2em] text-white/40 hover:text-white transition-all">
-                  Join
-                </button>
-              </div>
-              <p className="text-[9px] font-medium text-zinc-500 uppercase tracking-widest leading-loose">
-                *By joining you agree to receive digital transmissions from our archive.
-              </p>
-            </div>
           </div>
         </div>
-        
+
+        {/* Newsletter Integration */}
+        <div className="mt-40">
+          <div className="bg-zinc-900 rounded-[3.5rem] py-32 relative overflow-hidden group">
+            <div className="absolute inset-0 opacity-20 pointer-events-none noise-overlay" />
+            <motion.div 
+              initial={{ scale: 0.8, opacity: 0 }}
+              whileInView={{ scale: 1, opacity: 1 }}
+              className="absolute top-0 right-0 w-[600px] h-[600px] bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-[120px] pointer-events-none"
+            />
+            
+            <div className="max-w-4xl mx-auto text-center space-y-16 relative z-10 px-6">
+              <div className="space-y-8">
+                <div className="flex items-center justify-center gap-4">
+                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  <span className="text-zinc-500 font-black text-[10px] uppercase tracking-[0.4em]">Transmission Live</span>
+                </div>
+                <h2 className="font-display font-black text-6xl md:text-8xl text-white tracking-[-0.04em] leading-none">
+                  Access the <br />
+                  <span className="text-zinc-500">Collective</span>
+                </h2>
+                <p className="text-zinc-400 text-xl font-medium leading-relaxed max-w-2xl mx-auto">
+                  Join our private newsletter for prioritized access to limited drops, technical data, and exclusive editorial content.
+                </p>
+              </div>
+              
+              <form onSubmit={(e) => e.preventDefault()} className="flex flex-col md:flex-row gap-6 max-w-2xl mx-auto">
+                 <div className="flex-1 relative">
+                   <input 
+                     type="email" 
+                     placeholder="IDENTIFICATION / EMAIL" 
+                     className="w-full bg-white/5 border border-white/10 px-10 h-20 rounded-[2rem] text-white placeholder:text-zinc-700 text-[10px] font-black tracking-[0.2em] focus:outline-none focus:ring-2 focus:ring-white/20 transition-all uppercase"
+                   />
+                 </div>
+                 <button className="group relative h-20 px-16 bg-white text-black font-black rounded-[2rem] uppercase text-[10px] tracking-[0.3em] overflow-hidden transition-all hover:scale-105 active:scale-95 shadow-2xl">
+                   <span className="relative z-10">Authorize</span>
+                   <div className="absolute inset-0 bg-zinc-200 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-[0.16,1,0.3,1]" />
+                 </button>
+              </form>
+              
+              <div className="flex items-center justify-center gap-10 pt-8">
+                {[
+                  { label: "Subscribers", value: "14.2K+" },
+                  { label: "Weekly Drops", value: "03" },
+                  { label: "Editorial Vol", value: "12" }
+                ].map((stat) => (
+                  <div key={stat.label} className="text-center">
+                    <p className="text-white font-display font-black text-xl mb-1 tracking-tighter">{stat.value}</p>
+                    <p className="text-zinc-600 font-black text-[8px] uppercase tracking-widest">{stat.label}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+          <p className="text-center mt-8 text-[9px] font-black text-zinc-400 uppercase tracking-[0.2em]">
+            *By joining you agree to receive digital transmissions from our archive.
+          </p>
+        </div>
       </div>
     </section>
   );

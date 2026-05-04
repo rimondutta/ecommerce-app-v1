@@ -7,7 +7,7 @@ import { useSearch } from "@/components/providers/SearchProvider";
 
 
 // Dynamically import heavy UI components to improve initial load performance
-const CartDrawer = dynamic(() => import("@/components/ui/CartDrawer"), { ssr: false });
+const CartDrawer = dynamic(() => import("@/components/cart/CartDrawer"), { ssr: false });
 const QuickLookDrawer = dynamic(() => import("@/components/ui/QuickLookDrawer"), { ssr: false });
 const SearchDrawer = dynamic(() => import("@/components/ui/SearchDrawer"), { ssr: false });
 const MobileMenu = dynamic(() => import("@/components/layout/MobileMenu"), { ssr: false });
