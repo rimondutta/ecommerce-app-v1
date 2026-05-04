@@ -46,7 +46,7 @@ export default function MinimalProductCard({ product, index = 0 }: MinimalProduc
           {isDiscounted ? (
             <>
               <span className="text-zinc-400 line-through">£{originalPrice.toLocaleString()}</span>
-              <span className="text-red-500 font-medium">£{product.price.toLocaleString()}</span>
+              <span className="text-black font-bold">£{product.price.toLocaleString()}</span>
             </>
           ) : (
             <span className="text-zinc-500 font-medium">£{product.price.toLocaleString()}</span>

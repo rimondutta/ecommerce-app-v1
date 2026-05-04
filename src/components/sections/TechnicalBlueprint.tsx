@@ -43,7 +43,7 @@ export default function TechnicalBlueprint() {
   return (
     <section 
       ref={containerRef}
-      className="relative min-h-[100vh] bg-zinc-950 py-24 md:py-32 px-6 md:px-16 overflow-hidden flex flex-col justify-center rounded-[3.5rem] mt-24 mx-4 md:mx-10"
+      className="relative min-h-[100vh] bg-black py-24 md:py-32 px-6 md:px-16 overflow-hidden flex flex-col justify-center rounded-[3.5rem] mt-24 mx-4 md:mx-10"
     >
       {/* 3D Technical Grid Background */}
       <div className="absolute inset-0 z-0 opacity-20 pointer-events-none">

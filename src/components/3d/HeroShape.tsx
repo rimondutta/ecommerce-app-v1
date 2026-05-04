@@ -21,7 +21,7 @@ function MouseLight() {
   });
 
   return (
-    <pointLight ref={lightRef} intensity={8} color="#00d084" distance={15} />
+    <pointLight ref={lightRef} intensity={8} color="#ffffff" distance={15} />
   );
 }
 
@@ -72,7 +72,7 @@ function AbstractShape() {
             roughness={0.1}
             transmission={1}
             ior={1.5}
-            color="#dcfce7" // Subtle green tint
+            color="#ffffff" // White glass
           />
         </mesh>
       </Float>

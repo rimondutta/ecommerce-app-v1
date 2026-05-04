@@ -26,7 +26,7 @@ export default async function Home() {
   const sanitizedCategories = JSON.parse(JSON.stringify(categories));
 
   return (
-    <main className="bg-zinc-950 flex-1 min-h-screen noise-bg">
+    <main className="bg-black flex-1 min-h-screen noise-bg">
       {/* HERO SECTION - Immersive 3D Experience */}
       <EditorialHero />
 
@@ -49,7 +49,7 @@ export default async function Home() {
         <TechnicalBlueprint />
 
         {/* KINETIC REPEAT */}
-        <div className="bg-zinc-950">
+        <div className="bg-black">
            <KineticMarquee />
         </div>
 

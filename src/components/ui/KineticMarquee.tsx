@@ -29,7 +29,7 @@ export default function KineticMarquee() {
               <span className="text-4xl md:text-8xl font-display font-black uppercase tracking-tighter italic">
                 {item}
               </span>
-              <span className="w-4 h-4 md:w-8 md:h-8 rounded-full bg-emerald-500" />
+              <span className="w-4 h-4 md:w-8 md:h-8 rounded-full bg-black" />
             </div>
           ))}
         </motion.div>

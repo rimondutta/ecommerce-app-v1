@@ -59,7 +59,7 @@ function Particles({ count = 3000 }) {
 
 export default function GlobalBackground() {
   return (
-    <div className="fixed inset-0 z-[-1] pointer-events-none opacity-80" style={{ backgroundColor: '#fafafa' }}>
+    <div className="fixed inset-0 z-[-1] pointer-events-none opacity-80" style={{ backgroundColor: '#ffffff' }}>
       <Canvas camera={{ position: [0, 0, 5], fov: 60 }}>
         {/* Subtle lighting not needed for pointsMaterial, but good if we add objects later */}
         <Particles count={4000} />

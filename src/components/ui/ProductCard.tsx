@@ -117,7 +117,7 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
           {/* Wishlist Button */}
           <button
             onClick={(e) => { e.preventDefault(); toggleItem(product._id || product.id.toString()); }}
-            className={`absolute top-4 right-4 z-30 w-10 h-10 flex items-center justify-center rounded-full bg-white/20 backdrop-blur-sm border border-white/30 transition-all duration-300 hover:bg-white/40 ${isWishlisted(product._id || product.id.toString()) ? 'bg-white/80 !text-rose-500 border-white' : 'text-white'}`}
+            className={`absolute top-4 right-4 z-30 w-10 h-10 flex items-center justify-center rounded-full bg-white/20 backdrop-blur-sm border border-white/30 transition-all duration-300 hover:bg-white/40 ${isWishlisted(product._id || product.id.toString()) ? 'bg-white/80 !text-zinc-900 border-white' : 'text-white'}`}
           >
             <Heart
               size={18}
