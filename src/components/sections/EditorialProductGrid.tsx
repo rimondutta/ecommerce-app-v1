@@ -6,6 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Plus } from "lucide-react";
 import MagneticElement from "@/components/ui/MagneticElement";
+import SplitTextAnimation from "@/components/ui/SplitTextAnimation";
 
 interface Product {
   _id?: string;
@@ -55,34 +56,31 @@ export default function EditorialProductGrid({
   }, [normalizedProducts, selectedCategory]);
 
   return (
-    <section ref={sectionRef} className="relative px-6 md:px-16 section-padding max-w-[1800px] mx-auto border-t border-white/5 bg-[#0a0a0a]">
+    <section ref={sectionRef} className="relative section-padding max-w-[1800px] mx-auto border-t border-white/5 bg-[#0a0a0a]">
       {/* Scanlines Overlay */}
       <div className="absolute inset-0 pointer-events-none opacity-[0.02] z-20 scanlines" />
 
       <div className="flex flex-col md:flex-row items-end justify-between mb-24 md:mb-32 gap-12 relative z-10">
-        <motion.div 
-            initial={{ opacity: 0, y: 30 }} 
-            whileInView={{ opacity: 1, y: 0 }} 
-            viewport={{ once: true }} 
-            transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }} 
-            className="max-w-2xl"
-        >
+        <div className="max-w-2xl">
           <div className="flex items-center gap-3 mb-8">
             <div className="w-10 h-[1px] bg-[#333]" />
             <span className="label-tiny text-[#555]">Bureau Classification</span>
           </div>
-          <h2 className="leading-[0.85]">
-            <span className="font-serif text-5xl md:text-8xl text-white block">Digital</span>
-            <span className="font-serif italic text-5xl md:text-8xl text-[#555] block">Inventory.</span>
+          <h2 className="leading-[0.85] space-y-4">
+            <SplitTextAnimation 
+              text="Digital" 
+              className="font-serif text-5xl md:text-8xl text-white block" 
+              delay={0.2}
+            />
+            <SplitTextAnimation 
+              text="Inventory." 
+              className="font-serif italic text-5xl md:text-8xl text-[#555] block" 
+              delay={0.4}
+            />
           </h2>
-        </motion.div>
+        </div>
         
-        <motion.div 
-            initial={{ opacity: 0, y: 20 }} 
-            whileInView={{ opacity: 1, y: 0 }} 
-            viewport={{ once: true }} 
-            className="flex flex-row overflow-x-auto gap-4 pb-4 md:pb-0 w-full md:w-auto no-scrollbar border-b border-white/5"
-        >
+        <div className="flex flex-row overflow-x-auto gap-4 pb-4 md:pb-0 w-full md:w-auto no-scrollbar border-b border-white/5">
           {["all", ...categories.map(c => c.name)].map((cat) => (
             <button 
                 key={cat} 
@@ -95,8 +93,9 @@ export default function EditorialProductGrid({
               )}
             </button>
           ))}
-        </motion.div>
+        </div>
       </div>
+
 
       {filteredProducts.length === 0 ? (
         <div className="py-32 text-center relative z-10 border border-white/5">

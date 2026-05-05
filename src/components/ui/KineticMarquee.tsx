@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { useEffect, useRef } from "react";
 
 const items = [
   "WEAR THE SILENCE",
@@ -12,27 +12,48 @@ const items = [
 ];
 
 export default function KineticMarquee() {
+  const marqueeRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const initMarquee = async () => {
+      const { gsap } = await import("@/lib/gsap");
+      if (!marqueeRef.current) return;
+
+      const marquee = marqueeRef.current;
+      const track = marquee.querySelector(".marquee-track") as HTMLElement;
+      if (!track) return;
+
+      // Duplicate the content to create seamless loop
+      const clone = track.cloneNode(true) as HTMLElement;
+      marquee.appendChild(clone);
+
+      const totalWidth = track.offsetWidth;
+
+      gsap.to([track, clone], {
+        xPercent: -100,
+        repeat: -1,
+        duration: 30,
+        ease: "none",
+        onUpdate: function() {
+           // Optional: Speed up on scroll could be added here
+        }
+      });
+    };
+
+    initMarquee();
+  }, []);
+
   return (
-    <div className="relative w-full py-12 md:py-24 overflow-hidden bg-[#0a0a0a] text-white border-y border-white/5">
-      <div className="flex whitespace-nowrap overflow-hidden">
-        <motion.div
-          animate={{ x: [0, -1035] }}
-          transition={{
-            duration: 30,
-            repeat: Infinity,
-            ease: "linear",
-          }}
-          className="flex items-center gap-16 pr-16"
-        >
-          {[...items, ...items, ...items].map((item, i) => (
-            <div key={i} className="flex items-center gap-16">
-              <span className={`text-4xl md:text-9xl tracking-[-0.02em] ${i % 2 === 0 ? 'font-serif text-white/[0.06]' : 'font-serif italic text-white/[0.03]'}`}>
-                {item}
-              </span>
-              <div className="w-1 h-1 bg-white/10" />
-            </div>
-          ))}
-        </motion.div>
+    <div className="relative w-full py-12 md:py-24 overflow-hidden bg-[#0a0a0a] text-white border-y border-white/5" ref={marqueeRef}>
+      <div className="flex whitespace-nowrap marquee-track">
+        {[...items, ...items].map((item, i) => (
+          <div key={i} className="flex items-center gap-16 px-8">
+            <span className={`text-4xl md:text-[8rem] tracking-[-0.04em] leading-none ${i % 2 === 0 ? 'font-serif text-white/[0.06]' : 'font-serif italic text-white/[0.03]'}`}>
+              {item}
+            </span>
+            <div className="w-1.5 h-1.5 bg-white/10 rounded-full" />
+          </div>
+        ))}
       </div>
     </div>
   );

@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { useQuickLook } from "@/store/quickLookStore";
+import SplitTextAnimation from "@/components/ui/SplitTextAnimation";
 
 interface Hotspot {
   x: number;
@@ -66,7 +67,6 @@ export default function ShopTheLook() {
   const { openQuickLook } = useQuickLook();
 
   const sectionRef = useRef<HTMLElement>(null);
-  const headingRef = useRef<HTMLDivElement>(null);
   const imageContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -76,23 +76,6 @@ export default function ShopTheLook() {
       if (!sectionRef.current) return;
 
       const ctx = gsap.context(() => {
-        if (headingRef.current) {
-          gsap.fromTo(
-            headingRef.current,
-            { opacity: 0, y: 30 },
-            {
-              opacity: 1,
-              y: 0,
-              duration: 1.2,
-              ease: "expo.out",
-              scrollTrigger: {
-                trigger: headingRef.current,
-                start: "top 85%",
-              },
-            }
-          );
-        }
-
         if (imageContainerRef.current) {
           gsap.fromTo(
             imageContainerRef.current,
@@ -118,18 +101,28 @@ export default function ShopTheLook() {
   }, []);
 
   return (
-    <section ref={sectionRef} className="relative py-24 md:py-40 bg-[#0a0a0a] border-y border-white/5">
+    <section ref={sectionRef} className="relative section-padding bg-[#0a0a0a] border-y border-white/5">
       <div className="max-w-[1800px] mx-auto px-6 md:px-16 relative z-10">
         <div className="flex flex-col md:flex-row justify-between items-end mb-20 gap-12">
-          <div ref={headingRef} style={{ opacity: 0 }}>
+          <div className="z-20">
              <div className="flex items-center gap-3 mb-6">
               <div className="w-10 h-[1px] bg-[#333]" />
               <span className="label-tiny text-[#555]">Bureau Curation</span>
             </div>
-            <h2 className="font-serif text-5xl md:text-7xl text-white tracking-tight leading-none">
-              Shop The <span className="italic text-[#555]">Look</span>
+            <h2 className="leading-none space-y-4">
+              <SplitTextAnimation 
+                text="Shop The" 
+                className="font-serif text-5xl md:text-8xl text-white block" 
+                delay={0.2}
+              />
+              <SplitTextAnimation 
+                text="Look." 
+                className="font-serif italic text-5xl md:text-8xl text-[#555] block" 
+                delay={0.4}
+              />
             </h2>
           </div>
+
 
           <div className="flex gap-4 border-b border-white/5 pb-4">
             {looks.map((_, i) => (

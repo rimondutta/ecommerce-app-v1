@@ -42,64 +42,70 @@ export default function ProductReviews({ slug }: { slug: string }) {
     : 0;
 
   return (
-    <section className="mt-24 md:mt-48 relative z-10 border-t border-black/5 pt-24">
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-24">
-        
-        {/* SUMMARY - LEFT (4 cols) */}
-        <div className="lg:col-span-4 space-y-12 h-fit">
-          <div className="space-y-4">
-             <span className="text-[10px] font-black uppercase tracking-[0.4em] text-black/30 block">Feedback Analysis</span>
-             <h2 className="font-display font-black text-5xl md:text-7xl uppercase tracking-tighter leading-[0.85]">
-               Customer<br />Reviews
-             </h2>
-          </div>
+    <section className="section-padding relative z-10 border-t border-white/5 bg-[#0a0a0a]">
+      <div className="max-w-[1800px] mx-auto px-6 md:px-16">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-32">
+          
+          {/* SUMMARY - LEFT (4 cols) */}
+          <div className="lg:col-span-5 space-y-12 h-fit">
+            <div className="space-y-6">
+               <div className="flex items-center gap-3">
+                 <div className="w-8 h-[1px] bg-[#333]" />
+                 <span className="label-tiny text-[#555]">Feedback Analysis</span>
+               </div>
+               <h2 className="leading-[0.85]">
+                 <span className="font-serif text-5xl md:text-8xl text-white block">Archive</span>
+                 <span className="font-serif italic text-5xl md:text-8xl text-[#555] block">Feedback.</span>
+               </h2>
+            </div>
 
-          <div className="p-12 border border-black/5 space-y-10 bg-[#fafafa] relative overflow-hidden">
-             <div className="absolute top-0 right-0 w-24 h-24 opacity-[0.03] -mr-8 -mt-8">
-                <StarIcon size={120} className="fill-black" />
-             </div>
-             
-             <div className="flex items-end gap-6">
-                <span className="font-display font-black text-7xl md:text-9xl leading-none tracking-tighter">
-                   {averageRating.toFixed(1)}
-                </span>
-                <div className="flex flex-col gap-3 pb-2">
-                   <div className="flex gap-1">
-                      {[1, 2, 3, 4, 5].map(i => (
-                        <StarIcon key={i} size={18} className={i <= Math.round(averageRating) ? "fill-black text-black" : "text-black/10"} />
-                      ))}
-                   </div>
-                   <span className="text-[10px] font-black uppercase tracking-[0.2em] text-black/40">Average Rating</span>
-                </div>
-             </div>
-
-             <div className="space-y-4 pt-4">
-                {[5, 4, 3, 2, 1].map(score => {
-                   const count = reviews.filter(r => r.rating === score).length;
-                   const percentage = reviews.length > 0 ? (count / reviews.length) * 100 : 0;
-                   return (
-                     <div key={score} className="flex items-center gap-6 group">
-                        <span className="text-[11px] font-black w-10">{score}★</span>
-                        <div className="flex-1 h-1.5 bg-black/5 relative overflow-hidden">
-                           <div 
-                             className="absolute inset-y-0 left-0 bg-black transition-all duration-1000 ease-[0.16,1,0.3,1]" 
-                             style={{ width: `${percentage}%` }} 
-                           />
-                        </div>
-                        <span className="text-[10px] font-bold text-black/30 group-hover:text-black transition-colors w-12 text-right">{percentage.toFixed(0)}%</span>
+            <div className="p-12 border border-white/5 space-y-12 bg-[#0d0d0d] relative overflow-hidden">
+               <div className="absolute top-0 right-0 w-32 h-32 opacity-[0.02] -mr-8 -mt-8 rotate-12">
+                  <StarIcon size={160} className="fill-white" />
+               </div>
+               
+               <div className="flex items-end gap-8">
+                  <span className="font-serif text-8xl md:text-9xl leading-none text-white tracking-tighter">
+                     {averageRating.toFixed(1)}
+                  </span>
+                  <div className="flex flex-col gap-4 pb-2">
+                     <div className="flex gap-1.5">
+                        {[1, 2, 3, 4, 5].map(i => (
+                          <StarIcon key={i} size={20} className={i <= Math.round(averageRating) ? "fill-white text-white" : "text-white/10"} />
+                        ))}
                      </div>
-                   );
-                })}
-             </div>
+                     <span className="label-tiny text-[#555]">Average Rating</span>
+                  </div>
+               </div>
 
-             <button 
-               onClick={() => setShowForm(!showForm)}
-               className="w-full h-16 border border-black bg-black text-white font-black uppercase tracking-[0.2em] text-[10px] hover:bg-white hover:text-black transition-all duration-500 active:scale-[0.98]"
-             >
-               {showForm ? "Cancel Entry" : "Write a Review"}
-             </button>
+               <div className="space-y-6 pt-4">
+                  {[5, 4, 3, 2, 1].map(score => {
+                     const count = reviews.filter(r => r.rating === score).length;
+                     const percentage = reviews.length > 0 ? (count / reviews.length) * 100 : 0;
+                     return (
+                       <div key={score} className="flex items-center gap-8 group">
+                          <span className="label-tiny text-white w-10">{score} ST</span>
+                          <div className="flex-1 h-[1px] bg-white/5 relative overflow-hidden">
+                             <div 
+                               className="absolute inset-y-0 left-0 bg-white/40 transition-all duration-1000 ease-[0.16,1,0.3,1]" 
+                               style={{ width: `${percentage}%` }} 
+                             />
+                          </div>
+                          <span className="label-tiny text-[#333] group-hover:text-white transition-colors w-12 text-right">{percentage.toFixed(0)}%</span>
+                       </div>
+                     );
+                  })}
+               </div>
+
+               <button 
+                 onClick={() => setShowForm(!showForm)}
+                 className="btn-pill-primary w-full h-16 justify-center"
+               >
+                 {showForm ? "Cancel Entry" : "Write a Review"}
+               </button>
+            </div>
           </div>
-        </div>
+
 
         {/* LIST - RIGHT (8 cols) */}
         <div className="lg:col-span-8">
@@ -192,6 +198,7 @@ export default function ProductReviews({ slug }: { slug: string }) {
                   </button>
                </div>
             )}
+          </div>
           </div>
         </div>
       </div>

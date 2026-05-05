@@ -1,8 +1,9 @@
 "use client";
 
-import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
+import { motion } from "framer-motion";
+import SplitTextAnimation from "@/components/ui/SplitTextAnimation";
 
 const products = [
   {
@@ -37,7 +38,7 @@ const products = [
 
 export default function HorizontalCollection() {
   return (
-    <section className="py-24 md:py-40 bg-[#0a0a0a] overflow-hidden border-y border-white/5">
+    <section className="section-padding bg-[#0a0a0a] overflow-hidden border-y border-white/5">
       <div className="max-w-[1800px] mx-auto px-6 md:px-16">
         
         {/* Header Section */}
@@ -47,15 +48,24 @@ export default function HorizontalCollection() {
               <div className="w-10 h-[1px] bg-[#333]" />
               <span className="label-tiny text-[#555]">Bureau Select</span>
             </div>
-            <h2 className="leading-[0.85]">
-              <span className="font-serif text-5xl md:text-8xl text-white block">Seasonal</span>
-              <span className="font-serif italic text-5xl md:text-8xl text-[#555] block">Archive.</span>
+            <h2 className="leading-[0.85] space-y-4">
+              <SplitTextAnimation 
+                text="Seasonal" 
+                className="font-serif text-5xl md:text-8xl text-white block" 
+                delay={0.2}
+              />
+              <SplitTextAnimation 
+                text="Archive." 
+                className="font-serif italic text-5xl md:text-8xl text-[#555] block" 
+                delay={0.4}
+              />
             </h2>
           </div>
           <p className="label-tiny leading-[2] text-[#8e9192] max-w-sm">
             Architecturally inspired silhouettes crafted from proprietary textiles. Engineered for the modern nomadic state.
           </p>
         </div>
+
         
         {/* Product Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
