@@ -19,20 +19,59 @@ export default function EditorialHero() {
   const moveY = useTransform(springY, [-0.5, 0.5], [-30, 30]);
 
   const [mounted, setMounted] = useState(false);
+  const heroRef = useRef<HTMLDivElement>(null);
+  const titleRef = useRef<HTMLDivElement>(null);
+  const imageRef = useRef<HTMLDivElement>(null);
+  const detailRef = useRef<HTMLDivElement>(null);
+  const gridLinesRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setMounted(true);
     
-    const handleMouseMove = (e: MouseEvent) => {
-      const x = e.clientX / window.innerWidth - 0.5;
-      const y = e.clientY / window.innerHeight - 0.5;
-      mouseX.set(x);
-      mouseY.set(y);
+    const initGsap = async () => {
+      const { gsap } = await import("@/lib/gsap");
+      const ctx = gsap.context(() => {
+        // Entrance Sequence
+        const tl = gsap.timeline({ defaults: { ease: "expo.out", duration: 1.5 } });
+        
+        tl.from(gridLinesRef.current?.children || [], {
+          scaleX: 0,
+          scaleY: 0,
+          opacity: 0,
+          stagger: 0.1,
+          duration: 2
+        })
+        .from(titleRef.current, {
+          y: 60,
+          opacity: 0,
+        }, "-=1.5")
+        .from(imageRef.current, {
+          y: 100,
+          opacity: 0,
+          scale: 1.1
+        }, "-=1.2")
+        .from(detailRef.current, {
+          x: 50,
+          opacity: 0,
+        }, "-=1");
+
+        // Subtle Parallax on Mouse Move
+        const handleMouseMove = (e: MouseEvent) => {
+          const x = (e.clientX / window.innerWidth - 0.5) * 40;
+          const y = (e.clientY / window.innerHeight - 0.5) * 40;
+          
+          gsap.to(imageRef.current, { x: x * 0.5, y: y * 0.5, duration: 1, ease: "power2.out" });
+          gsap.to(detailRef.current, { x: x * 1.5, y: y * 1.5, duration: 1, ease: "power2.out" });
+        };
+
+        window.addEventListener("mousemove", handleMouseMove);
+        return () => window.removeEventListener("mousemove", handleMouseMove);
+      });
+      return () => ctx.revert();
     };
 
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, [mouseX, mouseY]);
+    initGsap();
+  }, []);
 
   return (
     <section
@@ -57,11 +96,11 @@ export default function EditorialHero() {
       </div>
 
       {/* Editorial Grid Lines */}
-      <div className="absolute inset-0 pointer-events-none z-10">
-        <div className="absolute left-[8%] top-0 h-full w-[1px] bg-white/5" />
-        <div className="absolute right-[8%] top-0 h-full w-[1px] bg-white/5" />
-        <div className="absolute top-[12%] left-0 w-full h-[1px] bg-white/5" />
-        <div className="absolute bottom-[12%] left-0 w-full h-[1px] bg-white/5" />
+      <div ref={gridLinesRef} className="absolute inset-0 pointer-events-none z-10">
+        <div className="absolute left-[8%] top-0 h-full w-[1px] bg-white/5 origin-top" />
+        <div className="absolute right-[8%] top-0 h-full w-[1px] bg-white/5 origin-bottom" />
+        <div className="absolute top-[12%] left-0 w-full h-[1px] bg-white/5 origin-left" />
+        <div className="absolute bottom-[12%] left-0 w-full h-[1px] bg-white/5 origin-right" />
       </div>
 
       {/* Hero Content */}
@@ -69,12 +108,7 @@ export default function EditorialHero() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
           
           {/* Left — Typography */}
-          <motion.div 
-            initial={{ opacity: 0, x: -50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1], delay: 0.5 }}
-            className="lg:col-span-6 space-y-12"
-          >
+          <div ref={titleRef} className="lg:col-span-6 space-y-12">
             <div className="space-y-4">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-[1px] bg-[#333]" />
@@ -86,12 +120,12 @@ export default function EditorialHero() {
               <SplitTextAnimation 
                 text="Sculpted in" 
                 className="font-serif text-6xl md:text-9xl text-white block" 
-                delay={0.6}
+                delay={0.1}
               />
               <SplitTextAnimation 
                 text="Obsidian." 
                 className="font-serif italic text-6xl md:text-9xl text-[#555] block" 
-                delay={1.2}
+                delay={0.4}
               />
             </h2>
 
@@ -111,17 +145,12 @@ export default function EditorialHero() {
                 </Link>
               </MagneticElement>
             </div>
-          </motion.div>
+          </div>
 
           {/* Right — Editorial Image */}
-          <motion.div 
-            initial={{ opacity: 0, y: 100 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1.8, delay: 0.7, ease: [0.16, 1, 0.3, 1] }}
-            className="lg:col-span-6 relative"
-          >
-            <motion.div 
-              style={{ x: moveX, y: moveY }}
+          <div className="lg:col-span-6 relative">
+            <div 
+              ref={imageRef}
               className="relative aspect-[3/4] lg:aspect-[4/5] overflow-hidden group border border-white/5"
             >
               <img 
@@ -140,13 +169,11 @@ export default function EditorialHero() {
                 <span className="label-tiny text-white/40">Look 01 / Obsidian Shell</span>
                 <span className="label-tiny text-white/40">© 2026 AVANT</span>
               </div>
-            </motion.div>
+            </div>
 
             {/* Floating Detail Image - Hidden on Mobile */}
-            <motion.div 
-                initial={{ opacity: 0, x: 50 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 2, delay: 1.2, ease: [0.16, 1, 0.3, 1] }}
+            <div 
+                ref={detailRef}
                 className="hidden lg:block absolute -right-12 -bottom-12 w-48 h-64 bg-[#111] border border-white/10 p-1 z-20"
             >
                 <div className="relative w-full h-full overflow-hidden">
@@ -159,8 +186,8 @@ export default function EditorialHero() {
                         <span className="label-tiny text-white/20 rotate-90" style={{ fontSize: '6px' }}>MACRO_DETAIL</span>
                     </div>
                 </div>
-            </motion.div>
-          </motion.div>
+            </div>
+          </div>
         </div>
       </div>
 

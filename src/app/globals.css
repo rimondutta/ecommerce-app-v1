@@ -141,6 +141,19 @@ body {
   color: #0a0a0a;
 }
 
+/* Grainy Texture */
+.grain-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 9998;
+  pointer-events: none;
+  opacity: 0.04;
+  background-image: url("https://res.cloudinary.com/dzvp7p5sc/image/upload/v1712214414/noise_f7v3j9.png");
+}
+
 .font-display {
   font-family: 'Playfair Display', Georgia, serif !important;
 }
@@ -229,6 +242,17 @@ body {
 
 .section-padding-bottom {
   padding-bottom: var(--section-padding);
+}
+
+/* Smart Header */
+.header-hidden {
+  transform: translateY(-100%);
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.header-visible {
+  transform: translateY(0);
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 

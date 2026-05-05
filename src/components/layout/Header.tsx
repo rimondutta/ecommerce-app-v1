@@ -37,7 +37,8 @@ export default function Header() {
   const { count: wishlistCount } = useWishlist();
   const { isOpen: isSearchOpen, openSearch, closeSearch } = useSearch();
   const [isScrolled, setIsScrolled] = useState(false);
-  const [topOffset, setTopOffset] = useState(40);
+  const [isVisible, setIsVisible] = useState(true);
+  const lastScrollY = useRef(0);
   const closeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   
   const headerRef = useRef<HTMLElement>(null);
@@ -92,12 +93,22 @@ export default function Header() {
 
     initGsap();
 
+    initGsap();
+
     const handleScroll = () => {
-      const scrollY = window.scrollY;
-      setIsScrolled(scrollY > 50);
-      setTopOffset(Math.max(0, 40 - scrollY));
+      const currentScrollY = window.scrollY;
+      setIsScrolled(currentScrollY > 50);
+      
+      if (currentScrollY > lastScrollY.current && currentScrollY > 100) {
+        setIsVisible(false); // Scrolling down
+      } else {
+        setIsVisible(true); // Scrolling up
+      }
+      
+      lastScrollY.current = currentScrollY;
     };
-    window.addEventListener("scroll", handleScroll);
+    
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
@@ -105,10 +116,12 @@ export default function Header() {
     <>
       <header
         ref={headerRef}
-        className={`fixed left-0 w-full z-[9999] transition-all duration-700 ease-[0.16,1,0.3,1] h-[60px] md:h-[68px] px-6 md:px-16 text-[#e5e2e1] ${
+        className={`fixed left-0 w-full z-[9999] px-6 md:px-16 text-[#e5e2e1] ${
+          isVisible ? "header-visible" : "header-hidden"
+        } ${
           isScrolled 
-            ? "top-0 bg-[#0a0a0a]/95 backdrop-blur-xl border-b border-white/5" 
-            : "top-[40px] bg-transparent"
+            ? "top-0 bg-[#0a0a0a]/80 backdrop-blur-2xl border-b border-white/5 h-[68px]" 
+            : "top-[40px] bg-transparent h-[80px]"
         }`}
       >
         <div className="max-w-[1800px] mx-auto h-full flex items-center justify-between">

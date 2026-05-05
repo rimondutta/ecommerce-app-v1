@@ -61,6 +61,7 @@ export default function RootLayout({
       <body className="relative min-h-screen flex flex-col font-sans bg-[#0a0a0a] text-[#e5e2e1]" suppressHydrationWarning>
         <GlobalBackgroundWrapper />
         <div className="noise-overlay" />
+        <div className="grain-overlay" />
         <div className="scanline" />
         <Preloader />
         <LenisProvider>

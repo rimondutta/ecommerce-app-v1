@@ -25,7 +25,18 @@ export default function CustomCursor() {
     const moveCursor = (e: MouseEvent) => {
       mouseX.set(e.clientX);
       mouseY.set(e.clientY);
+      
       if (!isVisible) setIsVisible(true);
+
+      // Calculate velocity for stretching
+      const velocityX = e.movementX;
+      const velocityY = e.movementY;
+      const velocity = Math.sqrt(velocityX ** 2 + velocityY ** 2);
+      const angle = Math.atan2(velocityY, velocityX) * (180 / Math.PI);
+      
+      const stretch = Math.min(velocity / 100, 1.5);
+      
+      // We can apply this to a specific element or state if needed
     };
 
     const handleMouseOver = (e: MouseEvent) => {
