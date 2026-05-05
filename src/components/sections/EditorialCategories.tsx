@@ -63,36 +63,74 @@ export default function EditorialCategories() {
         </div>
 
 
-        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-50px" }} variants={{ hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.1 } } }} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {categories.slice(0, 4).map((cat, index) => (
-            <motion.div key={cat.slug} variants={{ hidden: { opacity: 0, y: 100 }, visible: { opacity: 1, y: 0, transition: { duration: 1.5, ease: [0.16, 1, 0.3, 1] } } }} className="group relative">
-              <Link href={`/products?category=${cat.name}`} className="relative h-[450px] md:h-[650px] overflow-hidden bg-[#111] block">
-                <div className="absolute inset-0 transition-transform duration-[2s] ease-[0.16,1,0.3,1] group-hover:scale-110">
-                  <Image src={placeholderImages[index % placeholderImages.length]} alt={cat.name} fill className="object-cover grayscale group-hover:grayscale-0 transition-all duration-[600ms]" />
-                </div>
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-700" />
-                <div className="absolute inset-0 p-10 flex flex-col justify-end">
-                  <div className="space-y-4 translate-y-6 group-hover:translate-y-0 transition-transform duration-700 ease-[0.16,1,0.3,1]">
-                    <span className="label-tiny text-white/40 block" style={{ fontSize: '8px' }}>Volume 0{index + 1}</span>
-                    <h3 className="font-serif text-4xl md:text-5xl text-white tracking-tight leading-none">{cat.name}</h3>
-                    <div className="flex items-center gap-6">
-                      <div className="w-10 h-10 bg-white/10 backdrop-blur-xl flex items-center justify-center text-white border border-white/10 opacity-0 group-hover:opacity-100 transition-all duration-500 rounded-full"><ArrowRight size={16} strokeWidth={1} /></div>
-                      <span className="label-tiny text-white/40 opacity-0 group-hover:opacity-100 transition-all duration-700 delay-100" style={{ fontSize: '8px' }}>Explore</span>
+        <motion.div 
+          initial="hidden" 
+          whileInView="visible" 
+          viewport={{ once: true, margin: "-50px" }} 
+          variants={{ 
+            hidden: { opacity: 0 }, 
+            visible: { opacity: 1, transition: { staggerChildren: 0.15 } } 
+          }} 
+          className="grid grid-cols-1 md:grid-cols-12 gap-4 auto-rows-[400px] md:auto-rows-[600px]"
+        >
+          {categories.slice(0, 4).map((cat, index) => {
+            // Creative Brutalist Grid Mapping
+            const colSpan = [
+              "md:col-span-8", // First item is wide
+              "md:col-span-4", // Second is narrow
+              "md:col-span-5", // Third is medium
+              "md:col-span-7", // Fourth is wide
+            ][index % 4];
+
+            return (
+              <motion.div 
+                key={cat.slug} 
+                variants={{ 
+                  hidden: { opacity: 0, scale: 0.95, y: 50 }, 
+                  visible: { opacity: 1, scale: 1, y: 0, transition: { duration: 1.5, ease: [0.16, 1, 0.3, 1] } } 
+                }} 
+                className={`group relative overflow-hidden bg-[#111] ${colSpan}`}
+              >
+                <Link href={`/products?category=${cat.name}`} className="block h-full w-full relative">
+                  <div className="absolute inset-0 transition-transform duration-[2.5s] ease-[0.16,1,0.3,1] group-hover:scale-105">
+                    <Image 
+                      src={placeholderImages[index % placeholderImages.length]} 
+                      alt={cat.name} 
+                      fill 
+                      className="object-cover grayscale group-hover:grayscale-0 transition-all duration-[1s]" 
+                    />
+                  </div>
+                  
+                  {/* Glassmorphism technical overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent opacity-80 group-hover:opacity-40 transition-opacity duration-1000" />
+                  
+                  {/* Technical Coordinates & Branding */}
+                  <div className="absolute top-8 left-8 flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-all duration-700 -translate-y-4 group-hover:translate-y-0">
+                    <span className="label-tiny text-white/40" style={{ fontSize: '7px' }}>SEGMENT_ID: 0{index + 1}</span>
+                    <span className="label-tiny text-white/20" style={{ fontSize: '6px' }}>AV_BUREAU_ARCHIVE</span>
+                  </div>
+
+                  <div className="absolute inset-0 p-10 md:p-16 flex flex-col justify-end">
+                    <div className="space-y-6">
+                      <div className="flex items-center gap-4">
+                        <div className="w-8 h-[1px] bg-white/20 group-hover:w-16 transition-all duration-700" />
+                        <span className="label-tiny text-white/40" style={{ fontSize: '8px' }}>VOL_0{index + 1}</span>
+                      </div>
+                      
+                      <h3 className="font-serif text-5xl md:text-7xl text-white tracking-tighter leading-none glitch-hover">
+                        {cat.name}
+                      </h3>
+                      
+                      <div className="flex items-center gap-8 opacity-0 group-hover:opacity-100 transition-all duration-1000 delay-200 translate-x-[-20px] group-hover:translate-x-0">
+                        <span className="label-tiny text-white/60" style={{ fontSize: '9px' }}>VIEW_ARCHIVE</span>
+                        <ArrowRight size={20} className="text-white" strokeWidth={1} />
+                      </div>
                     </div>
                   </div>
-                </div>
-                <div className="absolute top-8 right-8 opacity-0 group-hover:opacity-100 transition-opacity duration-700">
-                  <span className="label-tiny text-white/20" style={{ fontSize: '8px' }}>AV-26-0{index + 1}</span>
-                </div>
-              </Link>
-            </motion.div>
-          ))}
-
-          {categories.length < 4 && Array.from({ length: 4 - categories.length }).map((_, i) => (
-            <div key={i} className="bg-[#111] flex items-center justify-center h-[450px] md:h-[650px]">
-              <span className="label-tiny text-[#333]">Coming Soon</span>
-            </div>
-          ))}
+                </Link>
+              </motion.div>
+            );
+          })}
         </motion.div>
       </div>
     </section>

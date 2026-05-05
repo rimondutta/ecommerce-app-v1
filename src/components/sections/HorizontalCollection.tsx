@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -37,13 +38,45 @@ const products = [
 ];
 
 export default function HorizontalCollection() {
+  const sectionRef = useRef<HTMLElement>(null);
+  const triggerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const initGsap = async () => {
+      const { gsap } = await import("@/lib/gsap");
+      const { ScrollTrigger } = await import("gsap/ScrollTrigger");
+      gsap.registerPlugin(ScrollTrigger);
+
+      const pin = gsap.fromTo(
+        triggerRef.current,
+        { x: 0 },
+        {
+          x: "-70vw",
+          ease: "none",
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: "top top",
+            end: "2000 top",
+            scrub: 1,
+            pin: true,
+            anticipatePin: 1,
+          },
+        }
+      );
+      return () => {
+        pin.kill();
+      };
+    };
+    initGsap();
+  }, []);
+
   return (
-    <section className="section-padding bg-[#0a0a0a] overflow-hidden border-y border-white/5">
-      <div className="max-w-[1800px] mx-auto px-6 md:px-16">
-        
-        {/* Header Section */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-12 mb-20 md:mb-32">
-          <div className="max-w-2xl">
+    <section ref={sectionRef} className="bg-[#0a0a0a] overflow-hidden">
+      <div className="relative h-screen flex items-center overflow-hidden">
+        <div ref={triggerRef} className="flex gap-12 px-12 md:px-32 w-[250vw] items-center">
+          
+          {/* Header Section as the first 'slide' */}
+          <div className="min-w-[400px] md:min-w-[600px] pr-20">
             <div className="flex items-center gap-3 mb-8">
               <div className="w-10 h-[1px] bg-[#333]" />
               <span className="label-tiny text-[#555]">Bureau Select</span>
@@ -51,81 +84,54 @@ export default function HorizontalCollection() {
             <h2 className="leading-[0.85] space-y-4">
               <SplitTextAnimation 
                 text="Seasonal" 
-                className="font-serif text-5xl md:text-8xl text-white block" 
+                className="font-serif text-6xl md:text-[10rem] text-white block" 
                 delay={0.2}
               />
               <SplitTextAnimation 
                 text="Archive." 
-                className="font-serif italic text-5xl md:text-8xl text-[#555] block" 
+                className="font-serif italic text-6xl md:text-[10rem] text-[#555] block" 
                 delay={0.4}
               />
             </h2>
+            <p className="label-tiny leading-[2] text-[#8e9192] max-w-sm mt-12">
+              Architecturally inspired silhouettes crafted from proprietary textiles. Engineered for the modern nomadic state.
+            </p>
           </div>
-          <p className="label-tiny leading-[2] text-[#8e9192] max-w-sm">
-            Architecturally inspired silhouettes crafted from proprietary textiles. Engineered for the modern nomadic state.
-          </p>
-        </div>
 
-        
-        {/* Product Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {/* Main Hero Product */}
-          <motion.div 
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-            viewport={{ once: true }}
-            className="md:col-span-2 lg:row-span-2 group relative aspect-[4/5] md:aspect-auto md:h-full min-h-[600px] bg-[#111] overflow-hidden"
-          >
-            <Image
-              src={products[0].image}
-              alt={products[0].name}
-              fill
-              className="object-cover grayscale group-hover:grayscale-0 transition-all duration-[1s] ease-[0.16,1,0.3,1] group-hover:scale-105"
-              priority
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent flex flex-col justify-end p-10 md:p-16">
-               <span className="label-tiny text-[#555] mb-4">{products[0].category}</span>
-               <div className="flex justify-between items-end">
-                  <h3 className="font-serif text-white text-4xl md:text-6xl tracking-tight">{products[0].name}</h3>
-                  <p className="font-serif italic text-white text-xl md:text-2xl">{products[0].price}</p>
-               </div>
-            </div>
-          </motion.div>
-
-          {/* Supporting Products */}
-          {products.slice(1).map((product, idx) => (
-            <motion.div 
+          {/* Product Slides */}
+          {products.map((product, idx) => (
+            <div 
               key={product.id} 
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 1, delay: idx * 0.1, ease: [0.16, 1, 0.3, 1] }}
-              viewport={{ once: true }}
-              className="group flex flex-col gap-6 cursor-pointer bg-[#111] p-0"
+              className="relative min-w-[350px] md:min-w-[550px] aspect-[3/4] group overflow-hidden bg-[#111]"
             >
-              <div className="relative aspect-[4/5] bg-[#111] overflow-hidden">
-                <Image
-                  src={product.image}
-                  alt={product.name}
-                  fill
-                  className="object-cover grayscale group-hover:grayscale-0 transition-all duration-700 ease-[0.16,1,0.3,1] group-hover:scale-105"
-                  sizes="(max-width: 768px) 100vw, 400px"
-                />
+              <Image
+                src={product.image}
+                alt={product.name}
+                fill
+                className="object-cover grayscale group-hover:grayscale-0 transition-all duration-[1.5s] ease-[0.16,1,0.3,1] group-hover:scale-110"
+                sizes="600px"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex flex-col justify-end p-8 opacity-0 group-hover:opacity-100 transition-opacity duration-700">
+                 <span className="label-tiny text-[#555] mb-2">{product.category}</span>
+                 <div className="flex justify-between items-end">
+                    <h3 className="font-serif text-white text-2xl md:text-4xl tracking-tight">{product.name}</h3>
+                    <p className="font-serif italic text-white text-lg">{product.price}</p>
+                 </div>
               </div>
               
-              <div className="flex justify-between items-start px-8 pb-8">
-                <div>
-                  <p className="label-tiny text-[#555] mb-2">{product.category}</p>
-                  <h3 className="font-serif text-white text-xl tracking-tight group-hover:text-[#8e9192] transition-colors">{product.name}</h3>
-                </div>
-                <p className="font-serif text-white text-lg">{product.price}</p>
+              {/* Technical Stamp */}
+              <div className="absolute top-6 right-6 p-2 border border-white/5 bg-black/40 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-700">
+                <span className="label-tiny text-[#333] block" style={{ fontSize: '6px' }}>LOOK_{idx + 1} / AV-SR-26</span>
               </div>
-            </motion.div>
+            </div>
           ))}
-        </div>
 
-        <div className="mt-20 flex justify-center">
+          {/* Call to Action slide */}
+          <div className="min-w-[400px] flex flex-col items-start gap-8">
+            <h4 className="font-serif text-4xl text-white">End of Segment.</h4>
             <Link href="/products" className="btn-pill-primary">Observe Full Archive</Link>
+          </div>
+
         </div>
       </div>
     </section>

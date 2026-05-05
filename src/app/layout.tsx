@@ -12,6 +12,8 @@ import Preloader from "@/components/ui/Preloader";
 import GlobalBackgroundWrapper from "@/components/3d/GlobalBackgroundWrapper";
 import CreativeCanvas from "@/components/ui/CreativeCanvas";
 import ScrollProgress from "@/components/ui/ScrollProgress";
+import DigitalHUD from "@/components/ui/DigitalHUD";
+import CreativePreloader from "@/components/ui/CreativePreloader";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -64,6 +66,8 @@ export default function RootLayout({
         <GlobalBackgroundWrapper />
         <CreativeCanvas />
         <ScrollProgress />
+        <DigitalHUD />
+        <CreativePreloader />
         <div className="noise-overlay" />
         <div className="grain-overlay" />
         <div className="scanline" />
