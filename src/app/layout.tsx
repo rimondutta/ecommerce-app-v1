@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import { CartProvider } from "@/components/providers/CartProvider";
 import { WishlistProvider } from "@/components/providers/WishlistProvider";
@@ -14,27 +14,36 @@ const inter = Inter({
   subsets: ["latin"],
   display: "swap",
   variable: "--font-inter",
+  weight: ["300", "400", "500", "600", "700"],
+});
+
+const playfair = Playfair_Display({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-playfair",
+  weight: ["400", "500", "600", "700"],
+  style: ["normal", "italic"],
 });
 
 export const metadata: Metadata = {
   title: {
-    default: "Flex Wear — Simple. Stylish.",
-    template: "%s | Flex Wear"
+    default: "AVANT GARDE — Wear the Silence",
+    template: "%s | AVANT GARDE"
   },
   description:
-    "Redefining casual wear with simple, stylish, and premium garments. Explore the Flex Wear collection.",
+    "Brutalist minimalism for the modern ascetic. Stripped of excess, leaving only structure and intent.",
   openGraph: {
-    title: "Flex Wear — Simple. Stylish.",
+    title: "AVANT GARDE — Wear the Silence",
     description:
-      "Redefining casual wear with simple, stylish, and premium garments. Explore the Flex Wear collection.",
+      "Brutalist minimalism for the modern ascetic. Stripped of excess, leaving only structure and intent.",
     type: "website",
     locale: "en_US",
-    siteName: "Flex Wear",
+    siteName: "AVANT GARDE",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Flex Wear — Simple. Stylish.",
-    description: "Redefining casual wear with simple, stylish, and premium garments.",
+    title: "AVANT GARDE — Wear the Silence",
+    description: "Brutalist minimalism for the modern ascetic.",
   },
 };
 
@@ -46,8 +55,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} antialiased`} data-scroll-behavior="smooth">
-      <body className="relative min-h-screen flex flex-col font-sans" suppressHydrationWarning>
+    <html lang="en" className={`${inter.variable} ${playfair.variable} antialiased`} data-scroll-behavior="smooth">
+      <body className="relative min-h-screen flex flex-col font-sans bg-[#0a0a0a] text-[#e5e2e1]" suppressHydrationWarning>
         <GlobalBackgroundWrapper />
         <div className="noise-overlay" />
         <div className="scanline" />

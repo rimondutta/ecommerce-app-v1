@@ -3,17 +3,17 @@
 import { motion } from "framer-motion";
 
 const items = [
-  "FUTURE OF WEAR",
-  "ARCHIVAL SYSTEMS",
-  "HIGH PERFORMANCE",
-  "SUSTAINABLE LUXURY",
-  "TECHWEAR ESSENTIALS",
-  "MODERN SILHOUETTES"
+  "WEAR THE SILENCE",
+  "BRUTALIST MINIMALISM",
+  "STRIPPED OF EXCESS",
+  "STRUCTURE & INTENT",
+  "MODERN ASCETIC",
+  "AVANT GARDE"
 ];
 
 export default function KineticMarquee() {
   return (
-    <div className="relative w-full py-12 md:py-24 overflow-hidden bg-black text-white">
+    <div className="relative w-full py-12 md:py-24 overflow-hidden bg-[#0a0a0a] text-white border-y border-white/5">
       <div className="flex whitespace-nowrap overflow-hidden">
         <motion.div
           animate={{ x: [0, -1035] }}
@@ -26,10 +26,10 @@ export default function KineticMarquee() {
         >
           {[...items, ...items, ...items].map((item, i) => (
             <div key={i} className="flex items-center gap-16">
-              <span className={`text-4xl md:text-9xl font-display font-black uppercase tracking-[-0.05em] ${i % 2 === 0 ? 'text-white' : 'text-zinc-800 italic'}`}>
+              <span className={`text-4xl md:text-9xl tracking-[-0.02em] ${i % 2 === 0 ? 'font-serif text-white/[0.06]' : 'font-serif italic text-white/[0.03]'}`}>
                 {item}
               </span>
-              <div className="w-2 h-2 md:w-3 md:h-3 rounded-full bg-zinc-700" />
+              <div className="w-1 h-1 bg-white/10" />
             </div>
           ))}
         </motion.div>

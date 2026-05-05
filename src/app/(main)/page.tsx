@@ -26,15 +26,15 @@ export default async function Home() {
   const sanitizedCategories = JSON.parse(JSON.stringify(categories));
 
   return (
-    <main className="bg-black flex-1 min-h-screen noise-bg">
-      {/* HERO SECTION - Immersive 3D Experience */}
+    <main className="bg-[#0a0a0a] flex-1 min-h-screen">
+      {/* HERO SECTION — Editorial Brutalist */}
       <EditorialHero />
 
-      <div className="relative z-10 bg-white md:rounded-t-[5rem] md:-mt-24 overflow-hidden shadow-[0_-30px_100px_rgba(0,0,0,0.1)]">
+      <div className="relative z-10 bg-[#0a0a0a] overflow-hidden">
         {/* KINETIC TYPOGRAPHY */}
         <KineticMarquee />
 
-        {/* CATEGORIES GRID with 3D Interaction */}
+        {/* CATEGORIES */}
         <EditorialCategories />
 
         {/* HORIZONTAL SCROLL FEATURE */}
@@ -49,12 +49,10 @@ export default async function Home() {
         <TechnicalBlueprint />
 
         {/* KINETIC REPEAT */}
-        <div className="bg-black">
-           <KineticMarquee />
-        </div>
+        <KineticMarquee />
 
         {/* EDITORIAL CONTENT */}
-        <div className="bg-zinc-50">
+        <div className="bg-[#111111]">
           <ShopTheLook />
           <EditorialBlogSection />
         </div>

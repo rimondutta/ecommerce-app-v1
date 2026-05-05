@@ -11,14 +11,13 @@ export default function CustomCursor() {
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
 
-  const springConfig = { damping: 25, stiffness: 150 };
+  const springConfig = { damping: 30, stiffness: 200 };
   const cursorX = useSpring(mouseX, springConfig);
   const cursorY = useSpring(mouseY, springConfig);
 
   useEffect(() => {
     // Hide default cursor globally
     document.body.style.cursor = "none";
-    // Also hide cursor on all links and buttons
     const style = document.createElement("style");
     style.innerHTML = `* { cursor: none !important; }`;
     document.head.appendChild(style);
@@ -43,7 +42,7 @@ export default function CustomCursor() {
 
     return () => {
       document.body.style.cursor = "auto";
-      document.head.removeChild(style);
+      if (document.head.contains(style)) document.head.removeChild(style);
       window.removeEventListener("mousemove", moveCursor);
       window.removeEventListener("mouseover", handleMouseOver);
     };
@@ -52,29 +51,49 @@ export default function CustomCursor() {
   if (typeof window === "undefined") return null;
 
   return (
-    <motion.div
-      className="fixed top-0 left-0 w-8 h-8 rounded-full border-2 border-white mix-blend-difference pointer-events-none z-[9999] flex items-center justify-center overflow-hidden"
-      style={{
-        x: cursorX,
-        y: cursorY,
-        translateX: "-50%",
-        translateY: "-50%",
-        opacity: isVisible ? 1 : 0,
-      }}
-      animate={{
-        scale: isHovering ? 2.5 : 1,
-        backgroundColor: isHovering ? "rgba(255, 255, 255, 0.1)" : "rgba(255, 255, 255, 0)",
-      }}
-    >
-      {cursorText && (
-        <motion.span
-          initial={{ opacity: 0, scale: 0.5 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="text-[4px] font-bold text-white uppercase tracking-widest"
-        >
-          {cursorText}
-        </motion.span>
-      )}
-    </motion.div>
+    <>
+      {/* Main Cursor Dot */}
+      <motion.div
+        className="fixed top-0 left-0 w-1.5 h-1.5 bg-white rounded-full pointer-events-none z-[10000]"
+        style={{
+          x: cursorX,
+          y: cursorY,
+          translateX: "-50%",
+          translateY: "-50%",
+          opacity: isVisible ? 1 : 0,
+        }}
+      />
+      
+      {/* Outer Ring / Interaction Layer */}
+      <motion.div
+        className="fixed top-0 left-0 pointer-events-none z-[9999] flex items-center justify-center border border-white/20"
+        style={{
+          x: cursorX,
+          y: cursorY,
+          translateX: "-50%",
+          translateY: "-50%",
+          opacity: isVisible ? 1 : 0,
+        }}
+        animate={{
+          width: isHovering ? 60 : 30,
+          height: isHovering ? 60 : 30,
+          borderRadius: isHovering ? "0%" : "50%",
+          backgroundColor: isHovering ? "rgba(255, 255, 255, 0.05)" : "transparent",
+          rotate: isHovering ? 45 : 0
+        }}
+        transition={{ type: "spring", damping: 20, stiffness: 150 }}
+      >
+        {cursorText && (
+          <motion.span
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="label-tiny text-white"
+            style={{ fontSize: '6px', transform: isHovering ? 'rotate(-45deg)' : 'none' }}
+          >
+            {cursorText}
+          </motion.span>
+        )}
+      </motion.div>
+    </>
   );
 }

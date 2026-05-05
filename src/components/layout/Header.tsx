@@ -8,14 +8,12 @@ import { useWishlist } from "@/components/providers/WishlistProvider";
 import { useSearch } from "@/components/providers/SearchProvider";
 import { motion, AnimatePresence } from "framer-motion";
 import { useUIStore } from "@/store/uiStore";
-import MagneticElement from "@/components/ui/MagneticElement";
-import AnimatedLogo from "@/components/ui/AnimatedLogo";
 
 const navLinks = [
-  { label: "Home", href: "/" },
-  { label: "Shop", href: "/products" },
-  { label: "Stories", href: "/blogs" },
-  { label: "Contact", href: "/contact" },
+  { label: "Collections", href: "/products" },
+  { label: "Editorial", href: "/blogs" },
+  { label: "Archive", href: "/shop" },
+  { label: "About", href: "/contact" },
 ];
 
 interface Category {
@@ -106,79 +104,74 @@ export default function Header() {
     <>
       <header
         ref={headerRef}
-        className={`fixed left-1/2 -translate-x-1/2 z-[9999] transition-all duration-1000 ease-[0.16,1,0.3,1] ${
+        className={`fixed left-0 w-full z-[9999] transition-all duration-700 ease-[0.16,1,0.3,1] h-[60px] md:h-[68px] px-6 md:px-16 text-[#e5e2e1] ${
           isScrolled 
-          ? "bg-white/70 backdrop-blur-3xl shadow-[0_8px_32px_rgba(0,0,0,0.08)] border border-white/40 h-[60px] md:h-[68px] rounded-full top-6 w-[92%] md:w-[70%] max-w-[1000px] px-6 md:px-10 text-black" 
-          : "bg-transparent h-[70px] md:h-[100px] w-full px-4 md:px-12 top-[0px] text-black"
+            ? "top-0 bg-[#0a0a0a]/95 backdrop-blur-xl border-b border-white/5" 
+            : "top-[40px] bg-transparent"
         }`}
       >
-        {/* Subtle Grain Overlay on Header */}
-        {isScrolled && <div className="absolute inset-0 opacity-[0.03] pointer-events-none rounded-full" style={{ backgroundImage: 'url("https://grainy-gradients.vercel.app/noise.svg")' }} />}
-        <div className="max-w-[1800px] mx-auto px-6 md:px-12 h-full flex items-center justify-between">
+        <div className="max-w-[1800px] mx-auto h-full flex items-center justify-between">
           
           {/* Logo Section */}
-          <div ref={logoRef} className="flex items-center gap-2 md:gap-4">
+          <div ref={logoRef} className="flex items-center gap-4 md:gap-8">
             <button
-              className="lg:hidden p-2 -ml-2 hover:bg-zinc-100 rounded-full transition-colors"
+              className="lg:hidden p-2 -ml-2 text-[#8e9192] hover:text-white transition-colors"
               onClick={openMobileMenu}
               aria-label="Open mobile menu"
             >
-              <Menu size={20} />
+              <Menu size={20} strokeWidth={1} />
             </button>
-            <Link href="/" className="flex items-center">
-              <AnimatedLogo size="sm" />
+            <Link href="/" className="flex items-center group">
+              <span className="font-serif text-2xl md:text-3xl tracking-[-0.04em] text-white font-normal relative">
+                AVANT
+                <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-white transition-all duration-700 group-hover:w-full" />
+              </span>
             </Link>
           </div>
 
-          {/* Navigation */}
-          <nav ref={navRef} className="hidden lg:flex items-center gap-10 h-full" aria-label="Main navigation">
+          {/* Navigation — Label Tiny Style */}
+          <nav ref={navRef} className="hidden lg:flex items-center gap-12 h-full" aria-label="Main navigation">
             {navLinks.map((link) => (
-              <MagneticElement key={link.label}>
-                <div
-                  className="relative h-full flex items-center will-change-transform"
-                  onMouseEnter={() => handleMouseEnter(link.label)}
-                  onMouseLeave={handleMouseLeave}
+              <div
+                key={link.label}
+                className="relative h-full flex items-center"
+                onMouseEnter={() => handleMouseEnter(link.label)}
+                onMouseLeave={handleMouseLeave}
+              >
+                <Link
+                  href={link.href}
+                  className="group flex items-center h-10 px-1"
                 >
-                  <Link
-                    href={link.href}
-                    className="group flex flex-col items-center justify-center h-10 px-2"
-                  >
-                    <span className="text-[11px] font-black uppercase tracking-[0.2em] text-zinc-500 group-hover:text-black transition-colors duration-300">
-                      {link.label}
-                    </span>
-                    <motion.div 
-                      className="absolute bottom-0 w-1 h-1 bg-black rounded-full opacity-0 group-hover:opacity-100"
-                      initial={false}
-                      animate={{ scale: activeMenu === link.label ? 1.5 : 1 }}
-                    />
-                  </Link>
-                </div>
-              </MagneticElement>
+                  <span className="label-tiny text-[#8e9192] group-hover:text-white transition-colors duration-300">
+                    {link.label}
+                  </span>
+                </Link>
+              </div>
             ))}
           </nav>
 
-          {/* Action Icons */}
-          <div ref={actionsRef} className="flex items-center gap-2 md:gap-4">
+          {/* Action Icons — 1px Stroke */}
+          <div ref={actionsRef} className="flex items-center gap-1 md:gap-3">
             <button
               onClick={() => { closeCart(); isSearchOpen ? closeSearch() : openSearch(); }}
-              className="p-2.5 text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100 rounded-full transition-colors"
+              className="p-2.5 text-[#8e9192] hover:text-white transition-colors duration-300"
             >
-              {isSearchOpen ? <X size={20} /> : <Search size={20} strokeWidth={2} />}
+              {isSearchOpen ? <X size={20} strokeWidth={1} /> : <Search size={20} strokeWidth={1} />}
             </button>
 
             <Link
               href="/account"
-              className="p-2.5 text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100 rounded-full transition-colors hidden sm:block"
+              className="p-2.5 text-[#8e9192] hover:text-white transition-colors duration-300 hidden sm:block"
             >
-              <User size={20} strokeWidth={2} />
+              <User size={20} strokeWidth={1} />
             </Link>
 
             <button
-              className="p-2.5 text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100 rounded-full transition-colors relative hidden sm:block"
+              className="p-2.5 text-[#8e9192] hover:text-white transition-colors duration-300 relative hidden sm:block"
             >
-              <Heart size={20} strokeWidth={2} className={wishlistCount > 0 ? "fill-zinc-900 text-zinc-900" : ""} />
+              <Heart size={20} strokeWidth={1} className={wishlistCount > 0 ? "fill-white text-white" : ""} />
               {wishlistCount > 0 && (
-                <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-zinc-900 text-white rounded-full text-[9px] font-bold flex items-center justify-center">
+                <span className="absolute top-1 right-1 w-4 h-4 bg-white text-[#0a0a0a] rounded-full text-[8px] font-bold flex items-center justify-center">
                   {wishlistCount}
                 </span>
               )}
@@ -186,11 +179,11 @@ export default function Header() {
 
             <button
               onClick={() => { closeSearch(); isCartOpen ? closeCart() : openCart(); }}
-              className="p-2.5 text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100 rounded-full transition-colors relative"
+              className="p-2.5 text-[#8e9192] hover:text-white transition-colors duration-300 relative"
             >
-              <ShoppingBag size={20} strokeWidth={2} />
+              <ShoppingBag size={20} strokeWidth={1} />
               {cartCount > 0 && (
-                <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-zinc-900 text-white rounded-full text-[9px] font-bold flex items-center justify-center">
+                <span className="absolute top-1 right-1 w-4 h-4 bg-white text-[#0a0a0a] rounded-full text-[8px] font-bold flex items-center justify-center">
                   {cartCount}
                 </span>
               )}
@@ -199,27 +192,27 @@ export default function Header() {
         </div>
       </header>
 
-      {/* Mega Menu Dropdown */}
+      {/* Mega Menu Dropdown — Dark Surface */}
       <AnimatePresence>
-        {activeMenu === "Shop" && (
+        {activeMenu === "Collections" && (
           <motion.div 
-            className={`fixed left-0 w-full bg-white/95 backdrop-blur-xl text-zinc-900 border-b border-zinc-200/50 shadow-soft-xl z-[90] overflow-hidden`}
-            style={{ top: `${isScrolled ? topOffset + 72 : topOffset + 88}px` }}
+            className="fixed left-0 w-full bg-[#111111]/98 backdrop-blur-xl text-[#e5e2e1] z-[90] overflow-hidden border-b border-white/5"
+            style={{ top: isScrolled ? "68px" : "108px" }}
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.4, ease: "easeInOut" }}
-            onMouseEnter={() => handleMouseEnter("Shop")}
+            onMouseEnter={() => handleMouseEnter("Collections")}
             onMouseLeave={handleMouseLeave}
           >
             <div className="max-w-[1800px] mx-auto px-16 py-12 grid grid-cols-12 gap-16 relative z-10">
                 <div className="col-span-4 grid grid-cols-2 gap-12">
                    <div className="space-y-6">
-                      <h4 className="font-semibold text-xs text-zinc-500 uppercase tracking-wider mb-4">Explore</h4>
-                      <ul className="space-y-3">
-                        {["New Arrivals", "Best Sellers", "Sale Collection"].map((l, i) => (
+                      <h4 className="label-tiny text-[#8e9192] mb-4">Explore</h4>
+                      <ul className="space-y-4">
+                        {["New Arrivals", "Best Sellers", "Sale Collection"].map((l) => (
                           <li key={l}>
-                            <Link href="/products" className="group flex items-center justify-between text-sm font-medium text-zinc-600 hover:text-zinc-900 transition-colors">
+                            <Link href="/products" className="group flex items-center justify-between text-sm font-light text-[#c4c7c8] hover:text-white transition-colors">
                               {l}
                               <ArrowRight size={14} className="opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
                             </Link>
@@ -228,11 +221,11 @@ export default function Header() {
                       </ul>
                     </div>
                     <div className="space-y-6">
-                      <h4 className="font-semibold text-xs text-zinc-500 uppercase tracking-wider mb-4">Collections</h4>
-                      <ul className="space-y-3">
+                      <h4 className="label-tiny text-[#8e9192] mb-4">Collections</h4>
+                      <ul className="space-y-4">
                         {categories.slice(0, 5).map((cat) => (
                           <li key={cat.slug}>
-                            <Link href={`/products?category=${cat.name}`} className="group flex items-center justify-between text-sm font-medium text-zinc-600 hover:text-zinc-900 transition-colors">
+                            <Link href={`/products?category=${cat.name}`} className="group flex items-center justify-between text-sm font-light text-[#c4c7c8] hover:text-white transition-colors">
                               {cat.name}
                               <ArrowRight size={14} className="opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
                             </Link>
@@ -247,16 +240,16 @@ export default function Header() {
                     <Link 
                       key={idx} 
                       href="/products" 
-                      className="relative group overflow-hidden rounded-2xl bg-zinc-100 border border-zinc-200/50"
+                      className="relative group overflow-hidden bg-[#1a1a1a]"
                     >
                       <img 
                         src={item.image} 
                         alt={item.title} 
-                        className="w-full h-full object-cover transition-transform duration-700 ease-[0.16,1,0.3,1] group-hover:scale-105" 
+                        className="w-full h-full object-cover transition-all duration-700 ease-[0.16,1,0.3,1] group-hover:scale-105 grayscale group-hover:grayscale-0" 
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent flex flex-col justify-end p-8">
-                          <span className="text-xs font-semibold uppercase tracking-wider text-white/80 mb-1">{item.subtitle}</span>
-                          <h3 className="text-white font-display font-bold text-2xl tracking-tight leading-none">{item.title}</h3>
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent flex flex-col justify-end p-8">
+                          <span className="label-tiny text-white/60 mb-2">{item.subtitle}</span>
+                          <h3 className="text-white font-serif text-2xl tracking-tight leading-none">{item.title}</h3>
                       </div>
                     </Link>
                   ))}

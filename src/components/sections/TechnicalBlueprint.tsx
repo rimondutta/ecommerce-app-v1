@@ -1,35 +1,11 @@
 "use client";
 
-import { useRef, useEffect } from "react";
+import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import Image from "next/image";
-import SplitTextAnimation from "@/components/ui/SplitTextAnimation";
 
 export default function TechnicalBlueprint() {
   const containerRef = useRef<HTMLElement>(null);
-  const textBlockRef = useRef<HTMLDivElement>(null);
-  const descRef = useRef<HTMLDivElement>(null);
-  const imageRef = useRef<HTMLDivElement>(null);
-  const imageInnerRef = useRef<HTMLDivElement>(null);
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1
-      }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 1, ease: [0.16, 1, 0.3, 1] as any }
-    }
-  };
 
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -38,110 +14,83 @@ export default function TechnicalBlueprint() {
 
   const imageY = useTransform(scrollYProgress, [0, 1], [0, 100]);
   const imageScale = useTransform(scrollYProgress, [0, 0.5], [1.1, 1]);
-  const imageOpacity = useTransform(scrollYProgress, [0, 0.2], [0, 1]);
 
   return (
     <section 
       ref={containerRef}
-      className="relative min-h-[70vh] md:min-h-[100vh] bg-black py-16 md:py-32 px-4 md:px-16 overflow-hidden flex flex-col justify-center md:rounded-[3.5rem] md:mt-24 md:mx-10"
+      className="relative min-h-screen bg-[#0a0a0a] py-24 md:py-40 px-6 md:px-16 overflow-hidden flex flex-col justify-center border-y border-white/5"
     >
-      {/* 3D Technical Grid Background - Hidden on Mobile */}
-      <div className="hidden md:block absolute inset-0 z-0 opacity-20 pointer-events-none">
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
-      </div>
+      {/* Scanlines Overlay */}
+      <div className="absolute inset-0 pointer-events-none opacity-[0.03] z-20 scanlines" />
 
-      {/* Floating 3D Particles */}
-      <div className="absolute inset-0 pointer-events-none">
-        {[...Array(6)].map((_, i) => (
-          <motion.div
-            key={i}
-            animate={{ 
-              y: [0, -40, 0],
-              opacity: [0.1, 0.3, 0.1],
-              scale: [1, 1.2, 1]
-            }}
-            transition={{ 
-              duration: 5 + i, 
-              repeat: Infinity, 
-              delay: i * 0.5,
-              ease: "easeInOut"
-            }}
-            className="absolute w-1 h-1 bg-white rounded-full"
-            style={{ 
-              top: `${Math.random() * 100}%`, 
-              left: `${Math.random() * 100}%` 
-            }}
-          />
-        ))}
-      </div>
-
-      <div className="max-w-[1800px] mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-32 items-center relative z-10">
+      <div className="max-w-[1800px] mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-20 lg:gap-32 items-center relative z-10">
         
         {/* Philosophy Text */}
         <motion.div 
-          initial="hidden"
-          whileInView="visible"
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-100px" }}
-          variants={containerVariants}
-          className="z-20 relative text-white order-2 lg:order-1"
+          transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+          className="z-20 relative order-2 lg:order-1"
         >
-             <motion.div variants={itemVariants} className="lg:block will-change-transform mb-10">
-                <div className="flex items-center justify-center lg:justify-start gap-3 mb-6">
-                  <div className="w-10 h-[1px] bg-zinc-500" />
-                  <span className="text-zinc-500 font-semibold text-xs tracking-wider uppercase">Core DNA</span>
+             <div className="mb-12">
+                <div className="flex items-center gap-3 mb-8">
+                  <div className="w-10 h-[1px] bg-[#333]" />
+                  <span className="label-tiny text-[#555]">System Architecture</span>
                 </div>
-                 <h2 className="font-display font-black text-5xl md:text-8xl tracking-[-0.05em] leading-[0.8] mb-12 text-center md:text-left mix-blend-difference">
-                  ENGINEERED FOR<br/>
-                  <span className="text-zinc-500 italic">HUMAN MOTION.</span>
+                 <h2 className="leading-[0.9] mb-16">
+                  <span className="font-serif text-5xl md:text-8xl text-white block">Engineered For</span>
+                  <span className="font-serif italic text-5xl md:text-8xl text-[#555] block">Human Motion.</span>
                 </h2>
 
-                <div className="grid grid-cols-2 gap-8 md:gap-12 mt-16">
+                <div className="grid grid-cols-2 gap-10 md:gap-16 mt-20">
                   {[
-                    { label: "Stability", value: "98.4%", desc: "Neural Knit Tech" },
-                    { label: "Comfort", value: "10/10", desc: "Aero Shell 01" }
+                    { label: "Stability", value: "98.4%", desc: "Metric System 01" },
+                    { label: "Comfort", value: "Optimal", desc: "Thermal Regulation" }
                   ].map((stat, i) => (
                     <motion.div 
                       key={i}
-                      variants={itemVariants}
-                      className="border-l border-zinc-800 pl-6 group cursor-crosshair"
+                      initial={{ opacity: 0, x: -20 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.2 + i * 0.1 }}
+                      className="border-l border-white/5 pl-8 group"
                     >
-                      <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500 group-hover:text-white transition-colors">{stat.label}</span>
-                      <div className="text-3xl font-display font-black text-white my-1">{stat.value}</div>
-                      <p className="text-[10px] text-zinc-600 uppercase font-bold">{stat.desc}</p>
+                      <span className="label-tiny text-[#333] group-hover:text-white transition-colors">{stat.label}</span>
+                      <div className="font-serif text-3xl text-white my-2">{stat.value}</div>
+                      <p className="label-tiny text-[#555]" style={{ fontSize: '7px' }}>{stat.desc}</p>
                     </motion.div>
                   ))}
                 </div>
-             </motion.div>
+             </div>
              
-             <motion.div variants={itemVariants} className="relative">
-                <p className="text-zinc-400 text-lg md:text-xl leading-relaxed max-w-lg mb-12 font-medium">
-                  Our process begins at the molecular level. We develop custom proprietary fabrics that respond dynamically to your body's temperature and kinetic energy.
+             <div className="relative space-y-12">
+                <p className="text-[#8e9192] text-lg font-light leading-relaxed max-w-lg">
+                  The process begins at the molecular level. Custom proprietary textiles that respond dynamically to kinetic energy and environmental shifts.
                 </p>
                 
-                <div className="grid grid-cols-2 gap-8">
+                <div className="grid grid-cols-2 gap-10">
                   {[
-                    { label: "Fabric Tech", value: "Kinetic-X" },
-                    { label: "Durability", value: "Grade A+" },
-                    { label: "Sustainability", value: "100% Recycled" },
+                    { label: "Fabrication", value: "Archival-K" },
+                    { label: "Durability", value: "Grade Alpha" },
+                    { label: "Integrity", value: "100% Sourced" },
                     { label: "Weight", value: "Ultralight" }
                   ].map((stat, i) => (
-                    <div key={i} className="border-l border-zinc-800 pl-6 py-2">
-                      <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-1">{stat.label}</p>
-                      <p className="text-lg font-bold text-white tracking-tight">{stat.value}</p>
+                    <div key={i} className="border-l border-white/5 pl-8 py-2">
+                      <p className="label-tiny text-[#333] mb-2">{stat.label}</p>
+                      <p className="font-serif text-xl text-white tracking-tight">{stat.value}</p>
                     </div>
                   ))}
                 </div>
-              </motion.div>
+              </div>
         </motion.div>
 
-        {/* 3D-Like Parallax Image Block */}
-        <div ref={imageRef} className="relative h-[60vh] md:h-[80vh] w-full rounded-[3rem] overflow-hidden shadow-2xl order-1 lg:order-2 border border-zinc-800">
+        {/* Editorial Image Block */}
+        <div className="relative h-[60vh] md:h-[90vh] w-full overflow-hidden border border-white/5 order-1 lg:order-2">
            <motion.div 
-             className="absolute inset-0 w-full h-[120%] -top-[10%] will-change-transform"
+             className="absolute inset-0 w-full h-[120%] -top-[10%]"
              style={{ 
                y: imageY,
-               scale: imageScale,
-               opacity: imageOpacity
+               scale: imageScale
              }}
            >
               <Image 
@@ -149,18 +98,17 @@ export default function TechnicalBlueprint() {
                   alt="Philosophy Visual"
                   fill
                   sizes="(max-width: 1024px) 100vw, 50vw"
-                  className="object-cover grayscale brightness-90 contrast-110"
+                  className="object-cover grayscale brightness-75 contrast-125 transition-all duration-1000 group-hover:grayscale-0"
               />
-              <div className="absolute inset-0 bg-zinc-950/30 mix-blend-overlay" />
+              <div className="absolute inset-0 bg-[#0a0a0a]/20" />
            </motion.div>
            
-           {/* Technical Overlays - Hidden on Mobile */}
-           <div className="hidden md:block absolute inset-0 pointer-events-none border-[20px] border-zinc-950/20 backdrop-blur-[2px]" />
-           <div className="hidden md:block absolute top-10 left-10 p-4 rounded-2xl bg-zinc-950/40 backdrop-blur-md border border-white/10 text-[10px] font-mono text-zinc-400 uppercase tracking-widest">
-             System Scan: Active
+           {/* Technical Overlays */}
+           <div className="absolute top-10 left-10 p-4 bg-[#111]/40 backdrop-blur-md border border-white/5 text-[8px] font-mono text-[#555] uppercase tracking-widest">
+             Bureau Scan: Active
            </div>
-           <div className="hidden md:block absolute bottom-10 right-10 p-4 rounded-2xl bg-zinc-950/40 backdrop-blur-md border border-white/10 text-[10px] font-mono text-zinc-400 uppercase tracking-widest">
-             Coord: 23.8103° N, 90.4125° E
+           <div className="absolute bottom-10 right-10 p-4 bg-[#111]/40 backdrop-blur-md border border-white/5 text-[8px] font-mono text-[#555] uppercase tracking-widest">
+             ID: AV-BUREAU-01
            </div>
         </div>
 

@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import AnimatedLogo from "@/components/ui/AnimatedLogo";
+import { ArrowRight } from "lucide-react";
 
 interface Category { name: string; slug: string; }
 
@@ -23,21 +23,48 @@ export default function Footer() {
   }, []);
 
   return (
-    <footer className="bg-black text-white pt-32 pb-12 overflow-hidden relative">
-      <div className="max-w-[1800px] mx-auto px-6 md:px-12 relative z-10">
+    <footer className="bg-[#0e0e0e] text-[#e5e2e1] pt-40 pb-12 overflow-hidden relative">
+      {/* Ghost Divider Top */}
+      <div className="absolute top-0 left-0 w-full h-[1px] bg-[#333333] opacity-[0.15]" />
+      
+      <div className="max-w-[1800px] mx-auto px-6 md:px-16 relative z-10">
+        
+        {/* Newsletter Section */}
+        <div className="mb-32">
+          <div className="max-w-4xl border border-white/5 bg-[#111] p-12 md:p-20 relative overflow-hidden">
+            <div className="absolute top-0 right-0 p-8">
+               <span className="label-tiny text-[#333]" style={{fontSize: '8px'}}>SYSTEM-SUB-01</span>
+            </div>
+            <span className="label-tiny text-[#8e9192] mb-8 block">BUREAU ENROLLMENT</span>
+            <h2 className="font-serif text-4xl md:text-6xl lg:text-7xl text-white leading-[0.9] mb-12 tracking-[-0.04em]">
+              Subscribe for private access to<br/>
+              <span className="italic text-[#555]">limited releases.</span>
+            </h2>
+            <div className="flex flex-col sm:flex-row gap-0 mt-10 border-b border-white/20">
+              <input
+                type="email"
+                placeholder="EMAIL_ADDRESS"
+                className="flex-1 bg-transparent border-none px-0 h-16 text-white placeholder:text-[#333] label-tiny focus:outline-none focus:placeholder:text-[#555] transition-all duration-400 rounded-none"
+              />
+              <button className="h-16 px-12 label-tiny text-white hover:text-[#555] transition-colors flex items-center gap-4">
+                ENROLL <ArrowRight size={14} />
+              </button>
+            </div>
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-20 lg:gap-32 mb-40">
           {/* Brand Column */}
           <div className="space-y-12">
-            <div className="font-display font-black text-5xl tracking-[-0.05em] flex flex-col leading-[0.8]">
-              <span className="text-white">FLEX</span>
-              <span className="text-zinc-600">WEAR.</span>
+            <div className="font-serif text-4xl text-white tracking-[-0.02em]">
+              AVANT
             </div>
-            <p className="text-[11px] uppercase tracking-[0.3em] leading-[2] text-white/50 max-w-[280px]">
-              Engineered garments for the modern inhabitant. Merging archival technicalities with contemporary silhouettes.
+            <p className="label-tiny leading-[2] text-[#8e9192] max-w-[280px]">
+              Brutalist minimalism for the modern ascetic. Stripped of excess, leaving only structure and intent.
             </p>
             <div className="flex gap-8">
               {['Instagram', 'Twitter', 'Archive'].map((social) => (
-                <a key={social} href="#" className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 hover:text-white transition-all underline decoration-zinc-800 underline-offset-8">
+                <a key={social} href="#" className="label-tiny text-[#444748] hover:text-white transition-all duration-300">
                   {social}
                 </a>
               ))}
@@ -46,18 +73,18 @@ export default function Footer() {
 
           {/* Navigation */}
           <div>
-            <h4 className="font-display font-black text-[10px] uppercase tracking-[0.5em] mb-12 text-zinc-500">Inventory</h4>
+            <h4 className="label-tiny text-[#8e9192] mb-12">Collections</h4>
             <ul className="space-y-6">
               <li>
-                <Link href="/products" className="group flex items-center text-[11px] font-black uppercase tracking-[0.2em] text-white/60 hover:text-white transition-all">
-                  <span className="w-0 group-hover:w-6 h-[1px] bg-white mr-0 group-hover:mr-4 transition-all duration-500"></span>
-                  Collections
+                <Link href="/products" className="group flex items-center label-tiny text-[#444748] hover:text-white transition-all duration-300">
+                  <span className="w-0 group-hover:w-6 h-[1px] bg-white mr-0 group-hover:mr-4 transition-all duration-500" />
+                  All Products
                 </Link>
               </li>
               {categories.slice(0, 4).map((cat) => (
                 <li key={cat.slug}>
-                  <Link href={`/products?category=${cat.slug}`} className="group flex items-center text-[11px] font-black uppercase tracking-[0.2em] text-white/60 hover:text-white transition-all">
-                    <span className="w-0 group-hover:w-6 h-[1px] bg-white mr-0 group-hover:mr-4 transition-all duration-500"></span>
+                  <Link href={`/products?category=${cat.slug}`} className="group flex items-center label-tiny text-[#444748] hover:text-white transition-all duration-300">
+                    <span className="w-0 group-hover:w-6 h-[1px] bg-white mr-0 group-hover:mr-4 transition-all duration-500" />
                     {cat.name}
                   </Link>
                 </li>
@@ -67,12 +94,12 @@ export default function Footer() {
 
           {/* Bureau */}
           <div>
-            <h4 className="font-display font-black text-[10px] uppercase tracking-[0.5em] mb-12 text-zinc-500">Bureau</h4>
+            <h4 className="label-tiny text-[#8e9192] mb-12">Bureau</h4>
             <ul className="space-y-6">
               {["Contact Us", "Shipping", "Returns", "Size Guide", "Privacy"].map((link) => (
                 <li key={link}>
-                  <a href="#" className="group flex items-center text-[11px] font-black uppercase tracking-[0.2em] text-white/60 hover:text-white transition-all">
-                    <span className="w-0 group-hover:w-6 h-[1px] bg-white mr-0 group-hover:mr-4 transition-all duration-500"></span>
+                  <a href="#" className="group flex items-center label-tiny text-[#444748] hover:text-white transition-all duration-300">
+                    <span className="w-0 group-hover:w-6 h-[1px] bg-white mr-0 group-hover:mr-4 transition-all duration-500" />
                     {link}
                   </a>
                 </li>
@@ -80,33 +107,30 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Newsletter */}
+          {/* Info */}
           <div className="space-y-12">
-            <h4 className="font-display font-black text-[10px] uppercase tracking-[0.5em] text-zinc-500">Transmission</h4>
+            <h4 className="label-tiny text-[#8e9192]">Information</h4>
             <div className="space-y-6">
-              <div className="relative group border-b border-white/20 pb-4">
-                <input
-                  type="email"
-                  placeholder="EMAIL ADDRESS"
-                  className="w-full bg-transparent text-[10px] tracking-[0.3em] uppercase outline-none placeholder:text-white/20 text-white"
-                />
-                <button className="absolute right-0 top-0 text-[10px] font-black uppercase tracking-[0.2em] text-white/40 hover:text-white transition-all">
-                  Submit
-                </button>
-              </div>
-              <p className="text-[9px] uppercase tracking-[0.2em] text-white/30 leading-relaxed">
-                Join our archival network for early access and seasonal transmissions.
+              <p className="text-sm font-light text-[#8e9192] leading-relaxed">
+                © 2026 AVANT GARDE. All rights reserved.
               </p>
+              <div className="flex flex-wrap gap-6">
+                {["Privacy", "Terms", "Shipping", "Stores"].map((item) => (
+                  <a key={item} href="#" className="label-tiny text-[#444748] hover:text-white transition-all duration-300">
+                    {item}
+                  </a>
+                ))}
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Large Statement Branding */}
+        {/* Large Statement Branding — Massive Playfair */}
         <div className="mb-20 overflow-hidden py-10 border-y border-white/5">
            <div className="flex gap-20 animate-marquee whitespace-nowrap">
               {Array.from({length: 4}).map((_, i) => (
-                <span key={i} className="font-display font-black text-[12vw] leading-none text-white tracking-[-0.05em] uppercase mix-blend-difference">
-                  FLEXWEAR ARCHIVE
+                <span key={i} className="font-serif text-[12vw] leading-none text-white tracking-[-0.02em] opacity-[0.03]">
+                  AVANT GARDE
                 </span>
               ))}
            </div>
@@ -114,24 +138,21 @@ export default function Footer() {
 
         {/* Bottom Bar */}
         <div className="pt-12 flex flex-col md:flex-row justify-between items-center gap-8 relative z-10">
-          <p className="text-[9px] font-black uppercase tracking-[0.5em] text-white/30">
-            © 2026 ARCHIVE. ALL RIGHTS RESERVED.
+          <p className="label-tiny text-[#444748]">
+            © 2026 AVANT GARDE. ALL RIGHTS RESERVED.
           </p>
           <div className="flex gap-12">
             <div className="flex flex-col items-end">
-              <span className="text-[8px] font-black uppercase tracking-[0.4em] text-zinc-600 mb-1">Timezone</span>
-              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/50">LND / NYC / TKY</span>
+              <span className="label-tiny text-[#333] mb-1" style={{fontSize: '8px'}}>Timezone</span>
+              <span className="label-tiny text-[#8e9192]">LND / NYC / TKY</span>
             </div>
             <div className="flex flex-col items-end">
-              <span className="text-[8px] font-black uppercase tracking-[0.4em] text-zinc-600 mb-1">Status</span>
-              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/50 animate-pulse">Online</span>
+              <span className="label-tiny text-[#333] mb-1" style={{fontSize: '8px'}}>Status</span>
+              <span className="label-tiny text-[#8e9192] animate-pulse">Online</span>
             </div>
           </div>
         </div>
       </div>
-      
-      {/* Decorative Blur */}
-      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-white/5 rounded-full blur-[150px] -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
     </footer>
   );
 }

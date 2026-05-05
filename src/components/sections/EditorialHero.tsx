@@ -1,35 +1,27 @@
 "use client";
 
-import { motion, useScroll, useTransform, useMotionValue, useSpring } from "framer-motion";
+import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { useRef, useEffect, useState } from "react";
-import dynamic from "next/dynamic";
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
-import MagneticButton from "@/components/ui/MagneticButton";
-
-const HeroShape = dynamic(() => import("@/components/3d/HeroShape"), { ssr: false });
 
 export default function EditorialHero() {
   const containerRef = useRef<HTMLDivElement>(null);
   
-  // Mouse tracking for 3D parallax effect
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
   
   const springX = useSpring(mouseX, { stiffness: 40, damping: 20 });
   const springY = useSpring(mouseY, { stiffness: 40, damping: 20 });
   
-  const rotateX = useTransform(springY, [-0.5, 0.5], [10, -10]);
-  const rotateY = useTransform(springX, [-0.5, 0.5], [-10, 10]);
+  const moveX = useTransform(springX, [-0.5, 0.5], [-30, 30]);
+  const moveY = useTransform(springY, [-0.5, 0.5], [-30, 30]);
 
-  // Use state to track if we're on the client
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
     
     const handleMouseMove = (e: MouseEvent) => {
-      // Normalize mouse coordinates from -0.5 to 0.5
       const x = e.clientX / window.innerWidth - 0.5;
       const y = e.clientY / window.innerHeight - 0.5;
       mouseX.set(x);
@@ -43,125 +35,137 @@ export default function EditorialHero() {
   return (
     <section
       ref={containerRef}
-      className="relative h-screen w-full bg-white overflow-hidden perspective-1000 flex items-center justify-center border-x border-zinc-100"
+      className="relative h-screen w-full bg-[#0a0a0a] overflow-hidden flex items-center justify-center border-b border-white/5"
     >
-      {/* Top Left Dots - Monochrome - Hidden on Mobile */}
-      <div className="hidden md:flex absolute top-12 left-12 gap-1.5 z-20">
-        <div className="w-2.5 h-2.5 rounded-full bg-black" />
-        <div className="w-2.5 h-2.5 rounded-full bg-zinc-400" />
-        <div className="w-2.5 h-2.5 rounded-full bg-zinc-200" />
-        <div className="w-2.5 h-2.5 rounded-full bg-zinc-100" />
-      </div>
+      {/* Scanlines Overlay */}
+      <div className="absolute inset-0 pointer-events-none opacity-[0.02] z-20 scanlines" />
 
-      {/* Bottom Left Icons - Grayscale - Hidden on Mobile */}
-      <div className="hidden md:flex absolute bottom-12 left-12 gap-3 text-lg z-20 opacity-30 grayscale">
-        <span>🏀</span>
-        <span>🎉</span>
-        <span>🌲</span>
-        <span>🎁</span>
-        <span>🏓</span>
-      </div>
-
-      {/* Bottom Right Wave - Monochrome - Hidden on Mobile */}
-      <div className="hidden md:flex absolute bottom-12 right-12 z-20 opacity-40">
-        <svg width="100" height="20" viewBox="0 0 100 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M0 10 Q 12.5 0, 25 10 T 50 10 T 75 10 T 100 10" stroke="#000" strokeWidth="1.5" fill="none" />
-          <path d="M0 10 Q 12.5 20, 25 10 T 50 10 T 75 10 T 100 10" stroke="#888" strokeWidth="1.5" fill="none" />
-        </svg>
-      </div>
-
-      {/* Massive Background Text */}
+      {/* Massive Watermark */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0 overflow-hidden">
-        <motion.h1 
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 1.5, ease: "easeOut" }}
-          className="text-[25vw] md:text-[22vw] font-black text-zinc-50 leading-none tracking-tight whitespace-nowrap"
-        >
-          FLEXWEAR
-        </motion.h1>
-      </div>
-
-      {/* Central 3D Scene */}
-      <motion.div
-        style={{ 
-          rotateX,
-          rotateY,
-          transformStyle: "preserve-3d"
-        }}
-        className="relative z-10 w-full max-w-4xl h-[600px] flex items-center justify-center"
-      >
-        {/* Curved Dotted Line (Back layer) */}
-        <div className="absolute inset-0 pointer-events-none" style={{ transform: "translateZ(-50px)" }}>
-          <svg width="100%" height="100%" viewBox="0 0 800 600" fill="none" xmlns="http://www.w3.org/2000/svg" className="absolute top-0 left-0">
-            <path 
-              d="M 100 450 Q 400 250 700 200" 
-              stroke="#000" 
-              strokeWidth="2" 
-              strokeDasharray="6 6" 
-              fill="none" 
-            />
-            {/* Arrow head */}
-            <path d="M 695 195 L 705 200 L 695 205 Z" fill="#000" />
-          </svg>
-        </div>
-
-        {/* Real 3D Hero Shape (Middle layer) */}
         <motion.div 
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 1, delay: 0.2 }}
-          className="absolute inset-0 flex items-center justify-center"
-          style={{ transform: "translateZ(0px)" }}
+          transition={{ duration: 2, ease: [0.16, 1, 0.3, 1] }}
+          className="flex flex-col items-center"
         >
-          <HeroShape />
+            <h1 className="font-serif text-[35vw] md:text-[30vw] text-white/[0.02] leading-none tracking-tighter whitespace-nowrap">
+                AVANT
+            </h1>
         </motion.div>
+      </div>
 
-        {/* Foreground Elements (Front layer) */}
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none" style={{ transform: "translateZ(80px)" }}>
+      {/* Editorial Grid Lines */}
+      <div className="absolute inset-0 pointer-events-none z-10">
+        <div className="absolute left-[8%] top-0 h-full w-[1px] bg-white/5" />
+        <div className="absolute right-[8%] top-0 h-full w-[1px] bg-white/5" />
+        <div className="absolute top-[12%] left-0 w-full h-[1px] bg-white/5" />
+        <div className="absolute bottom-[12%] left-0 w-full h-[1px] bg-white/5" />
+      </div>
+
+      {/* Hero Content */}
+      <div className="relative z-10 max-w-[1800px] mx-auto px-6 md:px-16 w-full mt-20">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
           
-          {/* Sophisticated Badge */}
+          {/* Left — Typography */}
           <motion.div 
-            initial={{ scale: 0, rotate: -20 }}
-            animate={{ scale: 1, rotate: 0 }}
-            transition={{ type: "spring", damping: 15, delay: 0.5 }}
-            className="absolute ml-[180px] mt-[-80px] w-28 h-28 rounded-full border border-zinc-200 bg-white/40 backdrop-blur-md flex flex-col items-center justify-center shadow-2xl border-white/20"
+            initial={{ opacity: 0, x: -50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1], delay: 0.5 }}
+            className="lg:col-span-6 space-y-12"
           >
-            <span className="text-[10px] font-black tracking-[0.2em] uppercase text-zinc-400 mb-1">New</span>
-            <span className="text-xl font-display font-black text-black">2026</span>
-            <span className="text-[8px] font-bold tracking-[0.1em] uppercase text-zinc-500 mt-1">Core DNA</span>
-          </motion.div>
-
-          {/* Typography block */}
-          <motion.div 
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] as any, delay: 0.6 }}
-            className="absolute bottom-12 md:bottom-auto md:ml-[260px] md:mt-[120px] flex flex-col items-center md:items-start gap-6"
-          >
-            <h2 className="text-black font-display font-black text-4xl md:text-6xl tracking-[-0.04em] leading-[0.9] text-center md:text-left">
-              BEYOND<br />
-              <span className="text-zinc-400 italic">UTILITY.</span>
-            </h2>
-            
-            <div className="pointer-events-auto flex flex-col md:flex-row items-center gap-6">
-              <Link href="/shop" className="group relative inline-flex items-center justify-center px-10 py-5 bg-black text-white rounded-full text-xs font-bold tracking-[0.2em] uppercase overflow-hidden shadow-2xl transition-transform hover:scale-105 active:scale-95">
-                <span className="relative z-10">Shop Now</span>
-                <div className="absolute inset-0 bg-zinc-800 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-[0.16,1,0.3,1]" />
-              </Link>
-              
-              <div className="hidden md:flex items-center gap-3 group cursor-pointer">
-                <div className="w-10 h-10 rounded-full border border-zinc-200 flex items-center justify-center group-hover:bg-zinc-50 transition-colors">
-                  <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
-                </div>
-                <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">The Story</span>
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-[1px] bg-[#333]" />
+                <span className="label-tiny text-[#555]">Archival System v.01</span>
               </div>
+            </div>
+            
+            <h2 className="leading-[0.8] tracking-[-0.04em]">
+              <span className="font-serif text-6xl md:text-9xl text-white block">Sculpted in</span>
+              <span className="font-serif italic text-6xl md:text-9xl text-[#555] block">Obsidian.</span>
+            </h2>
+
+            <p className="label-tiny leading-[2] text-[#8e9192] max-w-sm">
+                A study in brutalist form. High-integrity textiles met with surgical precision. Stripped of the superficial, leaving only the essential.
+            </p>
+
+            <div className="flex items-center gap-8 pt-6">
+              <Link href="/products" className="btn-pill-primary group">
+                Enter Archive
+              </Link>
+              <Link href="/shop" className="label-tiny text-[#333] hover:text-white transition-colors border-b border-white/10 pb-1">
+                Philosophy —&gt;
+              </Link>
             </div>
           </motion.div>
 
-        </div>
-      </motion.div>
-    </section>
+          {/* Right — Editorial Image */}
+          <motion.div 
+            initial={{ opacity: 0, y: 100 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1.8, delay: 0.7, ease: [0.16, 1, 0.3, 1] }}
+            className="lg:col-span-6 relative"
+          >
+            <motion.div 
+              style={{ x: moveX, y: moveY }}
+              className="relative aspect-[3/4] lg:aspect-[4/5] overflow-hidden group border border-white/5"
+            >
+              <img 
+                src="https://images.unsplash.com/photo-1509631179647-0177331693ae?q=80&w=1200&auto=format&fit=crop"
+                alt="AVANT GARDE Editorial"
+                className="w-full h-full object-cover grayscale brightness-75 contrast-125 transition-all duration-[1s] ease-[0.16,1,0.3,1] group-hover:grayscale-0 group-hover:scale-110"
+              />
+              
+              {/* Technical Overlay */}
+              <div className="absolute top-6 left-6 p-3 bg-black/40 backdrop-blur-md border border-white/5">
+                <span className="label-tiny text-[#555]" style={{ fontSize: '7px' }}>BUREAU / ARCHIVE-001</span>
+              </div>
 
+              {/* Bottom Info */}
+              <div className="absolute bottom-10 left-10 right-10 flex items-end justify-between mix-blend-difference">
+                <span className="label-tiny text-white/40">Look 01 / Obsidian Shell</span>
+                <span className="label-tiny text-white/40">© 2026 AVANT</span>
+              </div>
+            </motion.div>
+
+            {/* Floating Detail Image - Hidden on Mobile */}
+            <motion.div 
+                initial={{ opacity: 0, x: 50 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 2, delay: 1.2, ease: [0.16, 1, 0.3, 1] }}
+                className="hidden lg:block absolute -right-12 -bottom-12 w-48 h-64 bg-[#111] border border-white/10 p-1 z-20"
+            >
+                <div className="relative w-full h-full overflow-hidden">
+                    <img 
+                        src="https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?q=80&w=600&auto=format&fit=crop"
+                        alt="Detail"
+                        className="w-full h-full object-cover grayscale opacity-50"
+                    />
+                    <div className="absolute inset-0 flex items-center justify-center">
+                        <span className="label-tiny text-white/20 rotate-90" style={{ fontSize: '6px' }}>MACRO_DETAIL</span>
+                    </div>
+                </div>
+            </motion.div>
+          </motion.div>
+        </div>
+      </div>
+
+      {/* Side Info */}
+      <div className="absolute left-8 top-1/2 -translate-y-1/2 vertical-text hidden md:block">
+        <span className="label-tiny text-[#333] tracking-[0.5em]">AVANT GARDE — ARCHIVAL BUREAU</span>
+      </div>
+
+      <div className="absolute right-8 top-1/2 -translate-y-1/2 vertical-text hidden md:block">
+        <span className="label-tiny text-[#333] tracking-[0.5em]">23.8103° N, 90.4125° E</span>
+      </div>
+
+      <style jsx>{`
+        .vertical-text {
+          writing-mode: vertical-rl;
+          text-orientation: mixed;
+          transform: rotate(180deg);
+        }
+      `}</style>
+    </section>
   );
 }

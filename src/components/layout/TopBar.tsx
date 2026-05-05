@@ -1,12 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ChevronDown, Globe, HelpCircle } from "lucide-react";
 
 const announcements = [
-  "New Collection — Soft Modern Minimalism Out Now",
-  "Free Express Shipping on Orders Over ৳8,000",
-  "Subscribe for 10% Off Your First Purchase",
+  "New Collection — Monochrome Editorial Now Available",
+  "Complimentary Worldwide Shipping on Orders Over ৳8,000",
+  "Subscribe for Private Access to Limited Releases",
 ];
 
 export default function TopBar() {
@@ -20,15 +19,13 @@ export default function TopBar() {
   }, []);
 
   return (
-    <div className="absolute top-0 left-0 w-full bg-zinc-900 text-white h-[40px] flex items-center justify-between px-6 md:px-12 z-[600] overflow-hidden border-b border-white/5">
+    <div className="absolute top-0 left-0 w-full bg-[#0e0e0e] text-[#e5e2e1] h-[40px] flex items-center justify-between px-6 md:px-16 z-[600] overflow-hidden border-b border-white/5">
       {/* Left: Info */}
-      <div className="hidden lg:flex items-center gap-6">
-        <a href="#" className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-400 hover:text-white transition-all">
-          <Globe size={12} />
+      <div className="hidden lg:flex items-center gap-8">
+        <a href="#" className="label-tiny text-[#8e9192] hover:text-white transition-all duration-300">
           Stores
         </a>
-        <a href="#" className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-400 hover:text-white transition-all">
-          <HelpCircle size={12} />
+        <a href="#" className="label-tiny text-[#8e9192] hover:text-white transition-all duration-300">
           Support
         </a>
       </div>
@@ -37,7 +34,7 @@ export default function TopBar() {
       <div className="flex-1 text-center flex items-center justify-center">
         <div className="h-full flex items-center justify-center overflow-hidden">
           <p 
-            className="font-sans font-bold text-[10px] md:text-[11px] uppercase tracking-[0.25em] animate-fade-in-up text-zinc-100" 
+            className="label-tiny text-[#c4c7c8] animate-fade-in-up" 
             key={currentAnnouncement}
           >
             {announcements[currentAnnouncement]}
@@ -47,12 +44,11 @@ export default function TopBar() {
 
       {/* Right: Settings */}
       <div className="hidden lg:flex items-center gap-8">
-        <button className="text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-400 hover:text-white transition-all flex items-center gap-1.5">
+        <button className="label-tiny text-[#8e9192] hover:text-white transition-all duration-300">
           BD / BDT
-          <ChevronDown size={10} className="text-zinc-500" />
         </button>
-        <span className="text-zinc-800">|</span>
-        <a href="#" className="text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-400 hover:text-white transition-all">
+        <span className="text-[#333333]">|</span>
+        <a href="#" className="label-tiny text-[#8e9192] hover:text-white transition-all duration-300">
           Login
         </a>
       </div>
