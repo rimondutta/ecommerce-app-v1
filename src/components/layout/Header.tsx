@@ -8,6 +8,7 @@ import { useWishlist } from "@/components/providers/WishlistProvider";
 import { useSearch } from "@/components/providers/SearchProvider";
 import { motion, AnimatePresence } from "framer-motion";
 import { useUIStore } from "@/store/uiStore";
+import MagneticElement from "@/components/ui/MagneticElement";
 
 const navLinks = [
   { label: "Collections", href: "/products" },
@@ -122,10 +123,12 @@ export default function Header() {
               <Menu size={20} strokeWidth={1} />
             </button>
             <Link href="/" className="flex items-center group">
-              <span className="font-serif text-2xl md:text-3xl tracking-[-0.04em] text-white font-normal relative">
-                AVANT
-                <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-white transition-all duration-700 group-hover:w-full" />
-              </span>
+              <MagneticElement strength={0.2}>
+                <span className="font-serif text-2xl md:text-3xl tracking-[-0.04em] text-white font-normal relative">
+                  AVANT
+                  <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-white transition-all duration-700 group-hover:w-full" />
+                </span>
+              </MagneticElement>
             </Link>
           </div>
 
@@ -142,9 +145,11 @@ export default function Header() {
                   href={link.href}
                   className="group flex items-center h-10 px-1"
                 >
-                  <span className="label-tiny text-[#8e9192] group-hover:text-white transition-colors duration-300">
-                    {link.label}
-                  </span>
+                  <MagneticElement strength={0.15}>
+                    <span className="label-tiny text-[#8e9192] group-hover:text-white transition-colors duration-300">
+                      {link.label}
+                    </span>
+                  </MagneticElement>
                 </Link>
               </div>
             ))}
@@ -152,42 +157,50 @@ export default function Header() {
 
           {/* Action Icons — 1px Stroke */}
           <div ref={actionsRef} className="flex items-center gap-1 md:gap-3">
-            <button
-              onClick={() => { closeCart(); isSearchOpen ? closeSearch() : openSearch(); }}
-              className="p-2.5 text-[#8e9192] hover:text-white transition-colors duration-300"
-            >
-              {isSearchOpen ? <X size={20} strokeWidth={1} /> : <Search size={20} strokeWidth={1} />}
-            </button>
+            <MagneticElement strength={0.3}>
+              <button
+                onClick={() => { closeCart(); isSearchOpen ? closeSearch() : openSearch(); }}
+                className="p-2.5 text-[#8e9192] hover:text-white transition-colors duration-300"
+              >
+                {isSearchOpen ? <X size={20} strokeWidth={1} /> : <Search size={20} strokeWidth={1} />}
+              </button>
+            </MagneticElement>
 
-            <Link
-              href="/account"
-              className="p-2.5 text-[#8e9192] hover:text-white transition-colors duration-300 hidden sm:block"
-            >
-              <User size={20} strokeWidth={1} />
-            </Link>
+            <MagneticElement strength={0.3} className="hidden sm:block">
+              <Link
+                href="/account"
+                className="p-2.5 text-[#8e9192] hover:text-white transition-colors duration-300"
+              >
+                <User size={20} strokeWidth={1} />
+              </Link>
+            </MagneticElement>
 
-            <button
-              className="p-2.5 text-[#8e9192] hover:text-white transition-colors duration-300 relative hidden sm:block"
-            >
-              <Heart size={20} strokeWidth={1} className={wishlistCount > 0 ? "fill-white text-white" : ""} />
-              {wishlistCount > 0 && (
-                <span className="absolute top-1 right-1 w-4 h-4 bg-white text-[#0a0a0a] rounded-full text-[8px] font-bold flex items-center justify-center">
-                  {wishlistCount}
-                </span>
-              )}
-            </button>
+            <MagneticElement strength={0.3} className="hidden sm:block">
+              <button
+                className="p-2.5 text-[#8e9192] hover:text-white transition-colors duration-300 relative"
+              >
+                <Heart size={20} strokeWidth={1} className={wishlistCount > 0 ? "fill-white text-white" : ""} />
+                {wishlistCount > 0 && (
+                  <span className="absolute top-1 right-1 w-4 h-4 bg-white text-[#0a0a0a] rounded-full text-[8px] font-bold flex items-center justify-center">
+                    {wishlistCount}
+                  </span>
+                )}
+              </button>
+            </MagneticElement>
 
-            <button
-              onClick={() => { closeSearch(); isCartOpen ? closeCart() : openCart(); }}
-              className="p-2.5 text-[#8e9192] hover:text-white transition-colors duration-300 relative"
-            >
-              <ShoppingBag size={20} strokeWidth={1} />
-              {cartCount > 0 && (
-                <span className="absolute top-1 right-1 w-4 h-4 bg-white text-[#0a0a0a] rounded-full text-[8px] font-bold flex items-center justify-center">
-                  {cartCount}
-                </span>
-              )}
-            </button>
+            <MagneticElement strength={0.3}>
+              <button
+                onClick={() => { closeSearch(); isCartOpen ? closeCart() : openCart(); }}
+                className="p-2.5 text-[#8e9192] hover:text-white transition-colors duration-300 relative"
+              >
+                <ShoppingBag size={20} strokeWidth={1} />
+                {cartCount > 0 && (
+                  <span className="absolute top-1 right-1 w-4 h-4 bg-white text-[#0a0a0a] rounded-full text-[8px] font-bold flex items-center justify-center">
+                    {cartCount}
+                  </span>
+                )}
+              </button>
+            </MagneticElement>
           </div>
         </div>
       </header>

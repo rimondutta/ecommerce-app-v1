@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import { Plus } from "lucide-react";
+import MagneticElement from "@/components/ui/MagneticElement";
 
 interface Product {
   _id?: string;
@@ -54,7 +55,7 @@ export default function EditorialProductGrid({
   }, [normalizedProducts, selectedCategory]);
 
   return (
-    <section ref={sectionRef} className="relative px-6 md:px-16 py-24 md:py-40 max-w-[1800px] mx-auto border-t border-white/5 bg-[#0a0a0a]">
+    <section ref={sectionRef} className="relative px-6 md:px-16 section-padding max-w-[1800px] mx-auto border-t border-white/5 bg-[#0a0a0a]">
       {/* Scanlines Overlay */}
       <div className="absolute inset-0 pointer-events-none opacity-[0.02] z-20 scanlines" />
 
@@ -122,6 +123,7 @@ export default function EditorialProductGrid({
                         alt={product.title} 
                         fill 
                         className="object-cover transition-all duration-[1s] ease-[0.16,1,0.3,1] group-hover:scale-105 grayscale group-hover:grayscale-0" 
+                        data-cursor="view"
                     />
                     
                     {/* Editorial Overlay */}
@@ -133,9 +135,11 @@ export default function EditorialProductGrid({
                                 <span className="label-tiny text-white/40" style={{ fontSize: '7px' }}>REF: 00{index + 1}</span>
                                 <span className="label-tiny text-white">{typeof product.category === 'object' ? product.category.name : product.category}</span>
                             </div>
-                            <Link href={`/products/${product.slug}`} className="w-10 h-10 border border-white/20 flex items-center justify-center text-white hover:bg-white hover:text-black transition-all duration-500">
-                                <Plus size={16} strokeWidth={1} />
-                            </Link>
+                             <MagneticElement strength={0.4}>
+                                <Link href={`/products/${product.slug}`} className="w-10 h-10 border border-white/20 flex items-center justify-center text-white hover:bg-white hover:text-black transition-all duration-500">
+                                    <Plus size={16} strokeWidth={1} />
+                                </Link>
+                            </MagneticElement>
                         </div>
                         
                         <div className="space-y-4">

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { motion, useSpring, useMotionValue } from "framer-motion";
+import { motion, useSpring, useMotionValue, AnimatePresence } from "framer-motion";
 
 export default function CustomCursor() {
   const [isVisible, setIsVisible] = useState(false);
@@ -30,11 +30,17 @@ export default function CustomCursor() {
 
     const handleMouseOver = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
-      const isClickable = target.closest("button, a, input, [data-cursor]");
+      const clickable = target.closest("button, a, input, [data-cursor]");
+      const viewable = target.closest("[data-cursor='view']");
       const customText = target.closest("[data-cursor-text]")?.getAttribute("data-cursor-text");
       
-      setIsHovering(!!isClickable);
-      setCursorText(customText || "");
+      setIsHovering(!!clickable);
+      
+      if (viewable) {
+        setCursorText("VIEW");
+      } else {
+        setCursorText(customText || "");
+      }
     };
 
     window.addEventListener("mousemove", moveCursor);
@@ -54,7 +60,7 @@ export default function CustomCursor() {
     <>
       {/* Main Cursor Dot */}
       <motion.div
-        className="fixed top-0 left-0 w-1.5 h-1.5 bg-white rounded-full pointer-events-none z-[10000]"
+        className="fixed top-0 left-0 w-1 h-1 bg-white rounded-full pointer-events-none z-[10000] mix-blend-difference"
         style={{
           x: cursorX,
           y: cursorY,
@@ -75,25 +81,31 @@ export default function CustomCursor() {
           opacity: isVisible ? 1 : 0,
         }}
         animate={{
-          width: isHovering ? 60 : 30,
-          height: isHovering ? 60 : 30,
+          width: isHovering ? 80 : 40,
+          height: isHovering ? 80 : 40,
           borderRadius: isHovering ? "0%" : "50%",
           backgroundColor: isHovering ? "rgba(255, 255, 255, 0.05)" : "transparent",
-          rotate: isHovering ? 45 : 0
+          rotate: isHovering ? 45 : 0,
+          borderWidth: isHovering ? "1px" : "1px",
+          borderColor: isHovering ? "rgba(255, 255, 255, 0.4)" : "rgba(255, 255, 255, 0.1)"
         }}
-        transition={{ type: "spring", damping: 20, stiffness: 150 }}
+        transition={{ type: "spring", damping: 25, stiffness: 200, mass: 0.5 }}
       >
-        {cursorText && (
-          <motion.span
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="label-tiny text-white"
-            style={{ fontSize: '6px', transform: isHovering ? 'rotate(-45deg)' : 'none' }}
-          >
-            {cursorText}
-          </motion.span>
-        )}
+        <AnimatePresence>
+          {cursorText && (
+            <motion.span
+              initial={{ opacity: 0, scale: 0.5 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.5 }}
+              className="label-tiny text-white"
+              style={{ fontSize: '7px', transform: 'rotate(-45deg)', letterSpacing: '0.2em' }}
+            >
+              {cursorText}
+            </motion.span>
+          )}
+        </AnimatePresence>
       </motion.div>
     </>
   );
 }
+

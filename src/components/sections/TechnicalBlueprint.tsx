@@ -3,6 +3,7 @@
 import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import Image from "next/image";
+import SplitTextAnimation from "@/components/ui/SplitTextAnimation";
 
 export default function TechnicalBlueprint() {
   const containerRef = useRef<HTMLElement>(null);
@@ -12,13 +13,13 @@ export default function TechnicalBlueprint() {
     offset: ["start end", "end start"]
   });
 
-  const imageY = useTransform(scrollYProgress, [0, 1], [0, 100]);
+  const imageY = useTransform(scrollYProgress, [0, 1], [0, 120]);
   const imageScale = useTransform(scrollYProgress, [0, 0.5], [1.1, 1]);
 
   return (
     <section 
       ref={containerRef}
-      className="relative min-h-screen bg-[#0a0a0a] py-24 md:py-40 px-6 md:px-16 overflow-hidden flex flex-col justify-center border-y border-white/5"
+      className="relative min-h-screen bg-[#0a0a0a] section-padding px-6 md:px-16 overflow-hidden flex flex-col justify-center border-y border-white/5"
     >
       {/* Scanlines Overlay */}
       <div className="absolute inset-0 pointer-events-none opacity-[0.03] z-20 scanlines" />
@@ -38,10 +39,19 @@ export default function TechnicalBlueprint() {
                   <div className="w-10 h-[1px] bg-[#333]" />
                   <span className="label-tiny text-[#555]">System Architecture</span>
                 </div>
-                 <h2 className="leading-[0.9] mb-16">
-                  <span className="font-serif text-5xl md:text-8xl text-white block">Engineered For</span>
-                  <span className="font-serif italic text-5xl md:text-8xl text-[#555] block">Human Motion.</span>
+                 <h2 className="leading-[0.9] mb-16 space-y-4">
+                  <SplitTextAnimation 
+                    text="Engineered For" 
+                    className="font-serif text-5xl md:text-8xl text-white block" 
+                    delay={0.2}
+                  />
+                  <SplitTextAnimation 
+                    text="Human Motion." 
+                    className="font-serif italic text-5xl md:text-8xl text-[#555] block" 
+                    delay={0.4}
+                  />
                 </h2>
+
 
                 <div className="grid grid-cols-2 gap-10 md:gap-16 mt-20">
                   {[

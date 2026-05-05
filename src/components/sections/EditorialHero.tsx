@@ -3,6 +3,8 @@
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { useRef, useEffect, useState } from "react";
 import Link from "next/link";
+import SplitTextAnimation from "@/components/ui/SplitTextAnimation";
+import MagneticElement from "@/components/ui/MagneticElement";
 
 export default function EditorialHero() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -80,9 +82,17 @@ export default function EditorialHero() {
               </div>
             </div>
             
-            <h2 className="leading-[0.8] tracking-[-0.04em]">
-              <span className="font-serif text-6xl md:text-9xl text-white block">Sculpted in</span>
-              <span className="font-serif italic text-6xl md:text-9xl text-[#555] block">Obsidian.</span>
+            <h2 className="leading-[0.8] tracking-[-0.04em] space-y-4">
+              <SplitTextAnimation 
+                text="Sculpted in" 
+                className="font-serif text-6xl md:text-9xl text-white block" 
+                delay={0.6}
+              />
+              <SplitTextAnimation 
+                text="Obsidian." 
+                className="font-serif italic text-6xl md:text-9xl text-[#555] block" 
+                delay={1.2}
+              />
             </h2>
 
             <p className="label-tiny leading-[2] text-[#8e9192] max-w-sm">
@@ -90,12 +100,16 @@ export default function EditorialHero() {
             </p>
 
             <div className="flex items-center gap-8 pt-6">
-              <Link href="/products" className="btn-pill-primary group">
-                Enter Archive
-              </Link>
-              <Link href="/shop" className="label-tiny text-[#333] hover:text-white transition-colors border-b border-white/10 pb-1">
-                Philosophy —&gt;
-              </Link>
+              <MagneticElement strength={0.2}>
+                <Link href="/products" className="btn-pill-primary group">
+                  Enter Archive
+                </Link>
+              </MagneticElement>
+              <MagneticElement strength={0.2}>
+                <Link href="/shop" className="label-tiny text-[#333] hover:text-white transition-colors border-b border-white/10 pb-1">
+                  Philosophy —&gt;
+                </Link>
+              </MagneticElement>
             </div>
           </motion.div>
 

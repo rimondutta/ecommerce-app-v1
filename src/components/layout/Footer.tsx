@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import MagneticElement from "@/components/ui/MagneticElement";
 
 interface Category { name: string; slug: string; }
 
@@ -23,7 +24,7 @@ export default function Footer() {
   }, []);
 
   return (
-    <footer className="bg-[#0e0e0e] text-[#e5e2e1] pt-40 pb-12 overflow-hidden relative">
+    <footer className="bg-[#0e0e0e] text-[#e5e2e1] pt-40 pb-12 overflow-hidden relative border-t border-white/5">
       {/* Ghost Divider Top */}
       <div className="absolute top-0 left-0 w-full h-[1px] bg-[#333333] opacity-[0.15]" />
       
@@ -40,15 +41,17 @@ export default function Footer() {
               Subscribe for private access to<br/>
               <span className="italic text-[#555]">limited releases.</span>
             </h2>
-            <div className="flex flex-col sm:flex-row gap-0 mt-10 border-b border-white/20">
+            <div className="flex flex-col sm:flex-row gap-0 mt-10 border-b border-white/20 group/input">
               <input
                 type="email"
                 placeholder="EMAIL_ADDRESS"
                 className="flex-1 bg-transparent border-none px-0 h-16 text-white placeholder:text-[#333] label-tiny focus:outline-none focus:placeholder:text-[#555] transition-all duration-400 rounded-none"
               />
-              <button className="h-16 px-12 label-tiny text-white hover:text-[#555] transition-colors flex items-center gap-4">
-                ENROLL <ArrowRight size={14} />
-              </button>
+              <MagneticElement strength={0.2}>
+                <button className="h-16 px-12 label-tiny text-white hover:text-[#555] transition-colors flex items-center gap-4">
+                  ENROLL <ArrowRight size={14} />
+                </button>
+              </MagneticElement>
             </div>
           </div>
         </div>
@@ -64,9 +67,11 @@ export default function Footer() {
             </p>
             <div className="flex gap-8">
               {['Instagram', 'Twitter', 'Archive'].map((social) => (
-                <a key={social} href="#" className="label-tiny text-[#444748] hover:text-white transition-all duration-300">
-                  {social}
-                </a>
+                <MagneticElement key={social} strength={0.3}>
+                  <a href="#" className="label-tiny text-[#444748] hover:text-white transition-all duration-300">
+                    {social}
+                  </a>
+                </MagneticElement>
               ))}
             </div>
           </div>

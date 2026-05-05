@@ -4,6 +4,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
+import SplitTextAnimation from "@/components/ui/SplitTextAnimation";
 
 interface BlogPost {
   _id: string;
@@ -39,27 +40,30 @@ const EditorialBlogSection = () => {
   if (loading || posts.length === 0) return null;
 
   return (
-    <section ref={sectionRef} className="py-24 md:py-40 bg-[#0a0a0a] relative overflow-hidden border-t border-white/5">
+    <section ref={sectionRef} className="section-padding bg-[#0a0a0a] relative overflow-hidden border-t border-white/5">
       {/* Scanlines */}
       <div className="absolute inset-0 pointer-events-none opacity-[0.02] z-20 scanlines" />
 
       <div className="max-w-[1800px] mx-auto px-6 md:px-16">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-12 mb-24 md:mb-32">
-          <motion.div 
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="space-y-8"
-          >
+          <div className="space-y-8">
             <div className="flex items-center gap-3">
               <div className="w-10 h-[1px] bg-[#333]" />
               <span className="label-tiny text-[#555]">Bureau Chronicles</span>
             </div>
-            <h2 className="leading-[0.85]">
-              <span className="font-serif text-5xl md:text-8xl text-white block">Editorial</span>
-              <span className="font-serif italic text-5xl md:text-8xl text-[#555] block">Journal.</span>
+            <h2 className="leading-[0.85] space-y-4">
+              <SplitTextAnimation 
+                text="Editorial" 
+                className="font-serif text-5xl md:text-8xl text-white block" 
+                delay={0.2}
+              />
+              <SplitTextAnimation 
+                text="Journal." 
+                className="font-serif italic text-5xl md:text-8xl text-[#555] block" 
+                delay={0.4}
+              />
             </h2>
-          </motion.div>
+          </div>
           
           <motion.p 
             initial={{ opacity: 0 }}
@@ -133,14 +137,23 @@ const EditorialBlogSection = () => {
                   <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
                   <span className="label-tiny text-[#555]">TRANSMISSION FEED LIVE</span>
                 </div>
-                <h2 className="leading-none">
-                  <span className="font-serif text-6xl md:text-9xl text-white block">Access the</span>
-                  <span className="font-serif italic text-6xl md:text-9xl text-[#555] block">Collective.</span>
+                <h2 className="leading-none space-y-4">
+                  <SplitTextAnimation 
+                    text="Access the" 
+                    className="font-serif text-6xl md:text-9xl text-white block" 
+                    delay={0.2}
+                  />
+                  <SplitTextAnimation 
+                    text="Collective." 
+                    className="font-serif italic text-6xl md:text-9xl text-[#555] block" 
+                    delay={0.4}
+                  />
                 </h2>
                 <p className="label-tiny leading-[2] text-[#8e9192] max-w-xl mx-auto">
                   Join our private directory for prioritized access to archival drops, technical specifications, and exclusive editorial perspectives.
                 </p>
               </div>
+
               
               <form onSubmit={(e) => e.preventDefault()} className="flex flex-col md:flex-row gap-0 max-w-2xl mx-auto border border-white/10">
                  <div className="flex-1 relative">

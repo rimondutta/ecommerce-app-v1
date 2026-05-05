@@ -3,6 +3,8 @@
 import { useEffect, useRef } from "react";
 import { Camera } from "lucide-react";
 import Image from "next/image";
+import SplitTextAnimation from "@/components/ui/SplitTextAnimation";
+import MagneticElement from "@/components/ui/MagneticElement";
 
 const images = [
   "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=800&auto=format&fit=crop",
@@ -74,7 +76,7 @@ export default function ShopGram() {
   }, []);
 
   return (
-    <section ref={sectionRef} className="relative py-24 md:py-40 bg-[#0a0a0a] overflow-hidden border-t border-white/5">
+    <section ref={sectionRef} className="relative section-padding bg-[#0a0a0a] overflow-hidden border-t border-white/5">
       {/* Scanlines Overlay */}
       <div className="absolute inset-0 pointer-events-none opacity-[0.02] z-20 scanlines" />
 
@@ -85,19 +87,30 @@ export default function ShopGram() {
               <div className="w-10 h-[1px] bg-[#333]" />
               <span className="label-tiny text-[#555]">Visual Archive</span>
             </div>
-            <h2 className="leading-[0.85]">
-              <span className="font-serif text-5xl md:text-8xl text-white block">Community</span>
-              <span className="font-serif italic text-5xl md:text-8xl text-[#555] block">Network.</span>
+            <h2 className="leading-[0.85] space-y-4">
+              <SplitTextAnimation 
+                text="Community" 
+                className="font-serif text-5xl md:text-8xl text-white block" 
+                delay={0.2}
+              />
+              <SplitTextAnimation 
+                text="Network." 
+                className="font-serif italic text-5xl md:text-8xl text-[#555] block" 
+                delay={0.4}
+              />
             </h2>
           </div>
 
-          <a 
-            href="#" 
-            className="label-tiny text-white border border-white/20 px-10 py-5 hover:bg-white hover:text-black transition-all"
-          >
-            FOLLOW @AVANT_GARDE
-          </a>
+          <MagneticElement strength={0.3}>
+            <a 
+              href="#" 
+              className="label-tiny text-white border border-white/20 px-10 py-5 hover:bg-white hover:text-black transition-all"
+            >
+              FOLLOW @AVANT_GARDE
+            </a>
+          </MagneticElement>
         </div>
+
 
         <div ref={trackRef} className="flex gap-4 overflow-x-auto md:overflow-visible pb-10 no-scrollbar">
           {images.map((src, i) => {

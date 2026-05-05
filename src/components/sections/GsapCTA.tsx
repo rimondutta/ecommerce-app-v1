@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import MagneticElement from "@/components/ui/MagneticElement";
 
 export default function GsapCTA() {
   const sectionRef = useRef<HTMLDivElement>(null);
@@ -64,14 +65,14 @@ export default function GsapCTA() {
   return (
     <div
       ref={sectionRef}
-      className="relative bg-[#0a0a0a] py-32 md:py-60 flex flex-col items-center justify-center text-center overflow-hidden border-t border-white/5"
+      className="relative bg-[#0a0a0a] section-padding flex flex-col items-center justify-center text-center overflow-hidden border-t border-white/5"
     >
       {/* Scanlines Overlay */}
       <div className="absolute inset-0 pointer-events-none opacity-[0.03] z-20 scanlines" />
 
       {/* Massive Watermark */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
-          <div className="font-serif text-[40vw] text-white/[0.01] leading-none select-none">
+          <div className="font-serif text-[45vw] text-white/[0.01] leading-none select-none tracking-tighter">
               AVANT
           </div>
       </div>
@@ -100,13 +101,16 @@ export default function GsapCTA() {
         </p>
 
         <div data-cta-btn style={{ opacity: 0 }}>
-            <Link
-              href="/products"
-              className="btn-pill-primary group px-16 py-6"
-            >
-              SECURE ACCESS
-            </Link>
+            <MagneticElement strength={0.2}>
+              <Link
+                href="/products"
+                className="btn-pill-primary group px-16 py-6"
+              >
+                SECURE ACCESS
+              </Link>
+            </MagneticElement>
         </div>
+
 
         {/* Technical Markers */}
         <div className="absolute bottom-12 left-12 hidden md:block">

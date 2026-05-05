@@ -9,6 +9,7 @@ import NextAuthProvider from "@/components/providers/NextAuthProvider";
 import CustomCursor from "@/components/ui/CustomCursor";
 import LenisProvider from "@/components/providers/LenisProvider";
 import Preloader from "@/components/ui/Preloader";
+import GlobalBackgroundWrapper from "@/components/3d/GlobalBackgroundWrapper";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -47,7 +48,8 @@ export const metadata: Metadata = {
   },
 };
 
-import GlobalBackgroundWrapper from "@/components/3d/GlobalBackgroundWrapper";
+import PageTransition from "@/components/ui/PageTransition";
+import { AnimatePresence } from "framer-motion";
 
 export default function RootLayout({
   children,
@@ -67,7 +69,11 @@ export default function RootLayout({
             <WishlistProvider>
               <CartProvider>
                 <SearchProvider>
-                  {children}
+                  <AnimatePresence mode="wait">
+                    <PageTransition>
+                      {children}
+                    </PageTransition>
+                  </AnimatePresence>
                   <GlobalUI />
                 </SearchProvider>
               </CartProvider>
@@ -78,3 +84,4 @@ export default function RootLayout({
     </html>
   );
 }
+

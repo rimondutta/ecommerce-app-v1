@@ -53,6 +53,10 @@
   --font-display: 'Playfair Display', Georgia, serif;
   --font-serif: 'Playfair Display', Georgia, serif;
 
+  /* ─── Spacing ─── */
+  --section-padding: clamp(80px, 12vw, 160px);
+  --section-padding-sm: clamp(40px, 6vw, 80px);
+
   /* ─── Animations ─── */
   --animate-float: float 6s ease-in-out infinite;
   --animate-reveal: reveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
@@ -128,6 +132,7 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   width: 100%;
+  letter-spacing: -0.01em;
 }
 
 /* Custom Selection — Dark editorial */
@@ -151,35 +156,36 @@ body {
 /* Display XL — Massive hero text */
 .display-xl {
   font-family: 'Playfair Display', serif;
-  font-size: clamp(60px, 10vw, 120px);
+  font-size: clamp(60px, 12vw, 140px);
   font-weight: 400;
-  line-height: 110%;
-  letter-spacing: -0.02em;
+  line-height: 0.9;
+  letter-spacing: -0.04em;
 }
 
 /* Heading Mixed — Bold sans + italic serif tension */
 .heading-mixed {
   font-family: 'Inter', sans-serif;
-  font-size: clamp(32px, 5vw, 64px);
+  font-size: clamp(32px, 6vw, 80px);
   font-weight: 700;
-  line-height: 120%;
-  letter-spacing: -0.01em;
+  line-height: 1;
+  letter-spacing: -0.03em;
 }
 
 .heading-mixed-italic {
   font-family: 'Playfair Display', serif;
-  font-size: clamp(32px, 5vw, 64px);
+  font-size: clamp(32px, 6vw, 80px);
   font-weight: 400;
   font-style: italic;
-  line-height: 120%;
+  line-height: 1;
 }
 
 /* Subheading — Playfair elegance */
 .subheading {
   font-family: 'Playfair Display', serif;
-  font-size: clamp(24px, 3vw, 32px);
+  font-size: clamp(24px, 4vw, 40px);
   font-weight: 400;
-  line-height: 140%;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
 }
 
 /* Body */
@@ -187,14 +193,15 @@ body {
   font-family: 'Inter', sans-serif;
   font-size: 18px;
   font-weight: 300;
-  line-height: 180%;
+  line-height: 1.7;
+  letter-spacing: -0.01em;
 }
 
 .body-sm {
   font-family: 'Inter', sans-serif;
   font-size: 14px;
   font-weight: 300;
-  line-height: 160%;
+  line-height: 1.6;
 }
 
 /* Label Tiny — The signature micro-text */
@@ -206,6 +213,24 @@ body {
   letter-spacing: 0.4em;
   text-transform: uppercase;
 }
+
+/* ═══════════════════════════════════════
+   Spacing Utilities
+   ═══════════════════════════════════════ */
+
+.section-padding {
+  padding-top: var(--section-padding);
+  padding-bottom: var(--section-padding);
+}
+
+.section-padding-top {
+  padding-top: var(--section-padding);
+}
+
+.section-padding-bottom {
+  padding-bottom: var(--section-padding);
+}
+
 
 /* ═══════════════════════════════════════
    Glass & Surface Effects — Dark Mode
