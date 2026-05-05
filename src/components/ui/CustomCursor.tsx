@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { motion, useSpring, useMotionValue, AnimatePresence } from "framer-motion";
 
 export default function CustomCursor() {
@@ -14,6 +14,8 @@ export default function CustomCursor() {
   const springConfig = { damping: 30, stiffness: 200 };
   const cursorX = useSpring(mouseX, springConfig);
   const cursorY = useSpring(mouseY, springConfig);
+  const cursorRef = useRef<HTMLDivElement>(null);
+  const dotRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     // Hide default cursor globally
@@ -22,46 +24,64 @@ export default function CustomCursor() {
     style.innerHTML = `* { cursor: none !important; }`;
     document.head.appendChild(style);
 
-    const moveCursor = (e: MouseEvent) => {
-      mouseX.set(e.clientX);
-      mouseY.set(e.clientY);
+    const initGsap = async () => {
+      const { gsap } = await import("@/lib/gsap");
       
-      if (!isVisible) setIsVisible(true);
+      const moveCursor = (e: MouseEvent) => {
+        mouseX.set(e.clientX);
+        mouseY.set(e.clientY);
+        
+        if (!isVisible) setIsVisible(true);
 
-      // Calculate velocity for stretching
-      const velocityX = e.movementX;
-      const velocityY = e.movementY;
-      const velocity = Math.sqrt(velocityX ** 2 + velocityY ** 2);
-      const angle = Math.atan2(velocityY, velocityX) * (180 / Math.PI);
-      
-      const stretch = Math.min(velocity / 100, 1.5);
-      
-      // We can apply this to a specific element or state if needed
+        // Calculate velocity for stretching
+        const velocityX = e.movementX;
+        const velocityY = e.movementY;
+        const velocity = Math.sqrt(velocityX ** 2 + velocityY ** 2);
+        const angle = Math.atan2(velocityY, velocityX) * (180 / Math.PI);
+        
+        const stretch = Math.min(velocity / 50, 1.2);
+        
+        if (cursorRef.current) {
+          gsap.to(cursorRef.current, {
+            scaleX: 1 + stretch,
+            scaleY: 1 - stretch * 0.3,
+            rotation: angle,
+            duration: 0.1,
+            ease: "power2.out"
+          });
+        }
+      };
+
+      const handleMouseOver = (e: MouseEvent) => {
+        const target = e.target as HTMLElement;
+        const clickable = target.closest("button, a, input, [data-cursor]");
+        const viewable = target.closest("[data-cursor='view']");
+        const customText = target.closest("[data-cursor-text]")?.getAttribute("data-cursor-text");
+        
+        setIsHovering(!!clickable);
+        
+        if (viewable) {
+          setCursorText("VIEW");
+        } else {
+          setCursorText(customText || "");
+        }
+      };
+
+      window.addEventListener("mousemove", moveCursor);
+      window.addEventListener("mouseover", handleMouseOver);
+
+      return () => {
+        window.removeEventListener("mousemove", moveCursor);
+        window.removeEventListener("mouseover", handleMouseOver);
+      };
     };
 
-    const handleMouseOver = (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
-      const clickable = target.closest("button, a, input, [data-cursor]");
-      const viewable = target.closest("[data-cursor='view']");
-      const customText = target.closest("[data-cursor-text]")?.getAttribute("data-cursor-text");
-      
-      setIsHovering(!!clickable);
-      
-      if (viewable) {
-        setCursorText("VIEW");
-      } else {
-        setCursorText(customText || "");
-      }
-    };
-
-    window.addEventListener("mousemove", moveCursor);
-    window.addEventListener("mouseover", handleMouseOver);
+    const cleanupGsap = initGsap();
 
     return () => {
       document.body.style.cursor = "auto";
       if (document.head.contains(style)) document.head.removeChild(style);
-      window.removeEventListener("mousemove", moveCursor);
-      window.removeEventListener("mouseover", handleMouseOver);
+      cleanupGsap.then(cleanup => cleanup?.());
     };
   }, [isVisible, mouseX, mouseY]);
 
@@ -83,7 +103,8 @@ export default function CustomCursor() {
       
       {/* Outer Ring / Interaction Layer */}
       <motion.div
-        className="fixed top-0 left-0 pointer-events-none z-[9999] flex items-center justify-center border border-white/20"
+        ref={cursorRef}
+        className="fixed top-0 left-0 pointer-events-none z-[9999] flex items-center justify-center border border-white/20 origin-center"
         style={{
           x: cursorX,
           y: cursorY,

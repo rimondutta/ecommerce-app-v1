@@ -79,6 +79,26 @@
     100% { transform: translateX(-50%); }
   }
 
+  @keyframes glitch {
+    0% { clip: rect(44px, 9999px, 56px, 0); transform: skew(0.5deg); }
+    5% { clip: rect(12px, 9999px, 30px, 0); transform: skew(0.5deg); }
+    10% { clip: rect(70px, 9999px, 20px, 0); transform: skew(0.5deg); }
+    15% { clip: rect(33px, 9999px, 88px, 0); transform: skew(0.5deg); }
+    20% { clip: rect(100px, 9999px, 4px, 0); transform: skew(0.5deg); }
+    25% { clip: rect(10px, 9999px, 10px, 0); transform: skew(0.5deg); }
+    30% { clip: rect(80px, 9999px, 80px, 0); transform: skew(0.5deg); }
+    35% { clip: rect(20px, 9999px, 20px, 0); transform: skew(0.5deg); }
+    40% { clip: rect(60px, 9999px, 60px, 0); transform: skew(0.5deg); }
+    45% { clip: rect(40px, 9999px, 40px, 0); transform: skew(0.5deg); }
+    50% { clip: rect(90px, 9999px, 90px, 0); transform: skew(0.5deg); }
+    100% { clip: rect(44px, 9999px, 56px, 0); transform: skew(0.5deg); }
+  }
+
+  .glitch-hover:hover {
+    animation: glitch 0.3s cubic-bezier(.25, .46, .45, .94) both infinite;
+    text-shadow: 2px 0 #fff, -2px 0 #333;
+  }
+
   @keyframes marqueeL {
     0%   { transform: translateX(0); }
     100% { transform: translateX(-50%); }

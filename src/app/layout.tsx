@@ -10,6 +10,8 @@ import CustomCursor from "@/components/ui/CustomCursor";
 import LenisProvider from "@/components/providers/LenisProvider";
 import Preloader from "@/components/ui/Preloader";
 import GlobalBackgroundWrapper from "@/components/3d/GlobalBackgroundWrapper";
+import CreativeCanvas from "@/components/ui/CreativeCanvas";
+import ScrollProgress from "@/components/ui/ScrollProgress";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -60,6 +62,8 @@ export default function RootLayout({
     <html lang="en" className={`${inter.variable} ${playfair.variable} antialiased`} data-scroll-behavior="smooth">
       <body className="relative min-h-screen flex flex-col font-sans bg-[#0a0a0a] text-[#e5e2e1]" suppressHydrationWarning>
         <GlobalBackgroundWrapper />
+        <CreativeCanvas />
+        <ScrollProgress />
         <div className="noise-overlay" />
         <div className="grain-overlay" />
         <div className="scanline" />

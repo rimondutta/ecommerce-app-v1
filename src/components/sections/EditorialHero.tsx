@@ -41,17 +41,18 @@ export default function EditorialHero() {
           stagger: 0.1,
           duration: 2
         })
+        .from(imageRef.current, {
+          clipPath: "inset(100% 0% 0% 0%)",
+          opacity: 0,
+          duration: 2,
+          ease: "expo.inOut"
+        }, "-=1.5")
         .from(titleRef.current, {
           y: 60,
           opacity: 0,
         }, "-=1.5")
-        .from(imageRef.current, {
-          y: 100,
-          opacity: 0,
-          scale: 1.1
-        }, "-=1.2")
         .from(detailRef.current, {
-          x: 50,
+          clipPath: "inset(0% 100% 0% 0%)",
           opacity: 0,
         }, "-=1");
 
@@ -119,12 +120,12 @@ export default function EditorialHero() {
             <h2 className="leading-[0.8] tracking-[-0.04em] space-y-4">
               <SplitTextAnimation 
                 text="Sculpted in" 
-                className="font-serif text-6xl md:text-9xl text-white block" 
+                className="font-serif text-6xl md:text-9xl text-white block glitch-hover cursor-default" 
                 delay={0.1}
               />
               <SplitTextAnimation 
                 text="Obsidian." 
-                className="font-serif italic text-6xl md:text-9xl text-[#555] block" 
+                className="font-serif italic text-6xl md:text-9xl text-[#555] block glitch-hover cursor-default" 
                 delay={0.4}
               />
             </h2>

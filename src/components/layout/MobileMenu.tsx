@@ -5,27 +5,62 @@ import { Dialog, DialogPanel, Transition, TransitionChild } from "@headlessui/re
 import { X, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { useUIStore } from "@/store/uiStore";
+import { useEffect, useRef, useState } from "react";
+import MagneticElement from "@/components/ui/MagneticElement";
 
 const menuItems = [
-  { label: "Collections", href: "/products", subtitle: "All Archive" },
-  { label: "New Arrivals", href: "/products?new=true", subtitle: "SS26 Season" },
-  { label: "Editorial", href: "/blogs", subtitle: "Stories & Lookbooks" },
-  { label: "Archive", href: "/shop", subtitle: "Past Seasons" },
-  { label: "About", href: "/contact", subtitle: "The Bureau" },
+  { label: "Collections", href: "/products", subtitle: "All Archive", image: "https://images.unsplash.com/photo-1509631179647-0177331693ae?q=80&w=1200&auto=format&fit=crop" },
+  { label: "New Arrivals", href: "/products?new=true", subtitle: "SS26 Season", image: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1200&auto=format&fit=crop" },
+  { label: "Editorial", href: "/blogs", subtitle: "Stories & Lookbooks", image: "https://images.unsplash.com/photo-1445205170230-053b83016050?q=80&w=1200&auto=format&fit=crop" },
+  { label: "Archive", href: "/shop", subtitle: "Past Seasons", image: "https://images.unsplash.com/photo-1539109132381-31a1ecbfad2b?q=80&w=1200&auto=format&fit=crop" },
+  { label: "About", href: "/contact", subtitle: "The Bureau", image: "https://images.unsplash.com/photo-1515347619252-60a4bdad8560?q=80&w=1200&auto=format&fit=crop" },
 ];
 
 export default function MobileMenu() {
   const { isMobileMenuOpen, closeMobileMenu } = useUIStore();
+  const [hoveredImage, setHoveredImage] = useState<string | null>(null);
+  const linksRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      const initGsap = async () => {
+        const { gsap } = await import("@/lib/gsap");
+        if (linksRef.current) {
+          gsap.from(linksRef.current.children, {
+            y: 100,
+            opacity: 0,
+            stagger: 0.1,
+            duration: 1,
+            ease: "expo.out",
+            delay: 0.3
+          });
+        }
+      };
+      initGsap();
+    }
+  }, [isMobileMenuOpen]);
   
   return (
     <Transition show={isMobileMenuOpen} as={Fragment}>
       <Dialog open={isMobileMenuOpen} onClose={closeMobileMenu} className="relative z-[1000]">
         <TransitionChild as={Fragment} enter="transition-opacity ease-linear duration-300" enterFrom="opacity-0" enterTo="opacity-100" leave="transition-opacity ease-linear duration-200" leaveFrom="opacity-100" leaveTo="opacity-0">
-          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" aria-hidden="true" />
+          <div className="fixed inset-0 bg-[#0a0a0a]" aria-hidden="true" />
         </TransitionChild>
 
-        <TransitionChild as={Fragment} enter="transform transition ease-[0.16,1,0.3,1] duration-500" enterFrom="-translate-x-full" enterTo="translate-x-0" leave="transform transition ease-[0.16,1,0.3,1] duration-400" leaveFrom="translate-x-0" leaveTo="-translate-x-full">
-          <DialogPanel className="fixed inset-y-0 left-0 w-full sm:w-[450px] bg-[#0e0e0e] flex flex-col">
+        <TransitionChild as={Fragment} enter="transform transition ease-[0.16,1,0.3,1] duration-700" enterFrom="translate-y-full" enterTo="translate-y-0" leave="transform transition ease-[0.16,1,0.3,1] duration-500" leaveFrom="translate-y-0" leaveTo="translate-y-full">
+          <DialogPanel className="fixed inset-0 bg-transparent flex flex-col z-[1001]">
+            
+            {/* Background Image Preview */}
+            <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none opacity-20 transition-opacity duration-700">
+                {menuItems.map((item) => (
+                    <img 
+                        key={item.label}
+                        src={item.image}
+                        alt=""
+                        className={`absolute inset-0 w-full h-full object-cover grayscale transition-opacity duration-700 ${hoveredImage === item.image ? 'opacity-100' : 'opacity-0'}`}
+                    />
+                ))}
+            </div>
             {/* Header */}
             <div className="flex items-center justify-between px-8 py-8 border-b border-white/5">
               <span className="font-serif text-2xl text-white">AVANT</span>
@@ -35,21 +70,33 @@ export default function MobileMenu() {
             </div>
 
             {/* Nav Links */}
-            <nav className="flex-1 overflow-y-auto" aria-label="Mobile navigation">
+            <nav 
+                ref={linksRef}
+                className="flex-1 flex flex-col justify-center px-8 lg:px-24 z-10" 
+                aria-label="Mobile navigation"
+            >
               {menuItems.map((item) => (
-                <Link key={item.label} href={item.href} onClick={closeMobileMenu} className="group flex flex-col px-8 py-8 border-b border-white/5 hover:bg-[#1a1a1a] transition-all">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <span className="font-serif text-3xl text-white leading-none block mb-2 group-hover:translate-x-2 transition-transform duration-500">
-                        {item.label}
-                      </span>
-                      <span className="label-tiny text-[#555]" style={{ fontSize: '8px' }}>
-                        {item.subtitle}
-                      </span>
+                <MagneticElement key={item.label} strength={0.1}>
+                  <Link 
+                      href={item.href} 
+                      onClick={closeMobileMenu}
+                      onMouseEnter={() => setHoveredImage(item.image)}
+                      onMouseLeave={() => setHoveredImage(null)}
+                      className="group py-4 lg:py-6 border-b border-white/5 transition-all overflow-hidden block"
+                  >
+                    <div className="flex items-center gap-8">
+                      <span className="label-tiny text-[#333] group-hover:text-white transition-colors">0{menuItems.indexOf(item) + 1}</span>
+                      <div className="relative">
+                        <span className="font-serif text-5xl lg:text-8xl text-white leading-none block group-hover:italic transition-all duration-500">
+                          {item.label}
+                        </span>
+                        <span className="absolute -bottom-2 right-0 label-tiny text-[#555] opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-500">
+                          {item.subtitle}
+                        </span>
+                      </div>
                     </div>
-                    <ArrowRight size={20} strokeWidth={1} className="text-[#333] opacity-0 group-hover:opacity-100 -translate-x-4 group-hover:translate-x-0 transition-all duration-500" />
-                  </div>
-                </Link>
+                  </Link>
+                </MagneticElement>
               ))}
             </nav>
 
