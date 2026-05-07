@@ -49,9 +49,9 @@ export default function CartDrawer() {
                   <ShoppingBag size={24} />
                 </div>
                 <div>
-                  <h2 className="font-bangers text-4xl tracking-tight leading-none">YOUR BAG</h2>
+                  <h2 className="font-bangers text-4xl tracking-tight leading-none">TREASURE CHEST</h2>
                   <p className="font-comic font-bold italic text-secondary text-lg">
-                    {count} {count === 1 ? "ITEM" : "ITEMS"} IN COLLECTION
+                    {count} {count === 1 ? "PIECE" : "PIECES"} OF LOOT
                   </p>
                 </div>
               </div>
@@ -69,12 +69,12 @@ export default function CartDrawer() {
                 <CartoonProgressBar
                   value={total}
                   max={FREE_SHIPPING_THRESHOLD}
-                  label={`ADD ৳${Math.round(remaining).toLocaleString()} FOR FREE SHIPPING ★`}
+                  label={`COLLECT ฿${Math.round(remaining).toLocaleString()} MORE FOR FREE VOYAGE ★`}
                 />
               ) : (
                 <div className="bg-ink text-paper p-4 border-3 border-ink cartoon-shadow-sm flex items-center justify-center gap-3 animate-bounce">
                    <span className="text-2xl">★</span>
-                   <span className="font-bebas text-2xl tracking-widest uppercase">FREE SHIPPING UNLOCKED</span>
+                   <span className="font-bebas text-2xl tracking-widest uppercase">FREE VOYAGE UNLOCKED</span>
                    <span className="text-2xl">★</span>
                 </div>
               )}
@@ -84,14 +84,14 @@ export default function CartDrawer() {
             <div className="flex-1 overflow-y-auto px-8 py-6 space-y-6">
               {items.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-20 text-center space-y-8">
-                  <div className="text-8xl text-ink/10 rotate-12 animate-float">?</div>
+                  <div className="text-8xl text-ink/10 rotate-12 animate-float">☠</div>
                   <div className="space-y-4">
-                    <h3 className="font-bangers text-4xl text-ink">BAG IS EMPTY!</h3>
+                    <h3 className="font-bangers text-4xl text-ink">CHEST IS EMPTY!</h3>
                     <p className="font-comic font-bold italic text-secondary text-xl">
-                      Your inventory is looking a bit light.<br />Go back and find some gear!
+                      No treasure found in your hold.<br />Go back and find some gear!
                     </p>
                   </div>
-                  <CartoonButton onClick={closeCart}>BROWSE THE SHOP</CartoonButton>
+                  <CartoonButton onClick={closeCart}>EXPLORE THE GRAND LINE</CartoonButton>
                 </div>
               ) : (
                 items.map((item) => (
@@ -116,7 +116,7 @@ export default function CartDrawer() {
                         <Link
                           href={`/products/${item.slug}`}
                           onClick={closeCart}
-                          className="font-bangers text-2xl text-ink hover:text-secondary transition-colors block leading-tight"
+                          className="font-bangers text-2xl text-ink hover:text-secondary transition-colors block leading-tight uppercase"
                         >
                           {item.title}
                         </Link>
@@ -133,9 +133,10 @@ export default function CartDrawer() {
                           className="h-10"
                         />
 
-                        <div className="text-right">
+                        <div className="text-right flex items-center gap-1">
+                          <span className="font-bangers text-2xl text-ink">฿</span>
                           <span className="font-bebas text-3xl text-ink">
-                            ৳{Math.round(item.price * item.quantity).toLocaleString()}
+                            {Math.round(item.price * item.quantity).toLocaleString()}
                           </span>
                         </div>
                       </div>
@@ -160,28 +161,31 @@ export default function CartDrawer() {
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <span className="font-bebas text-3xl tracking-widest text-secondary uppercase">
-                      SUBTOTAL
+                      TOTAL BOUNTY
                     </span>
-                    <span className="font-bebas text-5xl text-ink">
-                      ৳{Math.round(total).toLocaleString()}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="font-bangers text-4xl text-ink">฿</span>
+                      <span className="font-bebas text-5xl text-ink">
+                        {Math.round(total).toLocaleString()}
+                      </span>
+                    </div>
                   </div>
                   <p className="font-comic font-bold italic text-lg text-secondary text-right">
-                    (Shipping & taxes calculated at checkout)
+                    (Calculation of loot value finalized at checkout)
                   </p>
                 </div>
 
                 <div className="space-y-4">
                   <Link href="/checkout" onClick={closeCart} className="block w-full">
                     <CartoonButton size="xl" className="w-full">
-                      PROCEED TO CHECKOUT →
+                      SET SAIL TO CHECKOUT →
                     </CartoonButton>
                   </Link>
                   <button
                     onClick={closeCart}
                     className="w-full font-bebas text-2xl text-secondary hover:text-ink transition-colors uppercase tracking-widest text-center"
                   >
-                    CONTINUE BROWSING
+                    CONTINUE EXPLORING
                   </button>
                 </div>
               </div>

@@ -56,15 +56,15 @@ const CartoonHomepage = () => {
           <div className="md:col-span-6 space-y-8">
             <div className="space-y-4">
               <div className="flex flex-col">
-                <span className="font-jp text-lg font-black tracking-[0.3em] text-secondary/40 mb-1">
-                  態度を着る — WEAR THE ATTITUDE
+                <span className="font-jp text-lg font-black tracking-[0.3em] text-[#5d4037]/40 mb-1">
+                  新世界へ — TO THE NEW WORLD
                 </span>
-                <h1 className="font-bangers text-7xl md:text-9xl text-ink leading-[0.8] text-ink-shadow">
-                  STYLE<br />COMMANDO
+                <h1 className="font-bangers text-7xl md:text-9xl text-ink leading-[0.8] text-ink-shadow uppercase">
+                  PIRATE<br />KING
                 </h1>
               </div>
-              <p className="font-comic text-2xl md:text-3xl font-bold italic text-secondary max-w-xl">
-                Street-ready clothing. No rules. Just style.
+              <p className="font-comic text-2xl md:text-3xl font-bold italic text-[#5d4037] max-w-xl">
+                The ultimate collection for those who seek freedom.
               </p>
             </div>
             
@@ -151,11 +151,11 @@ const CartoonHomepage = () => {
         <div className="container mx-auto">
           <div className="flex flex-col md:flex-row items-center justify-between mb-16 gap-8 text-center md:text-left">
             <div className="text-center md:text-left relative">
-              <span className="font-jp text-sm font-bold tracking-widest text-muted block mb-1">
-                新着商品 — FRESH ARRIVALS
+              <span className="font-jp text-sm font-bold tracking-widest text-[#5d4037] block mb-1">
+                手配書 — WANTED LIST
               </span>
-              <h2 className="font-bangers text-6xl text-ink uppercase">THE LINEUP</h2>
-              <div className="h-2 w-48 bg-ink cartoon-shadow -mt-2 mx-auto md:mx-0" />
+              <h2 className="font-bangers text-6xl text-[#5d4037] uppercase">BOUNTY LIST</h2>
+              <div className="h-2 w-48 bg-[#5d4037] cartoon-shadow -mt-2 mx-auto md:mx-0" />
               <KanjiStamp 
                 text="新作" 
                 sub="NEW" 

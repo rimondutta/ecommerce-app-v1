@@ -20,53 +20,58 @@ interface Product {
 const CartoonProductCard = ({ product }: { product: Product }) => {
   return (
     <Link href={`/products/${product.slug}`} className="group block">
-      <CartoonCard className="flex flex-col h-full" hatchOverlay>
+      <CartoonCard className="flex flex-col h-full bg-[#f4e4bc] border-[#5d4037]" hoverable>
+        {/* WANTED Header */}
+        <div className="pt-4 pb-2 text-center border-b-2 border-[#5d4037]/20">
+          <h4 className="font-bangers text-4xl text-[#5d4037] leading-none tracking-widest">WANTED</h4>
+          <p className="font-comic text-[10px] font-bold text-[#5d4037] opacity-60 -mt-1 tracking-[0.3em]">DEAD OR ALIVE</p>
+        </div>
+
         {/* Image Area */}
-        <div className="relative aspect-[4/5] bg-paper overflow-hidden border-b-3 border-ink">
+        <div className="relative aspect-square m-3 border-4 border-[#5d4037] bg-white overflow-hidden shadow-inner">
           {product.images?.[0] && (
             <Image
               src={product.images[0].url}
               alt={product.images[0].alt || product.title}
               fill
-              className="object-cover group-hover:scale-110 transition-transform duration-300"
+              className="object-cover group-hover:scale-105 transition-transform duration-500 sepia-[0.3] group-hover:sepia-0"
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             />
           )}
           
           {/* Badge */}
           {product.badge && (
-            <div className="absolute top-4 left-4 z-20">
-              <CartoonBadge variant="sticker">{product.badge}</CartoonBadge>
+            <div className="absolute top-2 left-2 z-20">
+              <CartoonBadge variant="sticker" className="bg-[#ffeb3b] border-[#5d4037]">{product.badge}</CartoonBadge>
             </div>
           )}
-
-          {/* Quick View Overlay */}
-          <div className="absolute inset-x-0 bottom-0 translate-y-full group-hover:translate-y-0 transition-transform bg-ink text-paper py-2 text-center font-bebas text-lg">
-            QUICK VIEW
-          </div>
         </div>
 
         {/* Info Strip */}
-        <div className="p-4 flex flex-col flex-1 justify-between gap-4">
+        <div className="px-4 pb-6 pt-2 flex flex-col flex-1 items-center text-center gap-4">
           <div className="space-y-1">
-            <h3 className="font-comic font-bold text-lg leading-tight line-clamp-1">
+            <h3 className="font-bangers text-2xl text-[#5d4037] leading-tight line-clamp-1 uppercase tracking-tight">
               {product.title}
             </h3>
-            <p className="font-bebas text-2xl tracking-wide">
-              ৳ {product.price.toLocaleString()}
-            </p>
+            <div className="flex items-center justify-center gap-1 text-[#5d4037]">
+              <span className="font-bangers text-3xl">฿</span>
+              <span className="font-bebas text-4xl tracking-tighter">
+                {product.price.toLocaleString()}
+              </span>
+              <span className="font-bangers text-xl opacity-80">-</span>
+            </div>
           </div>
 
-          <div className="flex items-center justify-between gap-2">
+          <div className="w-full flex items-center justify-center">
             <CartoonButton
+              variant="outline"
               size="sm"
-              className="w-full h-10"
+              className="w-full border-[#5d4037] text-[#5d4037] hover:bg-[#5d4037] hover:text-white cartoon-shadow-none group-hover:cartoon-shadow-sm"
               onClick={(e) => {
                 e.preventDefault();
-                // Add to cart logic
               }}
             >
-              <Plus size={18} /> ADD
+              CLAIM BOUNTY
             </CartoonButton>
           </div>
         </div>
