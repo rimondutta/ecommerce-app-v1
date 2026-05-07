@@ -1,21 +1,35 @@
 import Link from 'next/link';
+import CartoonButton from '@/components/ui/CartoonButton';
 
 export default function NotFound() {
   return (
-    <div className="min-h-[70vh] flex flex-col items-center justify-center px-6 text-center">
-      <div className="space-y-6 max-w-md">
-        <h1 className="text-8xl font-black tracking-tighter uppercase italic opacity-20">404</h1>
-        <h2 className="text-2xl font-bold uppercase tracking-widest">Page Not Found</h2>
-        <p className="text-black/70 text-sm leading-relaxed">
-          The page you are looking for does not exist or has been moved.
-          Explore our latest collections to find what you need.
-        </p>
-        <div className="pt-4">
-          <Link
-            href="/products"
-            className="inline-block px-12 py-4 bg-black text-white text-[10px] font-black uppercase tracking-[0.3em] hover:bg-neutral-800 transition-all"
-          >
-            Explore Collections
+    <div className="min-h-[80vh] flex flex-col items-center justify-center px-8 text-center relative overflow-hidden bg-paper">
+      {/* Background Patterns */}
+      <div className="absolute inset-0 bg-halftone opacity-10 pointer-events-none" />
+      <div className="absolute top-1/4 -left-20 text-[20rem] font-bangers text-ink/5 rotate-[-15deg] pointer-events-none select-none">?</div>
+      <div className="absolute bottom-1/4 -right-20 text-[20rem] font-bangers text-ink/5 rotate-[15deg] pointer-events-none select-none">!</div>
+
+      <div className="space-y-12 max-w-2xl relative z-10">
+        <div className="relative inline-block">
+          <h1 className="text-[12rem] md:text-[16rem] font-bangers leading-none text-ink tracking-tight drop-shadow-[12px_12px_0px_#000] animate-float">404</h1>
+          <div className="absolute -top-4 -right-4 bg-white border-4 border-ink px-6 py-2 cartoon-shadow-sm rotate-12">
+            <span className="font-bangers text-4xl text-ink">WHOOPS!</span>
+          </div>
+        </div>
+
+        <div className="space-y-6">
+          <h2 className="font-bangers text-5xl md:text-6xl text-ink uppercase tracking-tight">COORDINATES LOST</h2>
+          <p className="font-comic font-bold italic text-2xl text-secondary max-w-lg mx-auto leading-tight">
+            The transmission you're looking for has been intercepted or never existed in the archives.
+          </p>
+        </div>
+
+        <div className="pt-8 flex flex-wrap justify-center gap-6">
+          <Link href="/products">
+            <CartoonButton size="lg">RETURN TO SHOP</CartoonButton>
+          </Link>
+          <Link href="/">
+             <CartoonButton variant="outline" size="lg">BASE COMMAND</CartoonButton>
           </Link>
         </div>
       </div>

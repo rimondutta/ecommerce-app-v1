@@ -4,18 +4,17 @@ import BlogPost from '@/models/BlogPost';
 import Product from '@/models/Product';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
-import { Calendar, Clock, User, ArrowLeft, Share2 } from 'lucide-react';
 import Link from 'next/link';
-import SplitTextAnimation from '@/components/ui/SplitTextAnimation';
+import CartoonButton from '@/components/ui/CartoonButton';
+import { ArrowLeft, Calendar, User, Clock, Star, ShoppingBag, ArrowRight } from 'lucide-react';
 
 async function getBlogPost(slug: string) {
   await dbConnect();
   return await BlogPost.findOne({ slug, isPublished: true }).lean();
 }
 
-async function getRelatedProducts(category: string) {
+async function getRelatedProducts() {
   await dbConnect();
-  // Fetch some products from the same category or just featured ones
   return await Product.find({ isPublished: true }).limit(4).lean();
 }
 
@@ -31,120 +30,139 @@ const SingleBlogPage = async ({
     notFound();
   }
 
-  const relatedProducts = await getRelatedProducts(post.category);
+  const relatedProducts: any = await getRelatedProducts();
 
   return (
-    <div className="min-h-screen bg-white relative z-10">
-      <div className="absolute inset-0 pointer-events-none opacity-[0.03]"
-        style={{ backgroundImage: 'linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
+    <div className="min-h-screen bg-paper relative overflow-hidden">
+      {/* Background Decor */}
+      <div className="absolute inset-0 opacity-10 pointer-events-none">
+        <div className="absolute inset-0 bg-halftone" />
+      </div>
 
-      <main className="pt-8 pb-24 relative z-10">
-        {/* Progress Bar Mockup */}
-        <div className="fixed top-0 left-0 w-1/3 h-1 bg-black z-[100]"></div>
+      <main className="pt-40 pb-32 relative z-10 px-8">
+        <div className="max-w-5xl mx-auto">
+          {/* Back Action */}
+          <Link href="/blogs" className="inline-flex items-center gap-4 mb-12 group font-bangers text-3xl text-secondary hover:text-ink transition-colors uppercase tracking-tight">
+             <ArrowLeft size={32} /> BACK TO ARCHIVES
+          </Link>
 
-        {/* Hero Section */}
-        <div className="relative w-full h-[50vh] md:h-[70vh] bg-white border-y border-black overflow-hidden mt-20">
-          <Image
-            src={post.featuredImage.url}
-            alt={post.featuredImage.alt}
-            fill
-            className="object-cover opacity-60 grayscale mix-blend-multiply"
-            priority
-          />
-          <div className="absolute inset-0 flex items-center justify-center px-6">
-            <div className="max-w-[1000px] text-center bg-white/90 p-6 md:p-12 border border-black backdrop-blur-sm">
-              <div className="flex items-center justify-center gap-4 mb-8">
-                 <span className="px-4 py-1.5 border border-black bg-black text-white font-mono text-[9px] font-black uppercase tracking-[0.2em]">
-                   CATEGORY // {post.category}
-                 </span>
-                 <span className="text-black font-mono text-[9px] font-bold uppercase tracking-widest flex items-center gap-2 border border-black bg-white px-3 py-1.5">
-                   <Clock className="w-3 h-3" /> {post.readingTime} MIN READ
-                 </span>
+          {/* Hero Section */}
+          <div className="relative w-full aspect-[21/9] border-4 border-ink bg-white overflow-hidden mb-16 cartoon-shadow-lg rotate-[-1deg]">
+            <Image
+              src={post.featuredImage.url}
+              alt={post.featuredImage.alt}
+              fill
+              className="object-cover transition-all duration-700 group-hover:scale-105"
+              priority
+            />
+            
+            <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center bg-ink/60 backdrop-blur-[2px]">
+              <div className="bg-white border-4 border-ink px-6 py-2 cartoon-shadow-xs rotate-2 mb-8">
+                <span className="font-bebas text-2xl text-ink tracking-[0.2em] uppercase">
+                  {post.category} ★ {post.readingTime}M READ
+                </span>
               </div>
-              <SplitTextAnimation 
-                text={post.title}
-                className="font-display text-4xl md:text-8xl font-black text-black uppercase leading-[0.9] tracking-tighter mb-12"
-              />
-              <div className="flex items-center justify-center gap-6 text-black border-t border-black pt-8">
+              <h1 className="font-bangers text-5xl md:text-8xl text-white uppercase leading-none tracking-tight mb-8 max-w-4xl drop-shadow-[6px_6px_0px_#000]">
+                {post.title}
+              </h1>
+              
+              <div className="flex flex-wrap items-center justify-center gap-8 font-bebas text-2xl text-white/80 tracking-widest uppercase border-t-2 border-white/20 pt-8">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-gray-200 overflow-hidden border border-black grayscale">
-                    {post.author.avatar && (
-                      <Image src={post.author.avatar} alt={post.author.name} width={40} height={40} className="object-cover" />
-                    )}
-                  </div>
-                   <span className="font-mono text-[10px] font-black uppercase tracking-widest">{post.author.name}</span>
+                  <User size={24} className="text-secondary" />
+                  <span className="text-white">AUTHOR: {post.author.name}</span>
                 </div>
-                <div className="w-[1px] h-8 bg-black"></div>
-                 <span className="font-mono text-[10px] font-medium uppercase tracking-widest">
-                   PUBLISHED: {new Date(post.publishedAt).toLocaleDateString('en-US', { day: '2-digit', month: '2-digit', year: 'numeric' }).replace(/\//g, '.')}
-                 </span>
+                <div className="flex items-center gap-3">
+                  <Calendar size={24} className="text-secondary" />
+                  <span>{new Date(post.publishedAt).toLocaleDateString('en-US', { day: '2-digit', month: '2-digit', year: 'numeric' }).replace(/\//g, '.')}</span>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Article Body */}
-        <article className="max-w-[800px] mx-auto px-6 pt-24 pb-32">
-          {/* Back Action */}
-           <Link href="/blogs" className="inline-flex items-center gap-3 font-mono text-[10px] font-black uppercase tracking-widest mb-16 border border-black px-4 py-2 bg-white hover:bg-black hover:text-white transition-colors">
-             <ArrowLeft className="w-4 h-4" /> BACK TO JOURNAL
-           </Link>
+          {/* Article Body */}
+          <article className="max-w-4xl mx-auto bg-white border-4 border-ink p-10 md:p-20 cartoon-shadow-lg relative overflow-hidden">
+            {/* Background Pattern */}
+            <div className="absolute inset-0 bg-halftone opacity-5 pointer-events-none" />
 
-          <div className="prose prose-stone max-w-none font-medium leading-loose text-black marker:text-black prose-p:font-mono prose-p:text-[13px] prose-p:uppercase prose-p:tracking-wider prose-headings:font-display prose-headings:font-black prose-headings:uppercase prose-headings:tracking-tighter prose-h1:text-5xl prose-h2:text-4xl">
-            {/* Simple content rendering for now - assuming markdown segments split by double newline */}
-            {post.content.split('\n\n').map((paragraph: string, i: number) => {
-              if (paragraph.startsWith('# ')) {
-                return <h1 key={i} className="mb-8 mt-12 border-b border-black pb-4">{paragraph.replace('# ', '')}</h1>;
-              }
-              if (paragraph.startsWith('## ')) {
-                return <h2 key={i} className="mb-6 mt-8">{paragraph.replace('## ', '')}</h2>;
-              }
-              return <p key={i} className="mb-8">{paragraph}</p>;
-            })}
-          </div>
+            <div className="font-comic font-bold italic text-xl md:text-2xl text-ink/80 leading-relaxed space-y-12 relative z-10">
+              {post.content.split('\n\n').map((paragraph: string, i: number) => {
+                if (paragraph.startsWith('# ')) {
+                  return (
+                    <div key={i} className="pt-12 mb-8">
+                       <h1 className="font-bangers text-5xl md:text-7xl text-ink border-b-4 border-ink pb-6 uppercase tracking-tight inline-block rotate-[-1deg]">
+                        {paragraph.replace('# ', '')}
+                      </h1>
+                    </div>
+                  );
+                }
+                if (paragraph.startsWith('## ')) {
+                  return (
+                    <div key={i} className="pt-8 mb-6">
+                      <h2 className="font-bangers text-4xl text-secondary uppercase tracking-tight">
+                        // {paragraph.replace('## ', '')}
+                      </h2>
+                    </div>
+                  );
+                }
+                return (
+                  <p key={i} className="relative pl-10">
+                    <Star className="absolute left-0 top-2 text-secondary fill-secondary" size={24} />
+                    {paragraph}
+                  </p>
+                );
+              })}
+            </div>
 
-          {/* Social Share & Tags */}
-          <div className="mt-20 pt-12 border-t border-black flex flex-col md:flex-row justify-between items-center gap-8">
-            <div className="flex gap-4">
-              {post.tags.map((tag: string) => (
-                 <span key={tag} className="font-mono text-[9px] font-black text-black uppercase tracking-widest border border-black bg-white px-3 py-1">
-                   TAG // {tag}
+            {/* Tags */}
+            <div className="mt-20 pt-12 border-t-4 border-ink flex flex-wrap gap-4 relative z-10">
+              {post.tags?.map((tag: string) => (
+                 <span key={tag} className="font-bebas text-xl text-ink border-3 border-ink bg-paper px-4 py-2 uppercase tracking-widest hover:bg-secondary hover:text-white transition-all cartoon-shadow-xs rotate-[-2deg]">
+                   #{tag}
                  </span>
               ))}
             </div>
-             <button className="flex items-center gap-3 font-mono text-[10px] font-black uppercase tracking-widest py-3 px-8 border border-black bg-white hover:bg-black hover:text-white transition-colors">
-               <Share2 className="w-4 h-4" /> SHARE ARTICLE
-             </button>
-          </div>
-        </article>
+          </article>
 
-        {/* Related Products Section */}
-        <section className="bg-white py-24 px-6 border-t border-black">
-          <div className="max-w-[1400px] mx-auto">
-             <div className="flex items-center gap-3 mb-12">
-               <span className="w-12 h-[1px] bg-black"></span>
-               <span className="font-mono text-[10px] font-black uppercase tracking-[0.4em] text-black">RECOMMENDED</span>
-               <h3 className="font-display text-3xl font-black uppercase tracking-tighter ml-4">SHOP THE LOOK</h3>
-             </div>
+          {/* Related Products */}
+          <section className="mt-32 pt-24 border-t-4 border-ink relative">
+            <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-ink text-paper border-4 border-ink px-10 py-4 cartoon-shadow rotate-1">
+               <h3 className="font-bangers text-4xl uppercase tracking-tight leading-none flex items-center gap-4">
+                 <ShoppingBag size={32} /> RELATED GEAR
+               </h3>
+            </div>
 
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
-              {relatedProducts.map((product: any) => (
-                 <Link key={product._id} href={`/products/${product.slug}`} className="group block border border-black p-4 bg-gray-50 hover:bg-black hover:text-white transition-colors">
-                   <div className="relative aspect-[4/5] bg-white border border-black overflow-hidden mb-4">
+              {relatedProducts.map((product: any, idx: number) => (
+                 <Link 
+                  key={product._id.toString()} 
+                  href={`/products/${product.slug}`} 
+                  className="group block bg-white border-4 border-ink p-6 cartoon-shadow-sm hover:translate-y-[-8px] transition-all"
+                  style={{ transform: `rotate(${idx % 2 === 0 ? '-1.5deg' : '1.5deg'})` }}
+                >
+                   <div className="relative aspect-square bg-surface border-2 border-ink overflow-hidden mb-6">
                      <Image
                        src={product.images[0]?.url || '/placeholder-product.jpg'}
                        alt={product.title}
                        fill
-                       className="object-cover grayscale mix-blend-multiply group-hover:grayscale-0 group-hover:scale-105 transition-transform duration-700"
+                       className="object-cover transition-transform duration-700 group-hover:scale-110"
                      />
                    </div>
-                   <h4 className="font-display font-black uppercase tracking-tight mb-1">{product.title}</h4>
-                   <p className="font-mono text-[10px] font-bold tracking-widest">${product.price.toFixed(2)}</p>
+                   <h4 className="font-bangers text-2xl text-ink uppercase tracking-tight mb-2 truncate group-hover:text-secondary">{product.title}</h4>
+                   <div className="flex items-center justify-between">
+                      <p className="font-bangers text-3xl text-secondary">৳{Math.round(product.price).toLocaleString()}</p>
+                      <ArrowRight size={20} className="text-ink group-hover:translate-x-2 transition-transform" />
+                   </div>
                  </Link>
               ))}
             </div>
-          </div>
-        </section>
+            
+            <div className="mt-20 text-center">
+               <Link href="/products">
+                  <CartoonButton size="lg">VIEW ALL GEAR</CartoonButton>
+               </Link>
+            </div>
+          </section>
+        </div>
       </main>
     </div>
   );

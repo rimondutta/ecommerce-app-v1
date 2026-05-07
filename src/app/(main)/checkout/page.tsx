@@ -1,466 +1,371 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useCart } from "@/components/providers/CartProvider";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { 
-  ArrowLeft, 
-  ArrowRight, 
-  Truck, 
-  CreditCard, 
-  CheckCircle2, 
-  ShoppingBag, 
-  ShieldCheck,
-  Package,
-  Mail,
-  MapPin,
-  Banknote,
-  Lock
-} from "lucide-react";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
+import Link from "next/link";
+import CartoonButton from "@/components/ui/CartoonButton";
+import CartoonInput from "@/components/ui/CartoonInput";
+import { useCartoonToast } from "@/components/ui/CartoonToast";
+import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
+import { ShoppingBag, Package, CreditCard, CheckCircle2, ArrowLeft, ArrowRight, Star } from "lucide-react";
+
+const STEPS = [
+  { id: "shipping", label: "SHIPPING", icon: Package },
+  { id: "payment", label: "PAYMENT", icon: CreditCard },
+  { id: "confirm", label: "CONFIRM", icon: CheckCircle2 },
+];
 
 export default function CheckoutPage() {
   const { items, total, clearCart } = useCart();
   const { data: session } = useSession();
   const router = useRouter();
-  
-  const [step, setStep] = useState(1);
-  const [loading, setLoading] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState<'card' | 'cod'>('cod');
-  const [shippingArea, setShippingArea] = useState<'inside' | 'outside' | null>(null);
-  
-  const [formData, setFormData] = useState({
-    customerEmail: "",
-    customerName: "",
-    customerPhone: "",
-    addressLine1: "",
+  const { showToast } = useCartoonToast();
+
+  const [step, setStep] = useState(0);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const [form, setForm] = useState({
+    name: session?.user?.name || "",
+    email: session?.user?.email || "",
+    phone: "",
+    address: "",
     city: "",
-    postcode: "",
-    country: "Bangladesh",
+    zip: "",
+    paymentMethod: "cod",
+    notes: "",
   });
 
-  const shippingCost = shippingArea === 'inside' ? 50 : shippingArea === 'outside' ? 120 : 0;
-  const finalTotal = total + shippingCost;
+  const updateField = (field: string, value: string) =>
+    setForm((prev) => ({ ...prev, [field]: value }));
 
-  useEffect(() => {
-    if (session?.user) {
-      setFormData(prev => ({
-        ...prev,
-        customerEmail: session.user?.email || "",
-        customerName: session.user?.name || ""
-      }));
+  const canProceed = () => {
+    if (step === 0) return form.name && form.email && form.phone && form.address && form.city;
+    if (step === 1) return form.paymentMethod;
+    return true;
+  };
+
+  const handleSubmit = async () => {
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+    try {
+      const res = await fetch("/api/store/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          items: items.map((item) => ({
+            productId: item.id,
+            title: item.title,
+            price: item.price,
+            quantity: item.quantity,
+            color: item.color,
+            size: item.size,
+            image: item.image,
+          })),
+          shippingAddress: {
+            name: form.name,
+            email: form.email,
+            phone: form.phone,
+            address: form.address,
+            city: form.city,
+            zip: form.zip,
+          },
+          paymentMethod: form.paymentMethod,
+          notes: form.notes,
+          totalAmount: total,
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        clearCart();
+        showToast("MISSION COMPLETE! GEAR ACQUIRED.");
+        router.push("/account");
+      } else {
+        showToast(data.message || "Order failed", "error");
+      }
+    } catch {
+      showToast("Connection error", "error");
+    } finally {
+      setIsSubmitting(false);
     }
-  }, [session]);
+  };
 
-  if (items.length === 0 && step < 3) {
+  if (items.length === 0) {
     return (
-      <div className="min-h-[70vh] flex flex-col items-center justify-center p-6 text-center">
-        <motion.div 
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          className="w-24 h-24 mb-8 text-zinc-200 bg-zinc-100 rounded-full flex items-center justify-center"
-        >
-           <ShoppingBag size={40} strokeWidth={1.5} className="text-zinc-400" />
-        </motion.div>
-        <h1 className="text-4xl font-display font-bold tracking-tight text-zinc-900 mb-4">Your bag is empty</h1>
-        <p className="text-zinc-500 mb-10 max-w-xs font-medium">Looks like you haven't added any technical gear to your collection yet.</p>
-        <Link href="/shop" className="px-10 py-4 bg-zinc-900 text-white text-xs font-bold uppercase tracking-widest hover:bg-zinc-800 transition-all rounded-full shadow-soft hover:shadow-soft-xl">
-          Start Shopping
+      <div className="min-h-screen bg-paper flex flex-col items-center justify-center gap-8 px-8 text-center relative overflow-hidden">
+        <div className="absolute inset-0 bg-halftone opacity-10 pointer-events-none" />
+        <div className="w-24 h-24 bg-ink flex items-center justify-center border-4 border-ink cartoon-shadow rotate-12">
+          <ShoppingBag size={48} className="text-paper" />
+        </div>
+        <div className="space-y-2">
+           <h1 className="font-bangers text-5xl text-ink uppercase tracking-tight">INVENTORY EMPTY</h1>
+           <p className="font-comic font-bold italic text-2xl text-secondary">You haven't marked any gear for acquisition yet.</p>
+        </div>
+        <Link href="/products">
+          <CartoonButton size="lg">START ACQUISITION</CartoonButton>
         </Link>
       </div>
     );
   }
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleNext = () => setStep(prev => prev + 1);
-  const handleBack = () => setStep(prev => prev - 1);
-
-  const handleSubmitOrder = async () => {
-    setLoading(true);
-    try {
-      const orderPayload = {
-        customerEmail: formData.customerEmail,
-        customerName: formData.customerName,
-        totalAmount: finalTotal,
-        paymentMethod: paymentMethod,
-        items: items.map(item => ({
-          product: item.id,
-          title: item.title,
-          price: item.price,
-          quantity: item.quantity,
-          color: item.color,
-          size: item.size
-        })),
-        shippingAddress: {
-          addressLine1: formData.addressLine1,
-          city: formData.city,
-          postcode: formData.postcode,
-          country: formData.country
-        },
-        shippingCost: shippingCost
-      };
-
-      const res = await fetch("/api/store/orders", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(orderPayload)
-      });
-
-      const data = await res.json();
-      if (data.success) {
-        clearCart();
-        router.push(`/checkout/success?id=${data.orderId}`);
-      } else {
-        alert(data.error || "Something went wrong. Please try again.");
-      }
-    } catch (err) {
-      console.error(err);
-      alert("Connectivity Error. Please check your network.");
-    } finally {
-      setLoading(false);
-    }
-  };
+  const shippingCost = total >= 8000 ? 0 : 120;
+  const grandTotal = total + shippingCost;
 
   return (
-    <div className="min-h-screen bg-zinc-50 selection:bg-zinc-900 selection:text-white pt-32 pb-24 px-6 md:px-16">
-      <div className="max-w-7xl mx-auto">
-        
-        <div className="flex items-center justify-between mb-16">
-            <Link href="/shop" className="group flex items-center gap-3 text-xs font-bold uppercase tracking-widest text-zinc-500 hover:text-zinc-900 transition-all">
-                <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" /> 
-                Return to Shop
-            </Link>
-            <div className="flex items-center gap-2 px-3 py-1.5 bg-white border border-zinc-200 rounded-full shadow-soft">
-                <Lock size={12} className="text-emerald-500" />
-                <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-600">Secure Protocol Active</span>
-            </div>
+    <div className="min-h-screen bg-paper relative overflow-hidden">
+      <div className="absolute inset-0 bg-halftone opacity-5 pointer-events-none" />
+      
+      <div className="max-w-6xl mx-auto px-8 md:px-12 py-20 relative z-10">
+        {/* Header */}
+        <div className="mb-16 space-y-4">
+          <div className="inline-block px-4 py-2 bg-ink text-paper border-2 border-ink rotate-[-2deg]">
+            <span className="font-bebas text-2xl tracking-[0.2em] uppercase">// MISSION BRIEFING</span>
+          </div>
+          <h1 className="font-bangers text-7xl md:text-9xl text-ink uppercase tracking-tight leading-none drop-shadow-[6px_6px_0px_#000]">
+            CHECKOUT
+          </h1>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20">
-           
-           {/* LEFT COLUMN: CHECKOUT FLOW */}
-           <div className="lg:col-span-7">
-              <div className="mb-12">
-                <h1 className="text-4xl md:text-5xl font-display font-bold tracking-tight text-zinc-900 mb-8">Checkout</h1>
-                <div className="flex items-center gap-4">
-                    {[1, 2].map((s) => (
-                        <div key={s} className="flex items-center gap-4">
-                            <div className={`w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-500 ${step === s ? 'bg-zinc-900 text-white shadow-soft-xl' : step > s ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-white text-zinc-400 border border-zinc-200'}`}>
-                                {step > s ? <CheckCircle2 size={18} /> : s}
-                            </div>
-                            {s < 2 && <div className={`w-12 h-[2px] rounded-full ${step > s ? 'bg-emerald-200' : 'bg-zinc-200'}`} />}
+        {/* Progress Timeline */}
+        <div className="flex items-center justify-between gap-4 mb-20 relative overflow-x-auto no-scrollbar pb-4">
+          {STEPS.map((s, i) => {
+            const Icon = s.icon;
+            const isActive = i === step;
+            const isCompleted = i < step;
+            return (
+              <div key={s.id} className="flex flex-1 items-center gap-4">
+                <div className={cn(
+                  "flex items-center gap-4 px-6 py-4 border-4 transition-all cartoon-shadow-sm",
+                  isActive ? "bg-ink text-paper border-ink" : isCompleted ? "bg-white border-ink text-ink" : "bg-white border-ink/10 text-ink/20"
+                )}>
+                  <Icon size={24} />
+                  <span className="font-bebas text-2xl tracking-widest hidden md:inline">{s.label}</span>
+                  {isCompleted && <div className="absolute -top-3 -right-3 w-8 h-8 bg-white border-3 border-ink flex items-center justify-center font-bangers text-xl rotate-12">✓</div>}
+                </div>
+                {i < STEPS.length - 1 && (
+                  <div className={cn(
+                    "flex-1 h-1 min-w-[2rem]",
+                    isCompleted ? "bg-ink" : "bg-ink/10"
+                  )} />
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
+          {/* Form Area */}
+          <div className="lg:col-span-8 space-y-12">
+            <AnimatePresence mode="wait">
+              {step === 0 && (
+                <motion.div 
+                  key="step0" 
+                  initial={{ opacity: 0, x: 20 }} 
+                  animate={{ opacity: 1, x: 0 }} 
+                  exit={{ opacity: 0, x: -20 }}
+                  className="bg-white border-4 border-ink p-10 cartoon-shadow-lg space-y-10"
+                >
+                  <div className="flex items-center gap-4 border-b-4 border-ink/10 pb-6">
+                    <div className="w-12 h-12 bg-ink text-paper flex items-center justify-center border-3 border-ink cartoon-shadow-xs rotate-[-3deg]">
+                      <Package size={24} />
+                    </div>
+                    <h2 className="font-bangers text-4xl text-ink uppercase tracking-tight">STAGE 01: SHIPPING INTEL</h2>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                    <CartoonInput label="FULL NAME" value={form.name} onChange={(e) => updateField("name", e.target.value)} placeholder="AGENT CODENAME" />
+                    <CartoonInput label="SECURE EMAIL" type="email" value={form.email} onChange={(e) => updateField("email", e.target.value)} placeholder="AGENT@HQ.COM" />
+                    <CartoonInput label="VOICE LINE" type="tel" value={form.phone} onChange={(e) => updateField("phone", e.target.value)} placeholder="+1.XXX.XXX.XXXX" />
+                    <CartoonInput label="ZIP CODE" value={form.zip} onChange={(e) => updateField("zip", e.target.value)} placeholder="XXXXX" />
+                  </div>
+                  <CartoonInput label="BASE ADDRESS" value={form.address} onChange={(e) => updateField("address", e.target.value)} placeholder="STREET, BUILDING, SECTOR" />
+                  <CartoonInput label="LOCATION CITY" value={form.city} onChange={(e) => updateField("city", e.target.value)} placeholder="DISTRICT" />
+                </motion.div>
+              )}
+
+              {step === 1 && (
+                <motion.div 
+                  key="step1" 
+                  initial={{ opacity: 0, x: 20 }} 
+                  animate={{ opacity: 1, x: 0 }} 
+                  exit={{ opacity: 0, x: -20 }}
+                  className="bg-white border-4 border-ink p-10 cartoon-shadow-lg space-y-10"
+                >
+                  <div className="flex items-center gap-4 border-b-4 border-ink/10 pb-6">
+                    <div className="w-12 h-12 bg-ink text-paper flex items-center justify-center border-3 border-ink cartoon-shadow-xs rotate-[-3deg]">
+                      <CreditCard size={24} />
+                    </div>
+                    <h2 className="font-bangers text-4xl text-ink uppercase tracking-tight">STAGE 02: PAYMENT PROTOCOL</h2>
+                  </div>
+
+                  <div className="space-y-6">
+                    {[
+                      { key: "cod", label: "CASH ON DELIVERY", desc: "Settle with the agent upon arrival" },
+                      { key: "bkash", label: "SECURE MOBILE", desc: "Instant mobile terminal transfer" },
+                      { key: "card", label: "ENCRYPTED CARD", desc: "Visa / Mastercard protocols" },
+                    ].map((method) => (
+                      <button
+                        key={method.key}
+                        onClick={() => updateField("paymentMethod", method.key)}
+                        className={cn(
+                          "w-full flex items-center justify-between p-6 border-4 transition-all cartoon-shadow-sm",
+                          form.paymentMethod === method.key
+                            ? "bg-ink text-paper border-ink translate-x-1 translate-y-1 shadow-none"
+                            : "bg-white text-ink border-ink hover:bg-surface"
+                        )}
+                      >
+                        <div className="flex items-center gap-6">
+                          <div className={cn(
+                            "w-8 h-8 rounded-full border-4 flex items-center justify-center",
+                            form.paymentMethod === method.key ? "bg-white border-white" : "border-ink"
+                          )}>
+                             {form.paymentMethod === method.key && <div className="w-3 h-3 bg-ink rounded-full" />}
+                          </div>
+                          <div className="text-left">
+                            <span className="font-bangers text-3xl block tracking-tight">{method.label}</span>
+                            <span className="font-comic font-bold italic text-lg opacity-60 leading-none">{method.desc}</span>
+                          </div>
                         </div>
+                        <CreditCard size={32} className="opacity-20" />
+                      </button>
                     ))}
+                  </div>
+                  <div className="pt-6">
+                     <CartoonInput label="MISSION NOTES (OPTIONAL)" value={form.notes} onChange={(e) => updateField("notes", e.target.value)} placeholder="ANY SPECIAL INSTRUCTIONS FOR THE AGENT?" />
+                  </div>
+                </motion.div>
+              )}
+
+              {step === 2 && (
+                <motion.div 
+                  key="step2" 
+                  initial={{ opacity: 0, x: 20 }} 
+                  animate={{ opacity: 1, x: 0 }} 
+                  exit={{ opacity: 0, x: -20 }}
+                  className="bg-white border-4 border-ink p-10 cartoon-shadow-lg space-y-10"
+                >
+                  <div className="flex items-center gap-4 border-b-4 border-ink/10 pb-6">
+                    <div className="w-12 h-12 bg-ink text-paper flex items-center justify-center border-3 border-ink cartoon-shadow-xs rotate-[-3deg]">
+                      <CheckCircle2 size={24} />
+                    </div>
+                    <h2 className="font-bangers text-4xl text-ink uppercase tracking-tight">STAGE 03: FINAL CLEARANCE</h2>
+                  </div>
+
+                  <div className="bg-surface border-4 border-ink p-8 space-y-6 relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-halftone opacity-10 rotate-45 translate-x-12 -translate-y-12" />
+                    <h3 className="font-bebas text-2xl text-secondary tracking-widest uppercase">// DOSSIER REVIEW</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 relative z-10">
+                      {[
+                        ["OPERATIVE", form.name],
+                        ["CONTACT", form.email],
+                        ["DESTINATION", `${form.address}, ${form.city} ${form.zip}`],
+                        ["PROTOCOL", form.paymentMethod.toUpperCase()],
+                      ].map(([label, value]) => (
+                        <div key={label} className="space-y-1">
+                          <span className="font-bebas text-xl text-ink/40 tracking-widest uppercase">{label}</span>
+                          <p className="font-bangers text-2xl text-ink tracking-tight uppercase leading-none">{value}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    <h3 className="font-bebas text-2xl text-secondary tracking-widest uppercase">// ACQUISITION LIST</h3>
+                    <div className="space-y-4">
+                      {items.map((item) => (
+                        <div key={`${item.id}-${item.color}-${item.size}`} className="flex items-center gap-6 p-4 bg-white border-3 border-ink cartoon-shadow-xs">
+                          <div className="w-16 h-20 relative shrink-0 border-2 border-ink overflow-hidden bg-surface">
+                            <Image src={item.image} alt={item.title} fill className="object-cover" sizes="64px" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-bangers text-2xl text-ink truncate tracking-tight uppercase">{item.title}</p>
+                            <p className="font-bebas text-lg text-ink/40 tracking-widest">SCHEMA: {item.color} / SIZE: {item.size} / UNITS: {item.quantity}</p>
+                          </div>
+                          <span className="font-bangers text-3xl text-ink">৳{Math.round(item.price * item.quantity).toLocaleString()}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Navigation Actions */}
+            <div className="flex items-center justify-between gap-8 pt-8">
+              {step > 0 ? (
+                <button 
+                  onClick={() => setStep(step - 1)}
+                  className="flex items-center gap-3 font-bebas text-3xl text-secondary hover:text-ink transition-colors uppercase tracking-tight"
+                >
+                  <ArrowLeft size={28} /> REVERT STAGE
+                </button>
+              ) : <div />}
+
+              {step < 2 ? (
+                <CartoonButton size="lg" className="min-w-[200px]" onClick={() => canProceed() && setStep(step + 1)} disabled={!canProceed()}>
+                  NEXT STAGE <ArrowRight className="ml-3" size={28} />
+                </CartoonButton>
+              ) : (
+                <CartoonButton size="lg" className="min-w-[280px]" onClick={handleSubmit} disabled={isSubmitting}>
+                   {isSubmitting ? "TRANSMITTING..." : "CONFIRM MISSION ★"}
+                </CartoonButton>
+              )}
+            </div>
+          </div>
+
+          {/* Order Summary Sidebar */}
+          <div className="lg:col-span-4">
+            <div className="bg-white border-4 border-ink p-8 cartoon-shadow-lg sticky top-24 space-y-10 overflow-hidden">
+               <div className="absolute top-0 right-0 w-24 h-24 bg-halftone opacity-10 rotate-45 translate-x-12 -translate-y-12" />
+               
+               <div className="relative z-10 space-y-6">
+                <div className="flex items-center gap-4">
+                   <div className="p-2 bg-ink text-paper border-2 border-ink">
+                     <ShoppingBag size={20} />
+                   </div>
+                   <h3 className="font-bangers text-4xl text-ink uppercase tracking-tight">THE TALLY</h3>
+                </div>
+
+                <div className="space-y-6 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                  {items.map((item) => (
+                    <div key={`${item.id}-${item.color}`} className="flex justify-between items-start gap-4">
+                      <div className="space-y-1 flex-1">
+                        <span className="font-bangers text-xl text-ink block leading-none uppercase">{item.title}</span>
+                        <span className="font-bebas text-lg text-ink/40 tracking-widest">UNITS ×{item.quantity}</span>
+                      </div>
+                      <span className="font-bangers text-2xl text-ink">৳{Math.round(item.price * item.quantity).toLocaleString()}</span>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="h-1 bg-ink/10" />
+
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <span className="font-bebas text-xl text-ink/40 tracking-widest uppercase">LOGISTICS</span>
+                    <span className={cn(
+                      "font-bangers text-2xl",
+                      shippingCost === 0 ? "text-ink" : "text-ink"
+                    )}>
+                      {shippingCost === 0 ? "FREE OF CHARGE" : `৳${shippingCost}`}
+                    </span>
+                  </div>
+                  
+                  <div className="p-6 bg-ink text-paper border-4 border-ink cartoon-shadow-sm flex justify-between items-center rotate-[2deg]">
+                     <span className="font-bebas text-3xl tracking-[0.2em]">TOTAL DUE</span>
+                     <span className="font-bangers text-5xl">৳{Math.round(grandTotal).toLocaleString()}</span>
+                  </div>
+                </div>
+                
+                <div className="flex items-center gap-3 font-comic font-bold italic text-ink/40 text-sm justify-center">
+                   <Star size={14} /> SECURE TRANSACTION GUARANTEED <Star size={14} />
                 </div>
               </div>
-
-              <AnimatePresence mode="wait">
-                {step === 1 && (
-                    <motion.div 
-                        key="step1"
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: 20 }}
-                        className="space-y-12"
-                    >
-                        <section className="space-y-8 bg-white p-8 md:p-10 rounded-[2.5rem] border border-zinc-100 shadow-soft">
-                            <div className="flex items-center gap-3 text-zinc-900 border-b border-zinc-50 pb-6 mb-2">
-                                <Mail size={20} className="text-zinc-400" />
-                                <h2 className="text-xl font-display font-bold">Contact & Shipping</h2>
-                            </div>
-                            
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                <div className="md:col-span-2 space-y-2">
-                                    <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 ml-4">Full Name</label>
-                                    <input 
-                                        name="customerName"
-                                        value={formData.customerName}
-                                        onChange={handleInputChange}
-                                        placeholder="Receiver's name"
-                                        className="w-full bg-zinc-50 border border-zinc-100 rounded-full px-6 py-4 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-zinc-200 transition-all placeholder:text-zinc-300"
-                                    />
-                                </div>
-                                <div className="md:col-span-2 space-y-2">
-                                    <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 ml-4">Email Address</label>
-                                    <input 
-                                        type="email"
-                                        name="customerEmail"
-                                        value={formData.customerEmail}
-                                        onChange={handleInputChange}
-                                        placeholder="Enter your email"
-                                        className="w-full bg-zinc-50 border border-zinc-100 rounded-full px-6 py-4 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-zinc-200 transition-all placeholder:text-zinc-300"
-                                    />
-                                </div>
-                                <div className="md:col-span-2 space-y-2">
-                                    <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 ml-4">Street Address</label>
-                                    <input 
-                                        name="addressLine1"
-                                        value={formData.addressLine1}
-                                        onChange={handleInputChange}
-                                        placeholder="House No, Street, Area"
-                                        className="w-full bg-zinc-50 border border-zinc-100 rounded-[1.5rem] px-6 py-4 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-zinc-200 transition-all placeholder:text-zinc-300"
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 ml-4">City</label>
-                                    <input 
-                                        name="city"
-                                        value={formData.city}
-                                        onChange={handleInputChange}
-                                        placeholder="Dhaka"
-                                        className="w-full bg-zinc-50 border border-zinc-100 rounded-full px-6 py-4 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-zinc-200 transition-all placeholder:text-zinc-300"
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 ml-4">Postcode</label>
-                                    <input 
-                                        name="postcode"
-                                        value={formData.postcode}
-                                        onChange={handleInputChange}
-                                        placeholder="1200"
-                                        className="w-full bg-zinc-50 border border-zinc-100 rounded-full px-6 py-4 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-zinc-200 transition-all placeholder:text-zinc-300"
-                                    />
-                                </div>
-                                
-                                <div className="md:col-span-2 space-y-4">
-                                    <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 ml-4">Shipping Protocol</label>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <button 
-                                            type="button"
-                                            onClick={() => setShippingArea('inside')}
-                                            className={`flex items-center justify-between px-6 py-5 rounded-2xl border-2 transition-all duration-300 ${shippingArea === 'inside' ? 'border-zinc-900 bg-zinc-900 text-white shadow-soft-xl' : 'border-zinc-100 bg-zinc-50 hover:border-zinc-200 text-zinc-600'}`}
-                                        >
-                                            <span className="text-sm font-bold">Inside City</span>
-                                            <span className="text-xs font-bold opacity-80">৳50</span>
-                                        </button>
-                                        <button 
-                                            type="button"
-                                            onClick={() => setShippingArea('outside')}
-                                            className={`flex items-center justify-between px-6 py-5 rounded-2xl border-2 transition-all duration-300 ${shippingArea === 'outside' ? 'border-zinc-900 bg-zinc-900 text-white shadow-soft-xl' : 'border-zinc-100 bg-zinc-50 hover:border-zinc-200 text-zinc-600'}`}
-                                        >
-                                            <span className="text-sm font-bold">Outside City</span>
-                                            <span className="text-xs font-bold opacity-80">৳120</span>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </section>
-
-                        <button 
-                            onClick={handleNext}
-                            disabled={!formData.addressLine1 || !formData.customerEmail || !formData.customerName || !shippingArea}
-                            className="w-full bg-zinc-900 text-white py-6 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-zinc-800 transition-all disabled:opacity-20 flex items-center justify-center gap-3 shadow-soft-xl"
-                        >
-                            Continue to Payment <ArrowRight size={18} />
-                        </button>
-                    </motion.div>
-                )}
-
-                {step === 2 && (
-                    <motion.div 
-                        key="step2"
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: 20 }}
-                        className="space-y-12"
-                    >
-                        <section className="space-y-8 bg-white p-8 md:p-10 rounded-[2.5rem] border border-zinc-100 shadow-soft">
-                            <div className="flex items-center gap-3 text-zinc-900 border-b border-zinc-50 pb-6 mb-2">
-                                <CreditCard size={20} className="text-zinc-400" />
-                                <h2 className="text-xl font-display font-bold">Payment Method</h2>
-                            </div>
-                            
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <button 
-                                    onClick={() => setPaymentMethod('cod')}
-                                    className={`p-8 rounded-[2rem] border-2 text-left transition-all flex flex-col gap-6 ${paymentMethod === 'cod' ? 'border-zinc-900 bg-white shadow-soft-xl' : 'border-zinc-50 bg-zinc-50/50 hover:border-zinc-100'}`}
-                                >
-                                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-colors ${paymentMethod === 'cod' ? 'bg-zinc-900 text-white' : 'bg-white text-zinc-400 shadow-sm'}`}>
-                                        <Banknote size={24} />
-                                    </div>
-                                    <div>
-                                        <div className="text-sm font-bold uppercase tracking-tight text-zinc-900">Cash on Delivery</div>
-                                        <div className="text-[10px] text-zinc-400 mt-1 uppercase tracking-widest font-bold">Pay upon arrival</div>
-                                    </div>
-                                </button>
- 
-                                <button 
-                                    onClick={() => setPaymentMethod('card')}
-                                    className={`p-8 rounded-[2rem] border-2 text-left transition-all flex flex-col gap-6 ${paymentMethod === 'card' ? 'border-zinc-900 bg-white shadow-soft-xl' : 'border-zinc-50 bg-zinc-50/50 hover:border-zinc-100'}`}
-                                >
-                                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-colors ${paymentMethod === 'card' ? 'bg-zinc-900 text-white' : 'bg-white text-zinc-400 shadow-sm'}`}>
-                                        <CreditCard size={24} />
-                                    </div>
-                                    <div>
-                                        <div className="text-sm font-bold uppercase tracking-tight text-zinc-900">Digital Gateway</div>
-                                        <div className="text-[10px] text-zinc-400 mt-1 uppercase tracking-widest font-bold">Secure encryption</div>
-                                    </div>
-                                </button>
-                            </div>
-
-                            {paymentMethod === 'card' && (
-                                <motion.div 
-                                    initial={{ opacity: 0, y: 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    className="p-8 bg-zinc-50 rounded-[2rem] border border-zinc-100 space-y-8"
-                                >
-                                    <div className="space-y-6">
-                                        <div className="space-y-2">
-                                            <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 ml-4">Card Number</label>
-                                            <div className="relative">
-                                                <input 
-                                                    placeholder="XXXX XXXX XXXX XXXX"
-                                                    className="w-full bg-white border border-zinc-200 rounded-full px-6 py-4 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-zinc-200 transition-all placeholder:text-zinc-300"
-                                                />
-                                                <CreditCard className="absolute right-6 top-1/2 -translate-y-1/2 text-zinc-300" size={18} />
-                                            </div>
-                                        </div>
-                                        <div className="grid grid-cols-2 gap-6">
-                                            <div className="space-y-2">
-                                                <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 ml-4">Expiry</label>
-                                                <input 
-                                                    placeholder="MM / YY"
-                                                    className="w-full bg-white border border-zinc-200 rounded-full px-6 py-4 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-zinc-200 transition-all placeholder:text-zinc-300"
-                                                />
-                                            </div>
-                                            <div className="space-y-2">
-                                                <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 ml-4">CVC</label>
-                                                <input 
-                                                    placeholder="XXX"
-                                                    className="w-full bg-white border border-zinc-200 rounded-full px-6 py-4 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-zinc-200 transition-all placeholder:text-zinc-300"
-                                                />
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="flex items-center gap-3 text-[10px] text-zinc-500 font-bold uppercase tracking-widest px-4">
-                                        <ShieldCheck size={16} className="text-emerald-500" /> 
-                                        End-to-End Encrypted Transaction
-                                    </div>
-                                </motion.div>
-                            )}
-
-                            {paymentMethod === 'cod' && (
-                                <motion.div 
-                                    initial={{ opacity: 0, y: 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    className="p-8 bg-zinc-900 rounded-[2rem] text-white space-y-4 shadow-soft-xl"
-                                >
-                                    <div className="flex items-center gap-3">
-                                        <Truck className="text-zinc-400" size={20} />
-                                        <span className="text-xs font-bold uppercase tracking-widest">Protocol Confirmation</span>
-                                    </div>
-                                    <p className="text-sm text-zinc-400 leading-relaxed font-medium">
-                                        Our logistics team will verify your shipment via phone call. Please ensure your contact details are accurate to avoid delays.
-                                    </p>
-                                </motion.div>
-                            )}
-                        </section>
-
-                        <div className="flex flex-col md:flex-row gap-6 pt-4">
-                            <button 
-                                onClick={handleBack}
-                                className="px-10 py-6 border border-zinc-200 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-white hover:shadow-soft transition-all flex items-center justify-center gap-3 text-zinc-600"
-                            >
-                                <ArrowLeft size={18} /> Adjust Details
-                            </button>
-                            <button 
-                                onClick={handleSubmitOrder}
-                                disabled={loading}
-                                className="flex-1 bg-zinc-900 text-white py-6 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-zinc-800 transition-all shadow-soft-xl flex items-center justify-center gap-3"
-                            >
-                                {loading ? (
-                                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                ) : (
-                                    <>Finalize Transaction <CheckCircle2 size={18} /></>
-                                )}
-                            </button>
-                        </div>
-                    </motion.div>
-                )}
-              </AnimatePresence>
-           </div>
-
-           {/* RIGHT COLUMN: ORDER SUMMARY SIDEBAR */}
-           <div className="lg:col-span-5">
-              <div className="bg-white rounded-[2.5rem] p-8 lg:p-10 border border-zinc-100 shadow-soft sticky top-32">
-                 <div className="flex items-center justify-between mb-10 border-b border-zinc-50 pb-8">
-                    <h3 className="text-2xl font-display font-bold text-zinc-900">Summary</h3>
-                    <span className="text-[10px] font-bold bg-zinc-100 px-3 py-1 rounded-full uppercase tracking-widest text-zinc-500">
-                        {items.length} {items.length === 1 ? 'Unit' : 'Units'}
-                    </span>
-                 </div>
-                 
-                 <div className="space-y-8 max-h-[400px] overflow-y-auto pr-2 scrollbar-hide mb-10">
-                    {items.map((item, idx) => (
-                      <div key={idx} className="flex gap-6 group">
-                         <div className="w-24 aspect-[3/4] bg-zinc-50 rounded-2xl overflow-hidden flex-shrink-0 border border-zinc-100 transition-transform group-hover:scale-[1.05] duration-500">
-                            <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
-                         </div>
-                         <div className="flex-1 flex flex-col justify-between py-2">
-                            <div>
-                                <h4 className="text-sm font-bold text-zinc-900 line-clamp-1">{item.title}</h4>
-                                <div className="flex gap-3 text-[10px] font-bold uppercase tracking-widest text-zinc-400 mt-2">
-                                    <span>{item.size}</span>
-                                    <span>/</span>
-                                    <span>{item.color}</span>
-                                </div>
-                            </div>
-                            <div className="flex justify-between items-end">
-                                <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Qty: {item.quantity}</span>
-                                <span className="text-sm font-bold text-zinc-900">৳{Math.round(item.price * item.quantity).toLocaleString()}</span>
-                            </div>
-                         </div>
-                      </div>
-                    ))}
-                 </div>
-
-                 <div className="space-y-5 pt-8 border-t border-zinc-50">
-                    <div className="flex justify-between text-[11px] font-bold text-zinc-400 uppercase tracking-widest">
-                       <span>Base Total</span>
-                       <span className="text-zinc-900 font-bold">৳{Math.round(total).toLocaleString()}</span>
-                    </div>
-                    <div className="flex justify-between text-[11px] font-bold text-zinc-400 uppercase tracking-widest">
-                       <span>Shipping Fee</span>
-                       <span className="text-zinc-900 font-bold">
-                        {shippingArea ? `৳${shippingCost.toLocaleString()}` : '—'}
-                       </span>
-                    </div>
-                    
-                    <div className="pt-8 flex flex-col gap-2">
-                        <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 ml-1">Total Payload</label>
-                        <div className="flex items-end justify-between bg-zinc-50 p-6 rounded-3xl border border-zinc-100 shadow-inner">
-                            <div className="text-4xl font-display font-bold tracking-tight text-zinc-900">
-                                ৳{Math.round(finalTotal).toLocaleString()}
-                            </div>
-                            <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-zinc-900 shadow-soft">
-                                <Package size={24} strokeWidth={1.5} />
-                            </div>
-                        </div>
-                    </div>
-                 </div>
-
-                 <div className="mt-10 p-6 bg-emerald-50/50 rounded-3xl border border-emerald-100/50">
-                    <div className="flex items-start gap-4">
-                        <div className="w-10 h-10 rounded-2xl bg-white flex items-center justify-center shadow-soft flex-shrink-0">
-                            <ShieldCheck size={20} className="text-emerald-500" />
-                        </div>
-                        <div className="space-y-1 pt-1">
-                            <p className="text-[10px] font-bold uppercase tracking-widest text-emerald-900">Auth Guarantee</p>
-                            <p className="text-[10px] leading-relaxed text-emerald-700 font-medium">
-                                Technical verification on every unit. Global authenticity tracking.
-                            </p>
-                        </div>
-                    </div>
-                 </div>
-              </div>
-           </div>
-
+            </div>
+          </div>
         </div>
       </div>
     </div>

@@ -2,35 +2,37 @@
 
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { CheckCircle2, ArrowRight, Package, Truck, Calendar, ShoppingBag } from "lucide-react";
+import { CheckCircle2, ArrowRight, Package, Truck, Calendar, ShoppingBag, Star } from "lucide-react";
 import { Suspense } from "react";
 import { motion } from "framer-motion";
+import CartoonButton from "@/components/ui/CartoonButton";
 
 function SuccessContent() {
   const searchParams = useSearchParams();
   const orderId = searchParams.get("id");
 
   return (
-    <div className="max-w-[1200px] mx-auto px-6 py-20 lg:py-32 flex flex-col items-center text-center">
+    <div className="max-w-5xl mx-auto px-8 py-24 lg:py-40 flex flex-col items-center text-center relative z-10">
       <motion.div 
-        initial={{ scale: 0.5, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
+        initial={{ scale: 0.5, rotate: -20, opacity: 0 }}
+        animate={{ scale: 1, rotate: 0, opacity: 1 }}
         transition={{ type: "spring", stiffness: 260, damping: 20 }}
-        className="w-24 h-24 mb-8 bg-green-50 text-green-500 rounded-full flex items-center justify-center"
+        className="w-32 h-32 mb-10 bg-ink text-paper border-4 border-ink cartoon-shadow flex items-center justify-center rotate-[-5deg]"
       >
-         <CheckCircle2 size={48} strokeWidth={2} />
+         <CheckCircle2 size={64} />
       </motion.div>
 
       <motion.div
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 0.2 }}
+        className="space-y-6"
       >
-        <h1 className="text-4xl lg:text-6xl font-semibold tracking-tight text-neutral-900 mb-4">
-            Order Confirmed
+        <h1 className="font-bangers text-7xl lg:text-9xl text-ink uppercase tracking-tight leading-none drop-shadow-[8px_8px_0px_#000]">
+            MISSION ACCOMPLISHED
         </h1>
-        <p className="text-neutral-700 max-w-lg mx-auto text-sm lg:text-base mb-12">
-            Your order <span className="font-bold text-neutral-900">#{orderId?.slice(-8).toUpperCase()}</span> has been placed successfully. We've sent a confirmation email to your gateway.
+        <p className="font-comic font-bold italic text-2xl text-secondary max-w-2xl mx-auto leading-tight">
+            Your gear request <span className="text-ink">#{orderId?.slice(-8).toUpperCase() || "ALPHA-01"}</span> has been successfully logged. The extraction is underway.
         </p>
       </motion.div>
 
@@ -38,60 +40,54 @@ function SuccessContent() {
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 0.4 }}
-        className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-4xl mb-16"
+        className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-5xl mt-20 mb-20"
       >
-         <div className="bg-white p-8 rounded-[32px] border border-neutral-100 shadow-sm flex flex-col items-center gap-4 group hover:shadow-xl hover:shadow-neutral-200/50 transition-all">
-            <div className="w-12 h-12 bg-neutral-50 rounded-2xl flex items-center justify-center text-neutral-600 group-hover:bg-black group-hover:text-white transition-colors">
-                <Package size={20} strokeWidth={1.5} />
-            </div>
-            <div>
-                <h3 className="text-xs font-bold uppercase tracking-widest text-neutral-900">Processing</h3>
-                <p className="text-[10px] text-neutral-600 uppercase tracking-widest mt-1 font-bold">2-4 Hours</p>
-            </div>
-         </div>
-         <div className="bg-white p-8 rounded-[32px] border border-neutral-100 shadow-sm flex flex-col items-center gap-4 group hover:shadow-xl hover:shadow-neutral-200/50 transition-all">
-            <div className="w-12 h-12 bg-neutral-50 rounded-2xl flex items-center justify-center text-neutral-600 group-hover:bg-black group-hover:text-white transition-colors">
-                <Truck size={20} strokeWidth={1.5} />
-            </div>
-            <div>
-                <h3 className="text-xs font-bold uppercase tracking-widest text-neutral-900">Delivery</h3>
-                <p className="text-[10px] text-neutral-600 uppercase tracking-widest mt-1 font-bold">48-72 Hours</p>
-            </div>
-         </div>
-         <div className="bg-white p-8 rounded-[32px] border border-neutral-100 shadow-sm flex flex-col items-center gap-4 group hover:shadow-xl hover:shadow-neutral-200/50 transition-all">
-            <div className="w-12 h-12 bg-neutral-50 rounded-2xl flex items-center justify-center text-neutral-600 group-hover:bg-black group-hover:text-white transition-colors">
-                <Calendar size={20} strokeWidth={1.5} />
-            </div>
-            <div>
-                <h3 className="text-xs font-bold uppercase tracking-widest text-neutral-900">Estimated</h3>
-                <p className="text-[10px] text-neutral-600 uppercase tracking-widest mt-1 font-bold">Soon</p>
-            </div>
-         </div>
+         {[
+           { icon: Package, title: "PROCESSING", desc: "2-4 HOURS", rotate: "-2deg" },
+           { icon: Truck, title: "EXTRACTION", desc: "48-72 HOURS", rotate: "3deg" },
+           { icon: Calendar, title: "ETA", desc: "INCOMING SOON", rotate: "-1deg" },
+         ].map((item, idx) => (
+           <div key={idx} className="bg-white p-10 border-4 border-ink cartoon-shadow flex flex-col items-center gap-6 group hover:translate-y-[-8px] transition-all" style={{ transform: `rotate(${item.rotate})` }}>
+              <div className="w-16 h-16 bg-surface border-3 border-ink flex items-center justify-center text-ink group-hover:bg-ink group-hover:text-paper transition-colors">
+                  <item.icon size={32} />
+              </div>
+              <div className="space-y-1">
+                  <h3 className="font-bebas text-2xl tracking-widest text-ink uppercase">{item.title}</h3>
+                  <p className="font-bangers text-3xl text-secondary tracking-tight uppercase leading-none">{item.desc}</p>
+              </div>
+           </div>
+         ))}
       </motion.div>
 
       <motion.div 
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 0.6 }}
-        className="flex flex-col sm:flex-row gap-4"
+        className="flex flex-wrap justify-center gap-8"
       >
-         <Link href="/shop" className="px-10 py-4 bg-black text-white text-xs font-bold uppercase tracking-widest hover:bg-neutral-800 transition-all rounded-full flex items-center gap-3">
-            Continue Shopping <ArrowRight size={16} />
+         <Link href="/products">
+            <CartoonButton size="lg">CONTINUE SCOUTING</CartoonButton>
          </Link>
-         <Link href="/account" className="px-10 py-4 border border-neutral-200 text-neutral-900 text-xs font-bold uppercase tracking-widest hover:bg-neutral-50 transition-all rounded-full flex items-center gap-3">
-            View Order <ShoppingBag size={16} />
+         <Link href="/account">
+            <CartoonButton variant="outline" size="lg">VIEW DOSSIER</CartoonButton>
          </Link>
       </motion.div>
+      
+      {/* Decorative Stars */}
+      <div className="absolute top-1/4 left-10 text-6xl text-ink/5 animate-float"><Star size={64} fill="currentColor" /></div>
+      <div className="absolute bottom-1/4 right-10 text-6xl text-ink/5 animate-float" style={{ animationDelay: '1s' }}><Star size={64} fill="currentColor" /></div>
     </div>
   );
 }
 
 export default function SuccessPage() {
   return (
-    <div className="min-h-screen bg-[#FDFDFD]">
+    <div className="min-h-screen bg-paper relative overflow-hidden">
+      <div className="absolute inset-0 bg-halftone opacity-5 pointer-events-none" />
       <Suspense fallback={
-        <div className="min-h-screen flex items-center justify-center">
-          <div className="w-8 h-8 border-2 border-neutral-200 border-t-black rounded-full animate-spin" />
+        <div className="min-h-screen flex flex-col items-center justify-center gap-6">
+          <div className="w-20 h-20 bg-ink animate-float border-4 border-ink cartoon-shadow" />
+          <h2 className="font-bangers text-4xl text-ink">LOGGING MISSION...</h2>
         </div>
       }>
         <SuccessContent />

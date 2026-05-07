@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { ArrowRight, Lock, Mail, ShieldAlert } from "lucide-react";
-import { Suspense } from "react";
+import CartoonButton from "@/components/ui/CartoonButton";
+import CartoonInput from "@/components/ui/CartoonInput";
 
 function LoginForm() {
   const router = useRouter();
@@ -30,81 +30,80 @@ function LoginForm() {
       });
 
       if (res?.error) {
-        setError("Invalid credentials. Access denied.");
+        setError("AUTHENTICATION FAILED: INVALID INTEL");
       } else {
         router.push(callbackUrl);
       }
     } catch (err) {
-      setError("Terminal Error: Authentication service unreachable.");
+      setError("SYSTEM ERROR: UNABLE TO REACH THE ARCHIVE");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="max-w-md w-full space-y-12">
-      <div className="space-y-4">
-        <h1 className="font-display font-black text-6xl uppercase tracking-tighter leading-none">
-          SECURE<br />ACCESS
+    <div className="w-full max-w-lg space-y-12 relative z-10">
+      <div className="space-y-6">
+        <div className="inline-block px-4 py-2 bg-ink text-paper border-2 border-ink rotate-[-2deg]">
+          <span className="font-bebas text-2xl tracking-[0.2em] uppercase">
+            SECURE ACCESS
+          </span>
+        </div>
+        <h1 className="font-bangers text-7xl md:text-8xl text-ink uppercase leading-none tracking-tight">
+          ESTABLISH <br />
+          <span className="text-secondary drop-shadow-[4px_4px_0px_#000]">CONNECTION</span>
         </h1>
-        <p className="text-[10px] font-black uppercase tracking-[0.4em] text-black/40">Enter credentials to access your Flex Wear account</p>
+        <p className="font-comic font-bold italic text-xl text-ink/60 max-w-sm leading-tight">
+          Verify your credentials to access the classified drops.
+        </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-8">
+      <form onSubmit={handleSubmit} className="space-y-10 p-10 bg-white border-4 border-ink cartoon-shadow-lg relative">
+        {/* Background Patterns */}
+        <div className="absolute inset-0 bg-halftone opacity-5 pointer-events-none" />
+
         {error && (
-          <div className="p-4 bg-red-50 border-2 border-red-500 text-red-500 flex items-center gap-3 text-[10px] font-black uppercase tracking-widest animate-shake">
-            <ShieldAlert size={16} /> {error}
+          <div className="p-5 bg-ink text-paper border-3 border-ink font-bangers text-2xl uppercase tracking-tight animate-bounce">
+            !! {error} !!
           </div>
         )}
 
-        <div className="space-y-6">
-          <div className="space-y-2 group">
-            <label className="text-[9px] font-black uppercase tracking-widest text-black/40 group-focus-within:text-black transition-colors">Identification (Email)</label>
-            <div className="relative">
-              <input 
-                type="email" 
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="w-full bg-transparent border-b-2 border-black/10 focus:border-black py-4 text-sm font-bold placeholder:opacity-20 transition-all outline-none"
-                placeholder="ALPHA@SECURE.COM"
-              />
-              <Mail size={16} className="absolute right-0 top-4 opacity-20" />
-            </div>
-          </div>
+        <div className="space-y-8 relative z-10">
+          <CartoonInput
+            label="OPERATIVE ID"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="AGENT@INKANDTHREAD.COM"
+            required
+          />
 
-          <div className="space-y-2 group">
-            <label className="text-[9px] font-black uppercase tracking-widest text-black/40 group-focus-within:text-black transition-colors">Security Key (Password)</label>
-            <div className="relative">
-              <input 
-                type="password" 
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className="w-full bg-transparent border-b-2 border-black/10 focus:border-black py-4 text-sm font-bold placeholder:opacity-20 transition-all outline-none"
-                placeholder="••••••••"
-              />
-              <Lock size={16} className="absolute right-0 top-4 opacity-20" />
-            </div>
-          </div>
+          <CartoonInput
+            label="SECURITY KEY"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="••••••••"
+            required
+          />
         </div>
 
-        <button 
+        <CartoonButton 
+          size="lg" 
+          className="w-full" 
           disabled={loading}
-          className="w-full h-20 bg-black text-white flex items-center justify-center gap-4 font-black uppercase tracking-[0.4em] text-xs hover:bg-neutral-800 transition-all disabled:opacity-50 group"
+          type="submit"
         >
-          {loading ? (
-            <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
-          ) : (
-            <>Establish Connection <ArrowRight size={18} className="group-hover:translate-x-2 transition-transform" /></>
-          )}
-        </button>
+          {loading ? "CONNECTING..." : "INITIALIZE LOGIN"}
+        </CartoonButton>
       </form>
 
-      <div className="pt-12 border-t-2 border-black/5 flex flex-col gap-4 text-center">
-        <p className="text-[9px] font-bold uppercase tracking-widest text-black/40">New operative?</p>
-        <Link href="/register" className="text-[10px] font-black uppercase tracking-[0.2em] hover:italic transition-all">
-          Request Archival Access ↗
+      <div className="pt-10 border-t-4 border-ink/10 flex flex-col items-center gap-6">
+        <p className="font-bebas text-2xl text-ink/40 tracking-widest">
+          NO IDENTITY IN ARCHIVES?
+        </p>
+        <Link href="/register" className="font-bangers text-3xl text-ink hover:text-secondary transition-colors uppercase tracking-tight underline decoration-4 underline-offset-8">
+          INITIALIZE NEW OPERATIVE →
         </Link>
       </div>
     </div>
@@ -113,8 +112,17 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center p-6">
-      <Suspense fallback={<div>Loading...</div>}>
+    <div className="min-h-screen bg-paper flex items-center justify-center p-8 relative overflow-hidden">
+      {/* Background Decor */}
+      <div className="absolute inset-0 opacity-10 pointer-events-none">
+        <div className="absolute inset-0 bg-crosshatch" />
+      </div>
+      
+      {/* Decorative Doodles */}
+      <div className="absolute top-20 left-20 text-9xl text-ink/5 rotate-12">★</div>
+      <div className="absolute bottom-20 right-20 text-9xl text-ink/5 -rotate-12">✸</div>
+
+      <Suspense fallback={<div className="font-bangers text-4xl text-ink animate-pulse uppercase">LOADING ENCRYPTION...</div>}>
         <LoginForm />
       </Suspense>
     </div>

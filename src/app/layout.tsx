@@ -1,59 +1,68 @@
 import type { Metadata } from "next";
-import { Inter, Playfair_Display } from "next/font/google";
+import { Bangers, Comic_Neue, Bebas_Neue, Permanent_Marker, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 import { CartProvider } from "@/components/providers/CartProvider";
 import { WishlistProvider } from "@/components/providers/WishlistProvider";
 import SearchProvider from "@/components/providers/SearchProvider";
 import GlobalUI from "@/components/layout/GlobalUI";
 import NextAuthProvider from "@/components/providers/NextAuthProvider";
-import CustomCursor from "@/components/ui/CustomCursor";
-import LenisProvider from "@/components/providers/LenisProvider";
-import Preloader from "@/components/ui/Preloader";
-import GlobalBackgroundWrapper from "@/components/3d/GlobalBackgroundWrapper";
-import CreativeCanvas from "@/components/ui/CreativeCanvas";
-import ScrollProgress from "@/components/ui/ScrollProgress";
-import DigitalHUD from "@/components/ui/DigitalHUD";
-import CreativePreloader from "@/components/ui/CreativePreloader";
+import { CartoonToastProvider } from "@/components/ui/CartoonToast";
 
-const inter = Inter({
+const bangers = Bangers({
   subsets: ["latin"],
   display: "swap",
-  variable: "--font-inter",
-  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-bangers",
+  weight: "400",
 });
 
-const playfair = Playfair_Display({
+const comicNeue = Comic_Neue({
   subsets: ["latin"],
   display: "swap",
-  variable: "--font-playfair",
-  weight: ["400", "500", "600", "700"],
-  style: ["normal", "italic"],
+  variable: "--font-comic",
+  weight: ["400", "700"],
+});
+
+const bebasNeue = Bebas_Neue({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-bebas",
+  weight: "400",
+});
+
+const permanentMarker = Permanent_Marker({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-marker",
+  weight: "400",
+});
+
+const ibmPlex = IBM_Plex_Mono({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-mono",
+  weight: ["400", "700"],
 });
 
 export const metadata: Metadata = {
   title: {
-    default: "AVANT GARDE — Wear the Silence",
-    template: "%s | AVANT GARDE"
+    default: "INK & THREAD — Wear the Attitude",
+    template: "%s | INK & THREAD",
   },
   description:
-    "Brutalist minimalism for the modern ascetic. Stripped of excess, leaving only structure and intent.",
+    "Bold. Graphic. Fearless. High-fashion streetwear for the comic-obsessed generation.",
   openGraph: {
-    title: "AVANT GARDE — Wear the Silence",
-    description:
-      "Brutalist minimalism for the modern ascetic. Stripped of excess, leaving only structure and intent.",
+    title: "INK & THREAD — Wear the Attitude",
+    description: "High-fashion streetwear for the comic-obsessed generation.",
     type: "website",
     locale: "en_US",
-    siteName: "AVANT GARDE",
+    siteName: "INK & THREAD",
   },
   twitter: {
     card: "summary_large_image",
-    title: "AVANT GARDE — Wear the Silence",
-    description: "Brutalist minimalism for the modern ascetic.",
+    title: "INK & THREAD — Wear the Attitude",
+    description: "Bold. Graphic. Fearless streetwear.",
   },
 };
-
-import PageTransition from "@/components/ui/PageTransition";
-import { AnimatePresence } from "framer-motion";
 
 export default function RootLayout({
   children,
@@ -61,36 +70,28 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} ${playfair.variable} antialiased`} data-scroll-behavior="smooth">
-      <body className="relative min-h-screen flex flex-col font-sans bg-[#0a0a0a] text-[#e5e2e1]" suppressHydrationWarning>
-        <GlobalBackgroundWrapper />
-        <CreativeCanvas />
-        <ScrollProgress />
-        <DigitalHUD />
-        <CreativePreloader />
-        <div className="noise-overlay" />
-        <div className="grain-overlay" />
-        <div className="scanline" />
-        <Preloader />
-        <LenisProvider>
-          <CustomCursor />
-          <NextAuthProvider>
-            <WishlistProvider>
-              <CartProvider>
-                <SearchProvider>
-                  <AnimatePresence mode="wait">
-                    <PageTransition>
-                      {children}
-                    </PageTransition>
-                  </AnimatePresence>
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className={`${bangers.variable} ${comicNeue.variable} ${bebasNeue.variable} ${permanentMarker.variable} ${ibmPlex.variable}`}
+    >
+      <body 
+        suppressHydrationWarning
+        className="relative min-h-screen flex flex-col bg-paper text-ink font-comic selection:bg-ink selection:text-paper"
+      >
+        <NextAuthProvider>
+          <WishlistProvider>
+            <CartProvider>
+              <SearchProvider>
+                <CartoonToastProvider>
+                  {children}
                   <GlobalUI />
-                </SearchProvider>
-              </CartProvider>
-            </WishlistProvider>
-          </NextAuthProvider>
-        </LenisProvider>
+                </CartoonToastProvider>
+              </SearchProvider>
+            </CartProvider>
+          </WishlistProvider>
+        </NextAuthProvider>
       </body>
     </html>
   );
 }
-

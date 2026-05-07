@@ -2,17 +2,18 @@
 
 import { Fragment, useState, useEffect } from "react";
 import { Dialog, DialogPanel, Transition, TransitionChild } from "@headlessui/react";
-import { X, Search as SearchIcon, ArrowRight, TrendingUp } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { motion, AnimatePresence } from "framer-motion";
+import { Search, X, ArrowRight } from "lucide-react";
+import CartoonButton from "@/components/ui/CartoonButton";
+import { cn } from "@/lib/utils";
 
-const quickLinks = ["Archive", "Uniforms", "Outerwear", "Technical", "Bags"];
-
-interface SearchDrawerProps {
+export interface SearchDrawerProps {
   isOpen: boolean;
   onClose: () => void;
 }
+
+const quickTags = ["T-Shirts", "Hoodies", "Sneakers", "Jackets", "Accessories"];
 
 export default function SearchDrawer({ isOpen, onClose }: SearchDrawerProps) {
   const [query, setQuery] = useState("");
@@ -20,235 +21,160 @@ export default function SearchDrawer({ isOpen, onClose }: SearchDrawerProps) {
   const [featured, setFeatured] = useState<any[]>([]);
 
   useEffect(() => {
-    const fetchFeatured = async () => {
-      try {
-        const res = await fetch('/api/store/products?limit=4');
-        const data = await res.json();
-        setFeatured(data.products || []);
-      } catch (err) {
-        console.error("Failed to fetch featured products:", err);
-      }
-    };
-    fetchFeatured();
+    fetch("/api/store/products?limit=4")
+      .then((r) => r.json())
+      .then((d) => setFeatured(d.products || []))
+      .catch(() => {});
   }, []);
 
   useEffect(() => {
-    const fetchResults = async () => {
-      if (!query.trim()) {
-        setResults([]);
-        return;
-      }
-
-      try {
-        const res = await fetch(`/api/store/products?search=${encodeURIComponent(query)}`);
-        const data = await res.json();
-        setResults(data.products || []);
-      } catch (err) {
-        console.error("Search failed:", err);
-      }
-    };
-
-    const timer = setTimeout(fetchResults, 300);
+    if (!query.trim()) { setResults([]); return; }
+    const timer = setTimeout(() => {
+      fetch(`/api/store/products?search=${encodeURIComponent(query)}`)
+        .then((r) => r.json())
+        .then((d) => setResults(d.products || []))
+        .catch(() => {});
+    }, 300);
     return () => clearTimeout(timer);
   }, [query]);
 
   return (
     <Transition show={isOpen} as={Fragment}>
-      <Dialog open={isOpen} onClose={onClose} className="relative z-[700]">
-        <TransitionChild
-          as={Fragment}
-          enter="transition-opacity ease-out duration-500"
-          enterFrom="opacity-0"
-          enterTo="opacity-100"
-          leave="transition-opacity ease-in duration-300"
-          leaveFrom="opacity-100"
-          leaveTo="opacity-0"
-        >
-          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" aria-hidden="true" />
+      <Dialog open={isOpen} onClose={onClose} className="relative z-[1000]">
+        <TransitionChild as={Fragment}
+          enter="transition-opacity duration-300" enterFrom="opacity-0" enterTo="opacity-100"
+          leave="transition-opacity duration-200" leaveFrom="opacity-100" leaveTo="opacity-0">
+          <div className="fixed inset-0 bg-ink/60 backdrop-blur-sm" aria-hidden="true" />
         </TransitionChild>
 
-        <TransitionChild
-          as={Fragment}
-          enter="transform transition ease-[0.16,1,0.3,1] duration-700"
-          enterFrom="translate-x-full"
-          enterTo="translate-x-0"
-          leave="transform transition ease-[0.16,1,0.3,1] duration-500"
-          leaveFrom="translate-x-0"
-          leaveTo="translate-x-full"
-        >
-          <DialogPanel className="fixed inset-y-0 right-0 w-full sm:w-[550px] bg-[#111111] flex flex-col overflow-hidden">
-            
+        <TransitionChild as={Fragment}
+          enter="transform transition duration-300 ease-out" enterFrom="translate-x-full" enterTo="translate-x-0"
+          leave="transform transition duration-200 ease-in" leaveFrom="translate-x-0" leaveTo="translate-x-full">
+          <DialogPanel className="fixed inset-y-0 right-0 w-full sm:w-[480px] bg-paper border-l-4 border-ink flex flex-col shadow-[-10px_0_0px_rgba(0,0,0,1)]">
+
             {/* Header */}
-            <div className="flex items-center justify-between px-10 py-10 border-b border-white/5">
-              <div className="flex flex-col gap-2">
-                <span className="label-tiny text-[#555]">Bureau Inquiry</span>
-                <h2 className="font-serif text-4xl text-white tracking-[-0.02em] leading-none">
-                  Search <span className="text-[#555] ml-2">Archive</span>
-                </h2>
+            <div className="flex items-center justify-between px-8 py-6 border-b-4 border-ink bg-white">
+               <div className="flex items-center gap-4">
+                <div className="p-3 bg-ink text-paper border-3 border-ink cartoon-shadow-sm">
+                  <Search size={24} />
+                </div>
+                <h2 className="font-bangers text-4xl tracking-tight leading-none uppercase">SEARCH</h2>
               </div>
-              <button
-                onClick={onClose}
-                className="group w-12 h-12 flex items-center justify-center text-[#8e9192] hover:text-white transition-all duration-500"
-                aria-label="Close search"
-              >
-                <X size={24} strokeWidth={1} className="group-hover:rotate-90 transition-transform duration-500" />
+              <button onClick={onClose} className="p-3 border-3 border-ink hover:bg-surface cartoon-shadow-sm active:shadow-none active:translate-x-1 active:translate-y-1 transition-all">
+                <X size={24} />
               </button>
             </div>
 
-            {/* Search Input Section */}
-            <div className="px-10 py-12 bg-[#0e0e0e] border-b border-white/5">
+            {/* Search Input Area */}
+            <div className="px-8 py-8 bg-white border-b-4 border-ink space-y-6">
               <div className="relative group">
                 <input
                   type="text"
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Query parameters..."
-                  className="w-full bg-[#1a1a1a] border border-white/5 px-8 py-6 text-xl font-light text-white placeholder:text-[#333] outline-none focus:border-white/20 transition-all rounded-none"
+                  placeholder="WHAT ARE YOU LOOKING FOR?"
+                  className="w-full bg-paper border-3 border-ink p-5 pl-14 font-comic font-bold text-xl italic cartoon-shadow-sm focus:shadow-none focus:translate-x-1 focus:translate-y-1 outline-none transition-all"
                   autoFocus
                 />
-                <AnimatePresence>
-                  {query && (
-                    <motion.button
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.8 }}
-                      onClick={() => setQuery("")}
-                      className="absolute right-6 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center text-[#555] hover:text-white transition-colors"
-                    >
-                      <X size={18} strokeWidth={1} />
-                    </motion.button>
-                  )}
-                </AnimatePresence>
+                <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-ink/40" size={24} />
+                {query && (
+                  <button 
+                    onClick={() => setQuery("")} 
+                    className="absolute right-5 top-1/2 -translate-y-1/2 p-1 hover:bg-surface border-2 border-ink"
+                  >
+                    <X size={18} />
+                  </button>
+                )}
               </div>
-              
-              <div className="mt-10">
-                <div className="flex items-center gap-3 mb-6">
-                  <TrendingUp size={14} strokeWidth={1} className="text-[#333]" />
-                  <p className="label-tiny text-[#555]">Active Parameters</p>
-                </div>
-                <div className="flex flex-wrap gap-3">
-                  {quickLinks.map((link) => (
-                    <button
-                      key={link}
-                      onClick={() => setQuery(link)}
-                      className="px-6 py-3 text-[9px] uppercase tracking-[0.2em] bg-[#1a1a1a] text-[#8e9192] border border-white/5 hover:border-white/20 hover:text-white transition-all rounded-none"
-                    >
-                      {link}
-                    </button>
-                  ))}
-                </div>
+
+              <div className="flex flex-wrap gap-2">
+                {quickTags.map((tag) => (
+                  <button
+                    key={tag}
+                    onClick={() => setQuery(tag)}
+                    className="font-bebas text-lg tracking-widest bg-white border-2 border-ink px-4 py-1.5 hover:bg-ink hover:text-paper transition-all cartoon-shadow-xs active:shadow-none active:translate-x-0.5 active:translate-y-0.5"
+                  >
+                    {tag}
+                  </button>
+                ))}
               </div>
             </div>
 
             {/* Results Area */}
-            <div className="flex-1 overflow-y-auto px-10 py-10 scrollbar-hide">
+            <div className="flex-1 overflow-y-auto px-8 py-8">
               {query.trim() === "" ? (
-                /* Empty / Suggestions State */
-                <div className="space-y-12">
-                  <div className="flex items-center justify-between">
-                    <h4 className="font-serif text-2xl text-white tracking-tight">Curated Selection</h4>
-                    <Link href="/products" onClick={onClose} className="label-tiny text-[#555] hover:text-white transition-colors">Observe All</Link>
-                  </div>
-                  <div className="grid grid-cols-1 gap-10">
+                <div className="space-y-8">
+                  <h3 className="font-bebas text-2xl tracking-widest text-ink/60 border-b-2 border-ink/10 pb-2">// FEATURED DROPS</h3>
+                  <div className="space-y-6">
                     {featured.map((product) => (
                       <Link 
                         key={product._id} 
                         href={`/products/${product.slug}`} 
-                        onClick={onClose}
-                        className="flex items-center gap-8 group"
+                        onClick={onClose} 
+                        className="flex items-center gap-6 group bg-white border-3 border-ink p-4 cartoon-shadow-sm hover:translate-x-1 transition-all"
                       >
-                        <div className="w-24 h-32 relative overflow-hidden bg-[#1a1a1a] shrink-0">
+                        <div className="w-16 h-20 relative overflow-hidden bg-surface border-2 border-ink shrink-0">
                           <Image
-                            src={(product.images?.[0]?.url && product.images[0].url.length > 1) ? product.images[0].url : "/placeholder.jpg"}
-                            alt={product.title}
-                            fill
-                            className="object-cover grayscale group-hover:grayscale-0 transition-all duration-700 ease-[0.16,1,0.3,1] group-hover:scale-105"
-                            sizes="96px"
+                            src={(product.images?.[0]?.url) ? product.images[0].url : "/placeholder.jpg"}
+                            alt={product.title} fill className="object-cover" sizes="64px"
                           />
                         </div>
-                        <div className="flex-1 border-b border-white/5 pb-6 group-hover:border-white/10 transition-colors">
-                          <h5 className="font-serif text-lg text-white group-hover:text-[#8e9192] transition-colors leading-tight mb-2 tracking-tight">{product.title}</h5>
-                          <p className="label-tiny text-white">৳{Math.round(product.price || 0).toLocaleString()}</p>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-bangers text-xl text-ink truncate group-hover:text-secondary transition-colors uppercase tracking-tight">{product.title}</p>
+                          <p className="font-bebas text-2xl text-ink">৳{Math.round(product.price).toLocaleString()}</p>
                         </div>
+                        <ArrowRight size={20} className="text-ink/20 group-hover:text-ink transition-colors" />
                       </Link>
                     ))}
                   </div>
                 </div>
-              ) : (
-                /* Search Results */
-                <div className="space-y-10">
-                   <div className="flex items-center justify-between">
-                    <h4 className="font-serif text-2xl text-white tracking-tight">
-                      {results.length} Found for <span className="italic text-[#555]">"{query}"</span>
-                    </h4>
-                  </div>
-
-                   {results.length > 0 ? (
-                    <div className="grid grid-cols-1 gap-10">
-                      {results.map((product) => (
-                        <Link 
-                          key={product._id} 
-                          href={`/products/${product.slug}`} 
-                          onClick={onClose}
-                          className="flex items-center gap-8 group"
-                        >
-                          <div className="w-24 h-32 relative overflow-hidden bg-[#1a1a1a] shrink-0">
-                            <Image
-                              src={(product.images?.[0]?.url && product.images[0].url.length > 1) ? product.images[0].url : "/placeholder.jpg"}
-                              alt={product.title}
-                              fill
-                              className="object-cover grayscale group-hover:grayscale-0 transition-all duration-700 ease-[0.16,1,0.3,1] group-hover:scale-105"
-                              sizes="96px"
-                            />
-                          </div>
-                          <div className="flex-1 flex items-center justify-between gap-6 border-b border-white/5 pb-6 group-hover:border-white/10 transition-colors">
-                            <div>
-                              <h5 className="font-serif text-lg text-white group-hover:text-[#8e9192] transition-colors leading-tight mb-2 tracking-tight">{product.title}</h5>
-                              <p className="label-tiny text-white">৳{Math.round(product.price || 0).toLocaleString()}</p>
-                            </div>
-                            <div className="w-12 h-12 flex items-center justify-center text-[#333] group-hover:text-white transition-all">
-                              <ArrowRight size={20} strokeWidth={1} className="group-hover:translate-x-1 transition-transform" />
-                            </div>
-                          </div>
-                        </Link>
-                      ))}
-                      
-                      <Link
-                        href={`/products?search=${query}`}
-                        onClick={onClose}
-                        className="flex items-center justify-center w-full py-6 bg-[#1a1a1a] text-[#8e9192] label-tiny hover:bg-[#222] hover:text-white transition-all mt-4 rounded-none border border-white/5"
+              ) : results.length > 0 ? (
+                <div className="space-y-8">
+                  <h3 className="font-bebas text-2xl tracking-widest text-ink/60 border-b-2 border-ink/10 pb-2 uppercase">
+                    // {results.length} INTEL FOUND FOR &quot;{query}&quot;
+                  </h3>
+                  <div className="space-y-6">
+                    {results.map((product) => (
+                      <Link 
+                        key={product._id} 
+                        href={`/products/${product.slug}`} 
+                        onClick={onClose} 
+                        className="flex items-center gap-6 p-4 bg-white border-3 border-ink cartoon-shadow-sm group transition-all"
                       >
-                        Explore comprehensive results
+                        <div className="w-16 h-20 relative overflow-hidden border-2 border-ink shrink-0 bg-surface">
+                          <Image
+                            src={(product.images?.[0]?.url) ? product.images[0].url : "/placeholder.jpg"}
+                            alt={product.title} fill className="object-cover" sizes="64px"
+                          />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-bangers text-xl text-ink truncate group-hover:text-secondary transition-colors uppercase tracking-tight">{product.title}</p>
+                          <p className="font-bebas text-2xl text-ink">৳{Math.round(product.price).toLocaleString()}</p>
+                        </div>
+                        <ArrowRight size={20} className="text-ink/20 group-hover:text-ink" />
                       </Link>
-                    </div>
-                  ) : (
-                    <div className="py-24 text-center">
-                      <div className="w-24 h-24 bg-[#1a1a1a] rounded-full flex items-center justify-center text-[#333] mx-auto mb-10">
-                        <SearchIcon size={40} strokeWidth={1} />
-                      </div>
-                      <p className="font-serif text-3xl text-white mb-4 tracking-tight">No Archive Found</p>
-                      <p className="label-tiny text-[#555] max-w-[280px] mx-auto">The query did not yield any archival specimens.</p>
-                    </div>
-                  )}
+                    ))}
+                  </div>
+                  <Link href={`/products?search=${query}`} onClick={onClose} className="block w-full">
+                    <CartoonButton variant="outline" className="w-full">VIEW ALL RESULTS</CartoonButton>
+                  </Link>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center py-20 text-center space-y-6">
+                  <div className="text-8xl text-ink/10 rotate-12">?</div>
+                  <div className="space-y-2">
+                    <h3 className="font-bangers text-4xl text-ink">NO INTEL FOUND</h3>
+                    <p className="font-comic font-bold italic text-secondary text-xl">Try different coordinates, agent.</p>
+                  </div>
                 </div>
               )}
             </div>
-            
-            {/* Promo / Footer */}
-            <div className="p-10 bg-[#0e0e0e] border-t border-white/5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-serif text-2xl text-white tracking-tight mb-2">SS26 Archive</p>
-                  <p className="label-tiny text-[#555]">SYSTEM 01 NOW ACCESSIBLE</p>
-                </div>
-                <Link 
-                  href="/products" 
-                  onClick={onClose} 
-                  className="btn-pill-primary"
-                >
-                  Observe
-                </Link>
-              </div>
+
+            {/* Footer */}
+            <div className="px-8 py-6 border-t-4 border-ink bg-white">
+              <Link href="/products" onClick={onClose} className="block">
+                <CartoonButton variant="secondary" className="w-full">BROWSE THE ARCHIVE</CartoonButton>
+              </Link>
             </div>
           </DialogPanel>
         </TransitionChild>

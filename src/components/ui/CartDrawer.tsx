@@ -2,187 +2,186 @@
 
 import { Fragment } from "react";
 import { Dialog, DialogPanel, Transition, TransitionChild } from "@headlessui/react";
-import { X, Plus, Minus, Trash2 } from "lucide-react";
 import Image from "next/image";
 import { useCart } from "@/components/providers/CartProvider";
 import Link from "next/link";
+import { X, Trash2, ShoppingBag } from "lucide-react";
+import CartoonButton from "@/components/ui/CartoonButton";
+import CartoonProgressBar from "@/components/ui/CartoonProgressBar";
+import CartoonCounter from "@/components/ui/CartoonCounter";
+import { cn } from "@/lib/utils";
 
 const FREE_SHIPPING_THRESHOLD = 8000;
 
 export default function CartDrawer() {
   const { items, isOpen, closeCart, removeItem, updateQuantity, total, count } = useCart();
   const remaining = Math.max(0, FREE_SHIPPING_THRESHOLD - total);
-  const progress = Math.min(100, (total / FREE_SHIPPING_THRESHOLD) * 100);
 
   return (
     <Transition show={isOpen} as={Fragment}>
-      <Dialog onClose={closeCart} className="relative z-[600]">
+      <Dialog onClose={closeCart} className="relative z-[1000]">
         <TransitionChild
           as={Fragment}
-          enter="transition-opacity ease-linear duration-300"
+          enter="transition-opacity duration-300"
           enterFrom="opacity-0"
           enterTo="opacity-100"
-          leave="transition-opacity ease-linear duration-200"
+          leave="transition-opacity duration-200"
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <div 
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm cursor-pointer" 
-            aria-hidden="true" 
-            onClick={closeCart}
-          />
+          <div className="fixed inset-0 bg-ink/60 backdrop-blur-sm" aria-hidden="true" onClick={closeCart} />
         </TransitionChild>
 
         <TransitionChild
           as={Fragment}
-          enter="transform transition ease-in-out duration-300"
+          enter="transform transition duration-300 ease-out"
           enterFrom="translate-x-full"
           enterTo="translate-x-0"
-          leave="transform transition ease-in-out duration-200"
+          leave="transform transition duration-200 ease-in"
           leaveFrom="translate-x-0"
           leaveTo="translate-x-full"
         >
-          <DialogPanel className="fixed inset-y-0 right-0 w-full sm:w-[450px] bg-white border-l-4 border-black flex flex-col shadow-[0_0_50px_rgba(0,0,0,0.3)]">
-            
+          <DialogPanel className="fixed inset-y-0 right-0 w-full sm:w-[450px] bg-paper border-l-4 border-ink flex flex-col shadow-[-10px_0_0px_rgba(0,0,0,1)]">
             {/* Header */}
-            <div className="flex items-center justify-between px-6 py-6 border-b-2 border-black">
-              <h2 className="font-display font-black text-3xl uppercase tracking-tighter">
-                YOUR BASKET ({count})
-              </h2>
+            <div className="flex items-center justify-between px-8 py-6 border-b-4 border-ink bg-white">
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-ink text-paper border-3 border-ink cartoon-shadow-sm">
+                  <ShoppingBag size={24} />
+                </div>
+                <div>
+                  <h2 className="font-bangers text-4xl tracking-tight leading-none">YOUR BAG</h2>
+                  <p className="font-comic font-bold italic text-secondary text-lg">
+                    {count} {count === 1 ? "ITEM" : "ITEMS"} IN COLLECTION
+                  </p>
+                </div>
+              </div>
               <button
                 onClick={closeCart}
-                className="group flex items-center gap-2 px-4 py-2 bg-black text-white border-2 border-black hover:bg-white hover:text-black transition-all transform active:scale-95 relative z-[200] pointer-events-auto"
-                aria-label="Close cart"
+                className="p-3 border-3 border-ink hover:bg-surface cartoon-shadow-sm active:shadow-none active:translate-x-1 active:translate-y-1 transition-all"
               >
-                <span className="text-[10px] font-black uppercase tracking-widest hidden sm:block">CLOSE</span>
-                <X size={20} strokeWidth={3} className="group-hover:rotate-90 transition-transform" />
+                <X size={24} />
               </button>
             </div>
 
             {/* Free Shipping Progress */}
-            <div className="px-6 py-4 border-b-2 border-black bg-gray-50">
-              <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-[0.2em] mb-3">
-                {remaining > 0 ? (
-                  <span>
-                    Add <span className="text-black underline underline-offset-4">৳{Math.round(remaining).toLocaleString()}</span> FOR FREE SHIPPING
-                  </span>
-                ) : (
-                  <span className="text-black font-black">✳ FREE SHIPPING UNLOCKED</span>
-                )}
-              </div>
-              <div className="w-full h-4 bg-white border-2 border-black overflow-hidden p-0.5">
-                <div
-                  className="h-full bg-black transition-all duration-700 ease-out"
-                  style={{ width: `${progress}%` }}
+            <div className="px-8 py-6 bg-white border-b-4 border-ink">
+              {remaining > 0 ? (
+                <CartoonProgressBar
+                  value={total}
+                  max={FREE_SHIPPING_THRESHOLD}
+                  label={`ADD ৳${Math.round(remaining).toLocaleString()} FOR FREE SHIPPING ★`}
                 />
-              </div>
+              ) : (
+                <div className="bg-ink text-paper p-4 border-3 border-ink cartoon-shadow-sm flex items-center justify-center gap-3 animate-bounce">
+                   <span className="text-2xl">★</span>
+                   <span className="font-bebas text-2xl tracking-widest uppercase">FREE SHIPPING UNLOCKED</span>
+                   <span className="text-2xl">★</span>
+                </div>
+              )}
             </div>
 
             {/* Cart Items */}
-            <div className="flex-1 overflow-y-auto px-6 py-6 space-y-6">
+            <div className="flex-1 overflow-y-auto px-8 py-6 space-y-6">
               {items.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-20 text-center">
-                   <div className="font-display font-black text-8xl mb-4 opacity-10 select-none">✳</div>
-                  <p className="font-display font-black text-2xl uppercase tracking-tight mb-6">Your basket is empty</p>
-                  <button
-                    onClick={closeCart}
-                    className="px-10 py-4 bg-black text-white text-[10px] font-bold uppercase tracking-widest hover:bg-white hover:text-black border-2 border-black transition-all"
-                  >
-                    CONTINUE SHOPPING ↗
-                  </button>
+                <div className="flex flex-col items-center justify-center py-20 text-center space-y-8">
+                  <div className="text-8xl text-ink/10 rotate-12 animate-float">?</div>
+                  <div className="space-y-4">
+                    <h3 className="font-bangers text-4xl text-ink">BAG IS EMPTY!</h3>
+                    <p className="font-comic font-bold italic text-secondary text-xl">
+                      Your inventory is looking a bit light.<br />Go back and find some gear!
+                    </p>
+                  </div>
+                  <CartoonButton onClick={closeCart}>BROWSE THE SHOP</CartoonButton>
                 </div>
               ) : (
                 items.map((item) => (
-                  <div key={`${item.id}-${item.color}-${item.size}`} className="flex gap-6 pb-6 border-b border-black/10 last:border-b-0">
-                    <div className="w-24 h-32 relative border-2 border-black bg-gray-100 shrink-0 overflow-hidden group">
+                  <div
+                    key={`${item.id}-${item.color}-${item.size}`}
+                    className="flex gap-6 p-4 bg-white border-3 border-ink cartoon-shadow-sm group relative"
+                  >
+                    {/* Thumbnail */}
+                    <div className="w-24 h-32 relative shrink-0 border-3 border-ink overflow-hidden bg-surface">
                       <Image
                         src={item.image}
                         alt={item.title}
                         fill
-                        className="object-cover group-hover:scale-110 transition-transform duration-500"
+                        className="object-cover"
                         sizes="100px"
                       />
                     </div>
-                    <div className="flex-1 flex flex-col justify-between py-1">
-                      <div>
-                        <div className="flex justify-between items-start mb-1">
-                          <Link 
-                            href={`/product/${item.slug}`} 
-                            onClick={closeCart}
-                            className="font-display font-black text-lg uppercase leading-tight truncate mr-2 hover:line-through transition-all"
-                          >
-                            {item.title}
-                          </Link>
-                          <button
-                            onClick={() => removeItem(item.id)}
-                            className="text-black/30 hover:text-black transition-colors"
-                            aria-label="Remove item"
-                          >
-                            <Trash2 size={16} />
-                          </button>
-                        </div>
-                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+
+                    {/* Info */}
+                    <div className="flex-1 flex flex-col justify-between min-w-0">
+                      <div className="space-y-1">
+                        <Link
+                          href={`/products/${item.slug}`}
+                          onClick={closeCart}
+                          className="font-bangers text-2xl text-ink hover:text-secondary transition-colors block leading-tight"
+                        >
+                          {item.title}
+                        </Link>
+                        <p className="font-comic font-bold italic text-lg text-secondary">
                           {item.color} // {item.size}
                         </p>
                       </div>
-                      
-                      <div className="flex items-center justify-between mt-4">
-                        <div className="flex items-center border-2 border-black h-9">
-                          <button
-                            onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                            className="w-9 h-full flex items-center justify-center hover:bg-black hover:text-white transition-colors"
-                            aria-label="Decrease quantity"
-                          >
-                            <Minus size={12} strokeWidth={3} />
-                          </button>
-                          <span className="w-9 h-full flex items-center justify-center text-xs font-black border-x-2 border-black">
-                            {item.quantity}
+
+                      <div className="flex items-end justify-between mt-4">
+                        {/* Quantity */}
+                        <CartoonCounter 
+                          value={item.quantity} 
+                          onChange={(val) => updateQuantity(item.id, val)} 
+                          className="h-10"
+                        />
+
+                        <div className="text-right">
+                          <span className="font-bebas text-3xl text-ink">
+                            ৳{Math.round(item.price * item.quantity).toLocaleString()}
                           </span>
-                          <button
-                            onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                            className="w-9 h-full flex items-center justify-center hover:bg-black hover:text-white transition-colors"
-                            aria-label="Increase quantity"
-                          >
-                            <Plus size={12} strokeWidth={3} />
-                          </button>
                         </div>
-                        <p className="font-display font-black text-lg">
-                          ৳{Math.round(item.price * item.quantity).toLocaleString()}
-                        </p>
                       </div>
                     </div>
+
+                    {/* Remove */}
+                    <button
+                      onClick={() => removeItem(item.id)}
+                      className="absolute -top-2 -right-2 w-8 h-8 bg-ink text-paper border-2 border-ink cartoon-shadow-sm flex items-center justify-center hover:bg-secondary transition-colors"
+                      aria-label="Remove item"
+                    >
+                      <Trash2 size={16} />
+                    </button>
                   </div>
                 ))
               )}
             </div>
 
-            {/* Bottom */}
+            {/* Bottom Total & Checkout */}
             {items.length > 0 && (
-              <div className="border-t-4 border-black p-6 bg-white space-y-4">
+              <div className="border-t-4 border-ink p-8 bg-white space-y-8">
                 <div className="space-y-2">
-                  <div className="flex items-center justify-between font-display font-black text-xl uppercase italic">
-                    <span>Subtotal</span>
-                    <span>৳{Math.round(total).toLocaleString()}</span>
+                  <div className="flex items-center justify-between">
+                    <span className="font-bebas text-3xl tracking-widest text-secondary uppercase">
+                      SUBTOTAL
+                    </span>
+                    <span className="font-bebas text-5xl text-ink">
+                      ৳{Math.round(total).toLocaleString()}
+                    </span>
                   </div>
-                  <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400">
-                    TAXES AND SHIPPING CALCULATED AT CHECKOUT
+                  <p className="font-comic font-bold italic text-lg text-secondary text-right">
+                    (Shipping & taxes calculated at checkout)
                   </p>
                 </div>
 
-                <div className="flex flex-col gap-3 pt-4">
-                  <Link
-                    href="/checkout"
-                    onClick={closeCart}
-                    className="w-full bg-black text-white py-5 text-sm font-bold uppercase tracking-[0.2em] flex items-center justify-between px-8 group border-2 border-black transition-all hover:bg-white hover:text-black"
-                  >
-                    <span>CHECKOUT NOW</span>
-                    <span className="group-hover:translate-x-2 transition-transform">→</span>
+                <div className="space-y-4">
+                  <Link href="/checkout" onClick={closeCart} className="block w-full">
+                    <CartoonButton size="xl" className="w-full">
+                      PROCEED TO CHECKOUT →
+                    </CartoonButton>
                   </Link>
                   <button
                     onClick={closeCart}
-                    className="w-full bg-white text-black py-4 text-[10px] font-bold uppercase tracking-[0.2em] border-2 border-black hover:bg-gray-50 transition-all"
+                    className="w-full font-bebas text-2xl text-secondary hover:text-ink transition-colors uppercase tracking-widest text-center"
                   >
-                    VIEW FULL BASKET
+                    CONTINUE BROWSING
                   </button>
                 </div>
               </div>

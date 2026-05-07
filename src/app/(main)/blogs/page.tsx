@@ -3,7 +3,7 @@ import dbConnect from '@/lib/db';
 import BlogPost from '@/models/BlogPost';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Clock, ArrowRight, BookOpen } from 'lucide-react';
+import { Newspaper, Calendar, Clock, ArrowRight, Star } from 'lucide-react';
 
 async function getBlogs() {
   await dbConnect();
@@ -13,73 +13,88 @@ async function getBlogs() {
 }
 
 const BlogListingPage = async () => {
-  const posts = await getBlogs();
+  const posts: any = await getBlogs();
 
   return (
-    <div className="min-h-screen bg-zinc-50 flex-1">
-      <main className="pt-32 pb-24 px-6 md:px-16 relative z-10">
-        <div className="max-w-7xl mx-auto relative">
+    <div className="min-h-screen bg-paper flex-1 relative overflow-hidden">
+      {/* Background Decor */}
+      <div className="absolute inset-0 opacity-10 pointer-events-none">
+        <div className="absolute inset-0 bg-halftone" />
+        <div className="absolute top-1/3 left-0 w-[500px] h-[500px] bg-crosshatch opacity-10 rotate-12 -translate-x-1/2" />
+      </div>
+
+      <main className="pt-40 pb-32 px-8 md:px-16 relative z-10">
+        <div className="max-w-7xl mx-auto">
           
           {/* Header */}
-          <div className="mb-20">
-            <div className="flex flex-col gap-6 max-w-3xl">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-200/50 text-zinc-600 text-[10px] font-bold uppercase tracking-widest w-fit">
-                <BookOpen size={12} />
-                Journal & Editorial
-              </div>
-              <h1 className="text-5xl md:text-7xl font-display font-bold text-zinc-900 tracking-tight leading-none">
-                Refined <br/>
-                <span className="text-zinc-400 italic">Perspectives</span>
-              </h1>
-              <p className="text-zinc-500 text-lg md:text-xl font-medium leading-relaxed max-w-2xl">
-                Curated thoughts on the intersection of performance, design, and technical apparel. Explore our latest narratives.
-              </p>
+          <div className="mb-24 space-y-8">
+            <div className="inline-block px-4 py-2 bg-ink text-paper border-2 border-ink rotate-[-2deg]">
+              <span className="font-bebas text-2xl tracking-[0.2em] uppercase">
+                // ARCHIVE_LOGS
+              </span>
             </div>
+            <h1 className="font-bangers text-7xl md:text-9xl text-ink uppercase leading-none tracking-tight">
+              THE INK <br/>
+              <span className="text-secondary drop-shadow-[6px_6px_0px_#000]">CHRONICLES</span>
+            </h1>
+            <p className="font-comic font-bold italic text-2xl text-ink/60 leading-tight max-w-2xl">
+              Narratives on high-fashion gear, comic aesthetics, and the future of the zine storefront.
+            </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-10 lg:gap-16">
-            {posts.map((post: any, index: number) => (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
+            {posts.map((post: any, idx: number) => (
               <Link 
                 key={post._id.toString()} 
                 href={`/blogs/${post.slug}`}
-                className="group flex flex-col gap-8 bg-white p-4 rounded-[2.5rem] border border-zinc-100 shadow-soft hover:shadow-soft-xl transition-all duration-500"
+                className="group relative flex flex-col bg-white border-4 border-ink cartoon-shadow-lg transition-all hover:translate-y-[-8px]"
+                style={{ transform: `rotate(${idx % 2 === 0 ? '-1deg' : '1deg'})` }}
               >
-                <div className="relative aspect-[16/10] overflow-hidden rounded-[2rem] bg-zinc-100">
+                {/* Image Container */}
+                <div className="relative aspect-[16/9] overflow-hidden border-b-4 border-ink">
                   <Image
                     src={post.featuredImage.url}
                     alt={post.featuredImage.alt || post.title}
                     fill
-                    className="object-cover transition-transform duration-1000 ease-[0.16,1,0.3,1] group-hover:scale-105"
+                    className="object-cover transition-transform duration-700 group-hover:scale-105"
                   />
-                  <div className="absolute top-4 left-4 flex gap-2">
-                    <span className="px-3 py-1.5 rounded-full bg-white/80 backdrop-blur-md text-[10px] font-bold uppercase tracking-widest text-zinc-900 shadow-sm">
+                  
+                  <div className="absolute top-6 left-6">
+                    <span className="px-4 py-2 bg-ink text-paper border-2 border-ink font-bebas text-xl uppercase tracking-widest rotate-[-3deg] block">
                       {post.category}
                     </span>
                   </div>
+
+                  {/* Corner Star Overlay */}
+                  <div className="absolute -bottom-6 -right-6 w-16 h-16 bg-white border-4 border-ink flex items-center justify-center rotate-12 group-hover:rotate-[30deg] transition-transform">
+                     <Star size={32} className="text-secondary fill-secondary" />
+                  </div>
                 </div>
 
-                <div className="px-4 pb-4 space-y-4">
-                  <div className="flex items-center gap-4 text-[10px] font-bold text-zinc-400 uppercase tracking-widest">
-                    <span className="flex items-center gap-1.5">
-                      <Clock className="w-3.5 h-3.5" />
-                      {post.readingTime} MIN READ
-                    </span>
-                    <span>•</span>
-                    <span>{new Date(post.publishedAt || post.createdAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
+                {/* Content */}
+                <div className="p-10 space-y-6 bg-white flex-1 flex flex-col">
+                  <div className="flex items-center gap-6 font-bebas text-xl text-ink/40 tracking-widest uppercase">
+                    <div className="flex items-center gap-2">
+                       <Calendar size={18} />
+                       <span>{new Date(post.publishedAt || post.createdAt).toLocaleDateString('en-US', { day: '2-digit', month: '2-digit', year: 'numeric' }).replace(/\//g, '.')}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                       <Clock size={18} />
+                       <span>{post.readingTime} MIN_READ</span>
+                    </div>
                   </div>
                   
-                  <h2 className="text-2xl md:text-3xl font-display font-bold text-zinc-900 tracking-tight leading-snug group-hover:text-zinc-600 transition-colors">
+                  <h2 className="font-bangers text-4xl text-ink uppercase leading-none group-hover:text-secondary transition-colors tracking-tight">
                     {post.title}
                   </h2>
                   
-                  <p className="text-zinc-500 text-sm leading-relaxed line-clamp-2 font-medium">
+                  <p className="font-comic font-bold italic text-xl text-ink/60 leading-tight line-clamp-3">
                     {post.excerpt}
                   </p>
 
-                  <div className="pt-4 flex items-center gap-2 text-xs font-bold text-zinc-900 uppercase tracking-widest group/btn">
-                    Read Story
-                    <div className="w-8 h-8 rounded-full bg-zinc-100 flex items-center justify-center group-hover/btn:bg-zinc-900 group-hover/btn:text-white transition-all">
-                      <ArrowRight className="w-4 h-4 transition-transform group-hover/btn:translate-x-0.5" />
+                  <div className="mt-auto pt-8">
+                     <div className="inline-flex items-center gap-4 font-bangers text-2xl text-secondary uppercase tracking-tight group-hover:gap-6 transition-all">
+                      READ DATA PACKET <ArrowRight size={24} />
                     </div>
                   </div>
                 </div>
@@ -88,17 +103,10 @@ const BlogListingPage = async () => {
           </div>
 
           {posts.length === 0 && (
-            <div className="py-32 text-center bg-white rounded-[3rem] border border-zinc-100 shadow-soft">
-              <p className="text-zinc-400 font-medium italic">Our story is just beginning. Stories are coming soon.</p>
-            </div>
-          )}
-
-          {/* Load More Button */}
-          {posts.length > 0 && (
-            <div className="mt-20 flex justify-center">
-              <button className="px-10 py-4 bg-white border border-zinc-200 text-zinc-900 rounded-full text-xs font-bold uppercase tracking-widest hover:border-zinc-300 hover:shadow-soft transition-all">
-                Discover More
-              </button>
+            <div className="py-32 text-center border-4 border-ink bg-white cartoon-shadow">
+               <div className="flex justify-center mb-6 text-ink/20"><Newspaper size={64} /></div>
+               <p className="font-bangers text-4xl text-ink uppercase tracking-tight">NO LOGS FOUND IN ARCHIVE</p>
+               <p className="font-comic font-bold italic text-xl text-secondary mt-2">Checking signal connection...</p>
             </div>
           )}
         </div>

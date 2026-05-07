@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowRight, Lock, Mail, User, ShieldAlert, CheckCircle2 } from "lucide-react";
+import CartoonButton from "@/components/ui/CartoonButton";
+import CartoonInput from "@/components/ui/CartoonInput";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -22,7 +23,7 @@ export default function RegisterPage() {
     setError("");
 
     if (password !== confirmPassword) {
-      setError("Security mismatch: Passwords do not align.");
+      setError("SECURITY MISMATCH: KEYS DO NOT ALIGN");
       setLoading(false);
       return;
     }
@@ -37,7 +38,7 @@ export default function RegisterPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.message || "Registration failed.");
+        throw new Error(data.message || "INITIALIZATION FAILED");
       }
 
       setSuccess(true);
@@ -45,119 +46,111 @@ export default function RegisterPage() {
         router.push("/login");
       }, 2000);
     } catch (err: any) {
-      setError(err.message || "Terminal Error: System unreachable.");
+      setError(err.message || "SYSTEM ERROR: ARCHIVE UNREACHABLE");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center p-6">
-      <div className="max-w-md w-full space-y-12">
-        <div className="space-y-4">
-          <h1 className="font-display font-black text-6xl uppercase tracking-tighter leading-none">
-            CREATE<br />OPERATIVE
+    <div className="min-h-screen bg-paper flex items-center justify-center p-8 relative overflow-hidden">
+      {/* Background Decor */}
+      <div className="absolute inset-0 opacity-10 pointer-events-none">
+        <div className="absolute inset-0 bg-crosshatch" />
+      </div>
+
+      <div className="w-full max-w-lg space-y-12 relative z-10">
+        <div className="space-y-6">
+          <div className="inline-block px-4 py-2 bg-ink text-paper border-2 border-ink rotate-[2deg]">
+            <span className="font-bebas text-2xl tracking-[0.2em] uppercase">
+              IDENTITY PROTOCOL
+            </span>
+          </div>
+          <h1 className="font-bangers text-7xl md:text-8xl text-ink uppercase leading-none tracking-tight">
+            INITIALIZE <br />
+            <span className="text-secondary drop-shadow-[4px_4px_0px_#000]">OPERATIVE</span>
           </h1>
-          <p className="text-[10px] font-black uppercase tracking-[0.4em] text-black/40">Initialize new archival identity</p>
+          <p className="font-comic font-bold italic text-xl text-ink/60 max-w-sm leading-tight">
+            Create your profile in the global archives.
+          </p>
         </div>
 
         {success ? (
-          <div className="space-y-8 animate-reveal">
-            <div className="p-8 bg-black text-white border-2 border-black flex flex-col items-center gap-6 text-center">
-              <CheckCircle2 size={48} className="text-white" />
-              <div>
-                <h3 className="text-xs font-black uppercase tracking-[0.4em] mb-2">Access Granted</h3>
-                <p className="text-[9px] uppercase tracking-widest opacity-60">Redirecting to login portal...</p>
-              </div>
+          <div className="p-16 border-4 border-ink bg-white cartoon-shadow-lg text-center space-y-8 relative overflow-hidden">
+            <div className="absolute inset-0 bg-halftone opacity-10 pointer-events-none" />
+            <div className="font-bangers text-8xl text-ink animate-bounce relative z-10">✓</div>
+            <div className="space-y-2 relative z-10">
+               <h3 className="font-bangers text-4xl text-ink uppercase tracking-tight">IDENTITY ESTABLISHED</h3>
+               <p className="font-comic font-bold italic text-secondary text-xl">Redirecting to auth portal...</p>
             </div>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="space-y-8 animate-reveal">
+          <form onSubmit={handleSubmit} className="space-y-10 p-10 bg-white border-4 border-ink cartoon-shadow-lg relative">
+            <div className="absolute inset-0 bg-halftone opacity-5 pointer-events-none" />
+
             {error && (
-              <div className="p-4 bg-red-50 border-2 border-red-500 text-red-500 flex items-center gap-3 text-[10px] font-black uppercase tracking-widest animate-shake">
-                <ShieldAlert size={16} /> {error}
+              <div className="p-5 bg-ink text-paper border-3 border-ink font-bangers text-2xl uppercase tracking-tight">
+                !! {error} !!
               </div>
             )}
 
-            <div className="space-y-6">
-              <div className="space-y-2 group">
-                <label className="text-[9px] font-black uppercase tracking-widest text-black/40 group-focus-within:text-black transition-colors">Codename (Full Name)</label>
-                <div className="relative">
-                  <input 
-                    type="text" 
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    required
-                    className="w-full bg-transparent border-b-2 border-black/10 focus:border-black py-4 text-sm font-bold placeholder:opacity-20 transition-all outline-none uppercase"
-                    placeholder="WES ANDERSON"
-                  />
-                  <User size={16} className="absolute right-0 top-4 opacity-20" />
-                </div>
-              </div>
+            <div className="space-y-8 relative z-10">
+              <CartoonInput
+                label="CODENAME (FULL NAME)"
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="BRUCE WAYNE"
+                required
+              />
 
-              <div className="space-y-2 group">
-                <label className="text-[9px] font-black uppercase tracking-widest text-black/40 group-focus-within:text-black transition-colors">Identification (Email)</label>
-                <div className="relative">
-                  <input 
-                    type="email" 
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                    className="w-full bg-transparent border-b-2 border-black/10 focus:border-black py-4 text-sm font-bold placeholder:opacity-20 transition-all outline-none"
-                    placeholder="ALPHA@SECURE.COM"
-                  />
-                  <Mail size={16} className="absolute right-0 top-4 opacity-20" />
-                </div>
-              </div>
+              <CartoonInput
+                label="IDENTIFICATION (EMAIL)"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="ALPHA@SECURE.HQ"
+                required
+              />
 
-              <div className="space-y-2 group">
-                <label className="text-[9px] font-black uppercase tracking-widest text-black/40 group-focus-within:text-black transition-colors">Security Key (Password)</label>
-                <div className="relative">
-                  <input 
-                    type="password" 
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    className="w-full bg-transparent border-b-2 border-black/10 focus:border-black py-4 text-sm font-bold placeholder:opacity-20 transition-all outline-none"
-                    placeholder="••••••••"
-                  />
-                  <Lock size={16} className="absolute right-0 top-4 opacity-20" />
-                </div>
-              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <CartoonInput
+                  label="SECURITY KEY"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  required
+                />
 
-              <div className="space-y-2 group">
-                <label className="text-[9px] font-black uppercase tracking-widest text-black/40 group-focus-within:text-black transition-colors">Confirm Key</label>
-                <div className="relative">
-                  <input 
-                    type="password" 
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    required
-                    className="w-full bg-transparent border-b-2 border-black/10 focus:border-black py-4 text-sm font-bold placeholder:opacity-20 transition-all outline-none"
-                    placeholder="••••••••"
-                  />
-                  <Lock size={16} className="absolute right-0 top-4 opacity-20" />
-                </div>
+                <CartoonInput
+                  label="CONFIRM KEY"
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="••••••••"
+                  required
+                />
               </div>
             </div>
 
-            <button 
+            <CartoonButton 
+              size="lg" 
+              className="w-full" 
               disabled={loading}
-              className="w-full h-20 bg-black text-white flex items-center justify-center gap-4 font-black uppercase tracking-[0.4em] text-xs hover:bg-neutral-800 transition-all disabled:opacity-50 group shadow-[8px_8px_0px_0px_rgba(0,0,0,0.1)] hover:shadow-none active:translate-x-1 active:translate-y-1"
+              type="submit"
             >
-              {loading ? (
-                <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
-              ) : (
-                <>Initialize Identity <ArrowRight size={18} className="group-hover:translate-x-2 transition-transform" /></>
-              )}
-            </button>
+              {loading ? "INITIALIZING..." : "ESTABLISH IDENTITY"}
+            </CartoonButton>
           </form>
         )}
 
-        <div className="pt-12 border-t-2 border-black/5 flex flex-col gap-4 text-center">
-          <p className="text-[9px] font-bold uppercase tracking-widest text-black/40">Already a member?</p>
-          <Link href="/login" className="text-[10px] font-black uppercase tracking-[0.2em] hover:italic transition-all">
-            Authorized Entry ↗
+        <div className="pt-10 border-t-4 border-ink/10 flex flex-col items-center gap-6">
+          <p className="font-bebas text-2xl text-ink/40 tracking-widest">
+            ALREADY IN THE ARCHIVES?
+          </p>
+          <Link href="/login" className="font-bangers text-3xl text-ink hover:text-secondary transition-colors uppercase tracking-tight underline decoration-4 underline-offset-8">
+            AUTHORIZED ENTRY →
           </Link>
         </div>
       </div>

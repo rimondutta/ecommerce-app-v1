@@ -2,6 +2,8 @@
 
 import { useEffect } from 'react';
 import Link from 'next/link';
+import CartoonButton from '@/components/ui/CartoonButton';
+import { AlertTriangle, RefreshCw, Home, Star } from 'lucide-react';
 
 export default function Error({
   error,
@@ -11,33 +13,44 @@ export default function Error({
   reset: () => void;
 }) {
   useEffect(() => {
-    // Log the error to an error reporting service
     console.error('Application Error:', error);
   }, [error]);
 
   return (
-    <div className="min-h-[70vh] flex flex-col items-center justify-center px-6 text-center">
-      <div className="space-y-6 max-w-md">
-        <h1 className="text-8xl font-black tracking-tighter uppercase italic opacity-10">Error</h1>
-        <h2 className="text-2xl font-bold uppercase tracking-widest">Something went wrong</h2>
-        <p className="text-black/50 text-sm leading-relaxed">
-          An unexpected error occurred. We have been notified and are working to fix it.
-          Please try refreshing the page or head back to the shop.
-        </p>
-        <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-          <button
-            onClick={() => reset()}
-            className="px-8 py-4 bg-black text-white text-[10px] font-black uppercase tracking-[0.3em] hover:bg-neutral-800 transition-all"
-          >
-            Try Again
-          </button>
-          <Link
-            href="/products"
-            className="px-8 py-4 border border-black text-black text-[10px] font-black uppercase tracking-[0.3em] hover:bg-black hover:text-white transition-all"
-          >
-            Back to Shop
+    <div className="min-h-[80vh] flex flex-col items-center justify-center px-8 text-center bg-paper relative overflow-hidden">
+      {/* Background Patterns */}
+      <div className="absolute inset-0 bg-halftone opacity-10 pointer-events-none" />
+      <div className="absolute top-1/4 -right-10 text-[15rem] font-bangers text-secondary/5 rotate-12 pointer-events-none select-none">BOOM!</div>
+      
+      <div className="space-y-12 max-w-2xl relative z-10">
+        <div className="relative inline-block">
+          <div className="w-32 h-32 bg-ink text-paper border-4 border-ink cartoon-shadow flex items-center justify-center mx-auto rotate-[-8deg] mb-8">
+            <AlertTriangle size={64} />
+          </div>
+          <h1 className="text-8xl md:text-[10rem] font-bangers leading-none text-ink tracking-tight drop-shadow-[10px_10px_0px_#000]">ERROR</h1>
+        </div>
+
+        <div className="space-y-6">
+          <h2 className="font-bangers text-5xl md:text-6xl text-ink uppercase tracking-tight">SYSTEM INTERFERENCE</h2>
+          <p className="font-comic font-bold italic text-2xl text-secondary max-w-lg mx-auto leading-tight">
+            An unexpected glitch has disrupted the transmission. Our agents are investigating the breach.
+          </p>
+        </div>
+
+        <div className="flex flex-wrap justify-center gap-8 pt-8">
+          <CartoonButton size="lg" onClick={() => reset()}>
+            <RefreshCw className="mr-3" size={24} /> RETRY SIGNAL
+          </CartoonButton>
+          <Link href="/products">
+            <CartoonButton variant="outline" size="lg">
+              <Home className="mr-3" size={24} /> BASE COMMAND
+            </CartoonButton>
           </Link>
         </div>
+      </div>
+      
+      <div className="absolute bottom-20 left-1/2 -translate-x-1/2 flex items-center gap-4 font-bebas text-2xl text-ink/20 tracking-widest uppercase">
+         <Star size={24} /> CODE: {error.digest || 'UNKNOWN_X'} <Star size={24} />
       </div>
     </div>
   );
