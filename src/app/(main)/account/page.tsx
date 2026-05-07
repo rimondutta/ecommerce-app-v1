@@ -316,7 +316,7 @@ export default function AccountPage() {
                 ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
                     {wishlistProducts.map((product, i) => (
-                      <CartoonProductCard key={product._id} product={product} index={i} />
+                      <CartoonProductCard key={product._id} product={product} />
                     ))}
                   </div>
                 )}
