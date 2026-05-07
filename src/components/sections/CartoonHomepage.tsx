@@ -69,7 +69,7 @@ const CartoonHomepage = () => {
             </div>
             
             <div className="flex flex-wrap gap-6 items-center">
-              <Link href="/shop">
+              <Link href="/products">
                 <CartoonButton size="xl">SHOP NOW →</CartoonButton>
               </Link>
               <div className="hidden lg:block">
@@ -93,7 +93,7 @@ const CartoonHomepage = () => {
             <CartoonCard hoverable={false} className="aspect-[3/4] rotate-3 relative overflow-hidden">
               <div className="relative h-full w-full">
                 <Image 
-                  src="/brain/fe735886-c63e-4721-ae22-0765a8d3a5bc/anime_fashion_character_1_1778173485573.png" 
+                  src="https://images.unsplash.com/photo-1618336753974-aae8e04506aa?q=80&w=1000" 
                   alt="Hero Character" 
                   fill 
                   className="object-cover scale-110 group-hover:scale-125 transition-transform duration-700"
@@ -124,7 +124,7 @@ const CartoonHomepage = () => {
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8">
             {categories.map((cat, i) => (
-              <Link key={cat.slug} href={`/shop?category=${cat.name}`} className="group">
+              <Link key={cat.slug} href={`/products?category=${cat.name}`} className="group">
                 <CartoonCard className={cn("aspect-square", i % 2 === 0 ? "rotate-2" : "-rotate-2")}>
                   <div className="relative h-full w-full">
                     {/* Fallback image if no category image exists */}
@@ -164,7 +164,7 @@ const CartoonHomepage = () => {
                 rotate={15} 
               />
             </div>
-            <Link href="/shop">
+            <Link href="/products">
               <CartoonButton variant="outline">EXPLORE ALL PRODUCTS</CartoonButton>
             </Link>
           </div>
@@ -192,7 +192,7 @@ const CartoonHomepage = () => {
             <div className="absolute inset-0 action-lines opacity-10 group-hover:opacity-30 transition-opacity" />
             <CartoonCard hoverable={false} className="aspect-square -rotate-2 border-paper relative overflow-hidden">
               <Image 
-                src="/brain/fe735886-c63e-4721-ae22-0765a8d3a5bc/anime_fashion_character_2_1778173567127.png" 
+                src="https://images.unsplash.com/photo-1613376023733-0d743d20719b?q=80&w=1000" 
                 alt="Editorial Character" 
                 fill 
                 className="object-cover scale-110 group-hover:scale-125 transition-transform duration-700"
@@ -211,7 +211,7 @@ const CartoonHomepage = () => {
             <p className="font-comic text-xl italic font-bold">
               Loose fits. Bold graphics. Zero apologies. The new era of streetwear is here, and it's louder than ever.
             </p>
-            <Link href="/shop?type=oversized">
+            <Link href="/products?type=oversized">
               <CartoonButton variant="secondary" size="lg">EXPLORE COLLECTION</CartoonButton>
             </Link>
           </div>
@@ -229,7 +229,14 @@ const CartoonHomepage = () => {
             <div key={i} className="flex-shrink-0 space-y-4">
               <CartoonCard className="w-80 h-80">
                 <Image 
-                  src={`https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=400&index=${i}`} 
+                  src={`https://images.unsplash.com/photo-${[
+                    '1515886657613-9f3515b0c78f',
+                    '1539109136881-3be0616acf4b',
+                    '1509631179647-0177331693ae',
+                    '1529139513055-07f9127ef3b0',
+                    '1492707892479-7bc8d5a4ee93',
+                    '1483985988355-763728e1935b'
+                  ][i-1]}?q=80&w=600`} 
                   alt="Lookbook" 
                   fill 
                   className="object-cover grayscale hover:grayscale-0 transition-all duration-500"
@@ -279,7 +286,7 @@ const CartoonHomepage = () => {
               INK & THREAD
             </h1>
             <div className="flex justify-center gap-8 font-bebas text-3xl tracking-widest flex-wrap">
-              <Link href="/shop" className="hover:text-ink hover:bg-paper px-4 transition-colors">SHOP</Link>
+              <Link href="/products" className="hover:text-ink hover:bg-paper px-4 transition-colors">SHOP</Link>
               <Link href="/about" className="hover:text-ink hover:bg-paper px-4 transition-colors">ABOUT</Link>
               <Link href="/shipping" className="hover:text-ink hover:bg-paper px-4 transition-colors">SHIPPING</Link>
               <Link href="/privacy" className="hover:text-ink hover:bg-paper px-4 transition-colors">PRIVACY</Link>
