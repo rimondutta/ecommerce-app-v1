@@ -11,6 +11,7 @@ import SpeechBubble from "@/components/ui/SpeechBubble";
 import ComicDivider from "@/components/ui/ComicDivider";
 import CartoonProductCard from "@/components/product/CartoonProductCard";
 import KanjiStamp from "@/components/ui/KanjiStamp";
+import { cn } from "@/lib/utils";
 
 interface Product {
   _id: string;
