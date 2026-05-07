@@ -5,13 +5,13 @@ import Link from "next/link";
 import { useCart } from "@/components/providers/CartProvider";
 import { useSearch } from "@/components/providers/SearchProvider";
 import { useUIStore } from "@/store/uiStore";
-import { Search, ShoppingBag, User, Menu, X, Skull } from "lucide-react";
+import { Search, ShoppingBag, User, Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navLinks = [
-  { label: "VOYAGE", sub: "航海", href: "/products" },
-  { label: "LOG POSE", sub: "記録指針", href: "/products?badge=New" },
-  { label: "THE CREW", sub: "仲間", href: "/about" },
+  { label: "SHOP", sub: "ショップ", href: "/products" },
+  { label: "DROPS", sub: "新作", href: "/products?badge=New" },
+  { label: "ABOUT", sub: "物語", href: "/about" },
 ];
 
 const CartoonNavbar = () => {
@@ -92,9 +92,8 @@ const CartoonNavbar = () => {
         {/* Center: Logo */}
         <Link href="/" className="absolute left-1/2 -translate-x-1/2 group text-center">
           <div className="flex flex-col items-center">
-            <h1 className="font-bangers text-3xl md:text-5xl text-ink leading-none group-hover:scale-110 transition-transform flex items-center gap-2">
-              <Skull className="text-secondary" size={32} />
-              PIRATE<span className="text-secondary">X</span>THREAD
+            <h1 className="font-bangers text-3xl md:text-5xl text-ink leading-none group-hover:scale-110 transition-transform">
+              INK<span className="text-secondary">&</span>THREAD
             </h1>
             <span className="font-jp text-[10px] md:text-xs font-black tracking-[0.2em] text-ink/40 group-hover:text-ink transition-colors uppercase">
               インクと糸 — VOLUME 01

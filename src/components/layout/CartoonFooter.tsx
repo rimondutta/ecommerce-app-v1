@@ -31,11 +31,11 @@ const CartoonFooter = () => {
           {/* Brand & Info */}
           <div className="space-y-8">
             <div className="space-y-2">
-              <h2 className="font-bangers text-6xl leading-none text-paper-shadow uppercase">
-                PIRATE<span className="text-secondary">X</span>THREAD
+              <h2 className="font-bangers text-6xl leading-none text-paper-shadow">
+                INK<span className="text-secondary">&</span>THREAD
               </h2>
               <p className="font-comic text-lg italic opacity-80 max-w-xs">
-                Premium gear for the next generation of pirate kings. Join the crew and conquer the Grand Line.
+                Your premium fashion comic. Streetwear, stories, and style in every stitch.
               </p>
             </div>
             
@@ -51,25 +51,25 @@ const CartoonFooter = () => {
           {/* Quick Links */}
           <div className="space-y-8">
             <h3 className="font-bebas text-3xl tracking-widest uppercase border-b-3 border-paper pb-2 inline-block">
-              THE VOYAGE
+              NAVIGATION
             </h3>
-            <ul className="space-y-4 font-comic font-bold text-xl italic text-secondary">
-              <li><Link href="/products" className="hover:pl-2 transition-all block">★ GRAND LINE SHOP</Link></li>
-              <li><Link href="/products?badge=New" className="hover:pl-2 transition-all block">★ NEW WORLD DROPS</Link></li>
-              <li><Link href="/about" className="hover:pl-2 transition-all block">★ OUR CREW</Link></li>
-              <li><Link href="/contact" className="hover:pl-2 transition-all block">★ SEND A TRANS-PONDER SNAIL</Link></li>
+            <ul className="space-y-4 font-comic font-bold text-xl italic">
+              <li><Link href="/products" className="hover:pl-2 transition-all block">★ THE SHOP</Link></li>
+              <li><Link href="/products?badge=New" className="hover:pl-2 transition-all block">★ FRESH DROPS</Link></li>
+              <li><Link href="/about" className="hover:pl-2 transition-all block">★ OUR STORY</Link></li>
+              <li><Link href="/contact" className="hover:pl-2 transition-all block">★ GET IN TOUCH</Link></li>
             </ul>
           </div>
 
           {/* Categories */}
           <div className="space-y-8">
             <h3 className="font-bebas text-3xl tracking-widest uppercase border-b-3 border-paper pb-2 inline-block">
-              FACTIONS
+              COLLECTIONS
             </h3>
-            <ul className="space-y-4 font-comic font-bold text-xl italic text-secondary">
+            <ul className="space-y-4 font-comic font-bold text-xl italic">
               {categories.slice(0, 5).map((cat) => (
                 <li key={cat.slug}>
-                  <Link href={`/products?category=${cat.name}`} className="hover:pl-2 transition-all block text-uppercase">
+                  <Link href={`/products?category=${cat.name}`} className="hover:pl-2 transition-all block">
                     ★ {cat.name}
                   </Link>
                 </li>
@@ -80,20 +80,20 @@ const CartoonFooter = () => {
           {/* Contact */}
           <div className="space-y-8">
             <h3 className="font-bebas text-3xl tracking-widest uppercase border-b-3 border-paper pb-2 inline-block">
-              BASE OF OPERATIONS
+              HQ OFFICE
             </h3>
             <div className="space-y-6 font-comic font-bold text-xl italic">
               <div className="flex items-center gap-4">
                 <Mail className="text-secondary" />
-                <span>VOYAGE@PIRATEXTHREAD.COM</span>
+                <span>HELLO@INKANDTHREAD.COM</span>
               </div>
-              <div className="flex items-center gap-4 text-secondary">
+              <div className="flex items-center gap-4">
                 <Phone className="text-secondary" />
                 <span>+880 1234 567 890</span>
               </div>
               <div className="flex items-start gap-4">
                 <MapPin className="text-secondary shrink-0" />
-                <span>SABAODY ARCHIPELAGO<br />GRAND LINE</span>
+                <span>BANANI, DHAKA<br />BANGLADESH</span>
               </div>
             </div>
           </div>
@@ -101,18 +101,18 @@ const CartoonFooter = () => {
 
         {/* Big Marquee Background */}
         <div className="mt-32 border-y-4 border-paper/20 py-6 overflow-hidden">
-           <div className="flex animate-marquee whitespace-nowrap gap-16 font-bangers text-8xl md:text-[12rem] opacity-5 select-none uppercase">
+           <div className="flex animate-marquee whitespace-nowrap gap-16 font-bangers text-8xl md:text-[12rem] opacity-5 select-none">
              {[...Array(4)].map((_, i) => (
-               <span key={i}>BECOME THE PIRATE KING — GRAND LINE GEAR — NEW WORLD STYLE — PIRATE X THREAD</span>
+               <span key={i}>INK & THREAD — FEARLESS STYLE — CARTOON COUTURE</span>
              ))}
            </div>
         </div>
 
         <div className="mt-20 flex flex-col md:flex-row justify-between items-center gap-8 font-bebas text-2xl tracking-widest opacity-60">
-          <p>© 2025 PIRATE X THREAD // CHAPTER 01</p>
+          <p>© 2025 INK & THREAD // VOLUME 01</p>
           <div className="flex gap-8">
-            <Link href="/privacy" className="hover:text-paper transition-colors">PIRATE CODE</Link>
-            <Link href="/terms" className="hover:text-paper transition-colors">VOYAGE TERMS</Link>
+            <Link href="/privacy" className="hover:text-paper transition-colors">PRIVACY</Link>
+            <Link href="/terms" className="hover:text-paper transition-colors">TERMS</Link>
           </div>
         </div>
       </div>

@@ -154,19 +154,10 @@ export default function QuickLookDrawer() {
                       {product.title}
                     </h2>
                     <div className="flex items-center gap-4">
-                       <div className="flex items-center gap-1">
-                         <span className="font-bangers text-3xl text-[#5d4037]">฿</span>
-                         <span className="font-bebas text-5xl text-ink">{Math.round(currentPrice).toLocaleString()}</span>
-                       </div>
+                       <span className="font-bebas text-5xl text-ink">৳{Math.round(currentPrice).toLocaleString()}</span>
                        {product.oldPrice && (
-                         <span className="font-bebas text-3xl text-ink/30 line-through">฿{Math.round(product.oldPrice).toLocaleString()}</span>
+                         <span className="font-bebas text-3xl text-ink/30 line-through">৳{Math.round(product.oldPrice).toLocaleString()}</span>
                        )}
-                    </div>
-                    <div className="flex items-center gap-4">
-                      <div className="flex items-center gap-2">
-                        <span className="font-comic font-bold italic text-lg uppercase text-[#5d4037]">Bounty Status:</span>
-                        <CartoonBadge variant="solid" className="bg-[#ffeb3b] text-[#5d4037] border-2 border-[#5d4037]">ACTIVE</CartoonBadge>
-                      </div>
                     </div>
                   </div>
 
@@ -217,7 +208,7 @@ export default function QuickLookDrawer() {
 
                     {/* Quantity */}
                     <div className="space-y-3">
-                      <span className="font-bebas text-xl tracking-widest text-secondary uppercase block">QUANTITY:</span>
+                      <span className="font-bebas text-xl tracking-widest text-secondary uppercase block">REPLICAS:</span>
                       <CartoonCounter value={quantity} onChange={setQuantity} min={1} max={10} />
                     </div>
                   </div>
@@ -226,7 +217,7 @@ export default function QuickLookDrawer() {
                 {/* Actions */}
                 <div className="p-8 lg:p-10 border-t-4 border-ink bg-surface space-y-4">
                   <CartoonButton size="lg" className="w-full" onClick={handleAddToCart}>
-                    CLAIM BOUNTY — ฿{Math.round(currentPrice * quantity).toLocaleString()}
+                    ADD TO GEAR — ৳{Math.round(currentPrice * quantity).toLocaleString()}
                   </CartoonButton>
                   <Link href={`/products/${product.slug}`} onClick={closeQuickLook} className="block group">
                     <div className="flex items-center justify-center gap-3 font-bebas text-2xl text-secondary group-hover:text-ink transition-colors">
