@@ -100,7 +100,7 @@ export default function QuickLookDrawer() {
                   {/* Badge */}
                   {product.badge && (
                     <div className="absolute top-6 left-6 z-10 rotate-[-5deg]">
-                       <CartoonBadge variant="secondary" size="lg">{product.badge}</CartoonBadge>
+                       <CartoonBadge variant="solid" className="px-4 py-1.5 text-lg">{product.badge}</CartoonBadge>
                     </div>
                   )}
 
