@@ -22,28 +22,28 @@ export default function QuantityStepper({
   return (
     <div
       className={cn(
-        "inline-flex items-center border-2 border-line rounded-[var(--radius-button)] overflow-hidden",
+        "inline-flex items-center border border-white/20 rounded-xl overflow-hidden bg-white/5",
         className
       )}
     >
       <button
         onClick={() => onChange(Math.max(min, value - 1))}
         disabled={value <= min}
-        className="w-11 h-11 flex items-center justify-center hover:bg-shelf-wood/30 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+        className="w-9 h-9 flex items-center justify-center text-white hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
         aria-label="Decrease quantity"
       >
-        <Minus size={16} />
+        <Minus size={14} />
       </button>
-      <span className="w-12 text-center font-display font-semibold text-lg tabular-nums select-none">
+      <span className="w-10 text-center font-bold text-base text-white tabular-nums select-none">
         {value}
       </span>
       <button
         onClick={() => onChange(Math.min(max, value + 1))}
         disabled={value >= max}
-        className="w-11 h-11 flex items-center justify-center hover:bg-shelf-wood/30 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+        className="w-9 h-9 flex items-center justify-center text-white hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
         aria-label="Increase quantity"
       >
-        <Plus size={16} />
+        <Plus size={14} />
       </button>
     </div>
   );

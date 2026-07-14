@@ -157,7 +157,7 @@ const FloatingDockMobile = ({
   className?: string;
 }) => {
   return (
-    <div className={cn("flex md:hidden items-center justify-around h-16 w-full max-w-sm mx-auto rounded-full bg-neutral-900/90 border border-neutral-800 px-4 shadow-lg backdrop-blur-md", className)}>
+    <div className={cn("flex md:hidden items-center justify-around h-16 w-full max-w-sm mx-auto rounded-full bg-white border border-gray-200 px-4 shadow-lg", className)}>
       {items.map((item) => (
         item.onClick ? (
           <button

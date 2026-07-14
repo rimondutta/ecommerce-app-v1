@@ -151,7 +151,7 @@ export default function AboutPage() {
           </p>
           <div className="flex justify-center gap-6">
             <Link href="/products">
-              <Button size="xl">SHOP VOL. 01</Button>
+              <Button size="lg">SHOP VOL. 01</Button>
             </Link>
           </div>
         </div>
