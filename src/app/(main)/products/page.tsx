@@ -3,13 +3,28 @@
 import { useState, useEffect, useMemo, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Filter, X, ChevronDown, LayoutGrid, List } from "lucide-react";
-import CartoonCard from "@/components/ui/CartoonCard";
-import CartoonButton from "@/components/ui/CartoonButton";
-import { CartoonBadge } from "@/components/ui/CartoonBadge";
-import CartoonProductCard from "@/components/product/CartoonProductCard";
-import ComicDivider from "@/components/ui/ComicDivider";
+import { Filter, X, ChevronDown } from "lucide-react";
+import ProductCardNike from "@/components/ui/product-card-nike";
 import { cn } from "@/lib/utils";
+
+// Removed DEMO_PRODUCTS
+
+function FilterCheckbox({ label, selected, onClick }: { label: string; selected: boolean; onClick: () => void }) {
+  return (
+    <button 
+      onClick={onClick}
+      className="flex items-center gap-3 w-full group py-1"
+    >
+      <div className={cn(
+        "w-5 h-5 rounded border flex items-center justify-center transition-colors",
+        selected ? "bg-black border-black text-white" : "border-neutral-300 bg-white group-hover:border-black"
+      )}>
+        {selected && <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2.5 6L5 8.5L9.5 3.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+      </div>
+      <span className="font-sans text-base text-black">{label}</span>
+    </button>
+  );
+}
 
 function ShopContent() {
   const [products, setProducts] = useState<any[]>([]);
@@ -18,34 +33,35 @@ function ShopContent() {
   const router = useRouter();
   
   const categoryParam = searchParams.get("category");
-  const colorsParam = searchParams.get("colors");
-  const sizesParam = searchParams.get("sizes");
+  const ageParam = searchParams.get("age");
   const searchParam = searchParams.get("search");
   
   const [selectedCategory, setSelectedCategory] = useState<string | null>(categoryParam);
-  const [selectedColors, setSelectedColors] = useState<string[]>(colorsParam ? colorsParam.split(",") : []);
-  const [selectedSizes, setSelectedSizes] = useState<string[]>(sizesParam ? sizesParam.split(",") : []);
+  const [selectedAge, setSelectedAge] = useState<string | null>(ageParam);
   const [sortBy, setSortBy] = useState("featured");
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
 
   useEffect(() => {
-    fetch("/api/store/products")
-      .then((r) => r.json())
-      .then((d) => setProducts(d.products || []))
-      .catch(console.error)
-      .finally(() => setLoading(false));
+    fetch('/api/store/products')
+      .then(res => res.json())
+      .then(data => {
+        setProducts(data.products || []);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error("Error fetching products:", err);
+        setLoading(false);
+      });
   }, []);
 
   useEffect(() => {
     setSelectedCategory(categoryParam);
-    setSelectedColors(colorsParam ? colorsParam.split(",") : []);
-    setSelectedSizes(sizesParam ? sizesParam.split(",") : []);
-  }, [categoryParam, colorsParam, sizesParam]);
+    setSelectedAge(ageParam);
+  }, [categoryParam, ageParam]);
 
-  const updateFilters = (key: string, value: string | null | string[]) => {
+  const updateFilters = (key: string, value: string | null) => {
     const params = new URLSearchParams(searchParams.toString());
-    if (value === null || (Array.isArray(value) && value.length === 0)) params.delete(key);
-    else if (Array.isArray(value)) params.set(key, value.join(","));
+    if (value === null) params.delete(key);
     else params.set(key, value);
     router.push(`/products?${params.toString()}`, { scroll: false });
   };
@@ -56,190 +72,130 @@ function ShopContent() {
     return Array.from(m.entries()).map(([slug, name]) => ({ slug, name }));
   }, [products]);
 
-  const allColors = useMemo(() => {
-    const s = new Set<string>();
-    products.forEach((p: any) => p.colors?.forEach((c: any) => s.add(c.name)));
-    return Array.from(s);
-  }, [products]);
-
-  const allSizes = useMemo(() => {
-    const s = new Set<string>();
-    products.forEach((p: any) => p.sizes?.forEach((sz: string) => s.add(sz)));
-    return Array.from(s).sort();
-  }, [products]);
+  const ageRanges = ["0-1", "1-3", "3-5", "5-8", "8+"];
 
   const filteredProducts = useMemo(() => {
     let result = products.filter((p: any) => {
       const catMatch = !selectedCategory || p.category?.slug === selectedCategory || p.category?.name === selectedCategory;
-      const colorMatch = selectedColors.length === 0 || p.colors?.some((c: any) => selectedColors.includes(c.name));
-      const sizeMatch = selectedSizes.length === 0 || p.sizes?.some((s: string) => selectedSizes.includes(s));
+      const ageMatch = !selectedAge || p.ageRange === selectedAge;
       const searchMatch = !searchParam || p.title.toLowerCase().includes(searchParam.toLowerCase());
-      return catMatch && colorMatch && sizeMatch && searchMatch;
+      return catMatch && ageMatch && searchMatch;
     });
     if (sortBy === "price-low") result.sort((a: any, b: any) => a.price - b.price);
     if (sortBy === "price-high") result.sort((a: any, b: any) => b.price - a.price);
     if (sortBy === "newest") result.sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
     return result;
-  }, [products, selectedCategory, selectedColors, selectedSizes, sortBy, searchParam]);
+  }, [products, selectedCategory, selectedAge, sortBy, searchParam]);
 
-  const toggleColor = (c: string) => { 
-    const n = selectedColors.includes(c) ? selectedColors.filter(x => x !== c) : [...selectedColors, c]; 
-    updateFilters("colors", n); 
-  };
-  
-  const toggleSize = (s: string) => { 
-    const n = selectedSizes.includes(s) ? selectedSizes.filter(x => x !== s) : [...selectedSizes, s]; 
-    updateFilters("sizes", n); 
-  };
-  
   const clearFilters = () => router.push("/products", { scroll: false });
 
   return (
-    <div className="flex-1 bg-paper min-h-screen">
-      {/* Header Panel */}
-      <section className="px-6 md:px-12 py-12 bg-white relative overflow-hidden border-b-4 border-ink">
-        <div className="absolute inset-0 bg-halftone opacity-10 pointer-events-none" />
-        <div className="container mx-auto relative z-10">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-            <div className="space-y-2">
-              <CartoonBadge variant="outline" className="text-secondary border-secondary">ITEM ARCHIVE</CartoonBadge>
-              <h1 className="font-bangers text-6xl md:text-8xl text-ink leading-none text-ink-shadow">
-                THE LINEUP
-              </h1>
-              <p className="font-comic text-2xl italic font-bold text-secondary">
-                {filteredProducts.length} PIECES FOUND — READY FOR DEPLOYMENT
-              </p>
-            </div>
-            
-            <div className="flex items-center gap-4">
-               <CartoonButton 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={() => setIsMobileFiltersOpen(true)}
-                  className="lg:hidden"
-               >
-                 <Filter size={18} /> FILTERS
-               </CartoonButton>
-               
-               <div className="hidden lg:flex items-center gap-2 bg-white border-3 border-ink p-1 cartoon-shadow-sm">
-                 <button className="p-2 bg-ink text-paper border-2 border-ink"><LayoutGrid size={20} /></button>
-                 <button className="p-2 hover:bg-surface transition-colors"><List size={20} /></button>
+    <div className="flex-1 bg-white min-h-screen text-black font-sans">
+      
+      {/* Header */}
+      <section className="px-6 md:px-12 py-8 bg-white border-b border-neutral-200 sticky top-0 z-30">
+        <div className="max-w-[1440px] mx-auto flex items-center justify-between">
+          <h1 className="font-sans font-medium text-2xl tracking-tight text-black">
+            {selectedCategory ? selectedCategory : "All Toys"} ({filteredProducts.length})
+          </h1>
+          
+          <div className="flex items-center gap-6">
+             <button 
+                onClick={() => setIsMobileFiltersOpen(true)}
+                className="lg:hidden flex items-center gap-2 text-base font-medium"
+             >
+               Filters <Filter size={18} />
+             </button>
+             
+             <div className="hidden lg:flex items-center gap-2">
+               <span className="text-base text-neutral-500 font-medium">Sort By</span>
+               <div className="relative">
+                 <select 
+                   value={sortBy}
+                   onChange={(e) => setSortBy(e.target.value)}
+                   className="appearance-none bg-transparent py-1 pr-6 text-base font-medium text-black focus:outline-none cursor-pointer"
+                 >
+                   <option value="featured">Featured</option>
+                   <option value="newest">Newest</option>
+                   <option value="price-low">Price: Low-High</option>
+                   <option value="price-high">Price: High-Low</option>
+                 </select>
+                 <ChevronDown size={16} className="absolute right-0 top-1/2 -translate-y-1/2 text-black pointer-events-none" />
                </div>
-            </div>
+             </div>
           </div>
         </div>
       </section>
 
-      <div className="container mx-auto px-6 md:px-12 py-12 flex flex-col lg:flex-row gap-12">
+      <div className="max-w-[1440px] mx-auto px-6 md:px-12 py-10 flex flex-col lg:flex-row gap-12">
+        
         {/* Sidebar Filters */}
-        <aside className="hidden lg:block w-72 shrink-0">
-          <div className="sticky top-40 space-y-12">
-            {/* Filter Header */}
-            <div className="flex items-center justify-between border-b-3 border-ink pb-4">
-              <h3 className="font-bangers text-3xl tracking-wider">FILTERS</h3>
-              {(selectedCategory || selectedColors.length > 0 || selectedSizes.length > 0) && (
-                <button onClick={clearFilters} className="font-bebas text-xl text-secondary hover:underline">
-                  RESET ALL
-                </button>
-              )}
-            </div>
-
+        <aside className="hidden lg:block w-56 shrink-0">
+          <div className="sticky top-28 space-y-10 pr-6">
+            
             {/* Categories */}
             <div className="space-y-4">
-              <h4 className="font-bebas text-2xl tracking-widest uppercase text-ink/60">// CATEGORY</h4>
-              <div className="space-y-2">
+              <h4 className="font-sans font-medium text-lg text-black border-b border-neutral-200 pb-2">Category</h4>
+              <div className="space-y-3 pt-2">
                 {categories.map((cat) => (
-                  <button
+                  <FilterCheckbox
                     key={cat.slug}
+                    label={cat.name}
+                    selected={selectedCategory === cat.name || selectedCategory === cat.slug}
                     onClick={() => updateFilters("category", selectedCategory === cat.name ? null : cat.name)}
-                    className={cn(
-                      "w-full text-left px-4 py-2 font-comic font-bold text-lg italic transition-all border-l-4",
-                      selectedCategory === cat.name || selectedCategory === cat.slug
-                        ? "border-ink bg-surface translate-x-2"
-                        : "border-transparent hover:border-ink/20 text-secondary"
-                    )}
-                  >
-                    {cat.name}
-                  </button>
+                  />
                 ))}
               </div>
             </div>
 
-            {/* Sizes */}
-            {allSizes.length > 0 && (
-              <div className="space-y-4">
-                <h4 className="font-bebas text-2xl tracking-widest uppercase text-ink/60">// SIZE</h4>
-                <div className="flex flex-wrap gap-2">
-                  {allSizes.map((size) => (
-                    <button
-                      key={size}
-                      onClick={() => toggleSize(size)}
-                      className={cn(
-                        "w-12 h-12 flex items-center justify-center font-bebas text-xl border-3 transition-all",
-                        selectedSizes.includes(size)
-                          ? "bg-ink text-paper border-ink cartoon-shadow-sm translate-x-1 translate-y-1 shadow-none"
-                          : "bg-paper text-ink border-ink hover:bg-surface"
-                      )}
-                    >
-                      {size}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Sort */}
+            {/* Age Range */}
             <div className="space-y-4">
-              <h4 className="font-bebas text-2xl tracking-widest uppercase text-ink/60">// SORT BY</h4>
-              <div className="space-y-2">
-                {[
-                  { key: "featured", label: "FEATURED" },
-                  { key: "newest", label: "NEWEST" },
-                  { key: "price-low", label: "PRICE: LOW TO HIGH" },
-                  { key: "price-high", label: "PRICE: HIGH TO LOW" },
-                ].map((opt) => (
-                  <button
-                    key={opt.key}
-                    onClick={() => setSortBy(opt.key)}
-                    className={cn(
-                      "w-full text-left px-4 py-2 font-comic font-bold text-lg italic transition-all",
-                      sortBy === opt.key ? "text-ink underline decoration-4 underline-offset-4" : "text-secondary hover:text-ink"
-                    )}
-                  >
-                    {opt.label}
-                  </button>
+              <h4 className="font-sans font-medium text-lg text-black border-b border-neutral-200 pb-2">Age Range</h4>
+              <div className="space-y-3 pt-2">
+                {ageRanges.map((age) => (
+                  <FilterCheckbox
+                    key={age}
+                    label={`${age} years`}
+                    selected={selectedAge === age}
+                    onClick={() => updateFilters("age", selectedAge === age ? null : age)}
+                  />
                 ))}
               </div>
             </div>
+
+            {(selectedCategory || selectedAge) && (
+              <button onClick={clearFilters} className="text-sm text-neutral-500 hover:text-black font-medium transition-colors border-b border-neutral-300 pb-0.5">
+                Clear all filters
+              </button>
+            )}
           </div>
         </aside>
 
         {/* Product Grid */}
         <div className="flex-1">
           {loading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
               {[...Array(6)].map((_, i) => (
-                <div key={i} className="aspect-[4/5] bg-surface border-3 border-ink cartoon-shadow animate-pulse" />
+                <div key={i} className="aspect-[4/5] bg-neutral-100 rounded-none animate-pulse" />
               ))}
             </div>
           ) : filteredProducts.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-x-6 gap-y-10">
               {filteredProducts.map((product: any) => (
-                <CartoonProductCard key={product._id} product={product} />
+                <ProductCardNike key={product._id} product={product} />
               ))}
             </div>
           ) : (
-            <div className="flex flex-col items-center justify-center py-32 text-center space-y-8">
-              <div className="relative">
-                <CartoonCard className="p-12 rotate-2 bg-white">
-                  <h2 className="font-bangers text-5xl text-ink">404: STYLE NOT FOUND</h2>
-                  <p className="font-comic text-xl font-bold italic mt-4 text-secondary">
-                    Your search parameters returned zero results.<br />Try another route, wanderer.
-                  </p>
-                </CartoonCard>
-                <div className="absolute -top-6 -right-6 text-6xl animate-bounce">⚡</div>
+            <div className="flex flex-col items-center justify-center py-20 text-center space-y-6 bg-white border border-neutral-200 h-64">
+              <div className="space-y-2">
+                <h3 className="font-sans font-medium text-xl text-black">No toys found</h3>
+                <p className="text-neutral-500 font-medium max-w-sm">
+                  We couldn't find any toys matching your current filters.
+                </p>
               </div>
-              <CartoonButton onClick={clearFilters}>SHOW ALL ITEMS</CartoonButton>
+              <button onClick={clearFilters} className="text-black border-b border-black font-medium pb-0.5 hover:opacity-70">
+                Clear Filters
+              </button>
             </div>
           )}
         </div>
@@ -251,65 +207,86 @@ function ShopContent() {
           <>
             <motion.div 
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-ink/60 backdrop-blur-sm z-[1000]"
+              className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[1000]"
               onClick={() => setIsMobileFiltersOpen(false)}
             />
             <motion.div 
-              initial={{ x: "100%" }} animate={{ x: 0 }} exit={{ x: "100%" }}
-              className="fixed inset-y-0 right-0 w-full max-w-sm bg-paper border-l-4 border-ink z-[1001] p-8 overflow-y-auto"
+              initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }}
+              transition={{ type: "spring", damping: 25, stiffness: 200 }}
+              className="fixed inset-x-0 bottom-0 h-[80vh] bg-white z-[1001] flex flex-col rounded-t-3xl overflow-hidden"
             >
-              <div className="flex justify-between items-center mb-12">
-                <h2 className="font-bangers text-4xl">FILTERS</h2>
-                <button onClick={() => setIsMobileFiltersOpen(false)} className="p-2 border-3 border-ink cartoon-shadow-sm">
-                  <X size={24} />
+              <div className="flex justify-between items-center px-6 py-5 border-b border-neutral-200">
+                <h2 className="font-sans font-medium text-xl text-black">Filter & Sort</h2>
+                <button onClick={() => setIsMobileFiltersOpen(false)} className="p-2 text-black hover:bg-neutral-100 rounded-full transition-colors">
+                  <X size={20} />
                 </button>
               </div>
 
-              <div className="space-y-12">
-                {/* Categories */}
+              <div className="flex-1 overflow-y-auto px-6 py-6 space-y-10">
+                {/* Sort */}
                 <div className="space-y-4">
-                  <h3 className="font-bebas text-2xl tracking-widest">// CATEGORY</h3>
-                  <div className="grid grid-cols-1 gap-2">
-                    {categories.map((cat) => (
+                  <h3 className="font-sans font-medium text-lg text-black">Sort by</h3>
+                  <div className="grid grid-cols-2 gap-3">
+                    {[
+                      { value: "featured", label: "Featured" },
+                      { value: "newest", label: "Newest" },
+                      { value: "price-low", label: "Price: Low-High" },
+                      { value: "price-high", label: "Price: High-Low" },
+                    ].map((opt) => (
                       <button
-                        key={cat.slug}
-                        onClick={() => updateFilters("category", selectedCategory === cat.name ? null : cat.name)}
+                        key={opt.value}
+                        onClick={() => setSortBy(opt.value)}
                         className={cn(
-                          "text-left px-4 py-3 font-comic font-bold text-xl italic border-3 transition-all",
-                          selectedCategory === cat.name ? "bg-ink text-paper border-ink" : "bg-white border-ink"
+                          "text-center px-4 py-3 rounded-full font-medium transition-colors border text-sm",
+                          sortBy === opt.value ? "border-black text-black" : "border-neutral-200 text-neutral-600"
                         )}
                       >
-                        {cat.name}
+                        {opt.label}
                       </button>
                     ))}
                   </div>
                 </div>
 
-                {/* Sizes */}
-                {allSizes.length > 0 && (
-                  <div className="space-y-4">
-                    <h3 className="font-bebas text-2xl tracking-widest">// SIZE</h3>
-                    <div className="flex flex-wrap gap-2">
-                      {allSizes.map((size) => (
-                        <button
-                          key={size}
-                          onClick={() => toggleSize(size)}
-                          className={cn(
-                            "w-14 h-14 flex items-center justify-center font-bebas text-2xl border-3 transition-all",
-                            selectedSizes.includes(size) ? "bg-ink text-paper border-ink" : "bg-white border-ink"
-                          )}
-                        >
-                          {size}
-                        </button>
-                      ))}
-                    </div>
+                {/* Categories */}
+                <div className="space-y-4">
+                  <h3 className="font-sans font-medium text-lg text-black">Category</h3>
+                  <div className="space-y-3">
+                    {categories.map((cat) => (
+                      <FilterCheckbox
+                        key={cat.slug}
+                        label={cat.name}
+                        selected={selectedCategory === cat.name}
+                        onClick={() => updateFilters("category", selectedCategory === cat.name ? null : cat.name)}
+                      />
+                    ))}
                   </div>
-                )}
+                </div>
+
+                {/* Age */}
+                <div className="space-y-4">
+                  <h3 className="font-sans font-medium text-lg text-black">Age Range</h3>
+                  <div className="space-y-3">
+                    {ageRanges.map((age) => (
+                      <FilterCheckbox
+                        key={age}
+                        label={`${age} years`}
+                        selected={selectedAge === age}
+                        onClick={() => updateFilters("age", selectedAge === age ? null : age)}
+                      />
+                    ))}
+                  </div>
+                </div>
               </div>
 
-              <div className="mt-12 pt-12 border-t-3 border-ink space-y-4">
-                <CartoonButton className="w-full" onClick={() => setIsMobileFiltersOpen(false)}>APPLY FILTERS</CartoonButton>
-                <button onClick={clearFilters} className="w-full font-bebas text-2xl text-secondary py-2">RESET ALL</button>
+              <div className="p-6 border-t border-neutral-200 bg-white space-y-3">
+                <button className="w-full bg-black text-white font-sans font-medium rounded-full py-4 text-base hover:bg-neutral-800" onClick={() => setIsMobileFiltersOpen(false)}>
+                  Apply ({filteredProducts.length} items)
+                </button>
+                {(selectedCategory || selectedAge) && (
+                  <button onClick={() => { clearFilters(); setIsMobileFiltersOpen(false); }} className="w-full py-2 text-sm font-medium text-neutral-500 hover:text-black">
+                    Clear all filters
+                  </button>
+                )}
               </div>
             </motion.div>
           </>
@@ -321,7 +298,7 @@ function ShopContent() {
 
 export default function ShopPage() {
   return (
-    <Suspense fallback={<div className="h-screen bg-paper" />}>
+    <Suspense fallback={<div className="min-h-screen bg-white" />}>
       <ShopContent />
     </Suspense>
   );

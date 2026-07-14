@@ -17,8 +17,10 @@ export default function ProductForm({ initialData, categories, onSubmit, loading
     price: "",
     category: "",
     description: "",
+    longDescription: "",
     inventory: 0,
     isPublished: true,
+    ageRange: "",
     images: [] as { url: string, alt: string }[]
   })
   
@@ -38,8 +40,10 @@ export default function ProductForm({ initialData, categories, onSubmit, loading
         price: initialData.price?.toString() || "",
         category: initialData.category?._id || initialData.category || "",
         description: initialData.description || "",
+        longDescription: initialData.longDescription || "",
         inventory: initialData.inventory || 0,
         isPublished: initialData.isPublished !== undefined ? initialData.isPublished : true,
+        ageRange: initialData.ageRange || "",
         images: initialData.images || []
       })
       
@@ -192,280 +196,337 @@ export default function ProductForm({ initialData, categories, onSubmit, loading
   }
 
   return (
-    <form onSubmit={handleSubmitInternal} className="bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-6 space-y-8">
+    <form onSubmit={handleSubmitInternal} className="space-y-6 pb-20">
       {error && (
-        <div className="bg-red-100 border-2 border-red-500 text-red-700 p-4 font-bold text-sm uppercase">
+        <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm font-medium">
           {error}
         </div>
       )}
 
-      {/* Basic Info */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="space-y-2">
-          <label className="block text-xs font-bold uppercase tracking-widest">Title</label>
-          <input 
-            type="text" 
-            required
-            value={formData.title}
-            onChange={(e) => {
-              const newTitle = e.target.value;
-              setFormData(prev => ({
-                ...prev, 
-                title: newTitle,
-                // Only auto-generate slug for new products
-                slug: !initialData ? newTitle.toLowerCase().replace(/[^a-z0-9]+/g, '-') : prev.slug
-              }));
-            }}
-            className="w-full border-2 border-black p-3 focus:outline-none focus:ring-0 focus:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-shadow"
-          />
-        </div>
-        <div className="space-y-2">
-          <label className="block text-xs font-bold uppercase tracking-widest">Slug (URL)</label>
-          <input 
-            type="text" 
-            required
-            value={formData.slug}
-            onChange={(e) => setFormData(prev => ({...prev, slug: e.target.value.toLowerCase().replace(/ /g, '-')}))}
-            className="w-full border-2 border-black p-3 focus:outline-none focus:ring-0 focus:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-shadow"
-          />
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="space-y-2">
-          <label className="block text-xs font-bold uppercase tracking-widest">Price (৳)</label>
-          <input 
-            type="number" 
-            required min="0" step="1"
-            value={formData.price}
-            onChange={(e) => setFormData(prev => ({...prev, price: e.target.value}))}
-            className="w-full border-2 border-black p-3 focus:outline-none focus:ring-0 focus:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-shadow"
-          />
-        </div>
-        <div className="space-y-2">
-          <label className="block text-xs font-bold uppercase tracking-widest">Inventory Count</label>
-          <input 
-            type="number" 
-            required min="0"
-            value={formData.inventory}
-            onChange={(e) => setFormData(prev => ({...prev, inventory: parseInt(e.target.value) || 0}))}
-            className="w-full border-2 border-black p-3 focus:outline-none focus:ring-0 focus:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-shadow"
-          />
-        </div>
-      </div>
-
-      <div className="space-y-2">
-        <label className="block text-xs font-bold uppercase tracking-widest">Description</label>
-        <textarea 
-          rows={4}
-          value={formData.description}
-          onChange={(e) => setFormData(prev => ({...prev, description: e.target.value}))}
-          className="w-full border-2 border-black p-3 focus:outline-none focus:ring-0 focus:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-shadow"
-        />
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="space-y-2">
-          <label className="block text-xs font-bold uppercase tracking-widest">Category</label>
-          <select 
-            required
-            value={formData.category}
-            onChange={(e) => setFormData(prev => ({...prev, category: e.target.value}))}
-            className="w-full border-2 border-black p-3 text-sm focus:outline-none focus:ring-0 focus:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-shadow appearance-none bg-white cursor-pointer"
-          >
-            <option value="" disabled>Select a category...</option>
-            {categories.map(cat => (
-              <option key={cat._id} value={cat._id}>{cat.name}</option>
-            ))}
-          </select>
-        </div>
-        <div className="space-y-4">
-          <label className="block text-xs font-bold uppercase tracking-widest">Product Gallery</label>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {formData.images?.map((img: any, idx: number) => (
-              <div key={idx} className="relative border-2 border-black aspect-square overflow-hidden group bg-gray-50">
-                <img 
-                  src={img.url} 
-                  alt={`Product image ${idx + 1}`} 
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                  <button
-                    type="button"
-                    disabled={uploadingImage}
-                    onClick={() => handleRemoveImage(idx)}
-                    className="bg-red-500 hover:bg-red-600 disabled:bg-gray-500 text-white p-2 flex items-center justify-center transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-x-1 active:translate-y-1 active:shadow-none border-2 border-black"
-                    title="Delete image"
-                  >
-                    {uploadingImage ? <Loader2 size={16} className="animate-spin" /> : <Trash size={16} />}
-                  </button>
-                </div>
-              </div>
-            ))}
-            
-            <div className="relative border-2 border-dashed border-black/30 aspect-square flex flex-col items-center justify-center gap-2 hover:border-black hover:bg-gray-50 transition-all cursor-pointer group">
-              {uploadingImage ? (
-                <Loader2 className="w-8 h-8 animate-spin text-black" />
-              ) : (
-                <label className="w-full h-full flex flex-col items-center justify-center cursor-pointer">
-                  <Plus size={24} className="group-hover:scale-110 transition-transform" />
-                  <span className="text-[10px] font-black uppercase tracking-widest mt-2">Add More</span>
-                  <input type="file" multiple className="sr-only" accept="image/*" onChange={handleImageUpload} disabled={uploadingImage} />
-                </label>
-              )}
-            </div>
-          </div>
-          <p className="text-[10px] text-gray-500 font-mono italic">
-            You can select multiple images to upload. They will be automatically removed from Cloudinary if deleted.
-          </p>
-        </div>
-      </div>
-
-      {/* Variants & Tags */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t-2 border-black/10">
-        <div className="space-y-2">
-          <label className="block text-xs font-bold uppercase tracking-widest">Sizes (comma separated)</label>
-          <input 
-            type="text" 
-            placeholder="e.g. S, M, L"
-            value={sizes}
-            onChange={(e) => setSizes(e.target.value)}
-            className="w-full border-2 border-black p-3 focus:outline-none focus:ring-0 focus:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-shadow"
-          />
-        </div>
-        <div className="space-y-2">
-          <label className="block text-xs font-bold uppercase tracking-widest">Tags (comma separated)</label>
-          <input 
-            type="text" 
-            placeholder="e.g. summer, oversized"
-            value={tags}
-            onChange={(e) => setTags(e.target.value)}
-            className="w-full border-2 border-black p-3 focus:outline-none focus:ring-0 focus:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-shadow"
-          />
-        </div>
-      </div>
-
-      {/* Colors */}
-      <div className="space-y-4 pt-4 border-t-2 border-black/10">
-        <div className="flex justify-between items-center">
-          <label className="block text-xs font-bold uppercase tracking-widest">Colors</label>
-          <button type="button" onClick={() => setColors([...colors, {name: '', hex: '#000000'}])} className="text-[10px] font-black uppercase tracking-widest border-2 border-black px-3 py-1.5 hover:bg-black hover:text-white transition-colors flex items-center gap-1 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none">
-            <Plus size={14}/> Add Color
-          </button>
-        </div>
-        <div className="space-y-3">
-          {colors.map((color, idx) => (
-            <div key={idx} className="flex gap-3 items-center">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Main Content - Left Column (2/3) */}
+        <div className="lg:col-span-2 space-y-6">
+          
+          {/* Basic Info Card */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 space-y-5">
+            <div className="space-y-1.5">
+              <label className="block text-sm font-medium text-gray-900">Title</label>
               <input 
                 type="text" 
-                placeholder="Color Name" 
-                value={color.name} 
-                onChange={(e) => { 
-                  const newColors = [...colors]; 
-                  newColors[idx].name = e.target.value;
-                  setColors(newColors); 
-                }} 
-                className="flex-1 border-2 border-black p-3 focus:outline-none focus:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]" 
+                required
+                value={formData.title}
+                onChange={(e) => {
+                  const newTitle = e.target.value;
+                  setFormData(prev => ({
+                    ...prev, 
+                    title: newTitle,
+                    slug: !initialData ? newTitle.toLowerCase().replace(/[^a-z0-9]+/g, '-') : prev.slug
+                  }));
+                }}
+                className="w-full bg-white text-gray-900 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-gray-500 focus:ring-1 focus:ring-gray-500 outline-none transition-shadow"
+                placeholder="Short sleeve t-shirt"
               />
-              <div className="h-[52px] w-14 border-2 border-black relative overflow-hidden shrink-0">
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="block text-sm font-medium text-gray-900">Description</label>
+              <textarea 
+                rows={4}
+                value={formData.description}
+                onChange={(e) => setFormData(prev => ({...prev, description: e.target.value}))}
+                className="w-full bg-white text-gray-900 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-gray-500 focus:ring-1 focus:ring-gray-500 outline-none transition-shadow"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="block text-sm font-medium text-gray-900">Long Description</label>
+              <textarea 
+                rows={8}
+                value={formData.longDescription}
+                onChange={(e) => setFormData(prev => ({...prev, longDescription: e.target.value}))}
+                className="w-full bg-white text-gray-900 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-gray-500 focus:ring-1 focus:ring-gray-500 outline-none transition-shadow"
+                placeholder="Detailed description with key features..."
+              />
+            </div>
+          </div>
+
+          {/* Media Card */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 space-y-4">
+            <label className="block text-sm font-medium text-gray-900">Media</label>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              {formData.images?.map((img: any, idx: number) => (
+                <div key={idx} className="relative aspect-square rounded-lg border border-gray-200 overflow-hidden group bg-gray-50">
+                  <img 
+                    src={img.url} 
+                    alt={`Product image ${idx + 1}`} 
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <button
+                      type="button"
+                      disabled={uploadingImage}
+                      onClick={() => handleRemoveImage(idx)}
+                      className="bg-white rounded-md p-1.5 text-red-600 hover:bg-red-50 transition-colors shadow-sm disabled:opacity-50"
+                      title="Delete image"
+                    >
+                      {uploadingImage ? <Loader2 size={16} className="animate-spin" /> : <Trash size={16} />}
+                    </button>
+                  </div>
+                </div>
+              ))}
+              
+              <div className="relative aspect-square flex flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-gray-300 hover:border-gray-400 hover:bg-gray-50 transition-all cursor-pointer group">
+                {uploadingImage ? (
+                  <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
+                ) : (
+                  <label className="w-full h-full flex flex-col items-center justify-center cursor-pointer text-gray-500 hover:text-gray-700">
+                    <Plus size={20} className="group-hover:scale-110 transition-transform mb-1" />
+                    <span className="text-xs font-medium">Add files</span>
+                    <input type="file" multiple className="sr-only" accept="image/*" onChange={handleImageUpload} disabled={uploadingImage} />
+                  </label>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Pricing Card */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 space-y-4">
+            <h3 className="text-base font-semibold text-gray-900">Pricing</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <label className="block text-sm font-medium text-gray-900">Price</label>
+                <div className="relative">
+                  <span className="absolute left-3 top-2 text-gray-500 text-sm">৳</span>
+                  <input 
+                    type="number" 
+                    required min="0" step="1"
+                    value={formData.price}
+                    onChange={(e) => setFormData(prev => ({...prev, price: e.target.value}))}
+                    className="w-full bg-white text-gray-900 rounded-lg border border-gray-300 pl-7 pr-3 py-2 text-sm focus:border-gray-500 focus:ring-1 focus:ring-gray-500 outline-none transition-shadow"
+                    placeholder="0.00"
+                  />
+                </div>
+              </div>
+              <div className="space-y-1.5">
+                <label className="block text-sm font-medium text-gray-900">Age Range</label>
                 <input 
-                  type="color" 
-                  value={color.hex} 
-                  onChange={(e) => { 
-                    const newColors = [...colors]; 
-                    newColors[idx].hex = e.target.value; 
-                    setColors(newColors) 
-                  }} 
-                  className="absolute -top-2 -left-2 w-20 h-20 cursor-pointer" 
+                  type="text" 
+                  value={formData.ageRange}
+                  onChange={(e) => setFormData(prev => ({...prev, ageRange: e.target.value}))}
+                  className="w-full bg-white text-gray-900 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-gray-500 focus:ring-1 focus:ring-gray-500 outline-none transition-shadow"
+                  placeholder="e.g. 3-5, 8+, 12-14"
                 />
               </div>
+            </div>
+          </div>
+
+          {/* Inventory Card */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 space-y-4">
+            <h3 className="text-base font-semibold text-gray-900">Inventory</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <label className="block text-sm font-medium text-gray-900">Quantity</label>
+                <input 
+                  type="number" 
+                  required min="0"
+                  value={formData.inventory}
+                  onChange={(e) => setFormData(prev => ({...prev, inventory: parseInt(e.target.value) || 0}))}
+                  className="w-full bg-white text-gray-900 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-gray-500 focus:ring-1 focus:ring-gray-500 outline-none transition-shadow"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Variants */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 space-y-6">
+            <h3 className="text-base font-semibold text-gray-900">Options</h3>
+            
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <label className="block text-sm font-medium text-gray-900">Colors</label>
+                <button type="button" onClick={() => setColors([...colors, {name: '', hex: '#000000'}])} className="text-sm font-medium text-blue-600 hover:text-blue-700 flex items-center gap-1">
+                  <Plus size={16}/> Add Color
+                </button>
+              </div>
+              <div className="space-y-3">
+                {colors.map((color, idx) => (
+                  <div key={idx} className="flex gap-3 items-center">
+                    <input 
+                      type="text" 
+                      placeholder="Color Name" 
+                      value={color.name} 
+                      onChange={(e) => { 
+                        const newColors = [...colors]; 
+                        newColors[idx].name = e.target.value;
+                        setColors(newColors); 
+                      }} 
+                      className="flex-1 bg-white text-gray-900 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-gray-500 focus:ring-1 focus:ring-gray-500 outline-none" 
+                    />
+                    <div className="h-[38px] w-[38px] rounded-lg border border-gray-300 relative overflow-hidden shrink-0 shadow-sm">
+                      <input 
+                        type="color" 
+                        value={color.hex} 
+                        onChange={(e) => { 
+                          const newColors = [...colors]; 
+                          newColors[idx].hex = e.target.value; 
+                          setColors(newColors) 
+                        }} 
+                        className="absolute -top-2 -left-2 w-16 h-16 cursor-pointer" 
+                      />
+                    </div>
+                    <button 
+                      type="button" 
+                      onClick={() => setColors(colors.filter((_, i) => i !== idx))} 
+                      className="p-2 text-gray-400 hover:text-red-500 hover:bg-gray-50 rounded-lg transition-colors"
+                    >
+                      <Trash size={18} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-1.5 pt-4 border-t border-gray-100">
+              <label className="block text-sm font-medium text-gray-900">Sizes</label>
+              <input 
+                type="text" 
+                placeholder="Separate with commas (e.g. S, M, L)"
+                value={sizes}
+                onChange={(e) => setSizes(e.target.value)}
+                className="w-full bg-white text-gray-900 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-gray-500 focus:ring-1 focus:ring-gray-500 outline-none transition-shadow"
+              />
+            </div>
+
+            <div className="pt-4 border-t border-gray-100">
               <button 
                 type="button" 
-                onClick={() => setColors(colors.filter((_, i) => i !== idx))} 
-                className="p-3 border-2 border-black hover:bg-red-500 hover:text-white transition-colors"
+                onClick={generateVariations}
+                className="w-full sm:w-auto px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-900 font-medium rounded-lg text-sm transition-colors"
               >
-                <Trash size={18} />
+                Generate Variants
               </button>
             </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Variations */}
-      <div className="space-y-4 pt-4 border-t-2 border-black/10">
-        <div className="flex justify-between items-center">
-          <label className="block text-xs font-bold uppercase tracking-widest">Variations</label>
-          <button 
-            type="button" 
-            onClick={generateVariations}
-            className="text-[10px] font-black uppercase tracking-widest border-2 border-black px-3 py-1.5 hover:bg-black hover:text-white transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
-          >
-            Generate from Colors & Sizes
-          </button>
-        </div>
-        
-        {variations.length > 0 && (
-          <div className="border-4 border-black overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead className="bg-gray-100 border-b-4 border-black">
-                <tr>
-                  <th className="px-4 py-3 font-bold uppercase text-[10px]">Variant</th>
-                  <th className="px-4 py-3 font-bold uppercase text-[10px]">Price</th>
-                  <th className="px-4 py-3 font-bold uppercase text-[10px]">Stock</th>
-                  <th className="px-4 py-3 font-bold uppercase text-[10px]">SKU</th>
-                  <th className="px-4 py-3"></th>
-                </tr>
-              </thead>
-              <tbody className="divide-y-2 divide-black">
-                {variations.map((v, i) => (
-                  <tr key={i}>
-                    <td className="px-4 py-3 font-bold">{v.combinationString}</td>
-                    <td className="px-2 py-2">
-                      <input type="number" value={v.price} onChange={e => { const vnew = [...variations]; vnew[i].price = Number(e.target.value); setVariations(vnew) }} className="w-full border-2 border-black p-1.5" />
-                    </td>
-                    <td className="px-2 py-2">
-                      <input type="number" value={v.stock} onChange={e => { const vnew = [...variations]; vnew[i].stock = Number(e.target.value); setVariations(vnew) }} className="w-full border-2 border-black p-1.5" />
-                    </td>
-                    <td className="px-2 py-2">
-                      <input type="text" value={v.sku} onChange={e => { const vnew = [...variations]; vnew[i].sku = e.target.value; setVariations(vnew) }} className="w-full border-2 border-black p-1.5" />
-                    </td>
-                    <td className="px-4 py-3 text-center">
-                      <button type="button" onClick={() => setVariations(variations.filter((_, idx) => idx !== i))} className="text-red-500 hover:text-red-700">
-                        <Trash size={16} />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            
+            {variations.length > 0 && (
+              <div className="border border-gray-200 rounded-lg overflow-hidden mt-4">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-sm">
+                    <thead className="bg-gray-50 border-b border-gray-200">
+                      <tr>
+                        <th className="px-4 py-3 font-medium text-gray-500">Variant</th>
+                        <th className="px-4 py-3 font-medium text-gray-500">Price</th>
+                        <th className="px-4 py-3 font-medium text-gray-500">Stock</th>
+                        <th className="px-4 py-3 font-medium text-gray-500">SKU</th>
+                        <th className="px-4 py-3"></th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100 bg-white">
+                      {variations.map((v, i) => (
+                        <tr key={i}>
+                          <td className="px-4 py-3 text-gray-900 font-medium">{v.combinationString}</td>
+                          <td className="px-2 py-2">
+                            <input type="number" value={v.price} onChange={e => { const vnew = [...variations]; vnew[i].price = Number(e.target.value); setVariations(vnew) }} className="w-full bg-white text-gray-900 rounded-md border border-gray-300 px-2 py-1 text-sm outline-none focus:border-gray-500" />
+                          </td>
+                          <td className="px-2 py-2">
+                            <input type="number" value={v.stock} onChange={e => { const vnew = [...variations]; vnew[i].stock = Number(e.target.value); setVariations(vnew) }} className="w-full bg-white text-gray-900 rounded-md border border-gray-300 px-2 py-1 text-sm outline-none focus:border-gray-500" />
+                          </td>
+                          <td className="px-2 py-2">
+                            <input type="text" value={v.sku} onChange={e => { const vnew = [...variations]; vnew[i].sku = e.target.value; setVariations(vnew) }} className="w-full bg-white text-gray-900 rounded-md border border-gray-300 px-2 py-1 text-sm outline-none focus:border-gray-500" />
+                          </td>
+                          <td className="px-4 py-3 text-right">
+                            <button type="button" onClick={() => setVariations(variations.filter((_, idx) => idx !== i))} className="text-gray-400 hover:text-red-500">
+                              <Trash size={16} />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
           </div>
-        )}
+        </div>
+
+        {/* Sidebar - Right Column (1/3) */}
+        <div className="space-y-6">
+          
+          {/* Status Card */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 space-y-4">
+            <h3 className="text-base font-semibold text-gray-900">Status</h3>
+            <div className="space-y-3">
+              <select
+                value={formData.isPublished ? "active" : "draft"}
+                onChange={(e) => setFormData(prev => ({...prev, isPublished: e.target.value === "active"}))}
+                className="w-full bg-white text-gray-900 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-gray-500 focus:ring-1 focus:ring-gray-500 outline-none transition-shadow bg-white"
+              >
+                <option value="active">Active</option>
+                <option value="draft">Draft</option>
+              </select>
+              <p className="text-xs text-gray-500">
+                {formData.isPublished ? "This product will be visible to all sales channels." : "This product will be hidden from all sales channels."}
+              </p>
+            </div>
+          </div>
+
+          {/* Organization Card */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 space-y-5">
+            <h3 className="text-base font-semibold text-gray-900">Product organization</h3>
+            
+            <div className="space-y-1.5">
+              <label className="block text-sm font-medium text-gray-900">Category</label>
+              <select 
+                required
+                value={formData.category}
+                onChange={(e) => setFormData(prev => ({...prev, category: e.target.value}))}
+                className="w-full bg-white text-gray-900 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-gray-500 focus:ring-1 focus:ring-gray-500 outline-none transition-shadow bg-white"
+              >
+                <option value="" disabled>Select category</option>
+                {categories.map(cat => (
+                  <option key={cat._id} value={cat._id}>{cat.name}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="block text-sm font-medium text-gray-900">Product handle (URL)</label>
+              <input 
+                type="text" 
+                required
+                value={formData.slug}
+                onChange={(e) => setFormData(prev => ({...prev, slug: e.target.value.toLowerCase().replace(/ /g, '-')}))}
+                className="w-full bg-white text-gray-900 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-gray-500 focus:ring-1 focus:ring-gray-500 outline-none transition-shadow"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="block text-sm font-medium text-gray-900">Tags</label>
+              <input 
+                type="text" 
+                placeholder="Separate with commas"
+                value={tags}
+                onChange={(e) => setTags(e.target.value)}
+                className="w-full bg-white text-gray-900 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-gray-500 focus:ring-1 focus:ring-gray-500 outline-none transition-shadow"
+              />
+            </div>
+          </div>
+
+        </div>
       </div>
 
-      {/* Visibility */}
-      <div className="flex items-center gap-3 pt-6 border-t-2 border-black/10">
-        <button 
-          type="button"
-          onClick={() => setFormData(prev => ({...prev, isPublished: !prev.isPublished}))}
-          className={`w-12 h-6 border-2 border-black relative transition-colors ${formData.isPublished ? 'bg-black' : 'bg-white'}`}
-        >
-          <div className={`absolute top-0.5 bottom-0.5 w-4 transition-all ${formData.isPublished ? 'right-0.5 bg-white' : 'left-0.5 bg-black'}`} />
-        </button>
-        <label className="text-sm font-bold uppercase tracking-wider cursor-pointer">Published to Storefront</label>
-      </div>
-
-      {/* Submit */}
-      <div className="pt-6 flex justify-end">
+      {/* Save Action Bar */}
+      <div className="flex justify-end gap-3 pt-6 border-t border-gray-200">
         <button 
           type="submit" 
           disabled={loading}
-          className="bg-black text-white px-10 py-5 text-sm font-black uppercase tracking-widest hover:bg-white hover:text-black border-4 border-black transition-all flex items-center gap-3 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] active:translate-x-2 active:translate-y-2 active:shadow-none disabled:opacity-50"
+          className="px-4 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg hover:bg-black transition-colors disabled:opacity-50 flex items-center gap-2"
         >
           {loading ? (
-            <Loader2 className="w-5 h-5 animate-spin" />
+            <Loader2 className="w-4 h-4 animate-spin" />
           ) : (
-            <><Save size={20} /> {initialData ? 'Update Product' : 'Create Product'}</>
+            <Save size={16} />
           )}
+          {initialData ? 'Save changes' : 'Save product'}
         </button>
       </div>
     </form>

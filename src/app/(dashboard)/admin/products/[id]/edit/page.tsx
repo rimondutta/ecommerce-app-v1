@@ -80,10 +80,10 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <div className="flex items-center gap-4">
-        <Link href="/admin/products" className="p-2 border-2 border-transparent hover:border-black transition-colors">
-          <ArrowLeft size={24} />
+        <Link href="/admin/products" className="p-2 text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors">
+          <ArrowLeft size={20} />
         </Link>
-        <h1 className="text-2xl font-black uppercase tracking-tight">Edit Product</h1>
+        <h1 className="text-xl font-semibold text-gray-900">Edit Product</h1>
       </div>
 
       <ProductForm 

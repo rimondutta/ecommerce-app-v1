@@ -53,17 +53,17 @@ export async function PUT(
       fulfillmentStatus: data.fulfillmentStatus || oldOrder.fulfillmentStatus,
       paymentStatus: data.paymentStatus || oldOrder.paymentStatus
     }, {
-      new: true,
+      returnDocument: 'after',
       runValidators: true,
     });
 
     // Send Email Notification if status changed
     if (data.fulfillmentStatus && data.fulfillmentStatus !== oldOrder.fulfillmentStatus) {
       const { sendOrderStatusUpdateEmail } = await import('@/lib/nodemailer');
-      sendOrderStatusUpdateEmail(order, 'fulfillment', data.fulfillmentStatus).catch(err => console.error('Status email error:', err));
+      await sendOrderStatusUpdateEmail(order, 'fulfillment', data.fulfillmentStatus).catch(err => console.error('Status email error:', err));
     } else if (data.paymentStatus && data.paymentStatus !== oldOrder.paymentStatus) {
       const { sendOrderStatusUpdateEmail } = await import('@/lib/nodemailer');
-      sendOrderStatusUpdateEmail(order, 'payment', data.paymentStatus).catch(err => console.error('Status email error:', err));
+      await sendOrderStatusUpdateEmail(order, 'payment', data.paymentStatus).catch(err => console.error('Status email error:', err));
     }
 
     return NextResponse.json({ order });

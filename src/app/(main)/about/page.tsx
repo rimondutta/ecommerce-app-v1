@@ -1,12 +1,9 @@
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import CartoonCard from "@/components/ui/CartoonCard";
-import ComicDivider from "@/components/ui/ComicDivider";
-import { StarburstBadge } from "@/components/ui/CartoonBadge";
-import KanjiStamp from "@/components/ui/KanjiStamp";
-import SpeechBubble from "@/components/ui/SpeechBubble";
-import CartoonButton from "@/components/ui/CartoonButton";
+import Card from "@/components/ui/Card";
+
+import Button from "@/components/ui/Button";
 
 export const metadata = {
   title: "OUR STORY | INK & THREAD",
@@ -21,7 +18,7 @@ export default function AboutPage() {
         <div className="absolute inset-0 bg-halftone opacity-10 pointer-events-none" />
         <div className="container mx-auto relative z-10">
           <div className="flex flex-col items-center text-center space-y-6">
-            <KanjiStamp text="物語" sub="STORY" rotate={-12} className="mb-4" />
+            
             <h1 className="font-bangers text-7xl md:text-9xl text-ink leading-none text-ink-shadow uppercase">
               THE ORIGIN<br />CHAPTER 01
             </h1>
@@ -32,7 +29,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      <ComicDivider variant="zigzag" />
+      
 
       {/* Chapter 01: The Spark */}
       <section className="py-24 px-6 md:px-12">
@@ -59,19 +56,20 @@ export default function AboutPage() {
 
           <div className="lg:col-span-5 relative group">
             <div className="absolute inset-0 bg-speed-lines opacity-20 pointer-events-none group-hover:opacity-40 transition-opacity" />
-            <CartoonCard className="aspect-square rotate-3 relative overflow-hidden">
+            <Card className="aspect-square rotate-3 relative overflow-hidden">
                <Image 
                 src="https://images.unsplash.com/photo-1513364776144-60967b0f800f?q=80&w=800" 
                 alt="Artist Sketching" 
                 fill 
+                sizes="(max-width: 1024px) 100vw, 40vw"
                 className="object-cover grayscale hover:grayscale-0 transition-all duration-500"
                />
                <div className="absolute top-4 left-4">
-                 <StarburstBadge size="md">EST. 2025</StarburstBadge>
+                 
                </div>
-            </CartoonCard>
+            </Card>
             <div className="absolute -bottom-6 -right-6">
-              <SpeechBubble position="right" bg="bg-surface">SCRITCH SCRITCH...</SpeechBubble>
+              
             </div>
           </div>
         </div>
@@ -110,12 +108,12 @@ export default function AboutPage() {
         <div className="container mx-auto grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
            <div className="relative order-2 lg:order-1">
              <div className="grid grid-cols-2 gap-6">
-                <CartoonCard className="aspect-[3/4] -rotate-3">
-                   <Image src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=400" alt="Team member" fill className="object-cover" />
-                </CartoonCard>
-                <CartoonCard className="aspect-[3/4] rotate-6 translate-y-12">
-                   <Image src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=400" alt="Team member" fill className="object-cover" />
-                </CartoonCard>
+                <Card className="aspect-[3/4] -rotate-3">
+                   <Image src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=400" alt="Team member" fill sizes="(max-width: 1024px) 50vw, 20vw" className="object-cover" />
+                </Card>
+                <Card className="aspect-[3/4] rotate-6 translate-y-12">
+                   <Image src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=400" alt="Team member" fill sizes="(max-width: 1024px) 50vw, 20vw" className="object-cover" />
+                </Card>
              </div>
              <div className="absolute -top-10 -left-10 font-bangers text-8xl text-ink/5 select-none -z-10">THE CREW</div>
            </div>
@@ -137,7 +135,7 @@ export default function AboutPage() {
                 </p>
               </div>
               <Link href="/products" className="inline-block">
-                <CartoonButton size="lg">EXPLORE THE ARCHIVE →</CartoonButton>
+                <Button size="lg">EXPLORE THE ARCHIVE →</Button>
               </Link>
            </div>
         </div>
@@ -153,7 +151,7 @@ export default function AboutPage() {
           </p>
           <div className="flex justify-center gap-6">
             <Link href="/products">
-              <CartoonButton size="xl">SHOP VOL. 01</CartoonButton>
+              <Button size="xl">SHOP VOL. 01</Button>
             </Link>
           </div>
         </div>

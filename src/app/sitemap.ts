@@ -11,24 +11,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Remove trailing slash if present to avoid double slashes in paths
   baseUrl = baseUrl.replace(/\/$/, '');
 
-  await connectToDatabase();
-
-  // Fetch all published products
-  const products = await Product.find({ isPublished: true })
-    .select('slug updatedAt')
-    .lean();
-
-  // Fetch all published blog posts
-  const blogs = await BlogPost.find({ isPublished: true })
-    .select('slug updatedAt')
-    .lean();
-
-  // Fetch active categories
-  const categories = await Category.find({ isActive: true })
-    .select('slug updatedAt')
-    .lean();
-
-  // Static pages
   const staticPages: MetadataRoute.Sitemap = [
     {
       url: baseUrl,
@@ -50,29 +32,51 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ];
 
-  // Dynamic product pages
-  const productPages: MetadataRoute.Sitemap = products.map((product: any) => ({
-    url: `${baseUrl}/products/${product.slug}`,
-    lastModified: product.updatedAt || new Date(),
-    changeFrequency: 'weekly' as const,
-    priority: 0.8,
-  }));
+  try {
+    await connectToDatabase();
 
-  // Dynamic blog pages
-  const blogPages: MetadataRoute.Sitemap = blogs.map((blog: any) => ({
-    url: `${baseUrl}/blogs/${blog.slug}`,
-    lastModified: blog.updatedAt || new Date(),
-    changeFrequency: 'monthly' as const,
-    priority: 0.6,
-  }));
+    // Fetch all published products
+    const products = await Product.find({ isPublished: true })
+      .select('slug updatedAt')
+      .lean();
 
-  // Category filter pages - ensuring canonical-style URLs
-  const categoryPages: MetadataRoute.Sitemap = categories.map((cat: any) => ({
-    url: `${baseUrl}/products?category=${cat.slug}`,
-    lastModified: cat.updatedAt || new Date(),
-    changeFrequency: 'weekly' as const,
-    priority: 0.7,
-  }));
+    // Fetch all published blog posts
+    const blogs = await BlogPost.find({ isPublished: true })
+      .select('slug updatedAt')
+      .lean();
 
-  return [...staticPages, ...productPages, ...blogPages, ...categoryPages];
+    // Fetch active categories
+    const categories = await Category.find({ isActive: true })
+      .select('slug updatedAt')
+      .lean();
+
+    // Dynamic product pages
+    const productPages: MetadataRoute.Sitemap = products.map((product: any) => ({
+      url: `${baseUrl}/products/${product.slug}`,
+      lastModified: product.updatedAt || new Date(),
+      changeFrequency: 'weekly' as const,
+      priority: 0.8,
+    }));
+
+    // Dynamic blog pages
+    const blogPages: MetadataRoute.Sitemap = blogs.map((blog: any) => ({
+      url: `${baseUrl}/blogs/${blog.slug}`,
+      lastModified: blog.updatedAt || new Date(),
+      changeFrequency: 'monthly' as const,
+      priority: 0.6,
+    }));
+
+    // Category filter pages - ensuring canonical-style URLs
+    const categoryPages: MetadataRoute.Sitemap = categories.map((cat: any) => ({
+      url: `${baseUrl}/products?category=${cat.slug}`,
+      lastModified: cat.updatedAt || new Date(),
+      changeFrequency: 'weekly' as const,
+      priority: 0.7,
+    }));
+
+    return [...staticPages, ...productPages, ...blogPages, ...categoryPages];
+  } catch (error) {
+    console.error("Failed to connect to database for sitemap generation:", error);
+    return staticPages;
+  }
 }

@@ -2,7 +2,7 @@
 
 import { Fragment } from "react"
 import { Dialog, DialogPanel, Transition, TransitionChild } from "@headlessui/react"
-import { X, Home, ShoppingCart, Tag, Users, Ticket, UserPlus, Image as ImageIcon, Settings, LogOut, Store } from "lucide-react"
+import { X, Home, ShoppingCart, Tag, Users, Ticket, UserPlus, Image as ImageIcon, Settings, LogOut, Store, Layers } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { signOut, useSession } from "next-auth/react"
@@ -20,6 +20,7 @@ export default function AdminMobileSidebar({ isOpen, onClose }: AdminMobileSideb
     { name: "Dashboard", href: "/admin", icon: Home },
     { name: "Orders", href: "/admin/orders", icon: ShoppingCart },
     { name: "Products", href: "/admin/products", icon: Tag },
+    { name: "Categories", href: "/admin/categories", icon: Layers },
     { name: "Media Library", href: "/admin/media", icon: ImageIcon },
     { name: "Customers", href: "/admin/customers", icon: Users },
     { name: "Discounts", href: "/admin/coupons", icon: Ticket },
@@ -55,23 +56,22 @@ export default function AdminMobileSidebar({ isOpen, onClose }: AdminMobileSideb
           leaveFrom="translate-x-0"
           leaveTo="-translate-x-full"
         >
-          <DialogPanel className="fixed inset-y-0 left-0 w-[280px] bg-black text-white flex flex-col shadow-2xl border-r-4 border-white/10">
+          <DialogPanel className="fixed inset-y-0 left-0 w-[280px] bg-white text-gray-700 flex flex-col shadow-2xl border-r border-gray-200">
             {/* Header */}
-            <div className="p-6 border-b-4 border-white/10 flex items-center justify-between">
+            <div className="p-4 border-b border-gray-200 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 border-2 border-white bg-white text-black flex items-center justify-center font-black text-lg">
-                  F
+                <div className="w-8 h-8 rounded overflow-hidden">
+                  <img src="/logo/toyhourse-logo.png" alt="Toy Hourse" className="w-full h-full object-contain" />
                 </div>
-                <span className="text-sm font-black uppercase tracking-tighter leading-none">FlexWear Admin</span>
+                <span className="text-base font-semibold text-gray-900 leading-none">Toy Hourse</span>
               </div>
-              <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-none transition-all">
+              <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-md transition-colors text-gray-500 hover:text-gray-900">
                 <X size={20} />
               </button>
             </div>
 
             {/* Nav */}
-            <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
-              <p className="text-[9px] font-black uppercase tracking-[0.2em] text-gray-500 mb-4 px-2">Main Navigation</p>
+            <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto custom-scrollbar">
               {links.map((link) => {
                 const active = isActive(link.href)
                 const Icon = link.icon
@@ -80,30 +80,45 @@ export default function AdminMobileSidebar({ isOpen, onClose }: AdminMobileSideb
                     key={link.name}
                     href={link.href}
                     onClick={onClose}
-                    className={`flex items-center gap-4 px-4 py-3 border-2 transition-all ${
+                    className={`flex items-center gap-3 px-3 py-2 rounded-md transition-colors text-sm font-medium group relative ${
                       active 
-                        ? "bg-white text-black border-white shadow-[4px_4px_0px_0px_rgba(255,255,255,0.3)] translate-x-1" 
-                        : "text-gray-400 border-transparent hover:text-white"
+                        ? "bg-gray-100 text-gray-900" 
+                        : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                     }`}
                   >
-                    <Icon size={18} />
-                    <span className="text-xs font-black uppercase tracking-widest">{link.name}</span>
+                    {active && <div className="absolute left-0 top-2 bottom-2 w-1 bg-gray-900 rounded-r-full" />}
+                    <Icon size={18} className={active ? "text-gray-900" : "text-gray-500 group-hover:text-gray-900"} />
+                    <span>{link.name}</span>
                   </Link>
                 )
               })}
             </nav>
 
-            {/* User */}
-            <div className="p-4 border-t-4 border-white/10 bg-white/5">
+            {/* User Info / Logout */}
+            <div className="p-4 border-t border-gray-200 bg-gray-50 flex flex-col gap-4">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-full bg-gray-200 flex items-center justify-center text-sm font-medium text-gray-600 overflow-hidden shrink-0">
+                  {(session?.user as any)?.image ? (
+                    <img src={(session?.user as any).image} alt="Avatar" className="w-full h-full object-cover" />
+                  ) : (
+                    session?.user?.name?.charAt(0) || "A"
+                  )}
+                </div>
+                <div className="flex flex-col min-w-0">
+                  <span className="text-sm font-medium text-gray-900 truncate">{session?.user?.name || "Admin"}</span>
+                  <span className="text-xs text-gray-500 truncate">{session?.user?.email || "admin@example.com"}</span>
+                </div>
+              </div>
+              
               <button
                 onClick={() => {
                    onClose();
                    signOut();
                 }}
-                className="flex items-center gap-4 px-4 py-3 text-red-400 hover:bg-red-400/10 transition-all w-full text-left"
+                className="flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-red-600 transition-colors w-full text-left"
               >
                 <LogOut size={18} />
-                <span className="text-xs font-black uppercase tracking-widest">Logout Session</span>
+                <span>Logout</span>
               </button>
             </div>
           </DialogPanel>

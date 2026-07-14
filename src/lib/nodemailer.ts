@@ -55,7 +55,7 @@ export async function sendOrderConfirmationEmail(order: OrderData) {
   const html = `
     <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #333333; line-height: 1.6;">
       <div style="padding: 40px 20px; text-align: center; background-color: #000000; color: #ffffff;">
-        <h1 style="margin: 0; text-transform: uppercase; letter-spacing: 4px; font-size: 24px;">FLEXWEAR</h1>
+        <h1 style="margin: 0; text-transform: uppercase; letter-spacing: 4px; font-size: 24px;">TOY HOURSE</h1>
         <p style="margin: 10px 0 0; font-size: 12px; opacity: 0.7; letter-spacing: 2px;">ORDER CONFIRMED</p>
       </div>
 
@@ -119,7 +119,7 @@ export async function sendOrderConfirmationEmail(order: OrderData) {
       </div>
 
       <div style="padding: 20px; text-align: center; font-size: 12px; color: #999999; border-top: 1px solid #eeeeee;">
-        <p>&copy; ${new Date().getFullYear()} Flexwear Store. All rights reserved.</p>
+        <p>&copy; ${new Date().getFullYear()} Toy Hourse. All rights reserved.</p>
         <p>This is an automated message. Please do not reply to this email.</p>
       </div>
     </div>
@@ -134,12 +134,32 @@ export async function sendOrderConfirmationEmail(order: OrderData) {
     });
     console.log('Order confirmation email sent:', info.messageId);
     
-    // Optional: Notify Admin
+    // Notify Admin
+    const adminEmail = process.env.ADMIN_EMAIL || process.env.EMAIL_USER;
+    const adminHtml = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e5e5e5; border-radius: 8px; overflow: hidden;">
+        <div style="background-color: #000; color: #fff; padding: 20px; text-align: center;">
+          <h2 style="margin: 0; font-size: 20px;">New Order Alert!</h2>
+        </div>
+        <div style="padding: 30px 20px; background-color: #fff;">
+          <p style="font-size: 16px; margin-top: 0;">You have received a new order on <strong>Toy Hourse</strong>.</p>
+          <div style="background-color: #f9f9f9; padding: 15px; border-radius: 6px; margin: 20px 0;">
+            <p style="margin: 0 0 10px 0;"><strong>Order ID:</strong> #${order.orderId.slice(-8).toUpperCase()}</p>
+            <p style="margin: 0 0 10px 0;"><strong>Customer:</strong> ${order.customerName} (${order.customerEmail})</p>
+            <p style="margin: 0;"><strong>Total Amount:</strong> ৳${order.totalAmount.toLocaleString()}</p>
+          </div>
+          <div style="text-align: center; margin-top: 30px;">
+            <a href="${process.env.NEXTAUTH_URL}/admin/orders" style="display: inline-block; background-color: #000; color: #fff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: bold;">View Order Details</a>
+          </div>
+        </div>
+      </div>
+    `;
+
     await transporter.sendMail({
         from: DEFAULT_FROM,
-        to: process.env.EMAIL_USER, // Send to the configured user email
-        subject: `New Order Received: #${order.orderId.slice(-8).toUpperCase()}`,
-        html: `<h2>New Order Alert</h2><p>A new order has been placed by ${order.customerName} (${order.customerEmail}).</p><p>Total: ৳${order.totalAmount}</p><a href="${process.env.NEXTAUTH_URL}/admin/orders">View Order</a>`
+        to: adminEmail,
+        subject: `New Order Alert: #${order.orderId.slice(-8).toUpperCase()} - ৳${order.totalAmount}`,
+        html: adminHtml
     });
 
     return { success: true, messageId: info.messageId };
@@ -163,7 +183,7 @@ export async function sendOrderStatusUpdateEmail(order: any, statusType: 'paymen
   const html = `
     <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #333333; line-height: 1.6;">
       <div style="padding: 40px 20px; text-align: center; background-color: #000000; color: #ffffff;">
-        <h1 style="margin: 0; text-transform: uppercase; letter-spacing: 4px; font-size: 24px;">FLEXWEAR</h1>
+        <h1 style="margin: 0; text-transform: uppercase; letter-spacing: 4px; font-size: 24px;">TOY HOURSE</h1>
         <p style="margin: 10px 0 0; font-size: 12px; opacity: 0.7; letter-spacing: 2px;">STATUS UPDATE</p>
       </div>
 
@@ -184,7 +204,7 @@ export async function sendOrderStatusUpdateEmail(order: any, statusType: 'paymen
       </div>
 
       <div style="padding: 20px; text-align: center; font-size: 12px; color: #999999; border-top: 1px solid #eeeeee;">
-        <p>&copy; ${new Date().getFullYear()} Flexwear Store. All rights reserved.</p>
+        <p>&copy; ${new Date().getFullYear()} Toy Hourse. All rights reserved.</p>
         <p>This is an automated message. Please do not reply to this email.</p>
       </div>
     </div>

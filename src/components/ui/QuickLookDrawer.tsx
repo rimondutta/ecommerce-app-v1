@@ -8,9 +8,9 @@ import { useCart } from "@/components/providers/CartProvider";
 import { useWishlist } from "@/components/providers/WishlistProvider";
 import Link from "next/link";
 import { X, ShoppingBag, Heart, ArrowRight, Star } from "lucide-react";
-import CartoonButton from "@/components/ui/CartoonButton";
-import CartoonCounter from "@/components/ui/CartoonCounter";
-import CartoonBadge from "@/components/ui/CartoonBadge";
+import Button from "@/components/ui/Button";
+import QuantityStepper from "@/components/playshelf/QuantityStepper";
+import Badge from "@/components/ui/Badge";
 import { cn } from "@/lib/utils";
 
 export default function QuickLookDrawer() {
@@ -100,7 +100,7 @@ export default function QuickLookDrawer() {
                   {/* Badge */}
                   {product.badge && (
                     <div className="absolute top-6 left-6 z-10 rotate-[-5deg]">
-                       <CartoonBadge variant="solid" className="px-4 py-1.5 text-lg">{product.badge}</CartoonBadge>
+                       <Badge variant="solid" className="px-4 py-1.5 text-lg">{product.badge}</Badge>
                     </div>
                   )}
 
@@ -209,16 +209,16 @@ export default function QuickLookDrawer() {
                     {/* Quantity */}
                     <div className="space-y-3">
                       <span className="font-bebas text-xl tracking-widest text-secondary uppercase block">REPLICAS:</span>
-                      <CartoonCounter value={quantity} onChange={setQuantity} min={1} max={10} />
+                      <QuantityStepper value={quantity} onChange={setQuantity} min={1} max={10} />
                     </div>
                   </div>
                 </div>
 
                 {/* Actions */}
                 <div className="p-8 lg:p-10 border-t-4 border-ink bg-surface space-y-4">
-                  <CartoonButton size="lg" className="w-full" onClick={handleAddToCart}>
+                  <Button size="lg" className="w-full" onClick={handleAddToCart}>
                     ADD TO GEAR — ৳{Math.round(currentPrice * quantity).toLocaleString()}
-                  </CartoonButton>
+                  </Button>
                   <Link href={`/products/${product.slug}`} onClick={closeQuickLook} className="block group">
                     <div className="flex items-center justify-center gap-3 font-bebas text-2xl text-secondary group-hover:text-ink transition-colors">
                       OPEN FULL DOSSIER <ArrowRight size={24} />

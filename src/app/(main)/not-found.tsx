@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import CartoonButton from '@/components/ui/CartoonButton';
+import Button from '@/components/ui/Button';
 
 export default function NotFound() {
   return (
@@ -26,10 +26,10 @@ export default function NotFound() {
 
         <div className="pt-8 flex flex-wrap justify-center gap-6">
           <Link href="/products">
-            <CartoonButton size="lg">RETURN TO SHOP</CartoonButton>
+            <Button size="lg">RETURN TO SHOP</Button>
           </Link>
           <Link href="/">
-             <CartoonButton variant="outline" size="lg">BASE COMMAND</CartoonButton>
+             <Button variant="outline" size="lg">BASE COMMAND</Button>
           </Link>
         </div>
       </div>

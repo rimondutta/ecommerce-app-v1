@@ -6,9 +6,9 @@ import Image from "next/image";
 import { useCart } from "@/components/providers/CartProvider";
 import Link from "next/link";
 import { X, Trash2, ShoppingBag } from "lucide-react";
-import CartoonButton from "@/components/ui/CartoonButton";
-import CartoonProgressBar from "@/components/ui/CartoonProgressBar";
-import CartoonCounter from "@/components/ui/CartoonCounter";
+import Button from "@/components/ui/Button";
+import ProgressBar from "@/components/ui/ProgressBar";
+import QuantityStepper from "@/components/playshelf/QuantityStepper";
 import { cn } from "@/lib/utils";
 
 const FREE_SHIPPING_THRESHOLD = 8000;
@@ -66,7 +66,7 @@ export default function CartDrawer() {
             {/* Free Shipping Progress */}
             <div className="px-8 py-6 bg-white border-b-4 border-ink">
               {remaining > 0 ? (
-                <CartoonProgressBar
+                <ProgressBar
                   value={total}
                   max={FREE_SHIPPING_THRESHOLD}
                   label={`ADD ৳${Math.round(remaining).toLocaleString()} FOR FREE SHIPPING ★`}
@@ -91,7 +91,7 @@ export default function CartDrawer() {
                       Your inventory is looking a bit light.<br />Go back and find some gear!
                     </p>
                   </div>
-                  <CartoonButton onClick={closeCart}>BROWSE THE SHOP</CartoonButton>
+                  <Button onClick={closeCart}>BROWSE THE SHOP</Button>
                 </div>
               ) : (
                 items.map((item) => (
@@ -127,7 +127,7 @@ export default function CartDrawer() {
 
                       <div className="flex items-end justify-between mt-4">
                         {/* Quantity */}
-                        <CartoonCounter 
+                        <QuantityStepper 
                           value={item.quantity} 
                           onChange={(val) => updateQuantity(item.id, val)} 
                           className="h-10"
@@ -173,9 +173,9 @@ export default function CartDrawer() {
 
                 <div className="space-y-4">
                   <Link href="/checkout" onClick={closeCart} className="block w-full">
-                    <CartoonButton size="xl" className="w-full">
+                    <Button size="xl" className="w-full">
                       PROCEED TO CHECKOUT →
-                    </CartoonButton>
+                    </Button>
                   </Link>
                   <button
                     onClick={closeCart}

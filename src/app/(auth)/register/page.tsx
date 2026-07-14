@@ -3,8 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import CartoonButton from "@/components/ui/CartoonButton";
-import CartoonInput from "@/components/ui/CartoonInput";
+import { Loader2, CheckCircle2 } from "lucide-react";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -23,7 +22,7 @@ export default function RegisterPage() {
     setError("");
 
     if (password !== confirmPassword) {
-      setError("SECURITY MISMATCH: KEYS DO NOT ALIGN");
+      setError("Passwords do not match");
       setLoading(false);
       return;
     }
@@ -38,7 +37,7 @@ export default function RegisterPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.message || "INITIALIZATION FAILED");
+        throw new Error(data.message || "Registration failed");
       }
 
       setSuccess(true);
@@ -46,112 +45,116 @@ export default function RegisterPage() {
         router.push("/login");
       }, 2000);
     } catch (err: any) {
-      setError(err.message || "SYSTEM ERROR: ARCHIVE UNREACHABLE");
+      setError(err.message || "An unexpected error occurred. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-paper flex items-center justify-center p-8 relative overflow-hidden">
-      {/* Background Decor */}
-      <div className="absolute inset-0 opacity-10 pointer-events-none">
-        <div className="absolute inset-0 bg-crosshatch" />
-      </div>
-
-      <div className="w-full max-w-lg space-y-12 relative z-10">
-        <div className="space-y-6">
-          <div className="inline-block px-4 py-2 bg-ink text-paper border-2 border-ink rotate-[2deg]">
-            <span className="font-bebas text-2xl tracking-[0.2em] uppercase">
-              IDENTITY PROTOCOL
-            </span>
-          </div>
-          <h1 className="font-bangers text-7xl md:text-8xl text-ink uppercase leading-none tracking-tight">
-            INITIALIZE <br />
-            <span className="text-secondary drop-shadow-[4px_4px_0px_#000]">OPERATIVE</span>
-          </h1>
-          <p className="font-comic font-bold italic text-xl text-ink/60 max-w-sm leading-tight">
-            Create your profile in the global archives.
-          </p>
+    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
+      <div className="w-full max-w-sm">
+        <div className="text-center mb-8">
+          <h1 className="text-2xl font-semibold text-gray-900 mb-2">Create an account</h1>
+          <p className="text-sm text-gray-500">Join us to manage your orders and wishlist</p>
         </div>
 
-        {success ? (
-          <div className="p-16 border-4 border-ink bg-white cartoon-shadow-lg text-center space-y-8 relative overflow-hidden">
-            <div className="absolute inset-0 bg-halftone opacity-10 pointer-events-none" />
-            <div className="font-bangers text-8xl text-ink animate-bounce relative z-10">✓</div>
-            <div className="space-y-2 relative z-10">
-               <h3 className="font-bangers text-4xl text-ink uppercase tracking-tight">IDENTITY ESTABLISHED</h3>
-               <p className="font-comic font-bold italic text-secondary text-xl">Redirecting to auth portal...</p>
-            </div>
-          </div>
-        ) : (
-          <form onSubmit={handleSubmit} className="space-y-10 p-10 bg-white border-4 border-ink cartoon-shadow-lg relative">
-            <div className="absolute inset-0 bg-halftone opacity-5 pointer-events-none" />
-
-            {error && (
-              <div className="p-5 bg-ink text-paper border-3 border-ink font-bangers text-2xl uppercase tracking-tight">
-                !! {error} !!
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 md:p-8">
+          {success ? (
+            <div className="text-center py-6">
+              <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
+                <CheckCircle2 className="w-8 h-8 text-green-600" />
               </div>
-            )}
-
-            <div className="space-y-8 relative z-10">
-              <CartoonInput
-                label="CODENAME (FULL NAME)"
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="BRUCE WAYNE"
-                required
-              />
-
-              <CartoonInput
-                label="IDENTIFICATION (EMAIL)"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="ALPHA@SECURE.HQ"
-                required
-              />
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <CartoonInput
-                  label="SECURITY KEY"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  required
-                />
-
-                <CartoonInput
-                  label="CONFIRM KEY"
-                  type="password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="••••••••"
-                  required
-                />
-              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">Account created!</h3>
+              <p className="text-sm text-gray-500">Redirecting you to login...</p>
             </div>
+          ) : (
+            <>
+              {error && (
+                <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm font-medium mb-6">
+                  {error}
+                </div>
+              )}
 
-            <CartoonButton 
-              size="lg" 
-              className="w-full" 
-              disabled={loading}
-              type="submit"
-            >
-              {loading ? "INITIALIZING..." : "ESTABLISH IDENTITY"}
-            </CartoonButton>
-          </form>
-        )}
+              <form onSubmit={handleSubmit} className="space-y-5">
+                <div className="space-y-1.5">
+                  <label className="block text-sm font-medium text-gray-900">Full Name</label>
+                  <input
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="w-full bg-white text-gray-900 rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-gray-500 focus:ring-1 focus:ring-gray-500 outline-none transition-shadow placeholder:text-gray-400"
+                    placeholder="John Doe"
+                    required
+                    disabled={loading}
+                  />
+                </div>
 
-        <div className="pt-10 border-t-4 border-ink/10 flex flex-col items-center gap-6">
-          <p className="font-bebas text-2xl text-ink/40 tracking-widest">
-            ALREADY IN THE ARCHIVES?
-          </p>
-          <Link href="/login" className="font-bangers text-3xl text-ink hover:text-secondary transition-colors uppercase tracking-tight underline decoration-4 underline-offset-8">
-            AUTHORIZED ENTRY →
-          </Link>
+                <div className="space-y-1.5">
+                  <label className="block text-sm font-medium text-gray-900">Email</label>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full bg-white text-gray-900 rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-gray-500 focus:ring-1 focus:ring-gray-500 outline-none transition-shadow placeholder:text-gray-400"
+                    placeholder="you@example.com"
+                    required
+                    disabled={loading}
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="block text-sm font-medium text-gray-900">Password</label>
+                  <input
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full bg-white text-gray-900 rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-gray-500 focus:ring-1 focus:ring-gray-500 outline-none transition-shadow placeholder:text-gray-400"
+                    placeholder="••••••••"
+                    required
+                    disabled={loading}
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="block text-sm font-medium text-gray-900">Confirm Password</label>
+                  <input
+                    type="password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    className="w-full bg-white text-gray-900 rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-gray-500 focus:ring-1 focus:ring-gray-500 outline-none transition-shadow placeholder:text-gray-400"
+                    placeholder="••••••••"
+                    required
+                    disabled={loading}
+                  />
+                </div>
+
+                <button 
+                  type="submit"
+                  disabled={loading}
+                  className="w-full bg-gray-900 text-white font-medium rounded-lg py-2.5 text-sm hover:bg-black transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-2"
+                >
+                  {loading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Creating account...
+                    </>
+                  ) : (
+                    "Create account"
+                  )}
+                </button>
+              </form>
+
+              <div className="mt-8 text-center">
+                <p className="text-sm text-gray-600">
+                  Already have an account?{" "}
+                  <Link href="/login" className="font-medium text-gray-900 hover:underline">
+                    Sign in
+                  </Link>
+                </p>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>

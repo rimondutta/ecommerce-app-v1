@@ -3,6 +3,7 @@
 import { signIn } from "next-auth/react"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import { Loader2 } from "lucide-react"
 
 export default function AdminLogin() {
   const [email, setEmail] = useState("")
@@ -32,41 +33,65 @@ export default function AdminLogin() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 border-8 border-black p-4">
-      <div className="w-full max-w-md bg-white border-4 border-black p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
-        <h1 className="text-3xl font-black uppercase tracking-tight mb-6">FlexWear Admin</h1>
-        {error && <div className="bg-red-100 border-2 border-red-500 text-red-700 p-3 mb-6 font-bold text-sm uppercase">{error}</div>}
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label className="block text-xs font-bold uppercase tracking-widest mb-2">Email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full border-2 border-black p-3 focus:outline-none focus:ring-0 focus:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-shadow"
-              required
-              disabled={isLoading}
-            />
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+      <div className="w-full max-w-sm">
+        {/* Logo & Title */}
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center w-14 h-14 bg-gray-900 rounded-xl mb-4">
+            <img src="/logo/toyhourse-logo.png" alt="Toy Hourse" className="w-10 h-10 object-contain" />
           </div>
-          <div>
-            <label className="block text-xs font-bold uppercase tracking-widest mb-2">Password</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full border-2 border-black p-3 focus:outline-none focus:ring-0 focus:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-shadow"
-              required
+          <h1 className="text-xl font-semibold text-gray-900">Toy Hourse Admin</h1>
+          <p className="text-sm text-gray-500 mt-1">Sign in to manage your store</p>
+        </div>
+
+        {/* Form Card */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm font-medium mb-5">
+              {error}
+            </div>
+          )}
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-1.5">
+              <label className="block text-sm font-medium text-gray-900">Email</label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full bg-white text-gray-900 rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-gray-500 focus:ring-1 focus:ring-gray-500 outline-none transition-shadow placeholder:text-gray-400"
+                placeholder="you@example.com"
+                required
+                disabled={isLoading}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="block text-sm font-medium text-gray-900">Password</label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full bg-white text-gray-900 rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-gray-500 focus:ring-1 focus:ring-gray-500 outline-none transition-shadow placeholder:text-gray-400"
+                placeholder="••••••••"
+                required
+                disabled={isLoading}
+              />
+            </div>
+            <button
+              type="submit"
               disabled={isLoading}
-            />
-          </div>
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="w-full bg-black text-white font-bold uppercase tracking-widest py-4 hover:bg-gray-900 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
-          >
-            {isLoading ? "Signing In..." : "Sign In"}
-          </button>
-        </form>
+              className="w-full bg-gray-900 text-white font-medium rounded-lg py-2.5 text-sm hover:bg-black transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Signing in...
+                </>
+              ) : (
+                "Sign in"
+              )}
+            </button>
+          </form>
+        </div>
       </div>
     </div>
   )

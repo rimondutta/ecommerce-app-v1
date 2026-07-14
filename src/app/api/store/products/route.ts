@@ -44,7 +44,7 @@ export async function GET(req: Request) {
     // Scalability: Use lean() and sort correctly
     let productQuery = Product.find(query)
       .populate('category')
-      .select('title price slug images category badge colors sizes')
+      .select('title price slug images category badge colors sizes inventory')
       .sort({ createdAt: -1 });
     
     if (limit > 0) {

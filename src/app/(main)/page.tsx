@@ -1,5 +1,5 @@
-import CartoonHomepage from "@/components/sections/CartoonHomepage";
+import Homepage from "@/components/sections/Homepage";
 
 export default function Home() {
-  return <CartoonHomepage />;
+  return <Homepage />;
 }

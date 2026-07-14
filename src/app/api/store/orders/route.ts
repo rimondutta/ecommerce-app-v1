@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/db';
 import Order from '@/models/Order';
+import Product from '@/models/Product';
 
 // ── Simple in-memory rate limiter (per-IP, per-minute) ──
 const rateLimit = new Map<string, { count: number; resetAt: number }>();
@@ -70,6 +71,15 @@ export async function POST(req: Request) {
       paymentStatus: 'pending',
       fulfillmentStatus: 'unfulfilled',
     });
+
+    // Reduce inventory for each item
+    for (const item of items) {
+      if (item.productId) {
+        await Product.findByIdAndUpdate(item.productId, {
+          $inc: { inventory: -item.quantity }
+        }).catch(err => console.error(`Failed to update inventory for product ${item.productId}:`, err));
+      }
+    }
 
     // Send Confirmation Email (Async/Non-blocking)
     try {

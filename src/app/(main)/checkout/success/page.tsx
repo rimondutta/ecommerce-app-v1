@@ -5,7 +5,7 @@ import Link from "next/link";
 import { CheckCircle2, ArrowRight, Package, Truck, Calendar, ShoppingBag, Star } from "lucide-react";
 import { Suspense } from "react";
 import { motion } from "framer-motion";
-import CartoonButton from "@/components/ui/CartoonButton";
+import Button from "@/components/ui/Button";
 
 function SuccessContent() {
   const searchParams = useSearchParams();
@@ -66,10 +66,10 @@ function SuccessContent() {
         className="flex flex-wrap justify-center gap-8"
       >
          <Link href="/products">
-            <CartoonButton size="lg">CONTINUE SCOUTING</CartoonButton>
+            <Button size="lg">CONTINUE SCOUTING</Button>
          </Link>
          <Link href="/account">
-            <CartoonButton variant="outline" size="lg">VIEW DOSSIER</CartoonButton>
+            <Button variant="outline" size="lg">VIEW DOSSIER</Button>
          </Link>
       </motion.div>
       

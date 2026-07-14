@@ -1,19 +1,15 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Search, Plus, Save, Trash2, Edit } from "lucide-react"
+import Link from "next/link"
+import Image from "next/image"
+import { Search, Plus, Edit, Trash2, Filter } from "lucide-react"
 
 export default function AdminCategoriesPage() {
   const [categories, setCategories] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
-  
-  // Form state for creating a new category inline
-  const [isCreating, setIsCreating] = useState(false)
-  const [formData, setFormData] = useState({ name: "", slug: "", isActive: true })
-  const [formError, setFormError] = useState("")
 
-  const fetchCategories = () => {
-    setLoading(true)
+  useEffect(() => {
     fetch("/api/admin/categories")
       .then((res) => res.json())
       .then((data) => {
@@ -24,140 +20,121 @@ export default function AdminCategoriesPage() {
         console.error(err)
         setLoading(false)
       })
-  }
-
-  useEffect(() => {
-    fetchCategories()
   }, [])
 
-  const handleCreateSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setFormError("")
+  const handleDelete = async (id: string, name: string) => {
+    if (!window.confirm(`Are you sure you want to delete "${name}"?`)) {
+      return
+    }
     
     try {
-      const res = await fetch("/api/admin/categories", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData)
-      })
+      const res = await fetch(`/api/admin/categories/${id}`, {
+        method: "DELETE"
+      });
+      if (!res.ok) throw new Error("Failed to delete category");
       
-      if (!res.ok) {
-        const data = await res.json()
-        throw new Error(data.error || "Failed to create category")
-      }
-      
-      setIsCreating(false)
-      setFormData({ name: "", slug: "", isActive: true })
-      fetchCategories()
-    } catch (err: any) {
-      setFormError(err.message)
+      setCategories(categories.filter(c => c._id !== id));
+    } catch(err) {
+      console.error("Delete error:", err);
+      alert("Failed to delete category.");
     }
   }
-
-  const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this category?")) return
-    
-    try {
-      await fetch(`/api/admin/categories/${id}`, { method: "DELETE" })
-      fetchCategories()
-    } catch (err) {
-      console.error(err)
-    }
-  }
-
-  // Shopify input style
-  const inputStyle = "w-full border border-gray-300 rounded-lg p-2 text-sm focus:outline-none focus:border-[#008060] focus:ring-1 focus:ring-[#008060] transition-colors"
-  const labelStyle = "block text-sm font-medium text-[#202223] mb-1.5"
 
   return (
-    <div className="space-y-6 max-w-5xl mx-auto pb-20">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <h1 className="text-2xl font-bold tracking-tight text-[#202223]">Collections</h1>
-        <button 
-          onClick={() => setIsCreating(!isCreating)}
-          className="bg-[#008060] hover:bg-[#006e52] text-white px-4 py-2 rounded-lg text-sm font-medium shadow-sm transition-colors flex items-center justify-center gap-2"
-        >
-          {isCreating ? "Cancel" : <><Plus size={16} /> Create collection</>}
-        </button>
+    <div className="max-w-6xl mx-auto space-y-8">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <h1 className="text-2xl font-semibold text-gray-900">Categories</h1>
+        <div className="flex flex-wrap gap-3">
+          <Link 
+            href="/admin/categories/new"
+            className="bg-gray-900 text-white px-3 py-1.5 text-sm font-medium rounded-md hover:bg-gray-800 shadow-sm transition-colors flex items-center gap-1.5"
+          >
+            <Plus size={16} /> Add category
+          </Link>
+        </div>
       </div>
 
-      {isCreating && (
-        <form onSubmit={handleCreateSubmit} className="bg-white border border-gray-200 rounded-xl shadow-sm p-6 space-y-5 animate-in fade-in slide-in-from-top-4">
-          <h2 className="text-base font-semibold text-[#202223] border-b border-gray-100 pb-3 mb-2">Create new collection</h2>
-          {formError && <div className="text-red-700 bg-red-50 border border-red-200 p-3 rounded-lg text-sm">{formError}</div>}
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            <div>
-              <label className={labelStyle}>Title</label>
-              <input 
-                type="text" required
-                placeholder="e.g. Summer Collection"
-                value={formData.name}
-                onChange={(e) => setFormData({...formData, name: e.target.value, slug: e.target.value.toLowerCase().replace(/ /g, '-')})}
-                className={inputStyle}
-              />
-            </div>
-            <div>
-              <label className={labelStyle}>URL handle</label>
-              <input 
-                type="text" required
-                placeholder="summer-collection"
-                value={formData.slug}
-                onChange={(e) => setFormData({...formData, slug: e.target.value.toLowerCase().replace(/ /g, '-')})}
-                className={inputStyle}
-              />
-            </div>
+      {/* Main Content Card */}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden flex flex-col">
+        {/* Search Bar */}
+        <div className="p-4 flex flex-col md:flex-row items-center gap-3 border-b border-gray-200 bg-white">
+          <div className="relative flex-1 w-full max-w-2xl">
+            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <input 
+              type="text" 
+              placeholder="Search categories..." 
+              className="w-full bg-white border border-gray-300 rounded-md py-1.5 pl-9 pr-3 text-sm focus:outline-none focus:border-gray-500 focus:ring-1 focus:ring-gray-500 transition-shadow placeholder:text-gray-400 text-gray-900"
+            />
           </div>
-          
-          <div className="flex justify-end pt-2">
-            <button type="submit" className="bg-[#008060] hover:bg-[#006e52] text-white px-5 py-2 rounded-lg text-sm font-medium shadow-sm transition-colors flex items-center gap-2">
-              <Save size={16} /> Save Collection
-            </button>
-          </div>
-        </form>
-      )}
-
-      <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
-        <div className="p-4 border-b border-gray-200 flex items-center gap-2">
-           <Search size={20} className="text-gray-400" />
-           <input 
-             type="text" 
-             placeholder="Search collections..." 
-             className="w-full focus:outline-none font-medium text-[#202223] placeholder-gray-400 text-sm"
-           />
         </div>
+
+        {/* Table */}
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="bg-gray-50 border-b border-gray-200">
-                <th className="p-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Title</th>
-                <th className="p-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Handle</th>
-                <th className="p-4 text-xs font-semibold text-gray-500 uppercase tracking-wider text-center">Status</th>
-                <th className="p-4 text-xs font-semibold text-gray-500 uppercase tracking-wider text-center">Actions</th>
+          <table className="w-full text-sm text-left text-gray-600">
+            <thead className="bg-gray-50 border-b border-gray-200">
+              <tr>
+                <th className="px-5 py-3 font-medium text-gray-500 w-12">
+                  <input type="checkbox" className="w-4 h-4 rounded border-gray-300 text-gray-900 focus:ring-gray-900" />
+                </th>
+                <th className="px-5 py-3 font-medium text-gray-500">Image</th>
+                <th className="px-5 py-3 font-medium text-gray-500">Name</th>
+                <th className="px-5 py-3 font-medium text-gray-500">Status</th>
+                <th className="px-5 py-3 font-medium text-gray-500 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-gray-200 bg-white">
               {loading ? (
                 <tr>
-                  <td colSpan={4} className="p-8 text-center text-sm text-gray-500">Loading collections...</td>
+                  <td colSpan={5} className="px-5 py-10 text-center text-gray-500">Loading categories...</td>
                 </tr>
               ) : categories.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="p-8 text-center text-sm text-gray-500">No collections found.</td>
+                  <td colSpan={5} className="px-5 py-10 text-center text-gray-500">No categories found.</td>
                 </tr>
               ) : (
                 categories.map((category) => (
-                  <tr key={category._id} className="hover:bg-gray-50/50 transition-colors">
-                    <td className="p-4 font-medium text-[#202223] text-sm">{category.name}</td>
-                    <td className="p-4 text-sm text-gray-500">{category.slug}</td>
-                    <td className="p-4 text-center">
-                      <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${category.isActive ? 'bg-[#AEE9D1] text-[#008060]' : 'bg-gray-100 text-gray-600'}`}>
-                        {category.isActive ? 'Active' : 'Inactive'}
+                  <tr key={category._id} className="hover:bg-gray-50 transition-colors group">
+                    <td className="px-5 py-3 align-middle">
+                      <input type="checkbox" className="w-4 h-4 rounded border-gray-300 text-gray-900 focus:ring-gray-900" />
+                    </td>
+                    <td className="px-5 py-3 align-middle">
+                      <div className="w-12 h-12 rounded-md bg-gray-100 overflow-hidden border border-gray-200 flex items-center justify-center shrink-0">
+                        {category.image ? (
+                          <img 
+                            src={category.image} 
+                            alt={category.name} 
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <span className="text-gray-400 text-xs">No img</span>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-5 py-3 align-middle font-medium text-gray-900">
+                      {category.name}
+                    </td>
+                    <td className="px-5 py-3 align-middle">
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
+                        category.isActive !== false ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                      }`}>
+                        {category.isActive !== false ? 'Active' : 'Draft'}
                       </span>
                     </td>
-                    <td className="p-4">
-                      <div className="flex items-center justify-center gap-2">
-                        <button onClick={() => handleDelete(category._id)} className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors">
+                    <td className="px-5 py-3 align-middle text-right">
+                      <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Link 
+                          href={`/admin/categories/${category._id}/edit`}
+                          className="p-1.5 text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors"
+                          title="Edit"
+                        >
+                          <Edit size={16} />
+                        </Link>
+                        <button 
+                          onClick={() => handleDelete(category._id, category.name)}
+                          className="p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors"
+                          title="Delete"
+                        >
                           <Trash2 size={16} />
                         </button>
                       </div>
@@ -167,6 +144,13 @@ export default function AdminCategoriesPage() {
               )}
             </tbody>
           </table>
+        </div>
+        
+        {/* Pagination placeholder */}
+        <div className="px-5 py-3 border-t border-gray-200 bg-gray-50 flex items-center justify-between">
+          <span className="text-sm text-gray-500">
+            Showing {categories.length} categories
+          </span>
         </div>
       </div>
     </div>

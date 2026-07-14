@@ -1,88 +1,158 @@
 "use client";
 
+import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useUIStore } from "@/store/uiStore";
-import { useCart } from "@/components/providers/CartProvider";
-import { X, ArrowRight, User, ShoppingBag, Home, Search, Heart } from "lucide-react";
-import CartoonButton from "@/components/ui/CartoonButton";
+import {
+  X,
+  ChevronRight,
+  Home,
+  Search,
+  Heart,
+  User,
+  Sparkles,
+  Package,
+  Tag,
+  Mail,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const menuItems = [
-  { label: "HOME", href: "/", icon: Home },
-  { label: "THE SHOP", href: "/products", icon: ShoppingBag },
-  { label: "FRESH DROPS", href: "/products?badge=New", icon: Search },
-  { label: "WISHLIST", href: "/wishlist", icon: Heart },
-  { label: "ACCOUNT", href: "/account", icon: User },
+  { label: "Home", href: "/", icon: Home, color: "#FFC93C" },
+  { label: "Shop All Toys", href: "/products", icon: Search, color: "#4ECDC4" },
+  { label: "New Arrivals", href: "/products?badge=New", icon: Sparkles, color: "#8B7FD6" },
+  { label: "Sale", href: "/products?badge=Sale", icon: Tag, color: "#FF6B5D" },
+  { label: "Wishlist", href: "/wishlist", icon: Heart, color: "#FF6B5D" },
+  { label: "My Account", href: "/account", icon: User, color: "#4ECDC4" },
+  { label: "Contact", href: "/contact", icon: Mail, color: "#FFC93C" },
+];
+
+const categories = [
+  "Building & Construction",
+  "Pretend Play",
+  "Arts & Crafts",
+  "Puzzles & Games",
+  "Baby & Toddler",
 ];
 
 export default function MobileMenu() {
   const { isMobileMenuOpen, closeMobileMenu } = useUIStore();
-  const { count: cartCount } = useCart();
-
-  if (!isMobileMenuOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[10000] flex flex-col bg-paper">
-      {/* Background patterns */}
-      <div className="absolute inset-0 bg-halftone opacity-10 pointer-events-none" />
-      <div className="absolute inset-0 bg-crosshatch opacity-5 pointer-events-none" />
+    <>
+      {/* Backdrop */}
+      <div
+        className={cn(
+          "fixed inset-0 bg-black/70 backdrop-blur-md z-[1000] transition-opacity duration-300",
+          isMobileMenuOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+        )}
+        onClick={closeMobileMenu}
+        aria-hidden="true"
+      />
 
-      {/* Header bar */}
-      <div className="flex items-center justify-between px-8 h-20 border-b-4 border-ink bg-white relative z-10">
-        <h2 className="font-bangers text-4xl tracking-tight leading-none uppercase">MENU</h2>
-        <button
-          onClick={closeMobileMenu}
-          className="p-3 border-3 border-ink hover:bg-surface cartoon-shadow-sm active:shadow-none active:translate-x-1 active:translate-y-1 transition-all"
-        >
-          <X size={28} />
-        </button>
-      </div>
+      {/* Drawer */}
+      <div
+        className={cn(
+          "fixed inset-y-0 left-0 w-full max-w-sm z-[1001] transform transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] flex flex-col overflow-hidden",
+          "bg-[#0A0A0A] border-r border-white/8",
+          isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
+        )}
+      >
+        {/* Ambient glow */}
+        <div
+          className="pointer-events-none absolute top-0 left-0 w-64 h-64 rounded-full opacity-10"
+          style={{
+            background: "radial-gradient(circle, #FFC93C 0%, transparent 70%)",
+          }}
+        />
 
-      {/* Menu Items */}
-      <nav className="flex-1 flex flex-col justify-center px-8 gap-4 relative z-10">
-        {menuItems.map((item, i) => {
-          const Icon = item.icon;
-          return (
-            <Link
-              key={item.label}
-              href={item.href}
-              onClick={closeMobileMenu}
-              className="group flex items-center gap-6 py-6 px-6 bg-white border-3 border-ink cartoon-shadow hover:translate-x-2 transition-all"
-            >
-              <div className="p-3 bg-ink text-paper border-2 border-ink">
-                <Icon size={24} />
-              </div>
-              <span className="font-bangers text-4xl text-ink group-hover:text-secondary transition-colors uppercase tracking-tight">
-                {item.label}
-              </span>
-              <ArrowRight size={24} className="ml-auto text-ink/20 group-hover:text-ink transition-colors" />
-            </Link>
-          );
-        })}
-      </nav>
+        {/* Header */}
+        <div className="relative z-10 flex items-center justify-between px-5 py-4 border-b border-white/8">
+          <Link href="/" onClick={closeMobileMenu}>
+            <Image
+              src="/logo/toyhourse-logo.png"
+              alt="Toy Hourse"
+              width={120}
+              height={40}
+              className="h-9 w-auto object-contain"
+            />
+          </Link>
+          <button
+            onClick={closeMobileMenu}
+            className="w-9 h-9 flex items-center justify-center rounded-xl bg-white/5 border border-white/8 text-white/50 hover:text-white hover:bg-white/10 transition-all duration-200"
+          >
+            <X size={18} />
+          </button>
+        </div>
 
-      {/* Bottom info */}
-      <div className="px-8 py-10 bg-white border-t-4 border-ink relative z-10">
-        <div className="flex flex-col gap-6">
-          <div className="flex justify-between items-center bg-paper border-3 border-ink p-4 cartoon-shadow-sm">
-            <span className="font-bebas text-2xl tracking-widest text-secondary">BAG COUNT:</span>
-            <span className="font-bebas text-4xl text-ink">{String(cartCount).padStart(2, "0")}</span>
+        {/* Scrollable content */}
+        <div className="relative z-10 flex-1 overflow-y-auto">
+          {/* Main Links */}
+          <div className="p-3 space-y-0.5">
+            {menuItems.map((item) => {
+              const Icon = item.icon;
+              return (
+                <Link
+                  key={item.label}
+                  href={item.href}
+                  onClick={closeMobileMenu}
+                  className="flex items-center justify-between px-4 py-3.5 rounded-xl hover:bg-white/5 transition-all duration-200 group"
+                >
+                  <div className="flex items-center gap-3.5">
+                    <div
+                      className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
+                      style={{
+                        background: `${item.color}15`,
+                        border: `1px solid ${item.color}20`,
+                      }}
+                    >
+                      <Icon size={17} style={{ color: item.color }} strokeWidth={1.8} />
+                    </div>
+                    <span className="font-semibold text-[15px] text-white/70 group-hover:text-white transition-colors duration-200">
+                      {item.label}
+                    </span>
+                  </div>
+                  <ChevronRight
+                    size={15}
+                    className="text-white/15 group-hover:text-white/30 group-hover:translate-x-0.5 transition-all duration-200"
+                  />
+                </Link>
+              );
+            })}
           </div>
-          
-          <div className="flex gap-4">
-             <Link href="/products" className="flex-1" onClick={closeMobileMenu}>
-               <CartoonButton size="lg" className="w-full">SHOP ALL</CartoonButton>
-             </Link>
-             <button className="flex-1 font-bebas text-2xl text-secondary" onClick={closeMobileMenu}>
-               LOGOUT
-             </button>
+
+          {/* Divider */}
+          <div className="h-px bg-white/5 mx-5 my-1" />
+
+          {/* Categories */}
+          <div className="p-5 pb-8">
+            <p className="text-[10px] font-bold text-white/20 uppercase tracking-widest mb-3 px-1">
+              Shop by Category
+            </p>
+            <div className="space-y-0.5">
+              {categories.map((cat) => (
+                <Link
+                  key={cat}
+                  href={`/products?category=${encodeURIComponent(cat)}`}
+                  onClick={closeMobileMenu}
+                  className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm text-white/45 hover:text-white hover:bg-white/5 transition-all duration-200"
+                >
+                  <span className="w-1 h-1 rounded-full bg-white/20 shrink-0" />
+                  {cat}
+                </Link>
+              ))}
+            </div>
           </div>
         </div>
+
+        {/* Bottom strip */}
+        <div className="relative z-10 border-t border-white/5 px-5 py-4">
+          <p className="text-[11px] text-white/20 text-center">
+            © {new Date().getFullYear()} Toy Hourse
+          </p>
+        </div>
       </div>
-      
-      {/* Decorative Doodles */}
-      <div className="absolute top-1/4 -right-10 text-9xl text-ink/5 -rotate-12 pointer-events-none">★</div>
-      <div className="absolute bottom-1/4 -left-10 text-9xl text-ink/5 rotate-12 pointer-events-none">✸</div>
-    </div>
+    </>
   );
 }

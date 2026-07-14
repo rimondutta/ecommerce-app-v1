@@ -5,7 +5,7 @@ import Category from "@/models/Category";
 export async function GET() {
   try {
     await connectToDatabase();
-    const categories = await Category.find({ isActive: true }).select("name slug").lean();
+    const categories = await Category.find({ isActive: true }).select("name slug image").lean();
     return NextResponse.json({ categories });
   } catch (error) {
     console.error("Failed to fetch categories:", error);

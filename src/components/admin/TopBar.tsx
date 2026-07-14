@@ -12,14 +12,14 @@ export default function TopBar() {
   return (
     <>
       <AdminMobileSidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
-      <header className="h-20 bg-white border-b-4 border-black px-4 md:px-8 flex items-center justify-between">
+      <header className="h-16 bg-white border-b border-gray-200 px-4 md:px-6 flex items-center justify-between sticky top-0 z-30">
         <div className="flex-1 max-w-[600px] hidden sm:block">
           <div className="relative group">
-            <Search size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-black" />
+            <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
             <input
               type="text"
-              placeholder="SEARCH ANYTHING..."
-              className="w-full bg-gray-50 border-2 border-black focus:bg-white focus:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] py-3 pl-12 pr-4 text-xs font-black uppercase tracking-[0.1em] transition-all outline-none placeholder:text-gray-400"
+              placeholder="Search..."
+              className="w-full !bg-white border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 py-2 pl-10 pr-4 text-sm rounded-md transition-all outline-none placeholder:text-gray-500 !text-black"
             />
           </div>
         </div>
@@ -27,32 +27,32 @@ export default function TopBar() {
         <div className="flex items-center gap-2 md:hidden">
           <button 
             onClick={() => setIsSidebarOpen(true)}
-            className="p-2 border-2 border-black bg-black text-white active:bg-white active:text-black transition-all"
+            className="p-2 text-gray-500 hover:text-gray-900 rounded-md hover:bg-gray-100 transition-colors"
           >
-            <Menu size={24} />
+            <Menu size={20} />
           </button>
-          <span className="font-black uppercase tracking-tighter text-lg">FlexWear</span>
+          <span className="font-semibold text-gray-900 text-base">Toy Hourse</span>
         </div>
 
         <div className="flex items-center gap-2 sm:gap-4">
-          <div className="hidden md:flex items-center gap-2">
-              <button className="p-3 border-2 border-transparent hover:border-black hover:bg-gray-50 transition-all relative">
-                <Bell size={22} className="text-black" />
-                <span className="absolute top-2 right-2 w-3 h-3 bg-red-500 border-2 border-black rounded-none" />
+          <div className="hidden md:flex items-center gap-1">
+              <button className="p-2 text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors relative">
+                <Bell size={20} />
+                <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full" />
               </button>
-              <button className="p-3 border-2 border-transparent hover:border-black hover:bg-gray-50 transition-all">
-                <HelpCircle size={22} className="text-black" />
+              <button className="p-2 text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors">
+                <HelpCircle size={20} />
               </button>
           </div>
           
-          <div className="w-1 h-10 bg-black/10 mx-2 hidden md:block" />
+          <div className="w-px h-6 bg-gray-200 mx-2 hidden md:block" />
           
-          <button className="flex items-center gap-3 md:gap-4 pl-4 pr-1 py-1 border-2 border-transparent hover:border-black transition-all group">
+          <button className="flex items-center gap-3 pl-2 pr-1 py-1 rounded-md hover:bg-gray-50 transition-colors group">
             <div className="flex flex-col items-end hidden lg:flex">
-              <span className="text-xs font-black uppercase tracking-tight text-black">{session?.user?.name || "Admin User"}</span>
-              <span className="text-[9px] font-black uppercase tracking-widest text-gray-500">Store Manager</span>
+              <span className="text-sm font-medium text-gray-900">{session?.user?.name || "Admin User"}</span>
+              <span className="text-xs text-gray-500">Store Manager</span>
             </div>
-            <div className="w-9 h-9 md:w-10 md:h-10 border-2 border-black flex items-center justify-center font-black text-xs shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] overflow-hidden bg-black text-white">
+            <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-sm font-medium text-gray-600 overflow-hidden shrink-0">
               {(session?.user as any)?.image ? (
                 <img src={(session?.user as any).image} alt="Avatar" className="w-full h-full object-cover" />
               ) : (

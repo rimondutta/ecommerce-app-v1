@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import Link from 'next/link';
-import CartoonButton from '@/components/ui/CartoonButton';
+import Button from '@/components/ui/Button';
 import { AlertTriangle, RefreshCw, Home, Star } from 'lucide-react';
 
 export default function Error({
@@ -38,13 +38,13 @@ export default function Error({
         </div>
 
         <div className="flex flex-wrap justify-center gap-8 pt-8">
-          <CartoonButton size="lg" onClick={() => reset()}>
+          <Button size="lg" onClick={() => reset()}>
             <RefreshCw className="mr-3" size={24} /> RETRY SIGNAL
-          </CartoonButton>
+          </Button>
           <Link href="/products">
-            <CartoonButton variant="outline" size="lg">
+            <Button variant="outline" size="lg">
               <Home className="mr-3" size={24} /> BASE COMMAND
-            </CartoonButton>
+            </Button>
           </Link>
         </div>
       </div>

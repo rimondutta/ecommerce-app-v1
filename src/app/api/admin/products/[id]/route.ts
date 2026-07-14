@@ -74,6 +74,13 @@ export async function PUT(
       runValidators: true,
     });
 
+    const { revalidatePath } = require('next/cache');
+    revalidatePath('/');
+    revalidatePath('/products');
+    if (product.slug) {
+      revalidatePath(`/products/${product.slug}`);
+    }
+
     return NextResponse.json({ product });
   } catch (error: any) {
     if (error.code === 11000) {

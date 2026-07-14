@@ -6,10 +6,15 @@ import Link from 'next/link';
 import { Newspaper, Calendar, Clock, ArrowRight, Star } from 'lucide-react';
 
 async function getBlogs() {
-  await dbConnect();
-  return await BlogPost.find({ isPublished: true })
-    .sort({ publishedAt: -1 })
-    .lean();
+  try {
+    await dbConnect();
+    return await BlogPost.find({ isPublished: true })
+      .sort({ publishedAt: -1 })
+      .lean();
+  } catch (error) {
+    console.error("Failed to fetch blogs:", error);
+    return [];
+  }
 }
 
 const BlogListingPage = async () => {
@@ -56,6 +61,7 @@ const BlogListingPage = async () => {
                     src={post.featuredImage.url}
                     alt={post.featuredImage.alt || post.title}
                     fill
+                    sizes="(max-width: 1024px) 100vw, 50vw"
                     className="object-cover transition-transform duration-700 group-hover:scale-105"
                   />
                   

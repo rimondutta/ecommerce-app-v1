@@ -6,24 +6,54 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import CartoonButton from "@/components/ui/CartoonButton";
-import CartoonInput from "@/components/ui/CartoonInput";
-import { useCartoonToast } from "@/components/ui/CartoonToast";
+import { useToast } from "@/components/playshelf/Toast";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
-import { ShoppingBag, Package, CreditCard, CheckCircle2, ArrowLeft, ArrowRight, Star } from "lucide-react";
+import {
+  ShoppingBag,
+  Package,
+  CreditCard,
+  CheckCircle2,
+  ArrowLeft,
+  ChevronRight,
+  Shield,
+  Truck,
+  Loader2,
+  Sparkles,
+} from "lucide-react";
 
 const STEPS = [
-  { id: "shipping", label: "SHIPPING", icon: Package },
-  { id: "payment", label: "PAYMENT", icon: CreditCard },
-  { id: "confirm", label: "CONFIRM", icon: CheckCircle2 },
+  { id: "shipping", label: "Shipping", icon: Package },
+  { id: "payment", label: "Payment", icon: CreditCard },
+  { id: "confirm", label: "Review", icon: CheckCircle2 },
+];
+
+const PAYMENT_METHODS = [
+  {
+    key: "cod",
+    label: "Cash on Delivery",
+    desc: "Pay when your order arrives",
+    icon: "💵",
+  },
+  {
+    key: "bkash",
+    label: "bKash",
+    desc: "Instant mobile transfer",
+    icon: "📱",
+  },
+  {
+    key: "card",
+    label: "Credit / Debit Card",
+    desc: "Visa, Mastercard, Amex",
+    icon: "💳",
+  },
 ];
 
 export default function CheckoutPage() {
   const { items, total, clearCart } = useCart();
   const { data: session } = useSession();
   const router = useRouter();
-  const { showToast } = useCartoonToast();
+  const { showToast } = useToast();
 
   const [step, setStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -43,7 +73,10 @@ export default function CheckoutPage() {
     setForm((prev) => ({ ...prev, [field]: value }));
 
   const canProceed = () => {
-    if (step === 0) return form.name && form.email && form.phone && form.address && form.city;
+    if (step === 0)
+      return (
+        form.name && form.email && form.phone && form.address && form.city
+      );
     if (step === 1) return form.paymentMethod;
     return true;
   };
@@ -56,6 +89,8 @@ export default function CheckoutPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          customerEmail: form.email,
+          customerName: form.name,
           items: items.map((item) => ({
             productId: item.id,
             title: item.title,
@@ -81,13 +116,13 @@ export default function CheckoutPage() {
       const data = await res.json();
       if (data.success) {
         clearCart();
-        showToast("MISSION COMPLETE! GEAR ACQUIRED.");
+        showToast("Order placed successfully! 🎉");
         router.push("/account");
       } else {
         showToast(data.message || "Order failed", "error");
       }
     } catch {
-      showToast("Connection error", "error");
+      showToast("Connection error. Please try again.", "error");
     } finally {
       setIsSubmitting(false);
     }
@@ -95,17 +130,31 @@ export default function CheckoutPage() {
 
   if (items.length === 0) {
     return (
-      <div className="min-h-screen bg-paper flex flex-col items-center justify-center gap-8 px-8 text-center relative overflow-hidden">
-        <div className="absolute inset-0 bg-halftone opacity-10 pointer-events-none" />
-        <div className="w-24 h-24 bg-ink flex items-center justify-center border-4 border-ink cartoon-shadow rotate-12">
-          <ShoppingBag size={48} className="text-paper" />
+      <div className="min-h-screen flex flex-col items-center justify-center gap-8 px-8 text-center">
+        <div className="relative">
+          <div
+            className="w-24 h-24 rounded-2xl flex items-center justify-center"
+            style={{
+              background: "linear-gradient(135deg, #FFC93C20, #FF6B5D10)",
+              border: "1px solid #FFC93C20",
+            }}
+          >
+            <ShoppingBag size={40} className="text-white/40" strokeWidth={1.5} />
+          </div>
         </div>
         <div className="space-y-2">
-           <h1 className="font-bangers text-5xl text-ink uppercase tracking-tight">INVENTORY EMPTY</h1>
-           <p className="font-comic font-bold italic text-2xl text-secondary">You haven't marked any gear for acquisition yet.</p>
+          <h1 className="text-3xl font-bold text-white">Your cart is empty</h1>
+          <p className="text-white/40 text-base max-w-xs">
+            Add some items to your cart before checking out.
+          </p>
         </div>
-        <Link href="/products">
-          <CartoonButton size="lg">START ACQUISITION</CartoonButton>
+        <Link
+          href="/products"
+          className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl font-semibold text-sm text-black transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+          style={{ background: "linear-gradient(135deg, #FFC93C 0%, #F5A623 100%)" }}
+        >
+          <Sparkles size={16} />
+          Shop Now
         </Link>
       </div>
     );
@@ -115,176 +164,285 @@ export default function CheckoutPage() {
   const grandTotal = total + shippingCost;
 
   return (
-    <div className="min-h-screen bg-paper relative overflow-hidden">
-      <div className="absolute inset-0 bg-halftone opacity-5 pointer-events-none" />
-      
-      <div className="max-w-6xl mx-auto px-8 md:px-12 py-20 relative z-10">
-        {/* Header */}
-        <div className="mb-16 space-y-4">
-          <div className="inline-block px-4 py-2 bg-ink text-paper border-2 border-ink rotate-[-2deg]">
-            <span className="font-bebas text-2xl tracking-[0.2em] uppercase">// MISSION BRIEFING</span>
-          </div>
-          <h1 className="font-bangers text-7xl md:text-9xl text-ink uppercase tracking-tight leading-none drop-shadow-[6px_6px_0px_#000]">
-            CHECKOUT
+    <div className="min-h-screen relative">
+      {/* Ambient */}
+      <div className="pointer-events-none fixed inset-0 overflow-hidden">
+        <div
+          className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full opacity-[0.04]"
+          style={{
+            background: "radial-gradient(circle, #FFC93C 0%, transparent 70%)",
+          }}
+        />
+      </div>
+
+      <div className="relative z-10 max-w-6xl mx-auto px-5 md:px-8 py-12 md:py-16">
+        {/* ── Header ── */}
+        <div className="mb-10">
+          <Link
+            href="/products"
+            className="inline-flex items-center gap-2 text-sm text-white/40 hover:text-white transition-colors mb-6"
+          >
+            <ArrowLeft size={16} />
+            Continue Shopping
+          </Link>
+          <h1 className="text-4xl md:text-5xl font-bold text-white tracking-tight">
+            Checkout
           </h1>
         </div>
 
-        {/* Progress Timeline */}
-        <div className="flex items-center justify-between gap-4 mb-20 relative overflow-x-auto no-scrollbar pb-4">
+        {/* ── Progress Steps ── */}
+        <div className="flex items-center gap-2 mb-10">
           {STEPS.map((s, i) => {
             const Icon = s.icon;
             const isActive = i === step;
             const isCompleted = i < step;
             return (
-              <div key={s.id} className="flex flex-1 items-center gap-4">
-                <div className={cn(
-                  "flex items-center gap-4 px-6 py-4 border-4 transition-all cartoon-shadow-sm",
-                  isActive ? "bg-ink text-paper border-ink" : isCompleted ? "bg-white border-ink text-ink" : "bg-white border-ink/10 text-ink/20"
-                )}>
-                  <Icon size={24} />
-                  <span className="font-bebas text-2xl tracking-widest hidden md:inline">{s.label}</span>
-                  {isCompleted && <div className="absolute -top-3 -right-3 w-8 h-8 bg-white border-3 border-ink flex items-center justify-center font-bangers text-xl rotate-12">✓</div>}
+              <div key={s.id} className="flex items-center gap-2 flex-1">
+                <div
+                  className={cn(
+                    "flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 flex-1 justify-center",
+                    isActive
+                      ? "bg-[#FFC93C] text-black shadow-[0_0_20px_rgba(255,201,60,0.25)]"
+                      : isCompleted
+                      ? "bg-white/10 text-white border border-white/15"
+                      : "bg-white/[0.03] text-white/25 border border-white/5"
+                  )}
+                >
+                  {isCompleted ? (
+                    <CheckCircle2 size={16} />
+                  ) : (
+                    <Icon size={16} />
+                  )}
+                  <span className="hidden sm:inline">{s.label}</span>
+                  <span className="sm:hidden">{i + 1}</span>
                 </div>
                 {i < STEPS.length - 1 && (
-                  <div className={cn(
-                    "flex-1 h-1 min-w-[2rem]",
-                    isCompleted ? "bg-ink" : "bg-ink/10"
-                  )} />
+                  <ChevronRight
+                    size={16}
+                    className={cn(
+                      "shrink-0 transition-colors",
+                      isCompleted ? "text-white/30" : "text-white/10"
+                    )}
+                  />
                 )}
               </div>
             );
           })}
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
-          {/* Form Area */}
-          <div className="lg:col-span-8 space-y-12">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10">
+          {/* ── Form Area ── */}
+          <div className="lg:col-span-7 order-2 lg:order-1">
             <AnimatePresence mode="wait">
               {step === 0 && (
-                <motion.div 
-                  key="step0" 
-                  initial={{ opacity: 0, x: 20 }} 
-                  animate={{ opacity: 1, x: 0 }} 
-                  exit={{ opacity: 0, x: -20 }}
-                  className="bg-white border-4 border-ink p-10 cartoon-shadow-lg space-y-10"
+                <motion.div
+                  key="step0"
+                  initial={{ opacity: 0, x: 16 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -16 }}
+                  className="rounded-2xl border border-white/8 bg-white/[0.03] backdrop-blur-sm p-7 md:p-9 space-y-6"
                 >
-                  <div className="flex items-center gap-4 border-b-4 border-ink/10 pb-6">
-                    <div className="w-12 h-12 bg-ink text-paper flex items-center justify-center border-3 border-ink cartoon-shadow-xs rotate-[-3deg]">
-                      <Package size={24} />
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="w-9 h-9 rounded-xl bg-[#FFC93C]/10 border border-[#FFC93C]/20 flex items-center justify-center">
+                      <Package size={18} className="text-[#FFC93C]" strokeWidth={1.8} />
                     </div>
-                    <h2 className="font-bangers text-4xl text-ink uppercase tracking-tight">STAGE 01: SHIPPING INTEL</h2>
+                    <h2 className="text-xl font-bold text-white">
+                      Shipping Details
+                    </h2>
                   </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                    <CartoonInput label="FULL NAME" value={form.name} onChange={(e) => updateField("name", e.target.value)} placeholder="AGENT CODENAME" />
-                    <CartoonInput label="SECURE EMAIL" type="email" value={form.email} onChange={(e) => updateField("email", e.target.value)} placeholder="AGENT@HQ.COM" />
-                    <CartoonInput label="VOICE LINE" type="tel" value={form.phone} onChange={(e) => updateField("phone", e.target.value)} placeholder="+1.XXX.XXX.XXXX" />
-                    <CartoonInput label="ZIP CODE" value={form.zip} onChange={(e) => updateField("zip", e.target.value)} placeholder="XXXXX" />
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <CheckoutField
+                      label="Full Name"
+                      value={form.name}
+                      onChange={(v) => updateField("name", v)}
+                      placeholder="Your name"
+                      required
+                    />
+                    <CheckoutField
+                      label="Email"
+                      type="email"
+                      value={form.email}
+                      onChange={(v) => updateField("email", v)}
+                      placeholder="you@email.com"
+                      required
+                    />
+                    <CheckoutField
+                      label="Phone"
+                      type="tel"
+                      value={form.phone}
+                      onChange={(v) => updateField("phone", v)}
+                      placeholder="+880 1XXX XXXXXX"
+                      required
+                    />
+                    <CheckoutField
+                      label="ZIP / Postal Code"
+                      value={form.zip}
+                      onChange={(v) => updateField("zip", v)}
+                      placeholder="1207"
+                    />
                   </div>
-                  <CartoonInput label="BASE ADDRESS" value={form.address} onChange={(e) => updateField("address", e.target.value)} placeholder="STREET, BUILDING, SECTOR" />
-                  <CartoonInput label="LOCATION CITY" value={form.city} onChange={(e) => updateField("city", e.target.value)} placeholder="DISTRICT" />
+                  <CheckoutField
+                    label="Street Address"
+                    value={form.address}
+                    onChange={(v) => updateField("address", v)}
+                    placeholder="House, Road, Area"
+                    required
+                  />
+                  <CheckoutField
+                    label="City"
+                    value={form.city}
+                    onChange={(v) => updateField("city", v)}
+                    placeholder="Dhaka"
+                    required
+                  />
                 </motion.div>
               )}
 
               {step === 1 && (
-                <motion.div 
-                  key="step1" 
-                  initial={{ opacity: 0, x: 20 }} 
-                  animate={{ opacity: 1, x: 0 }} 
-                  exit={{ opacity: 0, x: -20 }}
-                  className="bg-white border-4 border-ink p-10 cartoon-shadow-lg space-y-10"
+                <motion.div
+                  key="step1"
+                  initial={{ opacity: 0, x: 16 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -16 }}
+                  className="rounded-2xl border border-white/8 bg-white/[0.03] backdrop-blur-sm p-7 md:p-9 space-y-6"
                 >
-                  <div className="flex items-center gap-4 border-b-4 border-ink/10 pb-6">
-                    <div className="w-12 h-12 bg-ink text-paper flex items-center justify-center border-3 border-ink cartoon-shadow-xs rotate-[-3deg]">
-                      <CreditCard size={24} />
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="w-9 h-9 rounded-xl bg-[#4ECDC4]/10 border border-[#4ECDC4]/20 flex items-center justify-center">
+                      <CreditCard size={18} className="text-[#4ECDC4]" strokeWidth={1.8} />
                     </div>
-                    <h2 className="font-bangers text-4xl text-ink uppercase tracking-tight">STAGE 02: PAYMENT PROTOCOL</h2>
+                    <h2 className="text-xl font-bold text-white">
+                      Payment Method
+                    </h2>
                   </div>
 
-                  <div className="space-y-6">
-                    {[
-                      { key: "cod", label: "CASH ON DELIVERY", desc: "Settle with the agent upon arrival" },
-                      { key: "bkash", label: "SECURE MOBILE", desc: "Instant mobile terminal transfer" },
-                      { key: "card", label: "ENCRYPTED CARD", desc: "Visa / Mastercard protocols" },
-                    ].map((method) => (
-                      <button
-                        key={method.key}
-                        onClick={() => updateField("paymentMethod", method.key)}
-                        className={cn(
-                          "w-full flex items-center justify-between p-6 border-4 transition-all cartoon-shadow-sm",
-                          form.paymentMethod === method.key
-                            ? "bg-ink text-paper border-ink translate-x-1 translate-y-1 shadow-none"
-                            : "bg-white text-ink border-ink hover:bg-surface"
-                        )}
-                      >
-                        <div className="flex items-center gap-6">
-                          <div className={cn(
-                            "w-8 h-8 rounded-full border-4 flex items-center justify-center",
-                            form.paymentMethod === method.key ? "bg-white border-white" : "border-ink"
-                          )}>
-                             {form.paymentMethod === method.key && <div className="w-3 h-3 bg-ink rounded-full" />}
+                  <div className="space-y-3">
+                    {PAYMENT_METHODS.map((method) => {
+                      const isSelected = form.paymentMethod === method.key;
+                      return (
+                        <button
+                          key={method.key}
+                          onClick={() =>
+                            updateField("paymentMethod", method.key)
+                          }
+                          className={cn(
+                            "w-full flex items-center gap-4 px-5 py-4 rounded-xl border text-left transition-all duration-200",
+                            isSelected
+                              ? "border-[#FFC93C]/50 bg-[#FFC93C]/8 shadow-[0_0_20px_rgba(255,201,60,0.08)]"
+                              : "border-white/8 bg-white/[0.02] hover:border-white/15 hover:bg-white/[0.04]"
+                          )}
+                        >
+                          <span className="text-2xl">{method.icon}</span>
+                          <div className="flex-1">
+                            <p className={cn("font-semibold text-sm", isSelected ? "text-white" : "text-white/70")}>
+                              {method.label}
+                            </p>
+                            <p className="text-xs text-white/30 mt-0.5">
+                              {method.desc}
+                            </p>
                           </div>
-                          <div className="text-left">
-                            <span className="font-bangers text-3xl block tracking-tight">{method.label}</span>
-                            <span className="font-comic font-bold italic text-lg opacity-60 leading-none">{method.desc}</span>
+                          <div
+                            className={cn(
+                              "w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all",
+                              isSelected
+                                ? "border-[#FFC93C] bg-[#FFC93C]"
+                                : "border-white/20"
+                            )}
+                          >
+                            {isSelected && (
+                              <div className="w-2 h-2 rounded-full bg-black" />
+                            )}
                           </div>
-                        </div>
-                        <CreditCard size={32} className="opacity-20" />
-                      </button>
-                    ))}
+                        </button>
+                      );
+                    })}
                   </div>
-                  <div className="pt-6">
-                     <CartoonInput label="MISSION NOTES (OPTIONAL)" value={form.notes} onChange={(e) => updateField("notes", e.target.value)} placeholder="ANY SPECIAL INSTRUCTIONS FOR THE AGENT?" />
+
+                  <div className="pt-2">
+                    <label className="block text-xs font-semibold text-white/30 uppercase tracking-widest mb-2">
+                      Order Notes (optional)
+                    </label>
+                    <textarea
+                      rows={3}
+                      value={form.notes}
+                      onChange={(e) => updateField("notes", e.target.value)}
+                      placeholder="Any special instructions for delivery…"
+                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 text-sm text-white placeholder:text-white/20 outline-none focus:border-[#FFC93C]/40 focus:ring-1 focus:ring-[#FFC93C]/20 transition-all resize-none"
+                    />
                   </div>
                 </motion.div>
               )}
 
               {step === 2 && (
-                <motion.div 
-                  key="step2" 
-                  initial={{ opacity: 0, x: 20 }} 
-                  animate={{ opacity: 1, x: 0 }} 
-                  exit={{ opacity: 0, x: -20 }}
-                  className="bg-white border-4 border-ink p-10 cartoon-shadow-lg space-y-10"
+                <motion.div
+                  key="step2"
+                  initial={{ opacity: 0, x: 16 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -16 }}
+                  className="space-y-5"
                 >
-                  <div className="flex items-center gap-4 border-b-4 border-ink/10 pb-6">
-                    <div className="w-12 h-12 bg-ink text-paper flex items-center justify-center border-3 border-ink cartoon-shadow-xs rotate-[-3deg]">
-                      <CheckCircle2 size={24} />
+                  {/* Review summary */}
+                  <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-7 space-y-5">
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-xl bg-[#8B7FD6]/10 border border-[#8B7FD6]/20 flex items-center justify-center">
+                        <CheckCircle2 size={18} className="text-[#8B7FD6]" strokeWidth={1.8} />
+                      </div>
+                      <h2 className="text-xl font-bold text-white">
+                        Review Order
+                      </h2>
                     </div>
-                    <h2 className="font-bangers text-4xl text-ink uppercase tracking-tight">STAGE 03: FINAL CLEARANCE</h2>
-                  </div>
 
-                  <div className="bg-surface border-4 border-ink p-8 space-y-6 relative overflow-hidden">
-                    <div className="absolute top-0 right-0 w-24 h-24 bg-halftone opacity-10 rotate-45 translate-x-12 -translate-y-12" />
-                    <h3 className="font-bebas text-2xl text-secondary tracking-widest uppercase">// DOSSIER REVIEW</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 relative z-10">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       {[
-                        ["OPERATIVE", form.name],
-                        ["CONTACT", form.email],
-                        ["DESTINATION", `${form.address}, ${form.city} ${form.zip}`],
-                        ["PROTOCOL", form.paymentMethod.toUpperCase()],
+                        ["Recipient", form.name],
+                        ["Email", form.email],
+                        ["Phone", form.phone],
+                        ["Payment", form.paymentMethod === "cod" ? "Cash on Delivery" : form.paymentMethod === "bkash" ? "bKash" : "Card"],
+                        ["Address", `${form.address}, ${form.city} ${form.zip}`],
                       ].map(([label, value]) => (
-                        <div key={label} className="space-y-1">
-                          <span className="font-bebas text-xl text-ink/40 tracking-widest uppercase">{label}</span>
-                          <p className="font-bangers text-2xl text-ink tracking-tight uppercase leading-none">{value}</p>
+                        <div key={label} className="space-y-0.5">
+                          <p className="text-[10px] font-semibold text-white/25 uppercase tracking-widest">
+                            {label}
+                          </p>
+                          <p className="text-sm font-semibold text-white/80">
+                            {value}
+                          </p>
                         </div>
                       ))}
                     </div>
                   </div>
 
-                  <div className="space-y-4">
-                    <h3 className="font-bebas text-2xl text-secondary tracking-widest uppercase">// ACQUISITION LIST</h3>
-                    <div className="space-y-4">
+                  {/* Items */}
+                  <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-7 space-y-4">
+                    <h3 className="text-sm font-semibold text-white/40 uppercase tracking-widest">
+                      Items ({items.length})
+                    </h3>
+                    <div className="space-y-3">
                       {items.map((item) => (
-                        <div key={`${item.id}-${item.color}-${item.size}`} className="flex items-center gap-6 p-4 bg-white border-3 border-ink cartoon-shadow-xs">
-                          <div className="w-16 h-20 relative shrink-0 border-2 border-ink overflow-hidden bg-surface">
-                            <Image src={item.image} alt={item.title} fill className="object-cover" sizes="64px" />
+                        <div
+                          key={`${item.id}-${item.color}-${item.size}`}
+                          className="flex items-center gap-4 p-3 rounded-xl bg-white/[0.02] border border-white/5"
+                        >
+                          <div className="w-14 h-16 relative shrink-0 rounded-lg overflow-hidden bg-white/5">
+                            <Image
+                              src={item.image}
+                              alt={item.title}
+                              fill
+                              className="object-cover"
+                              sizes="56px"
+                            />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="font-bangers text-2xl text-ink truncate tracking-tight uppercase">{item.title}</p>
-                            <p className="font-bebas text-lg text-ink/40 tracking-widest">SCHEMA: {item.color} / SIZE: {item.size} / UNITS: {item.quantity}</p>
+                            <p className="text-sm font-semibold text-white truncate">
+                              {item.title}
+                            </p>
+                            <p className="text-xs text-white/30 mt-0.5">
+                              {item.color} · {item.size} · Qty {item.quantity}
+                            </p>
                           </div>
-                          <span className="font-bangers text-3xl text-ink">৳{Math.round(item.price * item.quantity).toLocaleString()}</span>
+                          <span className="text-sm font-bold text-white whitespace-nowrap">
+                            ৳{Math.round(item.price * item.quantity).toLocaleString()}
+                          </span>
                         </div>
                       ))}
                     </div>
@@ -293,81 +451,212 @@ export default function CheckoutPage() {
               )}
             </AnimatePresence>
 
-            {/* Navigation Actions */}
-            <div className="flex items-center justify-between gap-8 pt-8">
+            {/* ── Navigation ── */}
+            <div className="flex items-center justify-between gap-4 mt-6">
               {step > 0 ? (
-                <button 
+                <button
                   onClick={() => setStep(step - 1)}
-                  className="flex items-center gap-3 font-bebas text-3xl text-secondary hover:text-ink transition-colors uppercase tracking-tight"
+                  className="flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-semibold text-white/50 hover:text-white border border-white/8 hover:border-white/15 bg-white/[0.03] hover:bg-white/[0.06] transition-all duration-200"
                 >
-                  <ArrowLeft size={28} /> REVERT STAGE
+                  <ArrowLeft size={16} />
+                  Back
                 </button>
-              ) : <div />}
+              ) : (
+                <div />
+              )}
 
               {step < 2 ? (
-                <CartoonButton size="lg" className="min-w-[200px]" onClick={() => canProceed() && setStep(step + 1)} disabled={!canProceed()}>
-                  NEXT STAGE <ArrowRight className="ml-3" size={28} />
-                </CartoonButton>
+                <button
+                  onClick={() => canProceed() && setStep(step + 1)}
+                  disabled={!canProceed()}
+                  className={cn(
+                    "flex items-center gap-2 px-7 py-3.5 rounded-xl text-sm font-semibold text-black transition-all duration-200",
+                    canProceed()
+                      ? "hover:scale-[1.02] active:scale-[0.98] shadow-[0_0_20px_rgba(255,201,60,0.25)]"
+                      : "opacity-40 cursor-not-allowed"
+                  )}
+                  style={{ background: "linear-gradient(135deg, #FFC93C 0%, #F5A623 100%)" }}
+                >
+                  Continue
+                  <ChevronRight size={16} />
+                </button>
               ) : (
-                <CartoonButton size="lg" className="min-w-[280px]" onClick={handleSubmit} disabled={isSubmitting}>
-                   {isSubmitting ? "TRANSMITTING..." : "CONFIRM MISSION ★"}
-                </CartoonButton>
+                <button
+                  onClick={handleSubmit}
+                  disabled={isSubmitting}
+                  className="flex items-center gap-2 px-8 py-3.5 rounded-xl text-sm font-bold text-black transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-[0_0_24px_rgba(255,201,60,0.3)] disabled:opacity-70 disabled:cursor-not-allowed"
+                  style={{ background: "linear-gradient(135deg, #FFC93C 0%, #F5A623 100%)" }}
+                >
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 size={16} className="animate-spin" />
+                      Placing Order…
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles size={16} />
+                      Place Order
+                    </>
+                  )}
+                </button>
               )}
+            </div>
+
+            {/* Trust badges */}
+            <div className="flex items-center justify-center gap-6 mt-8 text-xs text-white/20">
+              <div className="flex items-center gap-1.5">
+                <Shield size={13} />
+                Secure Checkout
+              </div>
+              <div className="flex items-center gap-1.5">
+                <Truck size={13} />
+                Fast Delivery
+              </div>
             </div>
           </div>
 
-          {/* Order Summary Sidebar */}
-          <div className="lg:col-span-4">
-            <div className="bg-white border-4 border-ink p-8 cartoon-shadow-lg sticky top-24 space-y-10 overflow-hidden">
-               <div className="absolute top-0 right-0 w-24 h-24 bg-halftone opacity-10 rotate-45 translate-x-12 -translate-y-12" />
-               
-               <div className="relative z-10 space-y-6">
-                <div className="flex items-center gap-4">
-                   <div className="p-2 bg-ink text-paper border-2 border-ink">
-                     <ShoppingBag size={20} />
-                   </div>
-                   <h3 className="font-bangers text-4xl text-ink uppercase tracking-tight">THE TALLY</h3>
-                </div>
+          {/* ── Order Summary Sidebar ── */}
+          <div className="lg:col-span-5 order-1 lg:order-2">
+            <div className="sticky top-24 rounded-2xl border border-white/8 bg-white/[0.03] backdrop-blur-sm p-6 space-y-6">
+              <div className="flex items-center gap-3">
+                <ShoppingBag size={18} className="text-white/40" strokeWidth={1.8} />
+                <h3 className="font-bold text-white text-base">
+                  Order Summary
+                </h3>
+                <span className="ml-auto text-xs text-white/30 font-medium">
+                  {items.length} item{items.length !== 1 ? "s" : ""}
+                </span>
+              </div>
 
-                <div className="space-y-6 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
-                  {items.map((item) => (
-                    <div key={`${item.id}-${item.color}`} className="flex justify-between items-start gap-4">
-                      <div className="space-y-1 flex-1">
-                        <span className="font-bangers text-xl text-ink block leading-none uppercase">{item.title}</span>
-                        <span className="font-bebas text-lg text-ink/40 tracking-widest">UNITS ×{item.quantity}</span>
-                      </div>
-                      <span className="font-bangers text-2xl text-ink">৳{Math.round(item.price * item.quantity).toLocaleString()}</span>
+              {/* Items list */}
+              <div className="space-y-3 max-h-64 overflow-y-auto pr-1 custom-scrollbar">
+                {items.map((item) => (
+                  <div
+                    key={`${item.id}-${item.color}`}
+                    className="flex items-center gap-3"
+                  >
+                    <div className="w-12 h-14 relative shrink-0 rounded-lg overflow-hidden bg-white/5 border border-white/5">
+                      <Image
+                        src={item.image}
+                        alt={item.title}
+                        fill
+                        className="object-cover"
+                        sizes="48px"
+                      />
                     </div>
-                  ))}
-                </div>
-
-                <div className="h-1 bg-ink/10" />
-
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <span className="font-bebas text-xl text-ink/40 tracking-widest uppercase">LOGISTICS</span>
-                    <span className={cn(
-                      "font-bangers text-2xl",
-                      shippingCost === 0 ? "text-ink" : "text-ink"
-                    )}>
-                      {shippingCost === 0 ? "FREE OF CHARGE" : `৳${shippingCost}`}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-white/80 truncate leading-snug">
+                        {item.title}
+                      </p>
+                      <p className="text-xs text-white/25 mt-0.5">
+                        ×{item.quantity}
+                      </p>
+                    </div>
+                    <span className="text-sm font-semibold text-white whitespace-nowrap">
+                      ৳{Math.round(item.price * item.quantity).toLocaleString()}
                     </span>
                   </div>
-                  
-                  <div className="p-6 bg-ink text-paper border-4 border-ink cartoon-shadow-sm flex justify-between items-center rotate-[2deg]">
-                     <span className="font-bebas text-3xl tracking-[0.2em]">TOTAL DUE</span>
-                     <span className="font-bangers text-5xl">৳{Math.round(grandTotal).toLocaleString()}</span>
-                  </div>
+                ))}
+              </div>
+
+              {/* Divider */}
+              <div className="h-px bg-white/5" />
+
+              {/* Totals */}
+              <div className="space-y-3">
+                <div className="flex justify-between text-sm">
+                  <span className="text-white/40">Subtotal</span>
+                  <span className="text-white/70 font-medium">
+                    ৳{Math.round(total).toLocaleString()}
+                  </span>
                 </div>
-                
-                <div className="flex items-center gap-3 font-comic font-bold italic text-ink/40 text-sm justify-center">
-                   <Star size={14} /> SECURE TRANSACTION GUARANTEED <Star size={14} />
+                <div className="flex justify-between text-sm">
+                  <span className="text-white/40">Shipping</span>
+                  <span
+                    className={cn(
+                      "font-medium",
+                      shippingCost === 0 ? "text-[#4ECDC4]" : "text-white/70"
+                    )}
+                  >
+                    {shippingCost === 0 ? "Free" : `৳${shippingCost}`}
+                  </span>
+                </div>
+                {shippingCost > 0 && (
+                  <p className="text-[11px] text-white/20">
+                    Add ৳{Math.round(8000 - total).toLocaleString()} more for free shipping
+                  </p>
+                )}
+
+                <div className="h-px bg-white/5" />
+
+                <div className="flex justify-between items-center">
+                  <span className="font-bold text-white">Total</span>
+                  <span
+                    className="text-2xl font-bold"
+                    style={{
+                      backgroundImage:
+                        "linear-gradient(135deg, #FFC93C 0%, #F5A623 100%)",
+                      WebkitBackgroundClip: "text",
+                      WebkitTextFillColor: "transparent",
+                    }}
+                  >
+                    ৳{Math.round(grandTotal).toLocaleString()}
+                  </span>
                 </div>
               </div>
+
+              {/* Free shipping progress */}
+              {shippingCost > 0 && (
+                <div className="rounded-xl bg-white/[0.03] border border-white/8 p-4">
+                  <div className="flex justify-between text-xs text-white/30 mb-2">
+                    <span>Free shipping progress</span>
+                    <span>{Math.round((total / 8000) * 100)}%</span>
+                  </div>
+                  <div className="h-1.5 bg-white/8 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-gradient-to-r from-[#FFC93C] to-[#4ECDC4] rounded-full transition-all duration-500"
+                      style={{ width: `${Math.min((total / 8000) * 100, 100)}%` }}
+                    />
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+function CheckoutField({
+  label,
+  type = "text",
+  value,
+  onChange,
+  placeholder,
+  required,
+}: {
+  label: string;
+  type?: string;
+  value: string;
+  onChange: (v: string) => void;
+  placeholder?: string;
+  required?: boolean;
+}) {
+  return (
+    <div className="space-y-1.5">
+      <label className="block text-[11px] font-semibold text-white/30 uppercase tracking-widest">
+        {label}
+        {required && <span className="text-[#FFC93C] ml-0.5">*</span>}
+      </label>
+      <input
+        type={type}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        required={required}
+        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-white/20 outline-none focus:border-[#FFC93C]/40 focus:ring-1 focus:ring-[#FFC93C]/20 transition-all"
+      />
     </div>
   );
 }

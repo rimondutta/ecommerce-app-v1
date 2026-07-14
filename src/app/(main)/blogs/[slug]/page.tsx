@@ -5,17 +5,27 @@ import Product from '@/models/Product';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import CartoonButton from '@/components/ui/CartoonButton';
+import Button from '@/components/ui/Button';
 import { ArrowLeft, Calendar, User, Clock, Star, ShoppingBag, ArrowRight } from 'lucide-react';
 
 async function getBlogPost(slug: string) {
-  await dbConnect();
-  return await BlogPost.findOne({ slug, isPublished: true }).lean();
+  try {
+    await dbConnect();
+    return await BlogPost.findOne({ slug, isPublished: true }).lean();
+  } catch (error) {
+    console.error("Failed to fetch blog post:", error);
+    return null;
+  }
 }
 
 async function getRelatedProducts() {
-  await dbConnect();
-  return await Product.find({ isPublished: true }).limit(4).lean();
+  try {
+    await dbConnect();
+    return await Product.find({ isPublished: true }).limit(4).lean();
+  } catch (error) {
+    console.error("Failed to fetch related products:", error);
+    return [];
+  }
 }
 
 const SingleBlogPage = async ({
@@ -52,6 +62,7 @@ const SingleBlogPage = async ({
               src={post.featuredImage.url}
               alt={post.featuredImage.alt}
               fill
+              sizes="100vw"
               className="object-cover transition-all duration-700 group-hover:scale-105"
               priority
             />
@@ -144,6 +155,7 @@ const SingleBlogPage = async ({
                        src={product.images[0]?.url || '/placeholder-product.jpg'}
                        alt={product.title}
                        fill
+                       sizes="(max-width: 768px) 50vw, 25vw"
                        className="object-cover transition-transform duration-700 group-hover:scale-110"
                      />
                    </div>
@@ -158,7 +170,7 @@ const SingleBlogPage = async ({
             
             <div className="mt-20 text-center">
                <Link href="/products">
-                  <CartoonButton size="lg">VIEW ALL GEAR</CartoonButton>
+                  <Button size="lg">VIEW ALL GEAR</Button>
                </Link>
             </div>
           </section>
