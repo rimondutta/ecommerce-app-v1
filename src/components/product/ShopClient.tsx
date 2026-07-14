@@ -93,7 +93,7 @@ function ShopContent({ initialProducts }: { initialProducts: any[] }) {
              
              <div className="hidden lg:flex items-center gap-2">
                <span className="text-base text-neutral-500 font-medium">Sort By</span>
-               <div className="relative">
+               <div className="relative" suppressHydrationWarning>
                  <select 
                    value={sortBy}
                    onChange={(e) => setSortBy(e.target.value)}
