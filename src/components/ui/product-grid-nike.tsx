@@ -21,7 +21,7 @@ interface Product {
 
 interface ProductGridProps {
   products: Product[];
-  title?: string;
+  title?: React.ReactNode; // Updated to allow custom elements/styling
   subtitle?: string;
   viewAllLink?: string;
   /** layout: 'carousel' (default) | 'grid' */
@@ -162,7 +162,6 @@ export default function ProductGridNike({
       {/* ── Carousel Layout ── */}
       {displayLayout === "carousel" && (
         <div className="relative">
-          {/* Left fade */}
           {canScrollLeft && (
             <div className="hidden md:block absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-black to-transparent z-10 pointer-events-none rounded-l-2xl" />
           )}
@@ -186,7 +185,6 @@ export default function ProductGridNike({
             ))}
           </div>
 
-          {/* Right fade */}
           {canScrollRight && (
             <div className="hidden md:block absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-black to-transparent z-10 pointer-events-none rounded-r-2xl" />
           )}
