@@ -38,18 +38,18 @@ export async function GET(req: Request) {
       }
     }
 
-    const limit = parseInt(searchParams.get('limit') || '0');
-
+    // Enforce max limits (e.g., max 100 products per request) to prevent DB overload
+    let requestedLimit = parseInt(searchParams.get('limit') || '50');
+    if (requestedLimit > 100) requestedLimit = 100;
+    if (requestedLimit <= 0) requestedLimit = 50;
+    
     // Security: Use select() to strictly return public fields
     // Scalability: Use lean() and sort correctly
     let productQuery = Product.find(query)
       .populate('category')
       .select('title price slug images category badge colors sizes inventory')
-      .sort({ createdAt: -1 });
-    
-    if (limit > 0) {
-      productQuery = productQuery.limit(limit);
-    }
+      .sort({ createdAt: -1 })
+      .limit(requestedLimit);
 
     const products = await productQuery.lean();
 

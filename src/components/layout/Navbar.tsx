@@ -11,6 +11,7 @@ import {
   IconShoppingCart,
   IconUser,
   IconHeart,
+  IconArticle,
 } from "@tabler/icons-react";
 
 export default function Navbar() {
@@ -27,6 +28,11 @@ export default function Navbar() {
       title: "Products",
       icon: <IconShoppingBag className="h-5 w-5 text-white/50 group-hover:text-[#4ECDC4] transition-colors duration-200" />,
       href: "/products",
+    },
+    {
+      title: "Blog",
+      icon: <IconArticle className="h-5 w-5 text-white/50 group-hover:text-[#FF6B5D] transition-colors duration-200" />,
+      href: "/blogs",
     },
     {
       title: "Search",

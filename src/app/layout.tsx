@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Fredoka, Space_Grotesk } from "next/font/google";
+import { Anek_Bangla } from "next/font/google";
 import "./globals.css";
 import { CartProvider } from "@/components/providers/CartProvider";
 import { WishlistProvider } from "@/components/providers/WishlistProvider";
@@ -8,18 +8,11 @@ import GlobalUI from "@/components/layout/GlobalUI";
 import NextAuthProvider from "@/components/providers/NextAuthProvider";
 import { ToastProvider } from "@/components/playshelf/Toast";
 
-const fredoka = Fredoka({
-  subsets: ["latin"],
+const anekBangla = Anek_Bangla({
+  subsets: ["latin", "bengali"],
   display: "swap",
-  variable: "--font-display",
-  weight: ["400", "500", "600", "700"],
-});
-
-const spaceGrotesk = Space_Grotesk({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-body",
-  weight: ["400", "500", "600", "700"],
+  variable: "--font-anek",
+  weight: ["100", "200", "300", "400", "500", "600", "700", "800"],
 });
 
 export const metadata: Metadata = {
@@ -53,7 +46,7 @@ export default function RootLayout({
       lang="en"
       suppressHydrationWarning
       data-scroll-behavior="smooth"
-      className={`${fredoka.variable} ${spaceGrotesk.variable}`}
+      className={`${anekBangla.variable}`}
     >
       <body 
         suppressHydrationWarning

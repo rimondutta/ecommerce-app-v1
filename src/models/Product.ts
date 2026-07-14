@@ -56,5 +56,7 @@ const ProductSchema = new mongoose.Schema(
 // High Performance: Indexes for fast filtering during high traffic
 ProductSchema.index({ isPublished: 1, category: 1 });
 ProductSchema.index({ isPublished: 1, createdAt: -1 });
+ProductSchema.index({ isPublished: 1, ageRange: 1 });
+ProductSchema.index({ title: 'text', description: 'text' }); // Enables faster text searching
 
 export default mongoose.models.Product || mongoose.model('Product', ProductSchema);

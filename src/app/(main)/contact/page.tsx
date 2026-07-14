@@ -54,34 +54,30 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="min-h-screen relative overflow-hidden">
-      {/* Ambient blobs */}
-      <div className="pointer-events-none fixed inset-0 overflow-hidden">
+    <div className="min-h-screen bg-white relative overflow-hidden">
+      {/* Subtle ambient blobs */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div
-          className="absolute -top-40 -left-40 w-[600px] h-[600px] rounded-full opacity-[0.06]"
+          className="absolute -top-40 -left-40 w-[600px] h-[600px] rounded-full opacity-[0.04]"
           style={{ background: "radial-gradient(circle, #FFC93C 0%, transparent 70%)" }}
         />
         <div
-          className="absolute top-1/2 -right-60 w-[500px] h-[500px] rounded-full opacity-[0.05]"
+          className="absolute top-1/2 -right-60 w-[500px] h-[500px] rounded-full opacity-[0.04]"
           style={{ background: "radial-gradient(circle, #4ECDC4 0%, transparent 70%)" }}
-        />
-        <div
-          className="absolute -bottom-20 left-1/3 w-[400px] h-[400px] rounded-full opacity-[0.04]"
-          style={{ background: "radial-gradient(circle, #FF6B5D 0%, transparent 70%)" }}
         />
       </div>
 
-      <div className="relative z-10 max-w-7xl mx-auto px-6 md:px-12 pt-24 pb-32">
+      <div className="relative z-10 max-w-7xl mx-auto px-6 md:px-12 pt-16 pb-32">
         {/* ── Header ── */}
-        <div className="mb-20 max-w-3xl">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/10 bg-white/5 mb-6">
+        <div className="mb-16 max-w-3xl">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-neutral-200 bg-neutral-100 mb-6">
             <span className="w-1.5 h-1.5 rounded-full bg-[#4ECDC4] animate-pulse" />
-            <span className="text-[11px] font-semibold tracking-[0.15em] text-white/40 uppercase">
+            <span className="text-[11px] font-semibold tracking-[0.15em] text-neutral-500 uppercase">
               Support Center
             </span>
           </div>
 
-          <h1 className="text-5xl md:text-7xl font-bold text-white leading-[1.05] tracking-tight mb-6">
+          <h1 className="text-5xl md:text-7xl font-bold text-black leading-[1.05] tracking-tight mb-6">
             Let&apos;s{" "}
             <span className="relative inline-block">
               <span
@@ -110,7 +106,7 @@ export default function ContactPage() {
               </svg>
             </span>
           </h1>
-          <p className="text-lg text-white/40 leading-relaxed max-w-lg">
+          <p className="text-lg text-neutral-500 leading-relaxed max-w-lg">
             Whether you have a question about an order, a product, or just want
             to say hi — we&apos;re here and ready to help.
           </p>
@@ -119,14 +115,11 @@ export default function ContactPage() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16">
           {/* ── Contact Form ── */}
           <div className="lg:col-span-7">
-            <div className="relative rounded-2xl overflow-hidden border border-white/8 bg-white/[0.03] backdrop-blur-sm p-8 md:p-10">
-              {/* subtle top gradient line */}
+            <div className="relative rounded-2xl overflow-hidden border border-neutral-200 bg-white shadow-sm p-8 md:p-10">
+              {/* top accent line */}
               <div
-                className="absolute top-0 left-0 right-0 h-px"
-                style={{
-                  background:
-                    "linear-gradient(90deg, transparent, #FFC93C40, transparent)",
-                }}
+                className="absolute top-0 left-0 right-0 h-[3px]"
+                style={{ background: "linear-gradient(90deg, #FFC93C, #FF6B5D)" }}
               />
 
               <AnimatePresence mode="wait">
@@ -140,12 +133,11 @@ export default function ContactPage() {
                     className="space-y-6"
                   >
                     <div>
-                      <h2 className="text-xl font-bold text-white mb-1">
+                      <h2 className="text-xl font-bold text-black mb-1">
                         Send us a message
                       </h2>
-                      <p className="text-sm text-white/30">
-                        Fill in the form below and we&apos;ll get back to you
-                        promptly.
+                      <p className="text-sm text-neutral-500">
+                        Fill in the form below and we&apos;ll get back to you promptly.
                       </p>
                     </div>
 
@@ -183,7 +175,7 @@ export default function ContactPage() {
                     />
 
                     <div className="space-y-2">
-                      <label className="block text-xs font-semibold text-white/40 uppercase tracking-widest">
+                      <label className="block text-xs font-semibold text-neutral-500 uppercase tracking-widest">
                         Message
                       </label>
                       <textarea
@@ -192,14 +184,14 @@ export default function ContactPage() {
                         value={form.message}
                         onChange={(e) => update("message", e.target.value)}
                         required
-                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 text-sm text-white placeholder:text-white/20 outline-none focus:border-[#FFC93C]/40 focus:ring-1 focus:ring-[#FFC93C]/20 transition-all resize-none"
+                        className="w-full bg-neutral-50 border border-neutral-200 rounded-xl px-4 py-3.5 text-sm text-black placeholder:text-neutral-400 outline-none focus:border-[#FFC93C] focus:ring-1 focus:ring-[#FFC93C]/30 transition-all resize-none"
                       />
                     </div>
 
                     <button
                       type="submit"
                       disabled={submitting}
-                      className="group flex items-center gap-2.5 px-7 py-3.5 rounded-xl font-semibold text-sm text-black transition-all duration-200 disabled:opacity-70"
+                      className="group flex items-center gap-2.5 px-7 py-3.5 rounded-xl font-semibold text-sm text-black transition-all duration-200 disabled:opacity-70 hover:shadow-md"
                       style={{ background: "linear-gradient(135deg, #FFC93C 0%, #F5A623 100%)" }}
                     >
                       {submitting ? (
@@ -226,28 +218,23 @@ export default function ContactPage() {
                     className="flex flex-col items-center justify-center text-center py-16 gap-6"
                   >
                     <div
-                      className="w-20 h-20 rounded-full flex items-center justify-center"
-                      style={{
-                        background:
-                          "radial-gradient(circle, #4ECDC420 0%, transparent 70%)",
-                        border: "1px solid #4ECDC430",
-                      }}
+                      className="w-20 h-20 rounded-full flex items-center justify-center bg-[#4ECDC4]/10 border border-[#4ECDC4]/30"
                     >
                       <CheckCircle size={36} className="text-[#4ECDC4]" />
                     </div>
                     <div>
-                      <h3 className="text-2xl font-bold text-white mb-2">
+                      <h3 className="text-2xl font-bold text-black mb-2">
                         Message received!
                       </h3>
-                      <p className="text-white/40 max-w-xs text-sm leading-relaxed">
+                      <p className="text-neutral-500 max-w-xs text-sm leading-relaxed">
                         Thanks for reaching out. We&apos;ll respond to{" "}
-                        <span className="text-white/60">{form.email}</span>{" "}
+                        <span className="text-black font-medium">{form.email}</span>{" "}
                         within 24 hours.
                       </p>
                     </div>
                     <button
                       onClick={() => setSubmitted(false)}
-                      className="text-sm text-white/40 hover:text-white transition-colors underline underline-offset-4"
+                      className="text-sm text-neutral-400 hover:text-black transition-colors underline underline-offset-4"
                     >
                       Send another message
                     </button>
@@ -266,76 +253,67 @@ export default function ContactPage() {
                 <a
                   key={item.label}
                   href={item.href}
-                  className="group flex items-start gap-4 p-5 rounded-2xl border border-white/8 bg-white/[0.03] hover:bg-white/[0.06] hover:border-white/15 transition-all duration-200"
+                  className="group flex items-start gap-4 p-5 rounded-2xl border border-neutral-200 bg-white hover:bg-neutral-50 hover:border-neutral-300 hover:shadow-sm transition-all duration-200"
                 >
                   <div
                     className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 transition-transform duration-200 group-hover:scale-105"
                     style={{
-                      background: `${item.color}15`,
-                      border: `1px solid ${item.color}25`,
+                      background: `${item.color}18`,
+                      border: `1px solid ${item.color}30`,
                     }}
                   >
                     <Icon size={20} style={{ color: item.color }} strokeWidth={1.8} />
                   </div>
                   <div className="min-w-0">
-                    <p className="text-xs font-semibold text-white/30 uppercase tracking-widest mb-0.5">
+                    <p className="text-xs font-semibold text-neutral-400 uppercase tracking-widest mb-0.5">
                       {item.label}
                     </p>
-                    <p className="text-base font-semibold text-white truncate group-hover:text-white/90 transition-colors">
+                    <p className="text-base font-semibold text-black truncate">
                       {item.value}
                     </p>
-                    <p className="text-xs text-white/30 mt-0.5">{item.detail}</p>
+                    <p className="text-xs text-neutral-400 mt-0.5">{item.detail}</p>
                   </div>
                 </a>
               );
             })}
 
             {/* Global network card */}
-            <div className="relative rounded-2xl overflow-hidden border border-white/8 p-6 mt-2">
-              <div
-                className="absolute inset-0"
-                style={{
-                  background:
-                    "linear-gradient(135deg, #FFC93C08 0%, #FF6B5D08 100%)",
-                }}
-              />
-              <div className="relative z-10">
-                <div className="flex items-center gap-3 mb-4">
-                  <Globe size={22} className="text-[#FFC93C]" strokeWidth={1.8} />
-                  <h3 className="text-base font-bold text-white">
-                    Worldwide Shipping
-                  </h3>
-                </div>
-                <p className="text-sm text-white/40 leading-relaxed mb-5">
-                  We ship to 50+ countries. Orders above ৳8,000 qualify for
-                  free shipping anywhere in Bangladesh.
-                </p>
-                <div className="flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-[#4ECDC4] animate-pulse" />
-                  <span className="text-xs font-semibold text-[#4ECDC4] uppercase tracking-widest">
-                    Shipping Active
-                  </span>
-                </div>
+            <div className="relative rounded-2xl overflow-hidden border border-neutral-200 bg-neutral-50 p-6 mt-2">
+              <div className="flex items-center gap-3 mb-4">
+                <Globe size={22} className="text-[#FFC93C]" strokeWidth={1.8} />
+                <h3 className="text-base font-bold text-black">
+                  Worldwide Shipping
+                </h3>
+              </div>
+              <p className="text-sm text-neutral-500 leading-relaxed mb-5">
+                We ship to 50+ countries. Orders above ৳8,000 qualify for
+                free shipping anywhere in Bangladesh.
+              </p>
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-[#4ECDC4] animate-pulse" />
+                <span className="text-xs font-semibold text-[#4ECDC4] uppercase tracking-widest">
+                  Shipping Active
+                </span>
               </div>
             </div>
 
             {/* FAQ shortcut */}
-            <div className="flex items-center justify-between p-4 rounded-2xl border border-white/8 bg-white/[0.02] group hover:border-white/15 transition-all duration-200 cursor-pointer">
+            <div className="flex items-center justify-between p-4 rounded-2xl border border-neutral-200 bg-white group hover:border-neutral-300 hover:shadow-sm transition-all duration-200 cursor-pointer">
               <div>
-                <p className="text-sm font-semibold text-white">
+                <p className="text-sm font-semibold text-black">
                   Check our FAQ
                 </p>
-                <p className="text-xs text-white/30 mt-0.5">
+                <p className="text-xs text-neutral-400 mt-0.5">
                   Quick answers to common questions
                 </p>
               </div>
-              <div className="w-9 h-9 rounded-xl bg-white/5 group-hover:bg-white/10 flex items-center justify-center transition-all duration-200">
+              <div className="w-9 h-9 rounded-xl bg-neutral-100 group-hover:bg-neutral-200 flex items-center justify-center transition-all duration-200">
                 <svg
                   width="16"
                   height="16"
                   viewBox="0 0 16 16"
                   fill="none"
-                  className="text-white/50 group-hover:text-white transition-colors"
+                  className="text-neutral-500 group-hover:text-black transition-colors"
                 >
                   <path
                     d="M3 8h10M9 4l4 4-4 4"
@@ -371,7 +349,7 @@ function FormField({
 }) {
   return (
     <div className="space-y-2">
-      <label className="block text-xs font-semibold text-white/40 uppercase tracking-widest">
+      <label className="block text-xs font-semibold text-neutral-500 uppercase tracking-widest">
         {label}
       </label>
       <input
@@ -380,7 +358,7 @@ function FormField({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         required={required}
-        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 text-sm text-white placeholder:text-white/20 outline-none focus:border-[#FFC93C]/40 focus:ring-1 focus:ring-[#FFC93C]/20 transition-all"
+        className="w-full bg-neutral-50 border border-neutral-200 rounded-xl px-4 py-3.5 text-sm text-black placeholder:text-neutral-400 outline-none focus:border-[#FFC93C] focus:ring-1 focus:ring-[#FFC93C]/30 transition-all"
       />
     </div>
   );
