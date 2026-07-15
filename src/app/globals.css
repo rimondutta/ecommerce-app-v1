@@ -1,105 +1,35 @@
 @import "tailwindcss";
 
 /* ═══════════════════════════════════════════════════
-   PLAYSHELF — Warm Claymorphic Toy Store Design System
-   "Like browsing a beautifully organized wooden toy shelf"
+   PLAYSHELF — Cinematic Design System
+   "An immersive, dramatic toy catalog"
    ═══════════════════════════════════════════════════ */
 
 @theme {
-  /* ─── Surfaces (Dark Mode Override) ─── */
-  --color-paper:      transparent;
-  --color-shelf-wood: #2E221B;
-  --color-ink:        #FFFBF3;
-  --color-line:       #222428;
-
-  /* ─── Accent Palette ─── */
-  --color-sun:        #FFC93C;
-  --color-coral:      #FF6B5D;
-  --color-mint:       #4ECDC4;
-  --color-grape:      #8B7FD6;
-
-  /* ─── Extended ─── */
-  --color-sun-dark:   #E6B535;
-  --color-coral-dark: #E55A4D;
-  --color-mint-dark:  #3DB8B0;
-  --color-grape-dark: #7A6EC5;
-  --color-ink-light:  #A5A9B0;
-  --color-muted:      #6E685E;
+  /* ─── Cinematic Color Tokens (Dark Mode) ─── */
+  --color-ink-black:   #F5F5F5; /* Text & primary foreground */
+  --color-paper-white: #050505; /* Main background */
+  --color-paper-grey:  #111111; /* Off-background surfaces */
+  --color-rule-grey:   #737373; /* Cinematic borders and muted text */
+  --color-stamp-red:   #D90429; /* Dramatic accent */
 
   /* ─── Typography ─── */
-  --font-display: var(--font-anek), sans-serif;
-  --font-body:    var(--font-anek), sans-serif;
+  --font-display: var(--font-big-shoulders), 'Arial Narrow', sans-serif;
+  --font-body:    var(--font-inter), system-ui, sans-serif;
+  --font-mono:    var(--font-jetbrains-mono), 'Courier New', monospace;
 
   /* ─── Radii ─── */
-  --radius-card:   20px;
-  --radius-input:  12px;
-  --radius-pill:   999px;
-  --radius-button: 20px;
+  --radius-none: 0px;
+  --radius-sm:   0px;
+  --radius-md:   0px;
+  --radius-lg:   0px;
+  --radius-xl:   0px;
+  --radius-2xl:  0px;
+  --radius-3xl:  0px;
+  --radius:      0px;
 
-  /* ─── Shadows (warm-toned, never pure black) ─── */
-  --shadow-card:       0 8px 24px -8px rgba(36,39,43,0.12);
-  --shadow-card-hover: 0 16px 40px -8px rgba(36,39,43,0.18);
-  --shadow-shelf:      0 4px 12px -2px rgba(36,39,43,0.10);
-  --shadow-button:     0 4px 14px -4px rgba(36,39,43,0.15);
-  --shadow-drawer:     -8px 0 30px rgba(36,39,43,0.15);
-  --shadow-nav:        0 1px 8px rgba(36,39,43,0.06);
-
-  /* ─── Easing ─── */
-  --ease-playful: cubic-bezier(0.34, 1.56, 0.64, 1);
-  --ease-smooth:  cubic-bezier(0.16, 1, 0.3, 1);
-
-  /* ─── Animations ─── */
-  --animate-fade-up:    fade-up 0.5s var(--ease-smooth) both;
-  --animate-shelf-float: shelf-float 3s ease-in-out infinite;
-  --animate-wobble:     wobble 0.3s var(--ease-playful);
-  --animate-bounce-in:  bounce-in 0.4s var(--ease-playful);
-  --animate-pulse-soft: pulse-soft 2s ease-in-out infinite;
-  --animate-spotlight:  spotlight 2s ease .75s 1 forwards;
-
-  @keyframes spotlight {
-    0% {
-      opacity: 0;
-      transform: translate(-72%, -62%) scale(0.5);
-    }
-    100% {
-      opacity: 1;
-      transform: translate(-50%,-40%) scale(1);
-    }
-  }
-
-  @keyframes fade-up {
-    from { opacity: 0; transform: translateY(16px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-
-  @keyframes shelf-float {
-    0%, 100% { transform: translateY(0); }
-    50%      { transform: translateY(-6px); }
-  }
-
-  @keyframes wobble {
-    0%   { transform: rotate(0deg); }
-    25%  { transform: rotate(-2deg); }
-    75%  { transform: rotate(2deg); }
-    100% { transform: rotate(0deg); }
-  }
-
-  @keyframes bounce-in {
-    0%   { transform: scale(0.8); opacity: 0; }
-    50%  { transform: scale(1.05); }
-    100% { transform: scale(1); opacity: 1; }
-  }
-
-  @keyframes pulse-soft {
-    0%, 100% { opacity: 1; }
-    50%      { opacity: 0.7; }
-  }
-
-  /* Reference-style animated underline (used across home & product pages) */
-  @keyframes underline-grow {
-    from { width: 0; }
-    to   { width: 100%; }
-  }
+  /* ─── Easing — Slower, cinematic smooth motion ─── */
+  --ease-catalog: cubic-bezier(0.25, 1, 0.5, 1);
 }
 
 /* ═══════════════════════════════════════
@@ -108,14 +38,14 @@
 
 html {
   scroll-behavior: smooth;
-  background-color: #ffffff;
+  background-color: #050505;
 }
 
 body {
-  background-color: #ffffff;
-  color: #000000;
+  background-color: #050505;
+  color: #F5F5F5;
   font-family: var(--font-body);
-  font-weight: 500;
+  font-weight: 400;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
@@ -123,8 +53,8 @@ body {
 }
 
 ::selection {
-  background-color: var(--color-sun);
-  color: var(--color-ink);
+  background-color: #F5F5F5;
+  color: #050505;
 }
 
 /* ═══════════════════════════════════════
@@ -133,180 +63,32 @@ body {
 
 .font-display { font-family: var(--font-display); }
 .font-body    { font-family: var(--font-body); }
-
-.text-utility {
-  font-family: var(--font-body);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  font-size: 0.8125rem;
-  font-weight: 600;
-}
-
-/* ═══════════════════════════════════════
-   Claymorphic Card System
-   ═══════════════════════════════════════ */
-
-.clay-card {
-  background-color: var(--color-paper);
-  border-radius: var(--radius-card);
-  box-shadow: var(--shadow-card);
-  transition: transform 200ms ease-out, box-shadow 200ms ease-out;
-  will-change: transform;
-}
-
-.clay-card:hover {
-  transform: translateY(-6px) rotate(-2deg);
-  box-shadow: var(--shadow-card-hover);
-}
-
-/* Mobile: press-down instead of hover lift */
-@media (hover: none) {
-  .clay-card:hover {
-    transform: none;
-    box-shadow: var(--shadow-card);
-  }
-  .clay-card:active {
-    transform: scale(0.97);
-  }
-}
-
-/* ═══════════════════════════════════════
-   Shelf Ledge — Signature Element
-   ═══════════════════════════════════════ */
-
-.shelf-ledge {
-  position: relative;
-  padding-bottom: 16px;
-}
-
-.shelf-ledge::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 12px;
-  background: linear-gradient(
-    180deg,
-    var(--color-shelf-wood) 0%,
-    #D4C4AE 60%,
-    #C8B89E 100%
-  );
-  border-radius: 0 0 6px 6px;
-  box-shadow:
-    0 4px 8px -2px rgba(36,39,43,0.10),
-    0 2px 4px -1px rgba(36,39,43,0.06);
-}
-
-/* ═══════════════════════════════════════
-   Button System
-   ═══════════════════════════════════════ */
-
-.btn-playshelf {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 14px 28px;
-  font-family: var(--font-display);
-  font-weight: 600;
-  font-size: 1rem;
-  letter-spacing: -0.01em;
-  border-radius: var(--radius-button);
-  border: none;
-  cursor: pointer;
-  transition: all 200ms ease-out;
-  box-shadow: var(--shadow-button);
-  line-height: 1;
-}
-
-.btn-primary {
-  background-color: var(--color-sun);
-  color: #0C0D0E;
-}
-
-.btn-primary:hover {
-  background-color: var(--color-sun-dark);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px -4px rgba(255,201,60,0.4);
-}
-
-.btn-primary:active {
-  transform: translateY(0);
-  box-shadow: var(--shadow-button);
-}
-
-.btn-ghost {
-  background: transparent;
-  color: var(--color-ink);
-  border: 2px solid var(--color-ink);
-  box-shadow: none;
-}
-
-.btn-ghost:hover {
-  background-color: var(--color-ink);
-  color: var(--color-paper);
-  transform: translateY(-2px);
-}
-
-/* ═══════════════════════════════════════
-   Badge System (Pills)
-   ═══════════════════════════════════════ */
-
-.badge-pill {
-  display: inline-flex;
-  align-items: center;
-  padding: 4px 12px;
-  border-radius: var(--radius-pill);
-  font-family: var(--font-body);
-  font-weight: 600;
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  line-height: 1.4;
-}
-
-.badge-sun   { background-color: #FFF3D6; color: #8B6914; }
-.badge-coral { background-color: #FFE5E2; color: #B33D32; }
-.badge-mint  { background-color: #D4F5F2; color: #2A7A73; }
-.badge-grape { background-color: #EBE8F8; color: #5A4FA0; }
-
-/* ═══════════════════════════════════════
-   Custom Scrollbar (Warm)
-   ═══════════════════════════════════════ */
-
-::-webkit-scrollbar {
-  width: 8px;
-}
-::-webkit-scrollbar-track {
-  background: var(--color-paper);
-}
-::-webkit-scrollbar-thumb {
-  background: var(--color-shelf-wood);
-  border-radius: var(--radius-pill);
-}
-::-webkit-scrollbar-thumb:hover {
-  background: var(--color-line);
-}
-
-/* Firefox */
-* {
-  scrollbar-width: thin;
-  scrollbar-color: var(--color-shelf-wood) var(--color-paper);
-}
+.font-mono    { font-family: var(--font-mono); }
 
 /* ═══════════════════════════════════════
    Focus Rings (Accessibility)
    ═══════════════════════════════════════ */
 
 :focus-visible {
-  outline: 3px solid var(--color-sun);
+  outline: 1px solid #F5F5F5;
   outline-offset: 2px;
-  border-radius: 4px;
 }
 
 /* ═══════════════════════════════════════
-   Horizontal Scroll (Shelf Rows)
+   Custom Scrollbar (Cinematic)
+   ═══════════════════════════════════════ */
+
+::-webkit-scrollbar       { width: 4px; }
+::-webkit-scrollbar-track { background: #050505; }
+::-webkit-scrollbar-thumb { background: #2A2A2A; }
+::-webkit-scrollbar-thumb:hover { background: #F5F5F5; }
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #2A2A2A #050505;
+}
+
+/* ═══════════════════════════════════════
+   Horizontal Scroll
    ═══════════════════════════════════════ */
 
 .scroll-snap-x {
@@ -314,35 +96,14 @@ body {
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
 }
+.scroll-snap-x > * { scroll-snap-align: start; }
+.scroll-snap-x::-webkit-scrollbar { display: none; }
 
-.scroll-snap-x > * {
-  scroll-snap-align: start;
-}
-
-.scroll-snap-x::-webkit-scrollbar {
-  display: none;
-}
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
 /* ═══════════════════════════════════════
-   Reduced Motion
-   ═══════════════════════════════════════ */
-
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
-
-  .clay-card:hover {
-    transform: none;
-  }
-}
-
-/* ═══════════════════════════════════════
-   Utility Helpers
+   Utility
    ═══════════════════════════════════════ */
 
 .line-clamp-1 {
@@ -351,7 +112,6 @@ body {
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 1;
 }
-
 .line-clamp-2 {
   overflow: hidden;
   display: -webkit-box;
@@ -359,55 +119,26 @@ body {
   -webkit-line-clamp: 2;
 }
 
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
+/* Form resets for dark sections */
+.section-light input,
+.section-light textarea,
+.section-light select {
+  background-color: #050505;
+  border-color: #2A2A2A;
+  color: #F5F5F5;
 }
-.no-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
+.section-light input::placeholder,
+.section-light textarea::placeholder { color: #2A2A2A; }
 
 /* ═══════════════════════════════════════
-   Dark Mode Utilities & Form Overrides
+   Reduced Motion
    ═══════════════════════════════════════ */
 
-/* bg-white is transparent so grid shows through */
-
-@layer base {
-  /* Forms contrast in dark mode */
-  input, textarea, select {
-    background-color: #18191D;
-    border-color: #242629;
-    color: #FFFBF3;
-  }
-
-  input::placeholder, textarea::placeholder {
-    color: #5C6068;
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
-
-/* ═══════════════════════════════════════
-   Light-page form overrides
-   (Homepage & ProductDetailsClient use bg-white)
-   ═══════════════════════════════════════ */
-
-/* Inside any section with class bg-white or parent that has bg-white
-   make form controls use a white background with dark text              */
-.bg-white input,
-.bg-white textarea,
-.bg-white select {
-  background-color: #ffffff;
-  border-color: #d1d5db;
-  color: #0f0f0f;
-}
-
-.bg-white input::placeholder,
-.bg-white textarea::placeholder {
-  color: #9ca3af;
-}
-
-/* Specific text fixes for high visibility */
-.text-ink-light {
-  color: #A5A9B0 !important;
-}
-

@@ -5,18 +5,20 @@ import { Dialog, DialogPanel, Transition, TransitionChild } from "@headlessui/re
 import Image from "next/image";
 import { useCart } from "@/components/providers/CartProvider";
 import Link from "next/link";
-import { X, Trash2, ShoppingBag, ArrowRight } from "lucide-react";
 import QuantityStepper from "./QuantityStepper";
 
-const FREE_SHIPPING_THRESHOLD = 2000; // ৳2000
+const FREE_SHIPPING_THRESHOLD = 2000;
 
 export default function CartDrawer() {
   const { items, isOpen, closeCart, removeItem, updateQuantity, total, count } = useCart();
   const remaining = Math.max(0, FREE_SHIPPING_THRESHOLD - total);
+  const pct = Math.min(100, (total / FREE_SHIPPING_THRESHOLD) * 100);
 
   return (
     <Transition show={isOpen} as={Fragment}>
       <Dialog onClose={closeCart} className="relative z-[1000]">
+
+        {/* Backdrop */}
         <TransitionChild
           as={Fragment}
           enter="transition-opacity duration-300"
@@ -26,117 +28,121 @@ export default function CartDrawer() {
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" aria-hidden="true" onClick={closeCart} />
+          <div className="fixed inset-0 bg-ink-black/40" aria-hidden="true" onClick={closeCart} />
         </TransitionChild>
 
+        {/* Panel */}
         <TransitionChild
           as={Fragment}
-          enter="transform transition duration-500 cubic-bezier(0.32, 0.72, 0, 1)"
+          enter="transform transition duration-[500ms] ease-[cubic-bezier(0.25,1,0.5,1)]"
           enterFrom="translate-x-full"
           enterTo="translate-x-0"
-          leave="transform transition duration-300 cubic-bezier(0.32, 0.72, 0, 1)"
+          leave="transform transition duration-[400ms] ease-[cubic-bezier(0.25,1,0.5,1)]"
           leaveFrom="translate-x-0"
           leaveTo="translate-x-full"
         >
-          <DialogPanel className="fixed inset-y-0 right-0 w-full sm:w-[420px] bg-[#0A0A0A]/80 backdrop-blur-xl border-l border-white/10 shadow-2xl flex flex-col overflow-hidden">
-            
+          <DialogPanel className="fixed inset-y-0 right-0 w-full sm:w-[400px] bg-paper-white/95 backdrop-blur-2xl border-l border-rule-grey flex flex-col overflow-hidden">
+
             {/* ─── Header ─── */}
-            <div className="flex items-center justify-between px-8 py-8">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-white/5 border border-white/10 text-white flex items-center justify-center shadow-[0_0_15px_rgba(255,255,255,0.05)]">
-                  <ShoppingBag size={18} strokeWidth={2.5} />
-                </div>
-                <div>
-                  <h2 className="font-display font-bold text-2xl text-white leading-none tracking-tight">Your Cart</h2>
-                  <p className="text-xs font-medium text-neutral-400 mt-1 uppercase tracking-wider">
-                    {count} {count === 1 ? "item" : "items"}
-                  </p>
-                </div>
+            <div className="flex items-start justify-between px-6 pt-8 pb-6 border-b border-rule-grey">
+              <div>
+                <h2 className="font-display text-[32px] uppercase text-ink-black leading-none tracking-[-0.01em]">
+                  Your Cart
+                </h2>
+                <p className="font-mono text-[11px] text-rule-grey uppercase tracking-[0.12em] mt-1">
+                  {count} {count === 1 ? "item" : "items"}
+                </p>
               </div>
               <button
                 onClick={closeCart}
-                className="w-10 h-10 rounded-full bg-transparent flex items-center justify-center text-neutral-400 hover:text-white hover:bg-white/5 transition-all"
+                className="text-ink-black hover:text-rule-grey transition-colors mt-1"
                 aria-label="Close cart"
               >
-                <X size={20} strokeWidth={2} />
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
               </button>
             </div>
 
-            {/* ─── Free Shipping Progress ─── */}
-            <div className="px-8 pb-6">
-              {remaining > 0 ? (
-                <div className="space-y-3">
-                  <p className="text-xs font-medium text-neutral-400 flex justify-between tracking-wide">
-                    <span>Add <strong className="text-white">৳{remaining.toLocaleString()}</strong> for free shipping</span>
-                  </p>
-                  <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-gradient-to-r from-sun to-coral rounded-full transition-all duration-700 ease-out shadow-[0_0_10px_rgba(252,211,77,0.5)]"
-                      style={{ width: `${Math.min(100, (total / FREE_SHIPPING_THRESHOLD) * 100)}%` }}
-                    />
-                  </div>
+            {/* ─── Free shipping progress ─── */}
+            {remaining > 0 && (
+              <div className="px-6 py-4 border-b border-rule-grey">
+                <p className="font-mono text-[10px] text-ink-black uppercase tracking-[0.1em] mb-2">
+                  Add <strong className="text-stamp-red">৳{remaining.toLocaleString()}</strong> for free shipping
+                </p>
+                <div className="h-[1px] w-full bg-rule-grey relative overflow-hidden">
+                  <div
+                    className="absolute inset-y-0 left-0 bg-ink-black transition-all duration-700"
+                    style={{ width: `${pct}%` }}
+                  />
                 </div>
-              ) : (
-                <div className="bg-gradient-to-r from-mint/20 to-mint/5 border border-mint/20 text-mint p-3 rounded-xl flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(167,243,208,0.1)]">
-                  <SparklesIcon className="w-4 h-4" />
-                  <span className="text-sm font-semibold tracking-wide uppercase">Free shipping unlocked</span>
-                </div>
-              )}
-            </div>
+              </div>
+            )}
 
-            {/* ─── Cart Items ─── */}
-            <div className="flex-1 overflow-y-auto px-4 pb-8 space-y-4 hide-scrollbar">
+            {/* ─── Cart Items — "receipt" rows ─── */}
+            <div className="flex-1 overflow-y-auto">
               {items.length === 0 ? (
-                <div className="flex flex-col items-center justify-center h-full text-center px-8">
-                  <div className="w-24 h-24 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-neutral-600 mb-6">
-                    <ShoppingBag size={32} strokeWidth={1.5} />
-                  </div>
-                  <h3 className="font-display font-bold text-xl text-white mb-2 tracking-tight">Your cart is empty</h3>
-                  <p className="text-sm text-neutral-400 mb-8 max-w-[220px] leading-relaxed">
-                    Looks like you haven't added anything to your cart yet.
-                  </p>
-                  <button onClick={closeCart} className="bg-white text-black hover:bg-neutral-200 px-8 py-3 rounded-full text-sm font-bold tracking-wide transition-colors">
-                    Start Shopping
+                <div className="flex flex-col items-center justify-center h-full gap-6 px-6 text-center">
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" className="text-rule-grey">
+                    <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" /><line x1="3" y1="6" x2="21" y2="6" /><path d="M16 10a4 4 0 0 1-8 0" />
+                  </svg>
+                  <p className="font-body text-[14px] text-rule-grey">Your cart is empty.</p>
+                  <button
+                    onClick={closeCart}
+                    className="font-mono text-[11px] uppercase tracking-[0.1em] text-ink-black border border-ink-black px-5 py-2.5 hover:bg-ink-black hover:text-paper-white transition-colors"
+                  >
+                    Continue Shopping
                   </button>
                 </div>
               ) : (
                 items.map((item) => (
                   <div
                     key={`${item.id}-${item.color}-${item.size}`}
-                    className="flex gap-4 p-4 rounded-2xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] transition-colors relative group"
+                    className="flex gap-4 px-6 py-5 border-b border-rule-grey"
                   >
-                    {/* Thumbnail */}
-                    <div className="w-20 h-20 relative shrink-0 rounded-xl overflow-hidden bg-[#111]">
-                      <Image
-                         src={item.image}
-                         alt={item.title}
-                         fill
-                         className="object-cover"
-                         sizes="80px"
-                      />
+                    {/* Thumbnail — flat, no radius */}
+                    <div className="w-[72px] h-[90px] relative shrink-0 bg-paper-grey overflow-hidden">
+                      <Image src={item.image} alt={item.title} fill className="object-cover" sizes="72px" />
                     </div>
 
                     {/* Info */}
                     <div className="flex-1 flex flex-col justify-between py-0.5">
-                      <div className="space-y-1 pr-6">
+                      <div>
                         <Link
                           href={`/products/${item.slug}`}
                           onClick={closeCart}
-                          className="font-display font-semibold text-white hover:text-sun transition-colors line-clamp-1 leading-snug tracking-tight text-lg"
+                          className="font-body text-[13px] text-ink-black leading-snug line-clamp-2 hover:text-rule-grey transition-colors"
                         >
                           {item.title}
                         </Link>
                         {item.size !== "Default" && (
-                           <p className="text-xs text-neutral-500 tracking-wide uppercase">{item.size}</p>
+                          <p className="font-mono text-[10px] text-rule-grey uppercase tracking-[0.08em] mt-0.5">{item.size}</p>
                         )}
                       </div>
 
-                      <div className="flex items-end justify-between mt-2">
-                        <QuantityStepper
-                          value={item.quantity}
-                          onChange={(val) => updateQuantity(item.id, val)}
-                        />
-                        <span className="font-display font-bold text-lg text-white tracking-tight">
+                      <div className="flex items-center justify-between mt-3">
+                        {/* Flat text-based quantity stepper */}
+                        <div className="flex items-center gap-0">
+                          <button
+                            onClick={() => updateQuantity(item.id, Math.max(1, item.quantity - 1))}
+                            className="font-mono text-[16px] text-ink-black w-7 h-7 flex items-center justify-center border border-rule-grey hover:border-ink-black transition-colors leading-none"
+                            aria-label="Decrease"
+                          >
+                            −
+                          </button>
+                          <span className="font-mono text-[12px] text-ink-black w-8 h-7 flex items-center justify-center border-y border-rule-grey">
+                            {item.quantity}
+                          </span>
+                          <button
+                            onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                            className="font-mono text-[16px] text-ink-black w-7 h-7 flex items-center justify-center border border-rule-grey hover:border-ink-black transition-colors leading-none"
+                            aria-label="Increase"
+                          >
+                            +
+                          </button>
+                        </div>
+
+                        <span className="font-mono text-[13px] text-ink-black">
                           ৳{(item.price * item.quantity).toLocaleString()}
                         </span>
                       </div>
@@ -145,49 +151,38 @@ export default function CartDrawer() {
                     {/* Remove */}
                     <button
                       onClick={() => removeItem(item.id)}
-                      className="absolute top-4 right-4 text-neutral-500 hover:text-coral transition-colors"
+                      className="self-start mt-0.5 text-rule-grey hover:text-stamp-red transition-colors"
                       aria-label="Remove item"
                     >
-                      <Trash2 size={16} strokeWidth={2} />
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                        <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+                      </svg>
                     </button>
                   </div>
                 ))
               )}
             </div>
 
-            {/* ─── Bottom Checkout ─── */}
+            {/* ─── Checkout Footer ─── */}
             {items.length > 0 && (
-              <div className="p-8 bg-black/40 backdrop-blur-md border-t border-white/10 space-y-6">
-                <div className="flex items-center justify-between">
-                  <span className="text-neutral-400 text-sm font-medium uppercase tracking-widest">
-                    Subtotal
-                  </span>
-                  <span className="font-display font-bold text-3xl text-white tracking-tight">
-                    ৳{total.toLocaleString()}
-                  </span>
+              <div className="border-t border-rule-grey px-6 py-6 space-y-4 bg-paper-grey">
+                <div className="flex justify-between items-baseline">
+                  <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-rule-grey">Subtotal</span>
+                  <span className="font-mono text-[20px] text-ink-black">৳{total.toLocaleString()}</span>
                 </div>
-
-                <Link href="/checkout" onClick={closeCart} className="block w-full group">
-                  <button className="w-full bg-white text-black hover:bg-neutral-200 py-4 rounded-full font-bold text-sm tracking-widest uppercase flex items-center justify-center gap-2 transition-all">
-                    Checkout <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                <p className="font-mono text-[10px] text-rule-grey uppercase tracking-[0.08em]">
+                  Shipping & taxes calculated at checkout.
+                </p>
+                <Link href="/checkout" onClick={closeCart} className="block">
+                  <button className="w-full bg-ink-black text-paper-white font-mono text-[11px] uppercase tracking-[0.15em] py-4 hover:bg-rule-grey hover:text-ink-black transition-colors duration-200">
+                    Proceed to Checkout →
                   </button>
                 </Link>
-                <p className="text-xs font-medium text-neutral-500 text-center">
-                  Shipping and taxes calculated at checkout.
-                </p>
               </div>
             )}
           </DialogPanel>
         </TransitionChild>
       </Dialog>
     </Transition>
-  );
-}
-
-function SparklesIcon(props: any) {
-  return (
-    <svg {...props} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
-    </svg>
   );
 }

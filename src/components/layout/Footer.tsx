@@ -2,8 +2,11 @@
 
 import React from "react";
 import Link from "next/link";
-import Image from "next/image";
-import { IconBrandFacebook, IconBrandX, IconBrandInstagram, IconBrandYoutube, IconBrandPinterest } from "@tabler/icons-react";
+import { IconBrandFacebook, IconBrandX, IconBrandInstagram, IconBrandYoutube } from "@tabler/icons-react";
+
+const companyLinks = ["About Us", "Blog", "Contact Us"];
+const shopLinks    = ["New Arrivals", "All Toys", "Sale"];
+const helpLinks    = ["Customer Service", "My Account", "Returns", "Legal & Privacy"];
 
 export default function Footer() {
   const handleSubscribe = (e: React.FormEvent) => {
@@ -11,201 +14,134 @@ export default function Footer() {
     alert("Subscribed Successfully");
   };
 
-  const scrollToTop = () => {
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
-  };
-
-  const getCurrentYear = () => new Date().getFullYear();
+  const scrollToTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
 
   return (
-    <footer className="bg-[#e4e4e4] px-4 md:px-[60px] xl:px-[160px] py-12 md:py-[50px] xl:py-[30px] mt-[50px] flex flex-col gap-8 xl:gap-[100px] text-black">
+    <footer className="bg-paper-grey border-t border-rule-grey mt-24 section-light">
 
-      {/* Top Container */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-5 gap-8 xl:gap-[50px] pt-8 xl:pt-[50px]">
+      {/* Top rule */}
+      <div className="h-[1px] bg-rule-grey w-full" />
 
-        {/* Left Section */}
-        <div className="flex flex-col gap-[10px] xl:gap-[20px]">
-          <div className="mb-[20px]">
-            <Image
-              src="/logo/toyhourse-logo.png"
-              alt="Logo"
-              width={140}
-              height={48}
-              className="h-10 w-auto object-contain bg-transparent"
-            />
-          </div>
-          <p className="text-[14px]">
-            Chattogram, Bangladesh
+      {/* Main grid */}
+      <div className="px-4 sm:px-10 lg:px-[5vw] py-16 md:py-20 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-10 lg:gap-8">
+
+        {/* Brand column */}
+        <div className="lg:col-span-2 flex flex-col gap-5">
+          <Link href="/" className="font-display text-[28px] uppercase tracking-[-0.02em] text-ink-black leading-none">
+            PLAYSHELF
+          </Link>
+          <p className="font-body text-[13px] text-ink-black leading-relaxed max-w-[280px]">
+            A design museum's catalog of toys — curated for curious kids aged 0–10.
           </p>
-          <div className="flex flex-col mb-[10px]">
-            <strong className="text-[14px] font-semibold">toyhourse@gmail.com</strong>
-            <strong className="text-[14px] font-semibold">+880 1767-968446</strong>
+          <div className="text-[13px] font-mono text-ink-black flex flex-col gap-1">
+            <span>Chattogram, Bangladesh</span>
+            <a href="mailto:toyhourse@gmail.com" className="hover:text-rule-grey transition-colors">toyhourse@gmail.com</a>
+            <a href="tel:+8801767968446" className="hover:text-rule-grey transition-colors">+880 1767-968446</a>
           </div>
-          <div className="flex gap-[30px] w-[240px]">
-            <a
-              href="https://facebook.com/toyhourse"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:opacity-70 transition-opacity"
-            >
-              <IconBrandFacebook size={20} stroke={1.5} />
-            </a>
-
-            <a
-              href="https://x.com/toyhourse"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:opacity-70 transition-opacity"
-            >
-              <IconBrandX size={20} stroke={1.5} />
-            </a>
-
-            <a
-              href="https://instagram.com/toyhourse"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:opacity-70 transition-opacity"
-            >
-              <IconBrandInstagram size={20} stroke={1.5} />
-            </a>
-
-            <a
-              href="https://youtube.com/toyhourse"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:opacity-70 transition-opacity"
-            >
-              <IconBrandYoutube size={20} stroke={1.5} />
-            </a>
-
-            <a
-              href="https://pinterest.com/toyhourse"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:opacity-70 transition-opacity"
-            >
-              <IconBrandPinterest size={20} stroke={1.5} />
-            </a>
+          <div className="flex gap-5 mt-1">
+            {[
+              { Icon: IconBrandFacebook, href: "https://facebook.com/toyhourse", label: "Facebook" },
+              { Icon: IconBrandX,        href: "https://x.com/toyhourse",        label: "X" },
+              { Icon: IconBrandInstagram,href: "https://instagram.com/toyhourse",label: "Instagram" },
+              { Icon: IconBrandYoutube,  href: "https://youtube.com/toyhourse",  label: "YouTube" },
+            ].map(({ Icon, href, label }) => (
+              <a
+                key={label}
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={label}
+                className="text-ink-black hover:text-rule-grey transition-colors"
+              >
+                <Icon size={18} stroke={1.5} />
+              </a>
+            ))}
           </div>
         </div>
 
-        {/* Company Links */}
-        <div className="flex flex-col gap-[20px] xl:gap-[30px]">
-          <h5 className="text-[18px] font-semibold uppercase">Company</h5>
-          <div>
-            <ul className="flex flex-col gap-[15px]" onClick={scrollToTop}>
-              {["About Us", "Career", "Affiliates", "Blog", "Contact Us"].map((item) => (
-                <li key={item}>
-                  <Link
-                    href={item.toLowerCase().includes("blog") ? "/blogs" : "#"}
-                    className="text-black no-underline text-[14px] relative group inline-block"
-                  >
-                    {item}
-                    <span className="absolute -bottom-[5px] left-0 w-0 h-[2px] bg-black transition-all duration-300 group-hover:w-[80%] delay-100"></span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
+        {/* Company */}
+        <div className="flex flex-col gap-4">
+          <h5 className="font-mono text-[10px] uppercase tracking-[0.12em] text-rule-grey">Company</h5>
+          <ul className="flex flex-col gap-3">
+            {companyLinks.map((item) => (
+              <li key={item}>
+                <Link
+                  href={item.toLowerCase().includes("blog") ? "/blogs" : "#"}
+                  onClick={scrollToTop}
+                  className="font-body text-[13px] text-ink-black relative group inline-block"
+                >
+                  {item}
+                  <span className="absolute -bottom-0.5 left-0 w-0 h-[1px] bg-ink-black transition-[width] duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:w-full" />
+                </Link>
+              </li>
+            ))}
+          </ul>
         </div>
 
-        {/* Shop Links */}
-        <div className="flex flex-col gap-[20px] xl:gap-[30px]">
-          <h5 className="text-[18px] font-semibold uppercase">Shop</h5>
-          <div>
-            <ul className="flex flex-col gap-[15px]" onClick={scrollToTop}>
-              {["New Arrivals", "Accessories", "Men", "Women", "Shop All"].map((item) => (
-                <li key={item}>
-                  <Link
-                    href="/products"
-                    className="text-black no-underline text-[14px] relative group inline-block"
-                  >
-                    {item}
-                    <span className="absolute -bottom-[5px] left-0 w-0 h-[2px] bg-black transition-all duration-300 group-hover:w-[80%] delay-100"></span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
+        {/* Shop */}
+        <div className="flex flex-col gap-4">
+          <h5 className="font-mono text-[10px] uppercase tracking-[0.12em] text-rule-grey">Shop</h5>
+          <ul className="flex flex-col gap-3">
+            {shopLinks.map((item) => (
+              <li key={item}>
+                <Link
+                  href="/products"
+                  onClick={scrollToTop}
+                  className="font-body text-[13px] text-ink-black relative group inline-block"
+                >
+                  {item}
+                  <span className="absolute -bottom-0.5 left-0 w-0 h-[1px] bg-ink-black transition-[width] duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:w-full" />
+                </Link>
+              </li>
+            ))}
+          </ul>
         </div>
 
-        {/* Help Links */}
-        <div className="flex flex-col gap-[20px] xl:gap-[30px]">
-          <h5 className="text-[18px] font-semibold uppercase">Help</h5>
-          <div>
-            <ul className="flex flex-col gap-[15px]" onClick={scrollToTop}>
-              {["Customer Service", "My Account", "Find a Store", "Legal & Privacy", "Contact", "Gift Card"].map((item) => (
-                <li key={item}>
-                  <Link
-                    href="#"
-                    className="text-black no-underline text-[14px] relative group inline-block"
-                  >
-                    {item}
-                    <span className="absolute -bottom-[5px] left-0 w-0 h-[2px] bg-black transition-all duration-300 group-hover:w-[80%] delay-100"></span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
+        {/* Help + Subscribe */}
+        <div className="flex flex-col gap-4">
+          <h5 className="font-mono text-[10px] uppercase tracking-[0.12em] text-rule-grey">Help</h5>
+          <ul className="flex flex-col gap-3 mb-6">
+            {helpLinks.map((item) => (
+              <li key={item}>
+                <Link href="#" className="font-body text-[13px] text-ink-black relative group inline-block">
+                  {item}
+                  <span className="absolute -bottom-0.5 left-0 w-0 h-[1px] bg-ink-black transition-[width] duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:w-full" />
+                </Link>
+              </li>
+            ))}
+          </ul>
 
-        {/* Right Section (Subscribe) */}
-        <div className="flex flex-col gap-[20px] xl:gap-[30px]">
-          <h5 className="text-[18px] font-semibold uppercase">Subscribe</h5>
-          <p className="text-[14px]">
-            Be the first to get the latest news about trends, promotions, and much more!
-          </p>
-
-          <form onSubmit={handleSubscribe} className="flex -mt-[10px]">
+          {/* Newsletter — flat catalog style */}
+          <h5 className="font-mono text-[10px] uppercase tracking-[0.12em] text-rule-grey">Newsletter</h5>
+          <form onSubmit={handleSubscribe} className="flex border border-rule-grey">
             <input
               type="email"
-              placeholder="Your email address"
+              placeholder="your@email.com"
               required
-              className="w-full px-[20px] py-[19px] border-none outline-none text-[14px] bg-white text-black"
+              className="flex-1 px-3 py-2.5 bg-paper-white text-ink-black font-mono text-[12px] outline-none border-none placeholder:text-rule-grey"
             />
             <button
               type="submit"
-              className="px-[20px] py-[10px] bg-black text-white border-none cursor-pointer uppercase font-medium text-[14px] whitespace-nowrap"
+              className="px-4 py-2.5 bg-ink-black text-paper-white font-mono text-[10px] uppercase tracking-[0.1em] whitespace-nowrap hover:bg-rule-grey hover:text-ink-black transition-colors"
             >
               Join
             </button>
           </form>
-
-          <h6 className="text-[14px] font-medium m-0">Secure Payments</h6>
-          <div className="h-[30px] w-full max-w-[250px] -mt-[10px]">
-            <Image
-              src="/images/paymentIcon.png"
-              alt="Payments"
-              width={250}
-              height={30}
-              className="w-full h-full object-contain object-left bg-transparent"
-              unoptimized
-            />
-          </div>
         </div>
       </div>
 
-      {/* Bottom Container */}
-      <div className="flex flex-wrap justify-between items-center mt-5 border-t border-[#cfcdcd] pt-[30px] gap-5">
-        <p className="text-[14px] m-0">
-          © {getCurrentYear()} Toy Hourse. All Rights Reserved | Developed By{" "}
-          <a
-            href="#"
-            target="_blank"
-            rel="noreferrer"
-            className="text-[#C22928] no-underline font-medium"
-          >
-            Rimon Dutta
-          </a>{" "}
-
+      {/* Bottom bar */}
+      <div className="border-t border-rule-grey px-4 sm:px-10 lg:px-[5vw] py-5 flex flex-wrap justify-between items-center gap-3">
+        <p className="font-mono text-[11px] text-rule-grey uppercase tracking-[0.08em]">
+          © {new Date().getFullYear()} Playshelf. All Rights Reserved.
         </p>
-
-
+        <a
+          href="#"
+          className="font-mono text-[11px] text-stamp-red uppercase tracking-[0.08em] hover:opacity-70 transition-opacity"
+        >
+          Developed by Rimon Dutta
+        </a>
       </div>
-
     </footer>
   );
 }

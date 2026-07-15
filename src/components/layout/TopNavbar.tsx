@@ -1,18 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useCart } from "@/components/providers/CartProvider";
 import { useSearch } from "@/components/providers/SearchProvider";
-import {
-  IconSearch,
-  IconShoppingCart,
-  IconUser,
-  IconHeart,
-  IconMenu2
-} from "@tabler/icons-react";
 import { cn } from "@/lib/utils";
 import { useUIStore } from "@/store/uiStore";
 
@@ -23,126 +15,112 @@ export default function TopNavbar() {
   const pathname = usePathname();
 
   const navLinks = [
-    { title: "HOME", href: "/" },
-    { title: "SHOP", href: "/products" },
-    { title: "BLOG", href: "/blogs" },
-    { title: "ABOUT", href: "/about" },
-    { title: "CONTACT", href: "/contact" },
+    { label: "SHOP",    href: "/products" },
+    { label: "BLOG",    href: "/blogs" },
+    { label: "ABOUT",   href: "/about" },
+    { label: "CONTACT", href: "/contact" },
   ];
 
   return (
-    <nav className="sticky top-0 z-50 w-full bg-white shadow-[0_10px_33px_rgba(0,0,0,0.1)] transition-all">
-      {/* ─── Desktop & Mobile Layout Container ─── */}
-      <div className="flex items-center justify-between px-4 sm:px-10 lg:px-40 py-4 md:py-[35px]">
-        
-        {/* Mobile Left: Menu Toggle */}
-        <div className="md:hidden flex items-center">
-          <button
-            onClick={openMobileMenu}
-            className="text-black p-1 active:scale-95 transition-transform"
-            aria-label="Menu"
-          >
-            <IconMenu2 className="h-6 w-6" stroke={2} />
-          </button>
-        </div>
+    <nav className="sticky top-0 z-50 w-full bg-paper-white/80 backdrop-blur-xl border-b border-rule-grey">
+      <div className="flex items-center justify-between px-4 sm:px-10 lg:px-[5vw] py-4">
 
-        {/* Desktop Left: Logo + Links */}
-        <div className="hidden md:flex items-center gap-10 lg:gap-[60px]">
-          {/* Logo */}
-          <Link href="/" className="flex items-center justify-center">
-            <Image
-              src="/logo/toyhourse-logo.png"
-              alt="Logo"
-              width={160}
-              height={50}
-              className="h-8 lg:h-9 w-auto object-contain"
-              priority
-            />
-          </Link>
-          
-          {/* Links */}
-          <div className="flex items-center gap-6 lg:gap-10">
-            {navLinks.map((link) => {
-              const isActive = pathname === link.href;
-              return (
-                <Link
-                  key={link.title}
-                  href={link.href}
+        {/* Mobile — Hamburger */}
+        <button
+          onClick={openMobileMenu}
+          className="md:hidden flex flex-col gap-[5px] p-1"
+          aria-label="Open menu"
+        >
+          <span className="block w-5 h-[1px] bg-ink-black" />
+          <span className="block w-5 h-[1px] bg-ink-black" />
+          <span className="block w-3 h-[1px] bg-ink-black" />
+        </button>
+
+        {/* Logo — Oswald Display */}
+        <Link
+          href="/"
+          className="font-display text-[22px] md:text-[26px] uppercase tracking-[-0.02em] text-ink-black leading-none"
+        >
+          PLAYSHELF
+        </Link>
+
+        {/* Desktop — Nav links */}
+        <div className="hidden md:flex items-center gap-8">
+          {navLinks.map((link) => {
+            const active = pathname === link.href || pathname.startsWith(link.href + "/");
+            return (
+              <Link
+                key={link.label}
+                href={link.href}
+                className={cn(
+                  "font-body text-[11px] uppercase tracking-[0.12em] relative group transition-colors duration-200",
+                  active ? "text-ink-black" : "text-rule-grey hover:text-ink-black"
+                )}
+              >
+                {link.label}
+                {/* Hairline active / hover underline */}
+                <span
                   className={cn(
-                    "font-sans text-[14px] font-semibold text-[#1b1b1b] relative group"
+                    "absolute -bottom-0.5 left-0 h-[1px] bg-ink-black transition-[width] duration-300 ease-[cubic-bezier(0.25,1,0.5,1)]",
+                    active ? "w-full" : "w-0 group-hover:w-full"
                   )}
-                >
-                  {link.title}
-                  <span
-                    className={cn(
-                      "absolute left-0 -bottom-1 h-[2px] bg-[#1b1b1b] transition-[width] duration-300 ease-out",
-                      isActive ? "w-[60%]" : "w-0 group-hover:w-[60%] group-hover:delay-100"
-                    )}
-                  />
-                </Link>
-              );
-            })}
-          </div>
+                />
+              </Link>
+            );
+          })}
         </div>
 
-        {/* Mobile Center: Logo */}
-        <div className="md:hidden flex flex-1 items-center justify-center">
-          <Link href="/" className="flex items-center group">
-            <Image
-              src="/logo/toyhourse-logo.png"
-              alt="Logo"
-              width={120}
-              height={40}
-              className="h-7 w-auto object-contain"
-              priority
-            />
-          </Link>
-        </div>
-
-        {/* Desktop Right & Mobile Right: Icons */}
-        <div className="flex items-center justify-end gap-4 md:gap-[35px]">
-          {/* Desktop Only Icons */}
+        {/* Icons — Search, Account, Wishlist, Cart */}
+        <div className="flex items-center gap-4 md:gap-5">
+          {/* Search */}
           <button
             onClick={openSearch}
-            className="hidden md:flex items-center justify-center text-black hover:opacity-70 transition-opacity"
+            className="hidden md:flex text-ink-black hover:text-rule-grey transition-colors"
             aria-label="Search"
           >
-            <IconSearch size={22} stroke={2} />
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
+            </svg>
           </button>
-          
+
+          {/* Account */}
           <Link
             href="/account"
-            className="hidden md:flex items-center justify-center text-black hover:opacity-70 transition-opacity"
+            className="hidden md:flex text-ink-black hover:text-rule-grey transition-colors"
             aria-label="Account"
           >
-            <IconUser size={22} stroke={2} />
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" />
+            </svg>
           </Link>
 
-          {/* Cart Icon (Desktop & Mobile) */}
-          <button
-            onClick={openCart}
-            className="text-black relative flex items-center justify-center hover:opacity-70 transition-opacity"
-            aria-label="Cart"
-          >
-            <IconShoppingCart size={22} stroke={2} />
-            <span className={cn(
-              "absolute -top-1.5 -right-1.5 text-white font-bold text-[10px] w-4 h-4 rounded-full flex items-center justify-center transition-transform",
-              cartCount > 0 ? "scale-100 bg-[#1976d2]" : "scale-0 bg-transparent"
-            )}>
-              {cartCount > 9 ? "9+" : cartCount}
-            </span>
-          </button>
-
-          {/* Desktop Only Icons */}
+          {/* Wishlist */}
           <Link
             href="/wishlist"
-            className="hidden md:flex items-center justify-center text-black hover:opacity-70 transition-opacity"
+            className="hidden md:flex text-ink-black hover:text-rule-grey transition-colors"
             aria-label="Wishlist"
           >
-            <IconHeart size={22} stroke={2} />
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+            </svg>
           </Link>
-        </div>
 
+          {/* Cart — stamp-red count */}
+          <button
+            onClick={openCart}
+            className="relative text-ink-black hover:text-rule-grey transition-colors"
+            aria-label="Cart"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" /><line x1="3" y1="6" x2="21" y2="6" /><path d="M16 10a4 4 0 0 1-8 0" />
+            </svg>
+            {cartCount > 0 && (
+              <span className="absolute -top-2 -right-2 bg-stamp-red text-paper-white font-mono text-[9px] font-bold w-4 h-4 flex items-center justify-center leading-none">
+                {cartCount > 9 ? "9+" : cartCount}
+              </span>
+            )}
+          </button>
+        </div>
       </div>
     </nav>
   );

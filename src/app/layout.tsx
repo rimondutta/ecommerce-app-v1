@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Anek_Bangla } from "next/font/google";
+import { Oswald, Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { CartProvider } from "@/components/providers/CartProvider";
 import { WishlistProvider } from "@/components/providers/WishlistProvider";
@@ -8,11 +8,22 @@ import GlobalUI from "@/components/layout/GlobalUI";
 import NextAuthProvider from "@/components/providers/NextAuthProvider";
 import { ToastProvider } from "@/components/playshelf/Toast";
 
-const anekBangla = Anek_Bangla({
-  subsets: ["latin", "bengali"],
+const bigShoulders = Oswald({
+  subsets: ["latin"],
   display: "swap",
-  variable: "--font-anek",
-  weight: ["100", "200", "300", "400", "500", "600", "700", "800"],
+  variable: "--font-big-shoulders",
+});
+
+const inter = Inter({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-inter",
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-jetbrains-mono",
 });
 
 export const metadata: Metadata = {
@@ -46,11 +57,11 @@ export default function RootLayout({
       lang="en"
       suppressHydrationWarning
       data-scroll-behavior="smooth"
-      className={`${anekBangla.variable}`}
+      className={`${bigShoulders.variable} ${inter.variable} ${jetbrainsMono.variable}`}
     >
-      <body 
+      <body
         suppressHydrationWarning
-        className="relative min-h-screen flex flex-col bg-paper text-ink font-body selection:bg-sun selection:text-ink"
+        className="relative min-h-screen flex flex-col bg-paper-white text-ink-black font-body selection:bg-ink-black selection:text-paper-white"
       >
         <NextAuthProvider>
           <WishlistProvider>

@@ -14,7 +14,7 @@ export default async function ShopPage() {
   // means we pass the list to the client. This is still MUCH better than a client-side fetch on mount.
   const products = await Product.find({ isPublished: true })
     .populate('category')
-    .select('title price slug images category badge ageRange createdAt')
+    .select('title price slug images category badge ageRange createdAt rating reviewCount')
     .sort({ createdAt: -1 })
     .limit(200)
     .lean();

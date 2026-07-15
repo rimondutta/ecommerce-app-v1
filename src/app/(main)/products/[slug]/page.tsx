@@ -68,7 +68,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
       .select('-__v') 
       .lean(),
     Product.find({ isPublished: true })
-      .select('title price slug images category inventory')
+      .select('title price slug images category inventory rating reviewCount')
       .limit(8)
       .lean(),
   ]);

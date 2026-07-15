@@ -4,9 +4,9 @@ import React, { useState } from "react";
 import { X } from "lucide-react";
 
 const OFFERS = [
-  "🎉 Free Shipping on orders over ৳1,500 — Shop Now",
-  "🔥 Summer Sale: Up to 60% Off on selected toys!",
-  "🎁 Buy 2 Get 1 Free on all Educational Toys this week",
+  "Free Shipping on orders over ৳1,500 — Shop Now",
+  "Summer Sale: Up to 60% Off on selected toys",
+  "Buy 2 Get 1 Free on all Educational Toys this week",
 ];
 
 export default function OfferBar() {
@@ -16,38 +16,29 @@ export default function OfferBar() {
   if (!visible) return null;
 
   return (
-    <div className="w-full bg-black text-white text-center text-[13px] font-medium py-2.5 px-4 relative flex items-center justify-center gap-3">
-      
-      {/* Left Arrow */}
+    <div className="w-full bg-paper-grey border-b border-rule-grey py-2 px-4 relative flex items-center justify-center gap-4">
       <button
-        onClick={() => setCurrentOffer((prev) => (prev - 1 + OFFERS.length) % OFFERS.length)}
-        className="hidden sm:flex items-center justify-center opacity-60 hover:opacity-100 transition-opacity text-white"
+        onClick={() => setCurrentOffer((p) => (p - 1 + OFFERS.length) % OFFERS.length)}
+        className="hidden sm:block font-mono text-[14px] text-ink-black/50 hover:text-ink-black transition-colors leading-none"
         aria-label="Previous offer"
-      >
-        ‹
-      </button>
+      >‹</button>
 
-      {/* Offer Text */}
-      <span className="transition-all duration-300">
+      <span className="font-mono text-[10px] uppercase tracking-[0.15em] text-ink-black/90">
         {OFFERS[currentOffer]}
       </span>
 
-      {/* Right Arrow */}
       <button
-        onClick={() => setCurrentOffer((prev) => (prev + 1) % OFFERS.length)}
-        className="hidden sm:flex items-center justify-center opacity-60 hover:opacity-100 transition-opacity text-white"
+        onClick={() => setCurrentOffer((p) => (p + 1) % OFFERS.length)}
+        className="hidden sm:block font-mono text-[14px] text-ink-black/50 hover:text-ink-black transition-colors leading-none"
         aria-label="Next offer"
-      >
-        ›
-      </button>
+      >›</button>
 
-      {/* Close Button */}
       <button
         onClick={() => setVisible(false)}
-        className="absolute right-3 top-1/2 -translate-y-1/2 opacity-60 hover:opacity-100 transition-opacity text-white"
-        aria-label="Close offer bar"
+        className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-black/40 hover:text-ink-black transition-colors"
+        aria-label="Close"
       >
-        <X size={14} />
+        <X size={12} />
       </button>
     </div>
   );

@@ -2,157 +2,111 @@
 
 import React from "react";
 import Link from "next/link";
-import Image from "next/image";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { useUIStore } from "@/store/uiStore";
-import {
-  X,
-  ChevronRight,
-  Home,
-  Search,
-  Heart,
-  User,
-  Sparkles,
-  Package,
-  Tag,
-  Mail,
-} from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const menuItems = [
-  { label: "Home", href: "/", icon: Home, color: "#FFC93C" },
-  { label: "Shop All Toys", href: "/products", icon: Search, color: "#4ECDC4" },
-  { label: "New Arrivals", href: "/products?badge=New", icon: Sparkles, color: "#8B7FD6" },
-  { label: "Sale", href: "/products?badge=Sale", icon: Tag, color: "#FF6B5D" },
-  { label: "Wishlist", href: "/wishlist", icon: Heart, color: "#FF6B5D" },
-  { label: "My Account", href: "/account", icon: User, color: "#4ECDC4" },
-  { label: "Contact", href: "/contact", icon: Mail, color: "#FFC93C" },
-];
-
-const categories = [
-  "Building & Construction",
-  "Pretend Play",
-  "Arts & Crafts",
-  "Puzzles & Games",
-  "Baby & Toddler",
+const navItems = [
+  { num: "01", label: "SHOP",    href: "/products" },
+  { num: "02", label: "ABOUT",   href: "/about" },
+  { num: "03", label: "BLOG",    href: "/blogs" },
+  { num: "04", label: "CONTACT", href: "/contact" },
+  { num: "05", label: "ACCOUNT", href: "/account" },
+  { num: "06", label: "WISHLIST",href: "/wishlist" },
 ];
 
 export default function MobileMenu() {
   const { isMobileMenuOpen, closeMobileMenu } = useUIStore();
+  const reduced = useReducedMotion();
+
+  const container = {
+    hidden: {},
+    visible: { transition: { staggerChildren: reduced ? 0 : 0.07, delayChildren: 0.1 } },
+  };
+  const item = {
+    hidden: reduced ? { opacity: 0 } : { opacity: 0, x: -24 },
+    visible: { opacity: 1, x: 0, transition: { ease: [0.25, 1, 0.5, 1], duration: 0.55 } },
+  };
 
   return (
-    <>
-      {/* Backdrop */}
-      <div
-        className={cn(
-          "fixed inset-0 bg-black/70 backdrop-blur-md z-[1000] transition-opacity duration-300",
-          isMobileMenuOpen ? "opacity-100" : "opacity-0 pointer-events-none"
-        )}
-        onClick={closeMobileMenu}
-        aria-hidden="true"
-      />
-
-      {/* Drawer */}
-      <div
-        className={cn(
-          "fixed inset-y-0 left-0 w-full max-w-sm z-[1001] transform transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] flex flex-col overflow-hidden",
-          "bg-[#0A0A0A] border-r border-white/8",
-          isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
-        )}
-      >
-        {/* Ambient glow */}
-        <div
-          className="pointer-events-none absolute top-0 left-0 w-64 h-64 rounded-full opacity-10"
-          style={{
-            background: "radial-gradient(circle, #FFC93C 0%, transparent 70%)",
-          }}
-        />
-
-        {/* Header */}
-        <div className="relative z-10 flex items-center justify-between px-5 py-4 border-b border-white/8">
-          <Link href="/" onClick={closeMobileMenu}>
-            <Image
-              src="/logo/toyhourse-logo.png"
-              alt="Toy Hourse"
-              width={120}
-              height={40}
-              className="h-9 w-auto object-contain"
-            />
-          </Link>
-          <button
+    <AnimatePresence>
+      {isMobileMenuOpen && (
+        <>
+          {/* Backdrop */}
+          <motion.div
+            key="backdrop"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.25 }}
+            className="fixed inset-0 bg-paper-white/80 backdrop-blur-sm z-[1000]"
             onClick={closeMobileMenu}
-            className="w-9 h-9 flex items-center justify-center rounded-xl bg-white/5 border border-white/8 text-white/50 hover:text-white hover:bg-white/10 transition-all duration-200"
+            aria-hidden="true"
+          />
+
+          {/* Drawer — cinematic dark panel */}
+          <motion.div
+            key="drawer"
+            initial={{ x: reduced ? 0 : "-100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: reduced ? 0 : "-100%", opacity: reduced ? 0 : 1 }}
+            transition={{ ease: [0.25, 1, 0.5, 1], duration: reduced ? 0.15 : 0.6 }}
+            className="fixed inset-y-0 left-0 w-[85vw] max-w-sm z-[1001] bg-paper-grey/90 backdrop-blur-2xl flex flex-col overflow-hidden border-r border-rule-grey"
           >
-            <X size={18} />
-          </button>
-        </div>
-
-        {/* Scrollable content */}
-        <div className="relative z-10 flex-1 overflow-y-auto">
-          {/* Main Links */}
-          <div className="p-3 space-y-0.5">
-            {menuItems.map((item) => {
-              const Icon = item.icon;
-              return (
-                <Link
-                  key={item.label}
-                  href={item.href}
-                  onClick={closeMobileMenu}
-                  className="flex items-center justify-between px-4 py-3.5 rounded-xl hover:bg-white/5 transition-all duration-200 group"
-                >
-                  <div className="flex items-center gap-3.5">
-                    <div
-                      className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
-                      style={{
-                        background: `${item.color}15`,
-                        border: `1px solid ${item.color}20`,
-                      }}
-                    >
-                      <Icon size={17} style={{ color: item.color }} strokeWidth={1.8} />
-                    </div>
-                    <span className="font-semibold text-[15px] text-white/70 group-hover:text-white transition-colors duration-200">
-                      {item.label}
-                    </span>
-                  </div>
-                  <ChevronRight
-                    size={15}
-                    className="text-white/15 group-hover:text-white/30 group-hover:translate-x-0.5 transition-all duration-200"
-                  />
-                </Link>
-              );
-            })}
-          </div>
-
-          {/* Divider */}
-          <div className="h-px bg-white/5 mx-5 my-1" />
-
-          {/* Categories */}
-          <div className="p-5 pb-8">
-            <p className="text-[10px] font-bold text-white/20 uppercase tracking-widest mb-3 px-1">
-              Shop by Category
-            </p>
-            <div className="space-y-0.5">
-              {categories.map((cat) => (
-                <Link
-                  key={cat}
-                  href={`/products?category=${encodeURIComponent(cat)}`}
-                  onClick={closeMobileMenu}
-                  className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm text-white/45 hover:text-white hover:bg-white/5 transition-all duration-200"
-                >
-                  <span className="w-1 h-1 rounded-full bg-white/20 shrink-0" />
-                  {cat}
-                </Link>
-              ))}
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 py-5 border-b border-rule-grey">
+              <Link
+                href="/"
+                onClick={closeMobileMenu}
+                className="font-display text-[22px] uppercase tracking-[-0.02em] text-ink-black"
+              >
+                PLAYSHELF
+              </Link>
+              <button
+                onClick={closeMobileMenu}
+                className="text-ink-black hover:text-rule-grey transition-colors"
+                aria-label="Close menu"
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              </button>
             </div>
-          </div>
-        </div>
 
-        {/* Bottom strip */}
-        <div className="relative z-10 border-t border-white/5 px-5 py-4">
-          <p className="text-[11px] text-white/20 text-center">
-            © {new Date().getFullYear()} Toy Hourse
-          </p>
-        </div>
-      </div>
-    </>
+            {/* Index-numbered nav items */}
+            <motion.nav
+              className="flex-1 overflow-y-auto px-6 py-8"
+              variants={container}
+              initial="hidden"
+              animate="visible"
+            >
+              {navItems.map((link) => (
+                <motion.div key={link.num} variants={item}>
+                  <Link
+                    href={link.href}
+                    onClick={closeMobileMenu}
+                    className="group flex items-baseline gap-4 py-4 border-b border-rule-grey last:border-0"
+                  >
+                    <span className="font-mono text-[11px] text-rule-grey w-6 shrink-0">
+                      {link.num}
+                    </span>
+                    <span className="font-display text-[28px] uppercase text-ink-black leading-none tracking-[-0.02em] group-hover:text-rule-grey transition-colors duration-200">
+                      {link.label}
+                    </span>
+                  </Link>
+                </motion.div>
+              ))}
+            </motion.nav>
+
+            {/* Footer strip */}
+            <div className="px-6 py-4 border-t border-rule-grey">
+              <p className="font-mono text-[10px] text-rule-grey uppercase tracking-[0.1em]">
+                © {new Date().getFullYear()} Playshelf
+              </p>
+            </div>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
   );
 }

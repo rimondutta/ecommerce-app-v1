@@ -1,231 +1,265 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
+import Image from "next/image";
+import { motion, useReducedMotion } from "framer-motion";
 import ProductGridNike from "@/components/ui/product-grid-nike";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import AnimatedReveal from "@/components/ui/AnimatedReveal";
 import dynamic from "next/dynamic";
 
-const DynamicServicesStrip = dynamic(() => import("./HomepageSections").then((mod) => mod.ServicesStrip), { ssr: true });
 const DynamicInstagramSection = dynamic(() => import("./InstagramSection"), { ssr: false });
-const HeroSlider = dynamic(() => import("./HeroSlider"), { ssr: false });
 
-interface Product {
-  _id: string;
-  title: string;
-  slug: string;
-  price: number;
-  compareAtPrice?: number;
-  images: { url: string; alt?: string }[];
-  badge?: string;
-  ageRange?: string;
-  rating?: number;
-  reviewCount?: number;
-}
-
-interface Category {
-  name: string;
-  slug: string;
-  image: string;
-}
-
-/* ─── Countdown Timer Hook ─── */
-function useCountdown(targetDays: number, targetHours: number, targetMinutes: number, targetSeconds: number) {
-  const [timeLeft, setTimeLeft] = useState({
-    days: targetDays,
-    hours: targetHours,
-    minutes: targetMinutes,
-    seconds: targetSeconds,
-  });
-
+// ─── Countdown Timer Hook (logic untouched) ───
+function useCountdown(d: number, h: number, m: number, s: number) {
+  const [timeLeft, setTimeLeft] = useState({ days: d, hours: h, minutes: m, seconds: s });
   useEffect(() => {
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
-        const { days, hours, minutes, seconds } = prev;
-        if (days === 0 && hours === 0 && minutes === 0 && seconds === 0) {
-          clearInterval(timer);
-          return prev;
-        }
-        let s = seconds - 1, m = minutes, h = hours, d = days;
-        if (s < 0) { s = 59; m -= 1; }
-        if (m < 0) { m = 59; h -= 1; }
-        if (h < 0) { h = 23; d -= 1; }
-        return { days: d, hours: h, minutes: m, seconds: s };
+        let { days, hours, minutes, seconds } = prev;
+        if (days === 0 && hours === 0 && minutes === 0 && seconds === 0) { clearInterval(timer); return prev; }
+        seconds -= 1;
+        if (seconds < 0) { seconds = 59; minutes -= 1; }
+        if (minutes < 0) { minutes = 59; hours -= 1; }
+        if (hours < 0) { hours = 23; days -= 1; }
+        return { days, hours, minutes, seconds };
       });
     }, 1000);
     return () => clearInterval(timer);
   }, []);
-
   return timeLeft;
 }
-
 function pad(n: number) { return String(n).padStart(2, "0"); }
 
-/* ─── Animated Underline Link ─── */
-function UnderlineLink({ href, children, className = "" }: { href: string; children: React.ReactNode; className?: string }) {
-  return (
-    <Link href={href} className={`relative inline-block text-current no-underline group ${className}`}>
-      {children}
-      <span className="absolute left-0 -bottom-1 w-3/4 h-[2px] bg-current transition-[width] duration-200 ease-in-out group-hover:w-full" />
-    </Link>
-  );
+interface Product {
+  _id: string; title: string; slug: string; price: number;
+  compareAtPrice?: number; images: { url: string; alt?: string }[];
+  badge?: string; ageRange?: string; rating?: number; reviewCount?: number;
 }
-
-/* ─── Red-accent label (like "New Trend" / "Deal of the Week") ─── */
-function AccentLabel({ children }: { children: React.ReactNode }) {
-  return (
-    <p className="relative pl-12 text-[#c22928] uppercase font-medium tracking-wide text-sm before:content-[''] before:block before:w-9 before:h-[2px] before:bg-[#c22928] before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2">
-      {children}
-    </p>
-  );
-}
-
-/* ─── Collection Bento Tile ─── */
-function CollectionTile({
-  image,
-  label,
-  title,
-  href,
-  className = "",
-}: {
-  image: string;
-  label?: string;
-  title: React.ReactNode;
-  href: string;
-  className?: string;
-}) {
-  return (
-    <div
-      className={`relative overflow-hidden group flex flex-col justify-end p-6 bg-[#eff0f1] ${className}`}
-      style={
-        image
-          ? {
-            backgroundImage: `url(${image})`,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-          }
-          : {}
-      }
-    >
-      {/* Gradient overlay for text legibility */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
-      <div className="relative z-10">
-        {label && (
-          <p className="uppercase text-white/80 text-xs font-medium tracking-wider mb-1">{label}</p>
-        )}
-        <h3 className="text-white uppercase text-xl md:text-2xl font-medium leading-tight mb-3">{title}</h3>
-        <UnderlineLink href={href} className="text-white uppercase text-xs font-medium tracking-wider">
-          Shop Now
-        </UnderlineLink>
-      </div>
-    </div>
-  );
-}
+interface Category { name: string; slug: string; image: string; }
 
 export default function Homepage({
   initialTrendingProducts = [],
-  initialCategories = []
+  initialCategories = [],
 }: {
-  initialTrendingProducts?: Product[],
-  initialCategories?: Category[]
+  initialTrendingProducts?: Product[];
+  initialCategories?: Category[];
 }) {
   const [trendingProducts, setTrendingProducts] = useState<any[]>(initialTrendingProducts);
   const [categories, setCategories] = useState<Category[]>(initialCategories);
+  const reduced = useReducedMotion();
 
-  // Fallback to client fetching only if no initial data provided (e.g., if used elsewhere)
+  // Fallback client fetch — data logic untouched
   useEffect(() => {
     if (initialTrendingProducts.length === 0) {
       fetch('/api/store/products?limit=4')
-        .then(res => res.json())
-        .then(data => setTrendingProducts(data.products || []))
-        .catch(err => console.error(err));
+        .then(r => r.json()).then(d => setTrendingProducts(d.products || []))
+        .catch(console.error);
     }
     if (initialCategories.length === 0) {
       fetch('/api/store/categories')
-        .then(res => res.json())
-        .then(data => { if (data.categories) setCategories(data.categories); })
-        .catch(err => console.error(err));
+        .then(r => r.json()).then(d => { if (d.categories) setCategories(d.categories); })
+        .catch(console.error);
     }
   }, [initialTrendingProducts, initialCategories]);
 
-  // ─── Deal Countdown ───
   const timeLeft = useCountdown(12, 8, 45, 0);
 
+  // Orchestrated page-load sequence variants (~2.5s total) - Slower for cinematic effect
+  const seq: any = {
+    container: { hidden: {}, visible: { transition: { staggerChildren: reduced ? 0 : 0.2, delayChildren: 0.2 } } },
+    rule:  { hidden: reduced ? { opacity: 0 } : { scaleX: 0, opacity: 0 },  visible: { scaleX: 1, opacity: 1, transition: { duration: 1.0, ease: [0.25, 1, 0.5, 1] } } },
+    label: { hidden: reduced ? { opacity: 0 } : { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.25, 1, 0.5, 1] } } },
+    title: { hidden: reduced ? { opacity: 0 } : { opacity: 0, y: 32 }, visible: { opacity: 1, y: 0, transition: { duration: 1.2,  ease: [0.25, 1, 0.5, 1] } } },
+    photo: { hidden: reduced ? { opacity: 0 } : { opacity: 0, scale: 1.05 }, visible: { opacity: 1, scale: 1.0, transition: { duration: 1.8, ease: [0.25, 1, 0.5, 1] } } },
+  };
+
   return (
-    <div className="bg-white min-h-screen font-sans">
+    <div className="bg-paper-white min-h-screen font-body">
 
-      {/* ═══════════════════════════════════════════
-          1. HERO SECTION — SLIDER
-          ═══════════════════════════════════════════ */}
-      <HeroSlider />
+      {/* ═══════════════════════════════════════════════
+          1. HERO — cinematic full-bleed exhibit
+          ═══════════════════════════════════════════════ */}
+      <section className="relative overflow-hidden min-h-[90vh] md:min-h-screen flex items-end md:items-center pb-24 md:pb-0 border-b border-rule-grey">
 
-      {/* ═══════════════════════════════════════════
-          2. COLLECTIONS BENTO GRID (Dynamic)
-          ═══════════════════════════════════════════ */}
+        {/* Cinematic full-bleed video */}
+        <motion.div
+          className="absolute inset-0 z-0"
+          variants={seq.photo}
+          initial="hidden"
+          animate="visible"
+        >
+          <div className="absolute inset-0 bg-paper-white" />
+          <video
+            autoPlay
+            muted
+            loop
+            playsInline
+            className="absolute inset-0 w-full h-full object-cover object-center"
+          >
+            <source src="/video/hero-bg.mp4" type="video/mp4" />
+          </video>
+          {/* Bottom vignette gradient — dark fade to transparent */}
+          <div className="absolute inset-0 bg-gradient-to-t from-paper-white via-paper-white/60 to-paper-white/10 md:bg-gradient-to-r md:from-paper-white md:via-paper-white/80 md:to-transparent" />
+        </motion.div>
+
+        {/* Hero copy — overlaps the cinematic bg */}
+        <motion.div
+          className="relative z-10 px-4 sm:px-10 lg:px-[5vw] w-full md:max-w-[70%]"
+          variants={seq.container}
+          initial="hidden"
+          animate="visible"
+        >
+          {/* Section label */}
+          <motion.p variants={seq.label} className="font-mono text-[10px] uppercase tracking-[0.2em] text-rule-grey mb-6">
+            CATALOG 2025 — EXHIBIT 001
+          </motion.p>
+
+          {/* Hairline rule draws in */}
+          <motion.div variants={seq.rule} className="h-[1px] w-16 bg-stamp-red mb-6 origin-left" />
+
+          {/* Big display headline — typography-as-object */}
+          <motion.h1
+            variants={seq.title}
+            className="font-display text-[72px] md:text-[100px] lg:text-[120px] uppercase text-ink-black leading-[0.9] tracking-[-0.02em] mb-8"
+          >
+            Toys<br />Worth<br />Keeping
+          </motion.h1>
+
+          <motion.p variants={seq.label} className="font-body text-[14px] text-ink-black leading-[1.8] max-w-[400px] mb-10 opacity-80">
+            A design museum's catalog of toys. Curated for curious kids aged 0–10. Safety-tested, parent-approved, cinematically presented.
+          </motion.p>
+
+          {/* CTA — cinematic button */}
+          <motion.div variants={seq.label} className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
+            <Link
+              href="/products"
+              className="font-mono text-[11px] uppercase tracking-[0.15em] bg-ink-black text-paper-white border border-ink-black px-8 py-4 hover:bg-transparent hover:text-ink-black transition-colors duration-500"
+            >
+              Browse Catalog →
+            </Link>
+            <Link
+              href="/about"
+              className="font-mono text-[11px] uppercase tracking-[0.1em] text-ink-black relative group"
+            >
+              About
+              <span className="absolute -bottom-0.5 left-0 h-[1px] bg-ink-black w-full" />
+            </Link>
+          </motion.div>
+        </motion.div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════
+          2. CATALOG SECTION LABELS — categories (Cinematic Hover List)
+          ═══════════════════════════════════════════════ */}
       {categories.length > 0 && (
-        <section className="px-4 sm:px-10 lg:px-40 my-16 md:my-24">
-          <div className={`grid grid-cols-1 ${categories.length > 1 ? 'md:grid-cols-2' : ''} gap-6 md:h-[480px]`}>
-            {/* 1st Category */}
-            <CollectionTile
-              image={categories[0].image || "/images/hero-banner-4.jpeg"}
-              label="Collection"
-              title={<span className="font-bold">{categories[0].name}</span>}
-              href={`/products?category=${categories[0].slug}`}
-              className={categories.length > 1 ? "md:h-full h-56" : "h-96"}
-            />
+        <section className="py-16 md:py-24 border-b border-rule-grey">
+          <AnimatedReveal className="mb-12 px-4 sm:px-10 lg:px-[5vw] flex items-baseline gap-6">
+            <h2 className="font-display text-[40px] md:text-[56px] uppercase text-ink-black leading-none tracking-[-0.01em]">
+              Browse Exhibits
+            </h2>
+            <div className="flex-1 h-[1px] bg-rule-grey hidden md:block" />
+          </AnimatedReveal>
 
-            {/* Right side if more than 1 category */}
-            {categories.length > 1 && (
-              <div className={`grid ${categories.length > 2 ? 'grid-rows-2' : 'grid-rows-1'} gap-6`}>
-                {/* 2nd Category */}
-                <CollectionTile
-                  image={categories[1].image || "/images/hero-banner-4.jpeg"}
-                  label="Collection"
-                  title={<span className="font-bold">{categories[1].name}</span>}
-                  href={`/products?category=${categories[1].slug}`}
-                  className={categories.length === 2 ? "h-full" : ""}
-                />
-
-                {/* 3rd and 4th Categories if exist */}
-                {categories.length > 2 && (
-                  <div className={`grid ${categories.length > 3 ? 'grid-cols-2' : 'grid-cols-1'} gap-6`}>
-                    <CollectionTile
-                      image={categories[2].image || "/images/hero-banner-4.jpeg"}
-                      label="Collection"
-                      title={<span className="font-bold">{categories[2].name}</span>}
-                      href={`/products?category=${categories[2].slug}`}
-                      className="h-36 md:h-auto"
-                    />
-
-                    {categories[3] && (
-                      <CollectionTile
-                        image={categories[3].image || "/images/hero-banner-4.jpeg"}
-                        label="Collection"
-                        title={<span className="font-bold">{categories[3].name}</span>}
-                        href={`/products?category=${categories[3].slug}`}
-                        className="h-36 md:h-auto"
+          {/* DESKTOP: Cinematic Hover List */}
+          <div className="hidden md:flex flex-col border-t border-rule-grey">
+            {categories.slice(0, 6).map((cat, i) => (
+              <AnimatedReveal key={cat.slug} delay={i * 0.1}>
+                <Link
+                  href={`/products?category=${cat.slug}`}
+                  className="group relative flex items-center justify-between py-8 md:py-10 px-4 sm:px-10 lg:px-[5vw] border-b border-rule-grey overflow-hidden"
+                >
+                  {/* Background Image Reveal */}
+                  {cat.image && (
+                    <div className="absolute inset-0 z-0 opacity-0 group-hover:opacity-30 transition-opacity duration-700 ease-[cubic-bezier(0.25,1,0.5,1)]">
+                      <Image
+                        src={cat.image}
+                        alt={cat.name}
+                        fill
+                        className="object-cover scale-105 group-hover:scale-100 transition-transform duration-1000 ease-[cubic-bezier(0.25,1,0.5,1)]"
                       />
-                    )}
+                      <div className="absolute inset-0 bg-gradient-to-r from-paper-white/90 via-paper-white/50 to-transparent" />
+                    </div>
+                  )}
+
+                  {/* Text Content */}
+                  <div className="relative z-10 flex flex-col md:flex-row md:items-center gap-2 md:gap-12 w-full">
+                    <span className="font-mono text-[10px] md:text-[12px] text-rule-grey uppercase tracking-[0.2em] group-hover:text-stamp-red transition-colors duration-500">
+                      N°{String(i + 1).padStart(3, "0")}
+                    </span>
+                    <h3 className="font-display text-[40px] md:text-[72px] lg:text-[90px] uppercase text-rule-grey group-hover:text-ink-black transition-colors duration-500 leading-none tracking-[-0.02em]">
+                      {cat.name}
+                    </h3>
                   </div>
+                  
+                  {/* Arrow Indicator */}
+                  <div className="relative z-10 hidden md:flex items-center gap-4 opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-500 ease-[cubic-bezier(0.25,1,0.5,1)]">
+                    <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-ink-black whitespace-nowrap">
+                      Explore Exhibit
+                    </span>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-ink-black">
+                      <path d="M5 12h14M12 5l7 7-7 7" />
+                    </svg>
+                  </div>
+                </Link>
+              </AnimatedReveal>
+            ))}
+          </div>
+
+          {/* MOBILE: Immersive Horizontal Poster Scroll */}
+          <div className="md:hidden flex gap-4 overflow-x-auto snap-x snap-mandatory px-4 sm:px-10 pb-8 no-scrollbar">
+            {categories.slice(0, 6).map((cat, i) => (
+              <Link
+                key={cat.slug}
+                href={`/products?category=${cat.slug}`}
+                className="relative shrink-0 w-[80vw] sm:w-[60vw] aspect-[3/4] snap-center overflow-hidden bg-paper-grey border border-rule-grey"
+              >
+                {cat.image && (
+                  <Image
+                    src={cat.image}
+                    alt={cat.name}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 640px) 80vw, 60vw"
+                  />
                 )}
-              </div>
-            )}
+                <div className="absolute inset-0 bg-gradient-to-t from-paper-white via-paper-white/40 to-transparent" />
+                <div className="absolute inset-0 p-6 flex flex-col justify-end z-10">
+                  <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-stamp-red mb-2">
+                    EXHIBIT N°{String(i + 1).padStart(3, "0")}
+                  </span>
+                  <h3 className="font-display text-[48px] uppercase text-ink-black leading-[0.9] tracking-[-0.02em]">
+                    {cat.name}
+                  </h3>
+                </div>
+              </Link>
+            ))}
           </div>
         </section>
       )}
 
-      {/* ═══════════════════════════════════════════
-          3. OUR TRENDY PRODUCTS — ProductGridNike
-             Data stays wired to real API exactly as-is
-          ═══════════════════════════════════════════ */}
-      <section className="px-4 sm:px-10 lg:px-40 mb-16 md:mb-24">
-        {/* Section header styled like reference */}
-        <div className="text-center mb-10">
-          <h2 className="uppercase text-2xl md:text-[35px] font-medium text-black">
-            Our Trendy <span className="font-bold">Products</span>
-          </h2>
-        </div>
+      {/* ═══════════════════════════════════════════════
+          3. TRENDING — "EXHIBIT" PRODUCT GRID
+          ═══════════════════════════════════════════════ */}
+      <section className="px-4 sm:px-10 lg:px-[5vw] py-16 md:py-24 border-b border-rule-grey">
+        <AnimatedReveal className="mb-10 flex items-baseline gap-6">
+          <div>
+            <p className="font-mono text-[10px] uppercase tracking-[0.15em] text-rule-grey mb-2">
+              CATALOG — CURRENT EXHIBITS
+            </p>
+            <h2 className="font-display text-[40px] md:text-[56px] uppercase text-ink-black leading-none tracking-[-0.01em]">
+              Trending Now
+            </h2>
+          </div>
+          <div className="flex-1 h-[1px] bg-rule-grey hidden md:block" />
+          <Link
+            href="/products"
+            className="hidden md:block font-mono text-[10px] uppercase tracking-[0.12em] text-rule-grey hover:text-ink-black transition-colors whitespace-nowrap"
+          >
+            View All →
+          </Link>
+        </AnimatedReveal>
+
         <ProductGridNike
           title={undefined}
           viewAllLink="/products"
@@ -234,19 +268,69 @@ export default function Homepage({
         />
       </section>
 
+      {/* ═══════════════════════════════════════════════
+          4. DEAL COUNTDOWN — stamp-red accent
+          ═══════════════════════════════════════════════ */}
+      <AnimatedReveal>
+        <section className="px-4 sm:px-10 lg:px-[5vw] py-16 md:py-24 border-b border-rule-grey bg-paper-grey">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-10">
+            <div>
+              <p className="font-mono text-[10px] uppercase tracking-[0.15em] text-stamp-red mb-3">
+                LIMITED TIME — CATALOG DEAL
+              </p>
+              <h3 className="font-display text-[40px] md:text-[56px] uppercase text-ink-black leading-none tracking-[-0.01em]">
+                Deal of<br />the Week
+              </h3>
+            </div>
 
+            {/* Countdown — mono digits */}
+            <div className="flex gap-0 border border-rule-grey">
+              {[
+                { val: timeLeft.days,    label: "DAYS" },
+                { val: timeLeft.hours,   label: "HRS" },
+                { val: timeLeft.minutes, label: "MIN" },
+                { val: timeLeft.seconds, label: "SEC" },
+              ].map(({ val, label }, i) => (
+                <div key={label} className="flex flex-col items-center px-6 py-5 border-r border-rule-grey last:border-r-0">
+                  <span className="font-mono text-[36px] md:text-[48px] text-ink-black leading-none">{pad(val)}</span>
+                  <span className="font-mono text-[9px] uppercase tracking-[0.15em] text-rule-grey mt-1">{label}</span>
+                </div>
+              ))}
+            </div>
 
-      {/* ═══════════════════════════════════════════
-          4. INSTAGRAM SECTION (LAZY LOADED)
-          ═══════════════════════════════════════════ */}
+            <Link
+              href="/products"
+              className="font-mono text-[11px] uppercase tracking-[0.15em] bg-stamp-red text-paper-white px-8 py-4 hover:bg-ink-black transition-colors duration-200"
+            >
+              Shop the Deal →
+            </Link>
+          </div>
+        </section>
+      </AnimatedReveal>
+
+      {/* ═══════════════════════════════════════════════
+          5. SERVICES STRIP — editorial version
+          ═══════════════════════════════════════════════ */}
+      <AnimatedReveal>
+        <section className="px-4 sm:px-10 lg:px-[5vw] py-14 md:py-20 border-b border-rule-grey">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-0 divide-y sm:divide-y-0 sm:divide-x divide-rule-grey">
+            {[
+              { num: "01", title: "Fast & Free Delivery", desc: "Free delivery for all orders over ৳1,500" },
+              { num: "02", title: "24/7 Support",         desc: "Friendly customer support, always available" },
+              { num: "03", title: "30-Day Returns",       desc: "We return money within 30 days" },
+            ].map(({ num, title, desc }) => (
+              <div key={num} className="flex flex-col gap-3 px-8 py-8 first:pl-0 last:pr-0">
+                <p className="font-mono text-[10px] uppercase tracking-[0.15em] text-stamp-red">{num}</p>
+                <h4 className="font-display text-[20px] uppercase text-ink-black leading-tight">{title}</h4>
+                <p className="font-body text-[13px] text-rule-grey leading-[1.7]">{desc}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+      </AnimatedReveal>
+
+      {/* Instagram — lazy loaded, untouched */}
       <DynamicInstagramSection />
-
-
-
-      {/* ═══════════════════════════════════════════
-          6. SERVICES STRIP (LAZY LOADED)
-          ═══════════════════════════════════════════ */}
-      <DynamicServicesStrip />
 
     </div>
   );
