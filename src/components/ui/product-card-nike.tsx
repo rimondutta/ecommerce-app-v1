@@ -3,7 +3,8 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { motion, useReducedMotion } from "framer-motion";
+// import { motion, useReducedMotion } from "framer-motion";
+import { motion, useReducedMotion, type Variants } from "framer-motion";
 import { useCart } from "@/components/providers/CartProvider";
 import { useWishlist } from "@/store/wishlistStore";
 import { cn } from "@/lib/utils";
@@ -77,9 +78,24 @@ export default function ProductCardModern({ product, priority = false, index = 1
   const categoryName = product.category?.name || "";
 
   // Cinematic physics for a subtle, dramatic slow zoom
-  const imageVariants = {
-    rest:  { scale: 1,    filter: "brightness(0.9)", transition: { duration: 0.8, ease: [0.25, 1, 0.5, 1] } },
-    hover: { scale: reduced ? 1 : 1.05, filter: "brightness(1)", transition: { duration: 1.2, ease: [0.25, 1, 0.5, 1] } },
+  const imageVariants: Variants = {
+    rest: {
+      scale: 1,
+      filter: "brightness(0.9)",
+      transition: {
+        duration: 0.8,
+        ease: [0.25, 1, 0.5, 1] as const,
+      },
+    },
+
+    hover: {
+      scale: reduced ? 1 : 1.05,
+      filter: "brightness(1)",
+      transition: {
+        duration: 1.2,
+        ease: [0.25, 1, 0.5, 1] as const,
+      },
+    },
   };
 
   return (
