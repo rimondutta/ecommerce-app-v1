@@ -7,12 +7,12 @@ import { useUIStore } from "@/store/uiStore";
 import { cn } from "@/lib/utils";
 
 const navItems = [
-  { num: "01", label: "SHOP",    href: "/products" },
-  { num: "02", label: "ABOUT",   href: "/about" },
-  { num: "03", label: "BLOG",    href: "/blogs" },
+  { num: "01", label: "SHOP", href: "/products" },
+  { num: "02", label: "ABOUT", href: "/about" },
+  { num: "03", label: "BLOG", href: "/blogs" },
   { num: "04", label: "CONTACT", href: "/contact" },
   { num: "05", label: "ACCOUNT", href: "/account" },
-  { num: "06", label: "WISHLIST",href: "/wishlist" },
+  { num: "06", label: "WISHLIST", href: "/wishlist" },
 ];
 
 export default function MobileMenu() {
@@ -60,7 +60,7 @@ export default function MobileMenu() {
                 onClick={closeMobileMenu}
                 className="font-display text-[22px] uppercase tracking-[-0.02em] text-ink-black"
               >
-                PLAYSHELF
+                TOYHOURSE
               </Link>
               <button
                 onClick={closeMobileMenu}
@@ -101,7 +101,7 @@ export default function MobileMenu() {
             {/* Footer strip */}
             <div className="px-6 py-4 border-t border-rule-grey">
               <p className="font-mono text-[10px] text-rule-grey uppercase tracking-[0.1em]">
-                © {new Date().getFullYear()} Playshelf
+                © {new Date().getFullYear()} TOYHOURSE
               </p>
             </div>
           </motion.div>

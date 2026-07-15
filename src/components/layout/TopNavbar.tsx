@@ -15,9 +15,9 @@ export default function TopNavbar() {
   const pathname = usePathname();
 
   const navLinks = [
-    { label: "SHOP",    href: "/products" },
-    { label: "BLOG",    href: "/blogs" },
-    { label: "ABOUT",   href: "/about" },
+    { label: "SHOP", href: "/products" },
+    { label: "BLOG", href: "/blogs" },
+    { label: "ABOUT", href: "/about" },
     { label: "CONTACT", href: "/contact" },
   ];
 
@@ -41,7 +41,7 @@ export default function TopNavbar() {
           href="/"
           className="font-display text-[22px] md:text-[26px] uppercase tracking-[-0.02em] text-ink-black leading-none"
         >
-          PLAYSHELF
+          TOYHOURSE
         </Link>
 
         {/* Desktop — Nav links */}

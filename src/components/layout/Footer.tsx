@@ -5,8 +5,8 @@ import Link from "next/link";
 import { IconBrandFacebook, IconBrandX, IconBrandInstagram, IconBrandYoutube } from "@tabler/icons-react";
 
 const companyLinks = ["About Us", "Blog", "Contact Us"];
-const shopLinks    = ["New Arrivals", "All Toys", "Sale"];
-const helpLinks    = ["Customer Service", "My Account", "Returns", "Legal & Privacy"];
+const shopLinks = ["New Arrivals", "All Toys", "Sale"];
+const helpLinks = ["Customer Service", "My Account", "Returns", "Legal & Privacy"];
 
 export default function Footer() {
   const handleSubscribe = (e: React.FormEvent) => {
@@ -28,7 +28,7 @@ export default function Footer() {
         {/* Brand column */}
         <div className="lg:col-span-2 flex flex-col gap-5">
           <Link href="/" className="font-display text-[28px] uppercase tracking-[-0.02em] text-ink-black leading-none">
-            PLAYSHELF
+            TOYHOURSE
           </Link>
           <p className="font-body text-[13px] text-ink-black leading-relaxed max-w-[280px]">
             A design museum's catalog of toys — curated for curious kids aged 0–10.
@@ -41,9 +41,9 @@ export default function Footer() {
           <div className="flex gap-5 mt-1">
             {[
               { Icon: IconBrandFacebook, href: "https://facebook.com/toyhourse", label: "Facebook" },
-              { Icon: IconBrandX,        href: "https://x.com/toyhourse",        label: "X" },
-              { Icon: IconBrandInstagram,href: "https://instagram.com/toyhourse",label: "Instagram" },
-              { Icon: IconBrandYoutube,  href: "https://youtube.com/toyhourse",  label: "YouTube" },
+              { Icon: IconBrandX, href: "https://x.com/toyhourse", label: "X" },
+              { Icon: IconBrandInstagram, href: "https://instagram.com/toyhourse", label: "Instagram" },
+              { Icon: IconBrandYoutube, href: "https://youtube.com/toyhourse", label: "YouTube" },
             ].map(({ Icon, href, label }) => (
               <a
                 key={label}
@@ -133,7 +133,7 @@ export default function Footer() {
       {/* Bottom bar */}
       <div className="border-t border-rule-grey px-4 sm:px-10 lg:px-[5vw] py-5 flex flex-wrap justify-between items-center gap-3">
         <p className="font-mono text-[11px] text-rule-grey uppercase tracking-[0.08em]">
-          © {new Date().getFullYear()} Playshelf. All Rights Reserved.
+          © {new Date().getFullYear()} TOYHOURSE. All Rights Reserved.
         </p>
         <a
           href="#"
