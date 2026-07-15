@@ -19,11 +19,11 @@ export default function MobileMenu() {
   const { isMobileMenuOpen, closeMobileMenu } = useUIStore();
   const reduced = useReducedMotion();
 
-  const container = {
+  const container: any = {
     hidden: {},
     visible: { transition: { staggerChildren: reduced ? 0 : 0.07, delayChildren: 0.1 } },
   };
-  const item = {
+  const item: any = {
     hidden: reduced ? { opacity: 0 } : { opacity: 0, x: -24 },
     visible: { opacity: 1, x: 0, transition: { ease: [0.25, 1, 0.5, 1], duration: 0.55 } },
   };
