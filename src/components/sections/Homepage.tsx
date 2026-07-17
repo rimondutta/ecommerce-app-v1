@@ -123,11 +123,11 @@ export default function Homepage({
             variants={seq.title}
             className="font-display text-[72px] md:text-[100px] lg:text-[120px] uppercase text-ink-black leading-[0.9] tracking-[-0.02em] mb-8"
           >
-            Toys<br />Worth<br />Keeping
+           Endless Fun <br/> Starts at Toyhourse
           </motion.h1>
 
           <motion.p variants={seq.label} className="font-body text-[14px] text-ink-black leading-[1.8] max-w-[400px] mb-10 opacity-80">
-            A design museum's catalog of toys. Curated for curious kids aged 0–10. Safety-tested, parent-approved, cinematically presented.
+            Explore premium toys designed to inspire imagination, creativity, and learning. Find the perfect gift for every little adventure.
           </motion.p>
 
           {/* CTA — cinematic button */}
@@ -136,13 +136,13 @@ export default function Homepage({
               href="/products"
               className="font-mono text-[11px] uppercase tracking-[0.15em] bg-ink-black text-paper-white border border-ink-black px-8 py-4 hover:bg-transparent hover:text-ink-black transition-colors duration-500"
             >
-              Browse Catalog →
+              Browse Category →
             </Link>
             <Link
-              href="/about"
+              href="/shop"
               className="font-mono text-[11px] uppercase tracking-[0.1em] text-ink-black relative group"
             >
-              About
+              Shop
               <span className="absolute -bottom-0.5 left-0 h-[1px] bg-ink-black w-full" />
             </Link>
           </motion.div>
