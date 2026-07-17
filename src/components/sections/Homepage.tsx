@@ -112,7 +112,7 @@ export default function Homepage({
         >
           {/* Section label */}
           <motion.p variants={seq.label} className="font-mono text-[10px] uppercase tracking-[0.2em] text-rule-grey mb-6">
-            CATALOG 2025 — EXHIBIT 001
+            
           </motion.p>
 
           {/* Hairline rule draws in */}
@@ -156,7 +156,7 @@ export default function Homepage({
         <section className="py-16 md:py-24 border-b border-rule-grey">
           <AnimatedReveal className="mb-12 px-4 sm:px-10 lg:px-[5vw] flex items-baseline gap-6">
             <h2 className="font-display text-[40px] md:text-[56px] uppercase text-ink-black leading-none tracking-[-0.01em]">
-              Browse Exhibits
+              Browse Category
             </h2>
             <div className="flex-1 h-[1px] bg-rule-grey hidden md:block" />
           </AnimatedReveal>
@@ -245,7 +245,7 @@ export default function Homepage({
         <AnimatedReveal className="mb-10 flex items-baseline gap-6">
           <div>
             <p className="font-mono text-[10px] uppercase tracking-[0.15em] text-rule-grey mb-2">
-              CATALOG — CURRENT EXHIBITS
+              Explore Our Product
             </p>
             <h2 className="font-display text-[40px] md:text-[56px] uppercase text-ink-black leading-none tracking-[-0.01em]">
               Trending Now
