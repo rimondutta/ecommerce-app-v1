@@ -100,7 +100,7 @@ export default function ProductDetailsClient({ product: initialProduct, relatedP
     router.push("/checkout");
   };
 
-  const WHATSAPP_NUMBER = "1234567890";
+  const WHATSAPP_NUMBER = "8801616921965";
   const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=Hi! I'm interested in the ${encodeURIComponent(product.title)}. Is it available?`;
 
   const totalImages = product.images?.length || 0;
