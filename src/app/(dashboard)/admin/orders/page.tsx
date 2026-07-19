@@ -2,13 +2,13 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { Search, Filter, Eye } from "lucide-react"
+import { Search, Filter, Eye, Trash2 } from "lucide-react"
 
 export default function AdminOrdersPage() {
   const [orders, setOrders] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
+  const fetchOrders = () => {
     fetch("/api/admin/orders")
       .then((res) => res.json())
       .then((data) => {
@@ -19,7 +19,26 @@ export default function AdminOrdersPage() {
         console.error(err)
         setLoading(false)
       })
+  }
+
+  useEffect(() => {
+    fetchOrders()
   }, [])
+
+  const deleteOrder = async (id: string) => {
+    if (!window.confirm("Are you sure you want to delete this order?")) return;
+    try {
+      const res = await fetch(`/api/admin/orders/${id}`, { method: "DELETE" });
+      if (res.ok) {
+        fetchOrders();
+      } else {
+        alert("Failed to delete order");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error deleting order");
+    }
+  }
 
   return (
     <div className="max-w-6xl mx-auto space-y-8">
@@ -96,7 +115,8 @@ export default function AdminOrdersPage() {
                     </td>
                     <td className="px-5 py-4">
                       <div className="font-medium text-gray-900">{order.customerName}</div>
-                      <div className="text-xs text-gray-500 mt-0.5">{order.customerEmail}</div>
+                      <div className="text-xs text-gray-500 mt-0.5">{order.customerEmail || 'No Email'}</div>
+                      <div className="text-xs text-gray-400 mt-0.5">{order.shippingAddress?.phone || 'No phone saved'}</div>
                     </td>
                     <td className="px-5 py-4 text-gray-600">
                       {new Date(order.createdAt).toLocaleDateString()}
@@ -129,6 +149,13 @@ export default function AdminOrdersPage() {
                         >
                           <Eye size={16} />
                         </Link>
+                        <button 
+                          onClick={() => deleteOrder(order._id)}
+                          className="p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors"
+                          title="Delete Order"
+                        >
+                          <Trash2 size={16} />
+                        </button>
                       </div>
                     </td>
                   </tr>

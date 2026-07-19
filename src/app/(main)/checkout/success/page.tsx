@@ -63,8 +63,15 @@ function SuccessContent() {
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 0.6 }}
-        className="flex flex-wrap justify-center gap-8"
+        className="flex flex-wrap justify-center gap-6 mt-8"
       >
+         {orderId && (
+           <Link href={`/invoice/${orderId}`} target="_blank">
+              <Button variant="outline" size="lg" className="border-stamp-red text-stamp-red hover:bg-stamp-red hover:text-paper">
+                DOWNLOAD INVOICE
+              </Button>
+           </Link>
+         )}
          <Link href="/products">
             <Button size="lg">CONTINUE SCOUTING</Button>
          </Link>

@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 
 const OrderSchema = new mongoose.Schema(
   {
-    customerEmail: { type: String, required: true },
+    customerEmail: { type: String },
     customerName: { type: String },
     items: [
       {
@@ -36,6 +36,7 @@ const OrderSchema = new mongoose.Schema(
       city: String,
       postcode: String,
       country: { type: String, default: 'Bangladesh' },
+      phone: String,
     },
   },
   { timestamps: true }

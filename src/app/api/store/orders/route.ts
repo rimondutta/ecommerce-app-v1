@@ -47,21 +47,22 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { customerEmail, customerName, items, totalAmount, shippingAddress, paymentMethod, shippingCost } = body;
 
-    if (!customerEmail || !items || items.length === 0 || !totalAmount) {
+    if (!items || items.length === 0 || !totalAmount) {
       return NextResponse.json({ error: 'Missing required order details' }, { status: 400 });
     }
 
-    // Basic email format validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(customerEmail)) {
-      return NextResponse.json({ error: 'Invalid email address' }, { status: 400 });
+    // Basic email format validation if email is provided
+    if (customerEmail) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(customerEmail)) {
+        return NextResponse.json({ error: 'Invalid email address' }, { status: 400 });
+      }
     }
 
     await connectToDatabase();
 
     // Create the order
-    const order = await Order.create({
-      customerEmail: String(customerEmail).toLowerCase().trim(),
+    const orderData: any = {
       customerName: String(customerName || '').trim(),
       items,
       totalAmount,
@@ -70,7 +71,11 @@ export async function POST(req: Request) {
       paymentMethod: paymentMethod || 'cod',
       paymentStatus: 'pending',
       fulfillmentStatus: 'unfulfilled',
-    });
+    };
+    if (customerEmail) {
+      orderData.customerEmail = String(customerEmail).toLowerCase().trim();
+    }
+    const order = await Order.create(orderData);
 
     // Reduce inventory for each item
     for (const item of items) {
@@ -82,20 +87,22 @@ export async function POST(req: Request) {
     }
 
     // Send Confirmation Email (Async/Non-blocking)
-    try {
-      const { sendOrderConfirmationEmail } = await import('@/lib/nodemailer');
-      sendOrderConfirmationEmail({
-        orderId: order._id.toString(),
-        customerName,
-        customerEmail,
-        items,
-        totalAmount,
-        shippingAddress,
-        paymentMethod: paymentMethod || 'cod',
-        shippingCost: shippingCost || 0
-      }).catch(err => console.error('Email background task error:', err));
-    } catch (emailErr) {
-      console.error('Failed to initiate email process:', emailErr);
+    if (customerEmail) {
+      try {
+        const { sendOrderConfirmationEmail } = await import('@/lib/nodemailer');
+        sendOrderConfirmationEmail({
+          orderId: order._id.toString(),
+          customerName,
+          customerEmail,
+          items,
+          totalAmount,
+          shippingAddress,
+          paymentMethod: paymentMethod || 'cod',
+          shippingCost: shippingCost || 0
+        }).catch(err => console.error('Email background task error:', err));
+      } catch (emailErr) {
+        console.error('Failed to initiate email process:', emailErr);
+      }
     }
 
     // High Traffic Scaling: Telegram Admin Notification (Non-blocking)

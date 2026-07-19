@@ -108,9 +108,10 @@ export default function CheckoutPage() {
             name: form.name,
             email: form.email,
             phone: form.phone,
-            address: form.address,
+            addressLine1: form.address,
             city: form.city,
-            zip: form.zip,
+            postcode: form.zip,
+            country: 'Bangladesh'
           },
           paymentMethod: form.paymentMethod,
           shippingZone: form.shippingZone,
@@ -123,7 +124,7 @@ export default function CheckoutPage() {
       if (data.success) {
         clearCart();
         showToast("Order placed successfully! 🎉");
-        router.push("/account");
+        router.push(`/invoice/${data.orderId}`);
       } else {
         showToast(data.message || "Order failed", "error");
       }

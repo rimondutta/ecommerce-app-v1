@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
-import { ArrowLeft, Package, CreditCard, Truck, User, MapPin, Mail, Phone, Calendar } from "lucide-react"
+import { ArrowLeft, Package, CreditCard, Truck, User, MapPin, Mail, Phone, Calendar, Trash2 } from "lucide-react"
 
 export default function AdminOrderDetailsPage() {
   const params = useParams()
@@ -57,6 +57,26 @@ export default function AdminOrderDetailsPage() {
     }
   }
 
+  const deleteOrder = async () => {
+    if (!window.confirm("Are you sure you want to delete this order? This action cannot be undone.")) return;
+    setUpdating(true)
+    try {
+      const res = await fetch(`/api/admin/orders/${params.id}`, {
+        method: "DELETE"
+      });
+      if (res.ok) {
+        router.push("/admin/orders");
+      } else {
+        alert("Failed to delete order");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error deleting order");
+    } finally {
+      setUpdating(false);
+    }
+  }
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -92,7 +112,7 @@ export default function AdminOrderDetailsPage() {
             </p>
           </div>
         </div>
-        <div className="flex gap-2">
+        <div className="flex items-center gap-2">
            <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider ${
             order.fulfillmentStatus === 'delivered' ? 'bg-green-100 text-green-800' : 
             order.fulfillmentStatus === 'shipped' ? 'bg-blue-100 text-blue-800' :
@@ -106,6 +126,14 @@ export default function AdminOrderDetailsPage() {
           }`}>
             {order.paymentStatus || 'Pending'}
           </span>
+          <button 
+            onClick={deleteOrder}
+            disabled={updating}
+            className="ml-2 p-1.5 text-red-600 hover:bg-red-50 rounded-md transition-colors disabled:opacity-50"
+            title="Delete Order"
+          >
+            <Trash2 size={18} />
+          </button>
         </div>
       </div>
 
@@ -205,8 +233,8 @@ export default function AdminOrderDetailsPage() {
               </div>
               <div className="flex items-center gap-2 text-gray-600">
                 <Phone size={14} className="text-gray-400" />
-                <a href={`tel:${order.shippingAddress?.phone}`} className="hover:text-blue-600 transition-colors">
-                  {order.shippingAddress?.phone}
+                <a href={order.shippingAddress?.phone ? `tel:${order.shippingAddress?.phone}` : '#'} className="hover:text-blue-600 transition-colors">
+                  {order.shippingAddress?.phone || 'No phone saved'}
                 </a>
               </div>
             </div>
@@ -217,9 +245,10 @@ export default function AdminOrderDetailsPage() {
               <MapPin className="text-gray-400" size={20} /> Shipping Address
             </h2>
             <div className="text-sm text-gray-600 space-y-1">
-              <p className="font-medium text-gray-900">{order.shippingAddress?.name}</p>
-              <p>{order.shippingAddress?.address}</p>
-              <p>{order.shippingAddress?.city}{order.shippingAddress?.zip ? `, ${order.shippingAddress?.zip}` : ''}</p>
+              <p className="font-medium text-gray-900">{order.customerName}</p>
+              <p>{order.shippingAddress?.addressLine1}</p>
+              <p>{order.shippingAddress?.city}{order.shippingAddress?.postcode ? `, ${order.shippingAddress?.postcode}` : ''}</p>
+              <p>{order.shippingAddress?.country}</p>
             </div>
           </div>
           

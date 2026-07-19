@@ -1,9 +1,9 @@
 import React from "react";
-import Image from "next/image";
-import Link from "next/link";
-import Card from "@/components/ui/Card";
+// import Image from "next/image";
+// import Link from "next/link";
+// import Card from "@/components/ui/Card";
 
-import Button from "@/components/ui/Button";
+// import Button from "@/components/ui/Button";
 
 export const metadata = {
   title: "About Us",

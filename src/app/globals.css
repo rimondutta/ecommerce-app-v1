@@ -7,26 +7,31 @@
 
 @theme {
   /* ─── Cinematic Color Tokens (Dark Mode) ─── */
-  --color-ink-black:   #F5F5F5; /* Text & primary foreground */
-  --color-paper-white: #050505; /* Main background */
-  --color-paper-grey:  #111111; /* Off-background surfaces */
-  --color-rule-grey:   #737373; /* Cinematic borders and muted text */
-  --color-stamp-red:   #D90429; /* Dramatic accent */
+  --color-ink-black: #F5F5F5;
+  /* Text & primary foreground */
+  --color-paper-white: #050505;
+  /* Main background */
+  --color-paper-grey: #111111;
+  /* Off-background surfaces */
+  --color-rule-grey: #737373;
+  /* Cinematic borders and muted text */
+  --color-stamp-red: #D90429;
+  /* Dramatic accent */
 
   /* ─── Typography ─── */
   --font-display: var(--font-big-shoulders), 'Arial Narrow', sans-serif;
-  --font-body:    var(--font-inter), system-ui, sans-serif;
-  --font-mono:    var(--font-jetbrains-mono), 'Courier New', monospace;
+  --font-body: var(--font-inter), system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), 'Courier New', monospace;
 
   /* ─── Radii ─── */
   --radius-none: 0px;
-  --radius-sm:   0px;
-  --radius-md:   0px;
-  --radius-lg:   0px;
-  --radius-xl:   0px;
-  --radius-2xl:  0px;
-  --radius-3xl:  0px;
-  --radius:      0px;
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+  --radius-2xl: 0px;
+  --radius-3xl: 0px;
+  --radius: 0px;
 
   /* ─── Easing — Slower, cinematic smooth motion ─── */
   --ease-catalog: cubic-bezier(0.25, 1, 0.5, 1);
@@ -61,9 +66,17 @@ body {
    Typography Utilities
    ═══════════════════════════════════════ */
 
-.font-display { font-family: var(--font-display); }
-.font-body    { font-family: var(--font-body); }
-.font-mono    { font-family: var(--font-mono); }
+.font-display {
+  font-family: var(--font-display);
+}
+
+.font-body {
+  font-family: var(--font-body);
+}
+
+.font-mono {
+  font-family: var(--font-mono);
+}
 
 /* ═══════════════════════════════════════
    Focus Rings (Accessibility)
@@ -78,10 +91,22 @@ body {
    Custom Scrollbar (Cinematic)
    ═══════════════════════════════════════ */
 
-::-webkit-scrollbar       { width: 4px; }
-::-webkit-scrollbar-track { background: #050505; }
-::-webkit-scrollbar-thumb { background: #2A2A2A; }
-::-webkit-scrollbar-thumb:hover { background: #F5F5F5; }
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: #050505;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #2A2A2A;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #F5F5F5;
+}
+
 * {
   scrollbar-width: thin;
   scrollbar-color: #2A2A2A #050505;
@@ -96,11 +121,23 @@ body {
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
 }
-.scroll-snap-x > * { scroll-snap-align: start; }
-.scroll-snap-x::-webkit-scrollbar { display: none; }
 
-.no-scrollbar::-webkit-scrollbar { display: none; }
-.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+.scroll-snap-x>* {
+  scroll-snap-align: start;
+}
+
+.scroll-snap-x::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
 
 /* ═══════════════════════════════════════
    Utility
@@ -112,6 +149,7 @@ body {
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 1;
 }
+
 .line-clamp-2 {
   overflow: hidden;
   display: -webkit-box;
@@ -127,18 +165,43 @@ body {
   border-color: #2A2A2A;
   color: #F5F5F5;
 }
+
 .section-light input::placeholder,
-.section-light textarea::placeholder { color: #2A2A2A; }
+.section-light textarea::placeholder {
+  color: #2A2A2A;
+}
 
 /* ═══════════════════════════════════════
    Reduced Motion
    ═══════════════════════════════════════ */
 
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
+
+  *,
+  *::before,
+  *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+
+@keyframes gradientMove {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.animate-gradient {
+  animation: gradientMove 4s linear infinite;
 }
