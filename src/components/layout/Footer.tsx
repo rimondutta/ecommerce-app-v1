@@ -136,7 +136,7 @@ export default function Footer() {
           © {new Date().getFullYear()} TOYHOURSE. All Rights Reserved.
         </p>
         <a
-          href="#"
+          href="https//facebook.com/dutta.rimon/"
           className="font-mono text-[11px] text-stamp-red uppercase tracking-[0.08em] hover:opacity-70 transition-opacity"
         >
           Developed by Rimon Dutta
