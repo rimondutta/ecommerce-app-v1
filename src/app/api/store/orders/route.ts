@@ -3,41 +3,18 @@ import connectToDatabase from '@/lib/db';
 import Order from '@/models/Order';
 import Product from '@/models/Product';
 
-// ── Simple in-memory rate limiter (per-IP, per-minute) ──
-const rateLimit = new Map<string, { count: number; resetAt: number }>();
-const RATE_LIMIT_MAX = 5;     // max 5 orders per minute per IP
-const RATE_LIMIT_WINDOW = 60_000; // 1 minute
+import { isRateLimited } from '@/lib/ratelimit';
 
-function isRateLimited(ip: string): boolean {
-  const now = Date.now();
-  const entry = rateLimit.get(ip);
-
-  if (!entry || now > entry.resetAt) {
-    rateLimit.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW });
-    return false;
-  }
-
-  entry.count++;
-  if (entry.count > RATE_LIMIT_MAX) {
-    return true;
-  }
-  return false;
-}
-
-// Periodically clean up stale entries (prevent memory leak)
-setInterval(() => {
-  const now = Date.now();
-  for (const [ip, entry] of rateLimit) {
-    if (now > entry.resetAt) rateLimit.delete(ip);
-  }
-}, 60_000);
 
 export async function POST(req: Request) {
   try {
-    // ── Rate Limiting ──
+    // ── Distributed Rate Limiting ──
     const forwarded = req.headers.get('x-forwarded-for');
     const ip = forwarded?.split(',')[0]?.trim() || 'unknown';
-    if (isRateLimited(ip)) {
+    
+    // Uses Upstash Redis (or bypasses if local config missing)
+    const rateLimited = await isRateLimited(ip);
+    if (rateLimited) {
       return NextResponse.json(
         { error: 'Too many requests. Please try again later.' },
         { status: 429 }
@@ -76,6 +53,17 @@ export async function POST(req: Request) {
       orderData.customerEmail = String(customerEmail).toLowerCase().trim();
     }
     const order = await Order.create(orderData);
+
+    // ── Fire-and-forget invoice generation ──
+    // Runs async; never blocks the checkout response.
+    // If it fails, the order still succeeds — admin can regenerate later.
+    import('@/lib/invoice/generateInvoicePdf')
+      .then(({ generateInvoiceForOrder }) =>
+        generateInvoiceForOrder(order._id.toString())
+      )
+      .catch((err) =>
+        console.error('[invoice] generation failed for order', order._id, err)
+      );
 
     // Reduce inventory for each item
     for (const item of items) {

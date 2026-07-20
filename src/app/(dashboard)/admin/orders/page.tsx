@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { Search, Filter, Eye, Trash2 } from "lucide-react"
+import { Search, Filter, Eye, Trash2, Download } from "lucide-react"
 
 export default function AdminOrdersPage() {
   const [orders, setOrders] = useState<any[]>([])
@@ -146,9 +146,19 @@ export default function AdminOrdersPage() {
                         <Link 
                           href={`/admin/orders/${order._id}`} 
                           className="p-1.5 text-gray-400 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors"
+                          title="View Order"
                         >
                           <Eye size={16} />
                         </Link>
+                        <a
+                          href={`/api/orders/${order._id}/invoice`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+                          title="Download Invoice PDF"
+                        >
+                          <Download size={16} />
+                        </a>
                         <button 
                           onClick={() => deleteOrder(order._id)}
                           className="p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors"

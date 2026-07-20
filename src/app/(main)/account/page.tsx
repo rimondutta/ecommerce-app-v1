@@ -18,8 +18,10 @@ import {
   User,
   Package,
   ChevronRight,
-  Clock
+  Clock,
+  Download,
 } from "lucide-react";
+
 
 export default function AccountPage() {
   const { data: session, status } = useSession();
@@ -241,6 +243,16 @@ export default function AccountPage() {
                                </div>
                              )}
                            </div>
+                           <a
+                             href={`/api/orders/${order._id}/invoice`}
+                             target="_blank"
+                             rel="noopener noreferrer"
+                             className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                             title="Download Invoice PDF"
+                           >
+                             <Download size={12} />
+                             Invoice PDF
+                           </a>
                         </div>
                       </div>
                     ))}

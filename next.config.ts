@@ -1,6 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Prevent Next.js from bundling @react-pdf/renderer with webpack.
+  // It relies on Node.js built-ins and must run as a server external.
+  serverExternalPackages: ['@react-pdf/renderer'],
+
   // Allow development from 127.0.0.1 for HMR and Studio
   allowedDevOrigins: ["127.0.0.1", "localhost"],
   images: {

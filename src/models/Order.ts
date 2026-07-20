@@ -38,6 +38,20 @@ const OrderSchema = new mongoose.Schema(
       country: { type: String, default: 'Bangladesh' },
       phone: String,
     },
+    // ── Invoice fields (added for PDF invoice system) ──
+    invoiceNumber: {
+      type: String,
+      unique: true,
+      sparse: true,
+    },
+    invoiceUrl: {
+      type: String,
+      default: null,
+    },
+    invoiceGeneratedAt: {
+      type: Date,
+      default: null,
+    },
   },
   { timestamps: true }
 );

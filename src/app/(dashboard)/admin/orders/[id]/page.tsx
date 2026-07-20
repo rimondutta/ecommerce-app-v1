@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
-import { ArrowLeft, Package, CreditCard, Truck, User, MapPin, Mail, Phone, Calendar, Trash2 } from "lucide-react"
+import { ArrowLeft, Package, CreditCard, Truck, User, MapPin, Mail, Phone, Calendar, Trash2, Download, RefreshCw } from "lucide-react"
 
 export default function AdminOrderDetailsPage() {
   const params = useParams()
@@ -12,6 +12,7 @@ export default function AdminOrderDetailsPage() {
   const [order, setOrder] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [updating, setUpdating] = useState(false)
+  const [regenerating, setRegenerating] = useState(false)
 
   const fetchOrder = async () => {
     try {
@@ -77,6 +78,26 @@ export default function AdminOrderDetailsPage() {
     }
   }
 
+  const handleRegenerateInvoice = async () => {
+    setRegenerating(true)
+    try {
+      const res = await fetch(`/api/admin/orders/${params.id}/invoice/regenerate`, {
+        method: "POST",
+      })
+      const data = await res.json()
+      if (res.ok && data.invoiceUrl) {
+        window.open(data.invoiceUrl, "_blank")
+      } else {
+        alert("Failed to regenerate invoice: " + (data.error || "Unknown error"))
+      }
+    } catch (err) {
+      console.error(err)
+      alert("Error regenerating invoice")
+    } finally {
+      setRegenerating(false)
+    }
+  }
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -126,6 +147,26 @@ export default function AdminOrderDetailsPage() {
           }`}>
             {order.paymentStatus || 'Pending'}
           </span>
+          {/* ── Invoice Actions ── */}
+          <a
+            href={`/api/orders/${order._id}/invoice`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 ml-2 px-3 py-1.5 text-xs font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-md transition-colors"
+            title="Download Invoice PDF"
+          >
+            <Download size={14} />
+            Invoice
+          </a>
+          <button
+            onClick={handleRegenerateInvoice}
+            disabled={regenerating || updating}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            title="Regenerate Invoice PDF"
+          >
+            <RefreshCw size={14} className={regenerating ? 'animate-spin' : ''} />
+            {regenerating ? 'Regenerating...' : 'Regen'}
+          </button>
           <button 
             onClick={deleteOrder}
             disabled={updating}
