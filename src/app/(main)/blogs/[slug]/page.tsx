@@ -19,6 +19,8 @@ async function getBlogPost(slug: string) {
   }
 }
 
+export const revalidate = 60;
+export const dynamicParams = true;
 const SingleBlogPage = async ({
   params
 }: {

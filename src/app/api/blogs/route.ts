@@ -10,7 +10,11 @@ export async function GET() {
       .sort({ publishedAt: -1 })
       .lean();
 
-    return NextResponse.json(posts);
+    return NextResponse.json(posts, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=30, stale-while-revalidate=600',
+      },
+    });
   } catch (error: any) {
     return NextResponse.json(
       { error: 'Failed to fetch blog posts' },

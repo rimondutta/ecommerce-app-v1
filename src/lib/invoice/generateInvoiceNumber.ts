@@ -15,7 +15,7 @@ export async function generateInvoiceNumber(): Promise<string> {
   const counter = await Counter.findOneAndUpdate(
     { _id: counterId },
     { $inc: { seq: 1 } },
-    { new: true, upsert: true }
+    { returnDocument: 'after', upsert: true }
   );
 
   const padded = String(counter.seq).padStart(5, '0');

@@ -21,6 +21,9 @@ export const metadata = {
   description: "Read our latest articles.",
 };
 
+// Enable ISR to cache the page at the Edge and prevent DB crashes under load
+export const revalidate = 60;
+
 const BlogListingPage = async () => {
   const posts: any = await getBlogs();
 

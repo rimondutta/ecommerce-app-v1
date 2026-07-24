@@ -20,7 +20,7 @@ export async function PUT(req: Request) {
     const user = await User.findOneAndUpdate(
       { email: session.user.email },
       { $set: { name, image } },
-      { new: true }
+      { returnDocument: 'after' }
     );
 
     if (!user) {
