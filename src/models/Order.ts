@@ -56,4 +56,8 @@ const OrderSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+// Performance: Compound index covering Order.find({ customerEmail }).sort({ createdAt: -1 })
+// Without this, every /account page load does a full collection scan as order volume grows.
+OrderSchema.index({ customerEmail: 1, createdAt: -1 });
+
 export default mongoose.models.Order || mongoose.model('Order', OrderSchema);

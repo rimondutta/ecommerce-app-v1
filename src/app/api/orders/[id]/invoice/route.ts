@@ -15,7 +15,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import connectToDatabase from '@/lib/db';
 import Order from '@/models/Order';
-import { generateInvoiceForOrder } from '@/lib/invoice/generateInvoicePdf';
+import { getInvoiceBufferForOrder } from '@/lib/invoice/generateInvoicePdf';
 
 export async function GET(
   req: Request,
@@ -45,14 +45,17 @@ export async function GET(
       }
     }
 
-    // ── Retrieve or generate the invoice PDF ──
-    let invoiceUrl: string | null = order.invoiceUrl ?? null;
-    if (!invoiceUrl) {
-      invoiceUrl = await generateInvoiceForOrder(id);
-    }
+    // ── Generate the invoice PDF buffer on the fly ──
+    // Bypassing Cloudinary entirely for downloads to avoid CDN strict delivery 401s, 
+    // WAF blocks, and fl_attachment parsing errors.
+    const { buffer, filename } = await getInvoiceBufferForOrder(id);
 
-    // Redirect to the Cloudinary PDF URL (browser will trigger a download)
-    return NextResponse.redirect(invoiceUrl);
+    return new NextResponse(buffer as any, {
+      headers: {
+        'Content-Type': 'application/pdf',
+        'Content-Disposition': `attachment; filename="${filename}"`,
+      },
+    });
   } catch (error: any) {
     console.error('[invoice] GET error:', error);
     return NextResponse.json(

@@ -1,7 +1,7 @@
 /**
  * InvoiceDocument.tsx
  * React-PDF template for generating professional PDF invoices.
- * Designed for Toy Hourse — A4, print-friendly (no heavy shadows/colors).
+ * Modern, clean, professional layout.
  */
 import React from 'react';
 import {
@@ -10,244 +10,269 @@ import {
   Text,
   View,
   StyleSheet,
+  Font,
 } from '@react-pdf/renderer';
+
+Font.register({
+  family: 'Roboto',
+  fonts: [
+    { src: 'https://cdnjs.cloudflare.com/ajax/libs/ink/3.1.10/fonts/Roboto/roboto-regular-webfont.ttf', fontWeight: 400 },
+    { src: 'https://cdnjs.cloudflare.com/ajax/libs/ink/3.1.10/fonts/Roboto/roboto-bold-webfont.ttf', fontWeight: 700 },
+  ]
+});
+
+const BRAND_COLOR = '#0f172a'; // slate-900
+const ACCENT_COLOR = '#3b82f6'; // blue-500
+const TEXT_MAIN = '#334155'; // slate-700
+const TEXT_MUTED = '#64748b'; // slate-500
+const BORDER_COLOR = '#e2e8f0'; // slate-200
 
 const styles = StyleSheet.create({
   page: {
-    padding: 44,
+    padding: 0,
     fontSize: 10,
-    fontFamily: 'Helvetica',
-    color: '#111111',
+    fontFamily: 'Roboto',
+    color: TEXT_MAIN,
     backgroundColor: '#ffffff',
   },
-
-  // ── Header ──
-  headerRow: {
+  topAccent: {
+    height: 6,
+    backgroundColor: BRAND_COLOR,
+    width: '100%',
+  },
+  container: {
+    padding: 40,
+  },
+  
+  // Header
+  headerContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    marginBottom: 24,
-    paddingBottom: 20,
-    borderBottom: '1.5 solid #111111',
+    marginBottom: 40,
   },
   brandName: {
-    fontSize: 20,
-    fontFamily: 'Helvetica-Bold',
-    letterSpacing: 1,
-    color: '#111111',
+    fontSize: 24,
+    fontFamily: 'Roboto',
+    fontWeight: 700,
+    color: BRAND_COLOR,
+    letterSpacing: -0.5,
   },
   brandTagline: {
-    fontSize: 8,
-    color: '#aaaaaa',
-    letterSpacing: 1,
-    marginTop: 3,
+    fontSize: 9,
+    color: TEXT_MUTED,
     textTransform: 'uppercase',
-  },
-  invoiceMeta: {
-    alignItems: 'flex-end',
+    letterSpacing: 1.5,
+    marginTop: 4,
   },
   invoiceTitle: {
-    fontSize: 10,
-    fontFamily: 'Helvetica-Bold',
+    fontSize: 28,
+    fontFamily: 'Roboto',
+    fontWeight: 700,
+    color: BORDER_COLOR,
+    textTransform: 'uppercase',
     letterSpacing: 2,
-    color: '#aaaaaa',
-    textTransform: 'uppercase',
+    textAlign: 'right',
   },
-  invoiceNumber: {
-    fontSize: 16,
-    fontFamily: 'Helvetica-Bold',
-    color: '#111111',
-    marginTop: 3,
-  },
-  invoiceDate: {
-    fontSize: 9,
-    color: '#888888',
-    marginTop: 3,
-  },
-
-  // ── Status badges row ──
-  statusRow: {
-    flexDirection: 'row',
-    gap: 6,
-    marginBottom: 24,
-  },
-  badge: {
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 100,
-    fontSize: 8,
-    fontFamily: 'Helvetica-Bold',
-    letterSpacing: 0.5,
-    textTransform: 'uppercase',
-  },
-  badgePaid: {
-    backgroundColor: '#f0fdf4',
-    color: '#15803d',
-  },
-  badgePending: {
-    backgroundColor: '#fffbeb',
-    color: '#92400e',
-  },
-  badgeFulfillment: {
-    backgroundColor: '#eff6ff',
-    color: '#1d4ed8',
-  },
-  paymentMethodText: {
-    fontSize: 8,
-    color: '#aaaaaa',
-    fontFamily: 'Helvetica-Bold',
-    marginTop: 3,
-    marginLeft: 'auto',
-  },
-
-  // ── Info grid ──
-  infoRow: {
+  
+  // Meta Details Grid
+  metaGrid: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 24,
-    paddingBottom: 20,
-    borderBottom: '1 solid #f0f0f0',
+    marginBottom: 35,
+    paddingBottom: 25,
+    borderBottomWidth: 1,
+    borderBottomColor: BORDER_COLOR,
   },
-  infoSection: {
-    width: '45%',
+  metaCol: {
+    width: '30%',
   },
-  infoLabel: {
+  metaLabel: {
     fontSize: 8,
-    fontFamily: 'Helvetica-Bold',
-    letterSpacing: 1.5,
-    color: '#cccccc',
+    fontFamily: 'Roboto',
+    fontWeight: 700,
+    color: TEXT_MUTED,
     textTransform: 'uppercase',
-    marginBottom: 8,
+    letterSpacing: 1,
+    marginBottom: 6,
   },
-  infoName: {
-    fontSize: 11,
-    fontFamily: 'Helvetica-Bold',
-    color: '#111111',
-    marginBottom: 2,
+  metaValue: {
+    fontSize: 10,
+    fontFamily: 'Roboto',
+    color: BRAND_COLOR,
+    lineHeight: 1.4,
   },
-  infoDetail: {
+  metaValueBold: {
+    fontSize: 10,
+    fontFamily: 'Roboto',
+    fontWeight: 700,
+    color: BRAND_COLOR,
+  },
+
+  // Bill To & Ship To
+  addressesContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 40,
+  },
+  addressBox: {
+    width: '45%',
+    padding: 15,
+    backgroundColor: '#f8fafc', // slate-50
+    borderRadius: 4,
+  },
+  addressName: {
+    fontSize: 12,
+    fontFamily: 'Roboto',
+    fontWeight: 700,
+    color: BRAND_COLOR,
+    marginBottom: 6,
+  },
+  addressText: {
     fontSize: 9,
-    color: '#888888',
-    marginBottom: 2,
+    color: TEXT_MUTED,
     lineHeight: 1.5,
   },
 
-  // ── Items table ──
-  tableLabel: {
-    fontSize: 8,
-    fontFamily: 'Helvetica-Bold',
-    letterSpacing: 1.5,
-    color: '#cccccc',
-    textTransform: 'uppercase',
-    marginBottom: 10,
+  // Table
+  table: {
+    marginBottom: 30,
   },
   tableHeader: {
     flexDirection: 'row',
-    borderBottom: '1 solid #e5e5e5',
-    paddingBottom: 7,
-    marginBottom: 4,
+    backgroundColor: '#f1f5f9', // slate-100
+    paddingVertical: 10,
+    paddingHorizontal: 10,
+    borderRadius: 4,
+    marginBottom: 8,
   },
-  tableHeaderText: {
+  tableHeaderCell: {
     fontSize: 8,
-    fontFamily: 'Helvetica-Bold',
-    letterSpacing: 0.8,
-    color: '#aaaaaa',
+    fontFamily: 'Roboto',
+    fontWeight: 700,
+    color: TEXT_MUTED,
     textTransform: 'uppercase',
+    letterSpacing: 1,
   },
   tableRow: {
     flexDirection: 'row',
-    paddingVertical: 9,
-    borderBottom: '1 solid #f7f7f7',
+    paddingVertical: 12,
+    paddingHorizontal: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f1f5f9',
     alignItems: 'center',
   },
-  colProduct: { width: '50%' },
-  colQty: { width: '12%', textAlign: 'right' },
-  colPrice: { width: '19%', textAlign: 'right' },
-  colTotal: { width: '19%', textAlign: 'right' },
+  colDesc: { width: '45%' },
+  colQty: { width: '15%', textAlign: 'center' },
+  colPrice: { width: '20%', textAlign: 'right' },
+  colTotal: { width: '20%', textAlign: 'right' },
+  
   itemTitle: {
     fontSize: 10,
-    fontFamily: 'Helvetica-Bold',
-    color: '#111111',
+    fontFamily: 'Roboto',
+    fontWeight: 700,
+    color: BRAND_COLOR,
   },
   itemVariant: {
     fontSize: 8,
-    color: '#aaaaaa',
-    marginTop: 2,
+    color: TEXT_MUTED,
+    marginTop: 3,
   },
   cellText: {
-    fontSize: 10,
-    color: '#555555',
+    fontSize: 9,
+    color: TEXT_MAIN,
   },
   cellBold: {
     fontSize: 10,
-    fontFamily: 'Helvetica-Bold',
-    color: '#111111',
+    fontFamily: 'Roboto',
+    fontWeight: 700,
+    color: BRAND_COLOR,
   },
 
-  // ── Totals ──
-  totalsContainer: {
+  // Summary Section
+  summaryContainer: {
     flexDirection: 'row',
-    justifyContent: 'flex-end',
-    marginTop: 20,
+    justifyContent: 'space-between',
   },
-  totalsInner: {
-    width: 210,
+  paymentInfo: {
+    width: '45%',
+  },
+  badge: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 4,
+    fontSize: 8,
+    fontFamily: 'Roboto',
+    fontWeight: 700,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+    alignSelf: 'flex-start',
+    marginBottom: 8,
+  },
+  badgePaid: {
+    backgroundColor: '#dcfce7', // green-100
+    color: '#166534', // green-800
+  },
+  badgePending: {
+    backgroundColor: '#fef3c7', // amber-100
+    color: '#92400e', // amber-800
+  },
+  totalsArea: {
+    width: '40%',
   },
   totalRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingVertical: 5,
-    borderBottom: '1 solid #f7f7f7',
+    paddingVertical: 6,
   },
   totalLabel: {
-    fontSize: 10,
-    color: '#888888',
+    fontSize: 9,
+    color: TEXT_MUTED,
   },
   totalValue: {
-    fontSize: 10,
-    color: '#555555',
+    fontSize: 9,
+    color: TEXT_MAIN,
+    fontFamily: 'Roboto',
+    fontWeight: 700,
   },
   grandTotalRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: 10,
-    backgroundColor: '#111111',
-    borderRadius: 6,
-    paddingVertical: 10,
-    paddingHorizontal: 14,
+    marginTop: 8,
+    paddingTop: 12,
+    borderTopWidth: 2,
+    borderTopColor: BRAND_COLOR,
   },
   grandTotalLabel: {
-    fontSize: 11,
-    fontFamily: 'Helvetica-Bold',
-    color: '#ffffff',
+    fontSize: 12,
+    fontFamily: 'Roboto',
+    fontWeight: 700,
+    color: BRAND_COLOR,
+    textTransform: 'uppercase',
   },
   grandTotalValue: {
-    fontSize: 13,
-    fontFamily: 'Helvetica-Bold',
-    color: '#ffffff',
+    fontSize: 16,
+    fontFamily: 'Roboto',
+    fontWeight: 700,
+    color: ACCENT_COLOR,
   },
 
-  // ── Footer ──
+  // Footer
   footer: {
     position: 'absolute',
-    bottom: 30,
-    left: 44,
-    right: 44,
-    borderTop: '1 solid #f0f0f0',
-    paddingTop: 12,
+    bottom: 40,
+    left: 40,
+    right: 40,
+    borderTopWidth: 1,
+    borderTopColor: BORDER_COLOR,
+    paddingTop: 15,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
   },
-  footerNote: {
+  footerText: {
     fontSize: 8,
-    color: '#bbbbbb',
-  },
-  footerRef: {
-    fontSize: 7,
-    color: '#dddddd',
-    fontFamily: 'Helvetica',
+    color: TEXT_MUTED,
   },
 });
 
@@ -290,13 +315,13 @@ export interface InvoiceDocumentProps {
   };
 }
 
-const fmt = (n: number) => `\u09F3${n.toLocaleString('en-US', { minimumFractionDigits: 0 })}`;
+const fmt = (n: number) => `Tk ${n.toLocaleString('en-US', { minimumFractionDigits: 0 })}`;
 
 const paymentLabel = (method: string) => {
   if (method === 'cod') return 'Cash on Delivery';
   if (method === 'bkash') return 'bKash';
   if (method === 'card') return 'Credit / Debit Card';
-  return method;
+  return method.toUpperCase();
 };
 
 export function InvoiceDocument({
@@ -317,24 +342,14 @@ export function InvoiceDocument({
 }: InvoiceDocumentProps) {
   const shortId = orderId.slice(-8).toUpperCase();
   const isPaid = paymentStatus === 'paid';
+  
   const variantText = (item: InvoiceItem) =>
     [
       item.color && item.color !== 'Default' ? item.color : null,
       item.size && item.size !== 'Default' ? item.size : null,
     ]
       .filter(Boolean)
-      .join(' · ');
-
-  const addressText = shippingAddress
-    ? [
-        shippingAddress.addressLine1,
-        shippingAddress.city,
-        shippingAddress.postcode,
-        shippingAddress.country,
-      ]
-        .filter(Boolean)
-        .join(', ')
-    : 'No address provided';
+      .join(' / ');
 
   return (
     <Document
@@ -342,97 +357,125 @@ export function InvoiceDocument({
       author={company.name}
     >
       <Page size="A4" style={styles.page}>
-
-        {/* ── HEADER ── */}
-        <View style={styles.headerRow}>
-          <View>
-            <Text style={styles.brandName}>{company.name.toUpperCase()}</Text>
-            <Text style={styles.brandTagline}>Toys Worth Keeping</Text>
+        <View style={styles.topAccent} />
+        
+        <View style={styles.container}>
+          {/* Header */}
+          <View style={styles.headerContainer}>
+            <View>
+              <Text style={styles.brandName}>{company.name.toUpperCase()}</Text>
+              <Text style={styles.brandTagline}>Professional Toys & Gear</Text>
+            </View>
+            <View>
+              <Text style={styles.invoiceTitle}>INVOICE</Text>
+            </View>
           </View>
-          <View style={styles.invoiceMeta}>
-            <Text style={styles.invoiceTitle}>Invoice</Text>
-            <Text style={styles.invoiceNumber}>{invoiceNumber}</Text>
-            <Text style={styles.invoiceDate}>{invoiceDate}</Text>
+
+          {/* Meta Details */}
+          <View style={styles.metaGrid}>
+            <View style={styles.metaCol}>
+              <Text style={styles.metaLabel}>Invoice No.</Text>
+              <Text style={styles.metaValueBold}>{invoiceNumber}</Text>
+            </View>
+            <View style={styles.metaCol}>
+              <Text style={styles.metaLabel}>Date of Issue</Text>
+              <Text style={styles.metaValue}>{invoiceDate}</Text>
+            </View>
+            <View style={styles.metaCol}>
+              <Text style={styles.metaLabel}>Order Ref</Text>
+              <Text style={styles.metaValue}>#{shortId}</Text>
+            </View>
           </View>
-        </View>
 
-        {/* ── STATUS BADGES ── */}
-        <View style={styles.statusRow}>
-          <Text style={[styles.badge, isPaid ? styles.badgePaid : styles.badgePending]}>
-            {isPaid ? 'Paid' : 'Pending'}
-          </Text>
-          <Text style={[styles.badge, styles.badgeFulfillment]}>
-            {fulfillmentStatus || 'Processing'}
-          </Text>
-          <Text style={styles.paymentMethodText}>{paymentLabel(paymentMethod)}</Text>
-        </View>
-
-        {/* ── BILL TO / SHIP TO ── */}
-        <View style={styles.infoRow}>
-          <View style={styles.infoSection}>
-            <Text style={styles.infoLabel}>Bill To</Text>
-            <Text style={styles.infoName}>{customer.name || 'Customer'}</Text>
-            {customer.email ? <Text style={styles.infoDetail}>{customer.email}</Text> : null}
-            {customer.phone ? <Text style={styles.infoDetail}>{customer.phone}</Text> : null}
+          {/* Bill To & Ship To */}
+          <View style={styles.addressesContainer}>
+            <View style={styles.addressBox}>
+              <Text style={styles.metaLabel}>Billed To</Text>
+              <Text style={styles.addressName}>{customer.name || 'Customer'}</Text>
+              {customer.email ? <Text style={styles.addressText}>{customer.email}</Text> : null}
+              {customer.phone ? <Text style={styles.addressText}>{customer.phone}</Text> : null}
+            </View>
+            
+            <View style={styles.addressBox}>
+              <Text style={styles.metaLabel}>Shipped To</Text>
+              {shippingAddress ? (
+                <>
+                  <Text style={styles.addressText}>{shippingAddress.addressLine1}</Text>
+                  <Text style={styles.addressText}>{shippingAddress.city} {shippingAddress.postcode}</Text>
+                  <Text style={styles.addressText}>{shippingAddress.country}</Text>
+                </>
+              ) : (
+                <Text style={styles.addressText}>No shipping address provided</Text>
+              )}
+            </View>
           </View>
-          <View style={[styles.infoSection, { alignItems: 'flex-end' }]}>
-            <Text style={styles.infoLabel}>Order Details</Text>
-            <Text style={styles.infoDetail}>Order #{shortId}</Text>
-            <Text style={styles.infoDetail}>Placed: {orderDate}</Text>
-            <Text style={[styles.infoDetail, { marginTop: 6 }]}>{addressText}</Text>
+
+          {/* Table */}
+          <View style={styles.table}>
+            <View style={styles.tableHeader}>
+              <Text style={[styles.tableHeaderCell, styles.colDesc]}>Description</Text>
+              <Text style={[styles.tableHeaderCell, styles.colQty]}>Qty</Text>
+              <Text style={[styles.tableHeaderCell, styles.colPrice]}>Unit Price</Text>
+              <Text style={[styles.tableHeaderCell, styles.colTotal]}>Amount</Text>
+            </View>
+
+            {items.map((item, i) => {
+              const variant = variantText(item);
+              return (
+                <View key={i} style={styles.tableRow}>
+                  <View style={styles.colDesc}>
+                    <Text style={styles.itemTitle}>{item.title}</Text>
+                    {variant ? <Text style={styles.itemVariant}>{variant}</Text> : null}
+                  </View>
+                  <Text style={[styles.cellText, styles.colQty]}>{item.quantity}</Text>
+                  <Text style={[styles.cellText, styles.colPrice]}>{fmt(item.price)}</Text>
+                  <Text style={[styles.cellBold, styles.colTotal]}>
+                    {fmt(item.price * item.quantity)}
+                  </Text>
+                </View>
+              );
+            })}
           </View>
-        </View>
 
-        {/* ── ITEMS TABLE ── */}
-        <Text style={styles.tableLabel}>Items Ordered</Text>
-        <View style={styles.tableHeader}>
-          <Text style={[styles.tableHeaderText, styles.colProduct]}>Product</Text>
-          <Text style={[styles.tableHeaderText, styles.colQty]}>Qty</Text>
-          <Text style={[styles.tableHeaderText, styles.colPrice]}>Price</Text>
-          <Text style={[styles.tableHeaderText, styles.colTotal]}>Total</Text>
-        </View>
-
-        {items.map((item, i) => {
-          const variant = variantText(item);
-          return (
-            <View key={i} style={styles.tableRow}>
-              <View style={styles.colProduct}>
-                <Text style={styles.itemTitle}>{item.title}</Text>
-                {variant ? <Text style={styles.itemVariant}>{variant}</Text> : null}
-              </View>
-              <Text style={[styles.cellText, styles.colQty]}>{item.quantity}</Text>
-              <Text style={[styles.cellText, styles.colPrice]}>{fmt(item.price)}</Text>
-              <Text style={[styles.cellBold, styles.colTotal]}>
-                {fmt(item.price * item.quantity)}
+          {/* Summary */}
+          <View style={styles.summaryContainer}>
+            <View style={styles.paymentInfo}>
+              <Text style={styles.metaLabel}>Payment Status</Text>
+              <Text style={[styles.badge, isPaid ? styles.badgePaid : styles.badgePending]}>
+                {isPaid ? 'PAID' : 'PENDING'}
               </Text>
+              <Text style={styles.metaLabel}>Payment Method</Text>
+              <Text style={styles.metaValue}>{paymentLabel(paymentMethod)}</Text>
             </View>
-          );
-        })}
 
-        {/* ── TOTALS ── */}
-        <View style={styles.totalsContainer}>
-          <View style={styles.totalsInner}>
-            <View style={styles.totalRow}>
-              <Text style={styles.totalLabel}>Subtotal</Text>
-              <Text style={styles.totalValue}>{fmt(subtotal)}</Text>
-            </View>
-            <View style={styles.totalRow}>
-              <Text style={styles.totalLabel}>Shipping</Text>
-              <Text style={styles.totalValue}>{fmt(shippingCost)}</Text>
-            </View>
-            <View style={styles.grandTotalRow}>
-              <Text style={styles.grandTotalLabel}>Total</Text>
-              <Text style={styles.grandTotalValue}>{fmt(totalAmount)}</Text>
+            <View style={styles.totalsArea}>
+              <View style={styles.totalRow}>
+                <Text style={styles.totalLabel}>Subtotal</Text>
+                <Text style={styles.totalValue}>{fmt(subtotal)}</Text>
+              </View>
+              <View style={styles.totalRow}>
+                <Text style={styles.totalLabel}>Shipping</Text>
+                <Text style={styles.totalValue}>{fmt(shippingCost)}</Text>
+              </View>
+              <View style={styles.grandTotalRow}>
+                <Text style={styles.grandTotalLabel}>Total Due</Text>
+                <Text style={styles.grandTotalValue}>{fmt(totalAmount)}</Text>
+              </View>
             </View>
           </View>
+
         </View>
 
-        {/* ── FOOTER ── */}
+        {/* Footer */}
         <View style={styles.footer} fixed>
-          <Text style={styles.footerNote}>
-            Thank you for shopping with {company.name} 🧸 · This is a system-generated invoice.
-          </Text>
-          <Text style={styles.footerRef}>Order ID: {orderId}</Text>
+          <View>
+            <Text style={styles.footerText}>{company.name}</Text>
+            <Text style={styles.footerText}>{company.address}</Text>
+          </View>
+          <View style={{ alignItems: 'flex-end' }}>
+            <Text style={styles.footerText}>{company.email}</Text>
+            <Text style={styles.footerText}>{company.phone}</Text>
+          </View>
         </View>
       </Page>
     </Document>

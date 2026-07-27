@@ -16,13 +16,17 @@ export async function GET(
     
     let product;
     if (isMongoId) {
+      // Performance: .lean() returns plain JS objects (~2-3x faster serialization)
       product = await Product.findOne({ _id: sanitizedSlug, isPublished: true })
         .populate('category')
-        .select('-__v');
+        .select('-__v')
+        .lean();
     } else {
+      // Performance: .lean() returns plain JS objects (~2-3x faster serialization)
       product = await Product.findOne({ slug: sanitizedSlug, isPublished: true })
         .populate('category')
-        .select('-__v');
+        .select('-__v')
+        .lean();
     }
 
     if (!product) {

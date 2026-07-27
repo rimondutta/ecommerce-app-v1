@@ -247,6 +247,7 @@ export default function AccountPage() {
                              href={`/api/orders/${order._id}/invoice`}
                              target="_blank"
                              rel="noopener noreferrer"
+                             download={`Invoice-${order.invoiceNumber || order._id}.pdf`}
                              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
                              title="Download Invoice PDF"
                            >

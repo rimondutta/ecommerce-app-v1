@@ -23,4 +23,7 @@ const BlogPostSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+// Performance: Compound index covering the blog listing query (isPublished + publishedAt sort)
+BlogPostSchema.index({ isPublished: 1, publishedAt: -1 });
+
 export default mongoose.models.BlogPost || mongoose.model('BlogPost', BlogPostSchema);

@@ -18,6 +18,7 @@ export interface TelegramOrderData {
   shippingAddress: {
     city: string;
     addressLine1: string;
+    phone?: string;
   };
   paymentMethod: string;
 }
@@ -40,6 +41,7 @@ export async function sendTelegramNotification(order: TelegramOrderData) {
 --------------------------------
 🆔 *Order ID:* #${order.orderId.slice(-8).toUpperCase()}
 👤 *Customer:* ${order.customerName}
+📞 *Phone:* ${order.shippingAddress.phone}
 📧 *Email:* ${order.customerEmail}
 💰 *Total:* ৳${order.totalAmount.toLocaleString()}
 💳 *Payment:* ${order.paymentMethod.toUpperCase()}

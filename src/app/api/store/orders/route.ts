@@ -65,13 +65,22 @@ export async function POST(req: Request) {
         console.error('[invoice] generation failed for order', order._id, err)
       );
 
-    // Reduce inventory for each item
-    for (const item of items) {
-      if (item.productId) {
-        await Product.findByIdAndUpdate(item.productId, {
-          $inc: { inventory: -item.quantity }
-        }).catch(err => console.error(`Failed to update inventory for product ${item.productId}:`, err));
-      }
+    // Performance: Replace N sequential inventory writes with a single bulkWrite.
+    // Before: for (item of items) { await findByIdAndUpdate() } — N serial DB round-trips.
+    // After: one bulkWrite — 1 DB round-trip regardless of cart size.
+    const inventoryOps = items
+      .filter((item: any) => item.productId)
+      .map((item: any) => ({
+        updateOne: {
+          filter: { _id: item.productId },
+          update: { $inc: { inventory: -item.quantity } },
+        },
+      }));
+
+    if (inventoryOps.length > 0) {
+      await Product.bulkWrite(inventoryOps).catch((err: any) =>
+        console.error('Failed to update inventory via bulkWrite:', err)
+      );
     }
 
     // Send Confirmation Email (Async/Non-blocking)
