@@ -1,5 +1,11 @@
 @import "tailwindcss";
 
+/* Swiper — bundled here to avoid render-blocking separate stylesheet requests */
+@import "swiper/css";
+@import "swiper/css/effect-fade";
+@import "swiper/css/pagination";
+@import "swiper/css/navigation";
+
 /* ═══════════════════════════════════════════════════
    PLAYSHELF — Cinematic Design System
    "An immersive, dramatic toy catalog"

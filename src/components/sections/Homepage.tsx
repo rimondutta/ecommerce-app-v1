@@ -10,22 +10,26 @@ import dynamic from "next/dynamic";
 
 const DynamicInstagramSection = dynamic(() => import("./InstagramSection"), { ssr: false });
 
-// ─── Countdown Timer Hook (logic untouched) ───
+// ─── Countdown Timer Hook ───
 function useCountdown(d: number, h: number, m: number, s: number) {
   const [timeLeft, setTimeLeft] = useState({ days: d, hours: h, minutes: m, seconds: s });
   useEffect(() => {
-    const timer = setInterval(() => {
-      setTimeLeft((prev) => {
-        let { days, hours, minutes, seconds } = prev;
-        if (days === 0 && hours === 0 && minutes === 0 && seconds === 0) { clearInterval(timer); return prev; }
-        seconds -= 1;
-        if (seconds < 0) { seconds = 59; minutes -= 1; }
-        if (minutes < 0) { minutes = 59; hours -= 1; }
-        if (hours < 0) { hours = 23; days -= 1; }
-        return { days, hours, minutes, seconds };
-      });
-    }, 1000);
-    return () => clearInterval(timer);
+    // Delay initialization to not block first render
+    const init = setTimeout(() => {
+      const timer = setInterval(() => {
+        setTimeLeft((prev) => {
+          let { days, hours, minutes, seconds } = prev;
+          if (days === 0 && hours === 0 && minutes === 0 && seconds === 0) { clearInterval(timer); return prev; }
+          seconds -= 1;
+          if (seconds < 0) { seconds = 59; minutes -= 1; }
+          if (minutes < 0) { minutes = 59; hours -= 1; }
+          if (hours < 0) { hours = 23; days -= 1; }
+          return { days, hours, minutes, seconds };
+        });
+      }, 1000);
+      return () => clearInterval(timer);
+    }, 500); // defer 500ms so first paint is not delayed
+    return () => clearTimeout(init);
   }, []);
   return timeLeft;
 }
@@ -65,13 +69,13 @@ export default function Homepage({
 
   const timeLeft = useCountdown(12, 8, 45, 0);
 
-  // Orchestrated page-load sequence variants (~2.5s total) - Slower for cinematic effect
+  // Animation variants — tightened durations for better TTI without sacrificing aesthetics
   const seq: any = {
-    container: { hidden: {}, visible: { transition: { staggerChildren: reduced ? 0 : 0.2, delayChildren: 0.2 } } },
-    rule:  { hidden: reduced ? { opacity: 0 } : { scaleX: 0, opacity: 0 },  visible: { scaleX: 1, opacity: 1, transition: { duration: 1.0, ease: [0.25, 1, 0.5, 1] } } },
-    label: { hidden: reduced ? { opacity: 0 } : { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.25, 1, 0.5, 1] } } },
-    title: { hidden: reduced ? { opacity: 0 } : { opacity: 0, y: 32 }, visible: { opacity: 1, y: 0, transition: { duration: 1.2,  ease: [0.25, 1, 0.5, 1] } } },
-    photo: { hidden: reduced ? { opacity: 0 } : { opacity: 0, scale: 1.05 }, visible: { opacity: 1, scale: 1.0, transition: { duration: 1.8, ease: [0.25, 1, 0.5, 1] } } },
+    container: { hidden: {}, visible: { transition: { staggerChildren: reduced ? 0 : 0.15, delayChildren: 0 } } },
+    rule:  { hidden: reduced ? { opacity: 0 } : { scaleX: 0, opacity: 0 },  visible: { scaleX: 1, opacity: 1, transition: { duration: 0.7, ease: [0.25, 1, 0.5, 1] } } },
+    label: { hidden: reduced ? { opacity: 0 } : { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.25, 1, 0.5, 1] } } },
+    title: { hidden: reduced ? { opacity: 0 } : { opacity: 0, y: 32 }, visible: { opacity: 1, y: 0, transition: { duration: 0.9,  ease: [0.25, 1, 0.5, 1] } } },
+    photo: { hidden: reduced ? { opacity: 0 } : { opacity: 0, scale: 1.03 }, visible: { opacity: 1, scale: 1.0, transition: { duration: 0.9, ease: [0.25, 1, 0.5, 1] } } },
   };
 
   return (
@@ -95,6 +99,7 @@ export default function Homepage({
             muted
             loop
             playsInline
+            preload="none"
             className="absolute inset-0 w-full h-full object-cover object-center"
           >
             <source src="/video/hero-bg.mp4" type="video/mp4" />

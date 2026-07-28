@@ -12,18 +12,22 @@ const bigShoulders = Oswald({
   subsets: ["latin"],
   display: "swap",
   variable: "--font-big-shoulders",
+  adjustFontFallback: false,
 });
 
 const inter = Inter({
   subsets: ["latin"],
   display: "swap",
   variable: "--font-inter",
+  adjustFontFallback: false,
 });
 
 const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
   display: "swap",
   variable: "--font-jetbrains-mono",
+  weight: ["400", "700"],
+  adjustFontFallback: false,
 });
 
 export const metadata: Metadata = {
@@ -46,6 +50,12 @@ export const metadata: Metadata = {
     description: "Beautifully curated toys for curious kids.",
   },
 };
+
+// Preconnect to Google Fonts to eliminate render-blocking font fetches
+export const links = [
+  { rel: "preconnect", href: "https://fonts.googleapis.com" },
+  { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
+];
 
 export default function RootLayout({
   children,

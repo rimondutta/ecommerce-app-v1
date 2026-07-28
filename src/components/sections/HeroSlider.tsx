@@ -6,11 +6,7 @@ import Link from "next/link";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, EffectFade, Pagination, Navigation } from "swiper/modules";
 
-// Import Swiper styles
-import "swiper/css";
-import "swiper/css/effect-fade";
-import "swiper/css/pagination";
-import "swiper/css/navigation";
+// Swiper CSS is imported in globals.css to avoid render-blocking stylesheets
 
 function AccentLabel({ children }: { children: React.ReactNode }) {
   return (
@@ -116,6 +112,7 @@ export default function HeroSlider() {
                 sizes="100vw"
                 className="object-cover"
                 priority={index === 0}
+                loading={index === 0 ? "eager" : "lazy"}
               />
               
               {/* Dark Overlay for better text readability */}

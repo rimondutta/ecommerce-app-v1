@@ -39,7 +39,7 @@ export default function AnimatedReveal({
     <motion.div
       initial={hidden}
       whileInView={visible}
-      viewport={{ once: true, margin: "-8%" }}
+      viewport={{ once: true, margin: "-5%" }}
       transition={{
         duration: reduced ? 0.15 : 0.8,
         delay: reduced ? 0 : delay,

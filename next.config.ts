@@ -5,14 +5,36 @@ const nextConfig: NextConfig = {
   // It relies on Node.js built-ins and must run as a server external.
   serverExternalPackages: ['@react-pdf/renderer'],
 
+  // Remove the X-Powered-By header to reduce response payload size.
+  poweredByHeader: false,
+
+  // Enable gzip/brotli compression for all responses.
+  compress: true,
+
   // Allow development from 127.0.0.1 for HMR and Studio
   allowedDevOrigins: ["127.0.0.1", "localhost"],
+
   images: {
+    // Serve AVIF first (smallest), fallback to WebP — ~30-40% smaller than JPEG/PNG.
+    formats: ['image/avif', 'image/webp'],
+    // Cache optimized images for 1 year at the CDN edge.
+    minimumCacheTTL: 31536000,
     remotePatterns: [
       { protocol: "https", hostname: "picsum.photos" },
       { protocol: "https", hostname: "fastly.picsum.photos" },
       { protocol: "https", hostname: "res.cloudinary.com" },
       { protocol: "https", hostname: "images.unsplash.com" },
+    ],
+  },
+
+  experimental: {
+    // Tree-shake these large packages to only import what is actually used.
+    // Fixes "Reduce unused JavaScript" and "Legacy JavaScript" PageSpeed issues.
+    optimizePackageImports: [
+      'framer-motion',
+      'lucide-react',
+      '@tabler/icons-react',
+      'swiper',
     ],
   },
 
