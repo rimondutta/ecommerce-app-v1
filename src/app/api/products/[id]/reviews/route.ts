@@ -3,6 +3,16 @@ import connectToDatabase from '@/lib/db';
 import Product from '@/models/Product';
 import { revalidatePath } from 'next/cache';
 
+const CORS_HEADERS = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+};
+
+export async function OPTIONS() {
+  return new NextResponse(null, { status: 200, headers: CORS_HEADERS });
+}
+
 export async function POST(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
