@@ -24,8 +24,8 @@ export async function GET() {
     },
     {
       headers: {
-        // Short cache: mobile app polls this frequently, so don't over-cache
-        'Cache-Control': 'no-store',
+        // Cache at CDN edge for 60 s — reduces serverless invocations on Vercel Hobby
+        'Cache-Control': 's-maxage=60, stale-while-revalidate=30',
         'Access-Control-Allow-Origin': '*',
       },
     }
