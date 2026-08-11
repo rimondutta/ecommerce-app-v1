@@ -4,6 +4,8 @@ import Product from '@/models/Product';
 import Review from '@/models/Review';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
+import { getBearerSession } from '@/lib/mobile-auth';
+import { NextRequest } from 'next/server';
 
 // GET: Fetch reviews for a product
 export async function GET(
@@ -36,11 +38,11 @@ export async function GET(
 
 // POST: Submit a new review
 export async function POST(
-  req: Request,
+  req: NextRequest,
   { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = (await getBearerSession(req)) || (await getServerSession(authOptions));
     if (!session || !session.user) {
       return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
     }

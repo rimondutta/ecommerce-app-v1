@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/db';
 import Product from '@/models/Product';
+import VariationType from '@/models/VariationType';
+import VariationValue from '@/models/VariationValue';
 
 export async function GET(
   req: Request,
@@ -14,17 +16,22 @@ export async function GET(
     const sanitizedSlug = typeof slug === 'string' ? slug : String(slug);
     const isMongoId = /^[0-9a-fA-F]{24}$/.test(sanitizedSlug);
     
+    const populateConfig = [
+      { path: 'category' },
+      { path: 'variationTypes' },
+      { path: 'variants.combination.variationType' },
+      { path: 'variants.combination.variationValue' }
+    ];
+
     let product;
     if (isMongoId) {
-      // Performance: .lean() returns plain JS objects (~2-3x faster serialization)
       product = await Product.findOne({ _id: sanitizedSlug, isPublished: true })
-        .populate('category')
+        .populate(populateConfig)
         .select('-__v')
         .lean();
     } else {
-      // Performance: .lean() returns plain JS objects (~2-3x faster serialization)
       product = await Product.findOne({ slug: sanitizedSlug, isPublished: true })
-        .populate('category')
+        .populate(populateConfig)
         .select('-__v')
         .lean();
     }

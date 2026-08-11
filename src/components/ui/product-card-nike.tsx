@@ -59,8 +59,6 @@ export default function ProductCardModern({ product, priority = false, index = 1
       title: product.title,
       price: product.price,
       quantity: 1,
-      color: "Default",
-      size: "Default",
       image: product.images?.[0]?.url || "/placeholder.jpg",
     });
     await new Promise((r) => setTimeout(r, 600));

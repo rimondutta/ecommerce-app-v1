@@ -68,15 +68,16 @@ ${order.shippingAddress.addressLine1}, ${order.shippingAddress.city}
         text: message,
         parse_mode: 'Markdown',
       }),
+      signal: AbortSignal.timeout(5000),
     });
 
     if (!response.ok) {
       const errorData = await response.json();
-      console.error('Telegram API Error:', errorData);
+      console.warn('Telegram API Error:', errorData);
     } else {
       console.log('Telegram admin notification sent successfully.');
     }
-  } catch (error) {
-    console.error('Failed to send Telegram notification:', error);
+  } catch (error: any) {
+    console.warn('Telegram notification skipped (Network issue):', error.message || 'Unknown error');
   }
 }

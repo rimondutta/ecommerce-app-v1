@@ -282,6 +282,7 @@ interface InvoiceItem {
   price: number;
   color?: string;
   size?: string;
+  variantOptions?: Record<string, string>;
 }
 
 export interface InvoiceDocumentProps {
@@ -345,8 +346,13 @@ export function InvoiceDocument({
   
   const variantText = (item: InvoiceItem) =>
     [
-      item.color && item.color !== 'Default' ? item.color : null,
-      item.size && item.size !== 'Default' ? item.size : null,
+    ...(item.variantOptions 
+      ? Object.values(item.variantOptions) 
+      : [
+          item.color && item.color !== 'Default' ? item.color : null,
+          item.size && item.size !== 'Default' ? item.size : null,
+        ]
+    ),
     ]
       .filter(Boolean)
       .join(' / ');

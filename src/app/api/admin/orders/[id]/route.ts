@@ -66,6 +66,28 @@ export async function PUT(
       await sendOrderStatusUpdateEmail(order, 'payment', data.paymentStatus).catch(err => console.error('Status email error:', err));
     }
 
+    // Send Push Notification if user has pushToken
+    if ((data.fulfillmentStatus && data.fulfillmentStatus !== oldOrder.fulfillmentStatus) || 
+        (data.paymentStatus && data.paymentStatus !== oldOrder.paymentStatus)) {
+      const User = (await import('@/models/User')).default;
+      const user = await User.findOne({ email: order.customerEmail });
+      
+      if (user && user.pushToken) {
+        const { Expo } = await import('expo-server-sdk');
+        const expo = new Expo();
+        if (Expo.isExpoPushToken(user.pushToken)) {
+          const messages = [{
+            to: user.pushToken,
+            sound: 'default' as 'default',
+            title: 'Order Status Update',
+            body: `Your order #${order._id.toString().substring(18).toUpperCase()} is now ${order.fulfillmentStatus}.`,
+            data: { orderId: order._id.toString() },
+          }];
+          expo.sendPushNotificationsAsync(messages).catch(err => console.error('Push notification error:', err));
+        }
+      }
+    }
+
     return NextResponse.json({ order });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });

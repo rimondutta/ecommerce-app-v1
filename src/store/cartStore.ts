@@ -4,12 +4,12 @@ import { persist, createJSONStorage } from "zustand/middleware";
 
 export interface CartItem {
   id: string;
+  variantId?: string;
   slug: string;
   title: string;
   price: number;
   quantity: number;
-  color: string;
-  size: string;
+  variantOptions?: Record<string, string>; // e.g. { Color: "Red", Size: "M", Pieces: "10" }
   image: string;
 }
 
@@ -18,13 +18,29 @@ interface CartState {
   isOpen: boolean;
   // Actions
   addItem: (item: CartItem) => void;
-  removeItem: (id: string, color?: string, size?: string) => void;
-  updateQuantity: (id: string, qty: number, color?: string, size?: string) => void;
+  removeItem: (id: string, variantId?: string, variantOptions?: Record<string, string>) => void;
+  updateQuantity: (id: string, qty: number, variantId?: string, variantOptions?: Record<string, string>) => void;
   openCart: () => void;
   closeCart: () => void;
   toggleCart: () => void;
   clearCart: () => void;
 }
+
+const areItemsEqual = (i1: CartItem, i2: Partial<CartItem>) => {
+  if (i1.id !== i2.id) return false;
+  if (i1.variantId || i2.variantId) {
+     return i1.variantId === i2.variantId;
+  }
+  // Fallback to legacy options comparison if no variantId
+  const opt1 = i1.variantOptions;
+  const opt2 = i2.variantOptions;
+  if (!opt1 && !opt2) return true;
+  if (!opt1 || !opt2) return false;
+  const keys1 = Object.keys(opt1);
+  const keys2 = Object.keys(opt2);
+  if (keys1.length !== keys2.length) return false;
+  return keys1.every(key => opt1[key] === opt2[key]);
+};
 
 export const useCartStore = create<CartState>()(
   persist(
@@ -35,11 +51,11 @@ export const useCartStore = create<CartState>()(
       addItem: (item) => {
         set((state) => {
           const existing = state.items.find(
-            (i) => i.id === item.id && i.color === item.color && i.size === item.size
+            (i) => areItemsEqual(i, item)
           );
           const newItems = existing
             ? state.items.map((i) =>
-                i.id === item.id && i.color === item.color && i.size === item.size
+                areItemsEqual(i, item)
                   ? { ...i, quantity: i.quantity + item.quantity }
                   : i
               )
@@ -48,35 +64,22 @@ export const useCartStore = create<CartState>()(
         });
       },
 
-      removeItem: (id, color, size) => {
+      removeItem: (id, variantId, variantOptions) => {
         set((state) => ({
-          items: state.items.filter((i) => {
-            if (color !== undefined && size !== undefined) {
-              return !(i.id === id && i.color === color && i.size === size);
-            }
-            return i.id !== id;
-          }),
+          items: state.items.filter((i) => !areItemsEqual(i, { id, variantId, variantOptions })),
         }));
       },
 
-      updateQuantity: (id, qty, color, size) => {
+      updateQuantity: (id, qty, variantId, variantOptions) => {
         set((state) => ({
           items:
             qty <= 0
-              ? state.items.filter((i) => {
-                  if (color !== undefined && size !== undefined) {
-                    return !(i.id === id && i.color === color && i.size === size);
-                  }
-                  return i.id !== id;
-                })
-              : state.items.map((i) => {
-                  if (color !== undefined && size !== undefined) {
-                    return i.id === id && i.color === color && i.size === size
-                      ? { ...i, quantity: qty }
-                      : i;
-                  }
-                  return i.id === id ? { ...i, quantity: qty } : i;
-                }),
+              ? state.items.filter((i) => !areItemsEqual(i, { id, variantId, variantOptions }))
+              : state.items.map((i) =>
+                  areItemsEqual(i, { id, variantId, variantOptions })
+                    ? { ...i, quantity: qty }
+                    : i
+                ),
         }));
       },
 

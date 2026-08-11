@@ -97,7 +97,7 @@ export default function CartDrawer() {
               ) : (
                 items.map((item) => (
                   <div
-                    key={`${item.id}-${item.color}-${item.size}`}
+                    key={`${item.id}-${JSON.stringify(item.variantOptions)}`}
                     className="flex gap-4 px-6 py-5 border-b border-rule-grey"
                   >
                     {/* Thumbnail — flat, no radius */}
@@ -115,8 +115,10 @@ export default function CartDrawer() {
                         >
                           {item.title}
                         </Link>
-                        {item.size !== "Default" && (
-                          <p className="font-mono text-[10px] text-rule-grey uppercase tracking-[0.08em] mt-0.5">{item.size}</p>
+                        {Object.keys(item.variantOptions || {}).length > 0 && (
+                          <p className="font-mono text-[10px] text-rule-grey uppercase tracking-[0.08em] mt-0.5">
+                            {Object.entries(item.variantOptions || {}).map(([k, v]) => `${k}: ${v}`).join(" · ")}
+                          </p>
                         )}
                       </div>
 
@@ -124,7 +126,7 @@ export default function CartDrawer() {
                         {/* Flat text-based quantity stepper */}
                         <div className="flex items-center gap-0">
                           <button
-                            onClick={() => updateQuantity(item.id, Math.max(1, item.quantity - 1))}
+                            onClick={() => updateQuantity(item.id, Math.max(1, item.quantity - 1), item.variantId, item.variantOptions)}
                             className="font-mono text-[16px] text-ink-black w-7 h-7 flex items-center justify-center border border-rule-grey hover:border-ink-black transition-colors leading-none"
                             aria-label="Decrease"
                           >
@@ -134,7 +136,7 @@ export default function CartDrawer() {
                             {item.quantity}
                           </span>
                           <button
-                            onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                            onClick={() => updateQuantity(item.id, item.quantity + 1, item.variantId, item.variantOptions)}
                             className="font-mono text-[16px] text-ink-black w-7 h-7 flex items-center justify-center border border-rule-grey hover:border-ink-black transition-colors leading-none"
                             aria-label="Increase"
                           >
@@ -150,7 +152,7 @@ export default function CartDrawer() {
 
                     {/* Remove */}
                     <button
-                      onClick={() => removeItem(item.id)}
+                      onClick={() => removeItem(item.id, item.variantId, item.variantOptions)}
                       className="self-start mt-0.5 text-rule-grey hover:text-stamp-red transition-colors"
                       aria-label="Remove item"
                     >

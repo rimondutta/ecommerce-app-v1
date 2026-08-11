@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import connectToDatabase from '@/lib/db';
 import Product from '@/models/Product';
+import { touchProductsTimestamp } from '@/lib/lastUpdated';
 
 export async function GET(req: Request) {
   try {
@@ -19,7 +20,7 @@ export async function GET(req: Request) {
     await connectToDatabase();
 
     const [products, total] = await Promise.all([
-      Product.find({}).populate('category', 'name').sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
+      Product.find({}).select('-__v').populate('category', 'name').sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
       Product.countDocuments({}),
     ]);
 
@@ -53,6 +54,9 @@ export async function POST(req: Request) {
 
     await connectToDatabase();
     const product = await Product.create(data);
+
+    // Bump last-updated timestamp so mobile polling detects this new product
+    await touchProductsTimestamp();
 
     return NextResponse.json({ product }, { status: 201 });
   } catch (error: any) {

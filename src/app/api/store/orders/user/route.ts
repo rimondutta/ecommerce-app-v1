@@ -3,10 +3,12 @@ import connectToDatabase from '@/lib/db';
 import Order from '@/models/Order';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
+import { getBearerSession } from '@/lib/mobile-auth';
+import { NextRequest } from 'next/server';
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await getBearerSession(req) || await getServerSession(authOptions);
     
     if (!session?.user?.email) {
       return NextResponse.json({ error: 'Unauthorized access' }, { status: 401 });

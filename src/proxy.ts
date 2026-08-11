@@ -40,8 +40,9 @@ const authMiddleware = withAuth({
 });
 
 export default async function proxy(req: any, event: any) {
-  // Rate limiting on all /api/ routes
-  if (req.nextUrl.pathname.startsWith('/api/') && ratelimit) {
+  // Rate limiting on all /api/ routes EXCEPT NextAuth internals
+  const isAuthRoute = req.nextUrl.pathname.startsWith('/api/auth/')
+  if (!isAuthRoute && req.nextUrl.pathname.startsWith('/api/') && ratelimit) {
     const ip = req.ip ?? req.headers.get("x-forwarded-for") ?? "127.0.0.1";
     const { success, limit, reset, remaining } = await ratelimit.limit(ip);
     

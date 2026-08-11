@@ -22,7 +22,7 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const { customerEmail, customerName, items, totalAmount, shippingAddress, paymentMethod, shippingCost } = body;
+    const { customerEmail, customerName, items, totalAmount, shippingAddress, paymentMethod, shippingCost, shippingZone, notes } = body;
 
     if (!items || items.length === 0 || !totalAmount) {
       return NextResponse.json({ error: 'Missing required order details' }, { status: 400 });
@@ -44,6 +44,8 @@ export async function POST(req: Request) {
       items,
       totalAmount,
       shippingCost: shippingCost || 0,
+      shippingZone,
+      notes,
       shippingAddress,
       paymentMethod: paymentMethod || 'cod',
       paymentStatus: 'pending',
@@ -70,12 +72,25 @@ export async function POST(req: Request) {
     // After: one bulkWrite — 1 DB round-trip regardless of cart size.
     const inventoryOps = items
       .filter((item: any) => item.productId)
-      .map((item: any) => ({
-        updateOne: {
-          filter: { _id: item.productId },
-          update: { $inc: { inventory: -item.quantity } },
-        },
-      }));
+      .map((item: any) => {
+        if (item.variantId) {
+          // Decrement specific variant's stock
+          return {
+            updateOne: {
+              filter: { _id: item.productId, 'variants._id': item.variantId },
+              update: { $inc: { 'variants.$.stock': -item.quantity } },
+            },
+          };
+        } else {
+          // Decrement legacy product inventory
+          return {
+            updateOne: {
+              filter: { _id: item.productId },
+              update: { $inc: { inventory: -item.quantity } },
+            },
+          };
+        }
+      });
 
     if (inventoryOps.length > 0) {
       await Product.bulkWrite(inventoryOps).catch((err: any) =>

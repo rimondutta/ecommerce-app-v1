@@ -51,8 +51,10 @@ export default function QuickLookDrawer() {
       title: product.title,
       price: currentPrice,
       quantity,
-      color: selectedColor?.name || "Default",
-      size: selectedSize || "Default",
+      variantOptions: {
+        ...(selectedColor ? { Color: selectedColor.name } : {}),
+        ...(selectedSize ? { Size: selectedSize } : {}),
+      },
       image: images[0],
     });
     closeQuickLook();

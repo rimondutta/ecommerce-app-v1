@@ -7,11 +7,11 @@ const OrderSchema = new mongoose.Schema(
     items: [
       {
         product: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
+        variantId: { type: mongoose.Schema.Types.ObjectId },
         quantity: { type: Number, required: true },
         price: { type: Number, required: true },
         title: { type: String },
-        color: { type: String },
-        size: { type: String },
+        variantOptions: { type: Map, of: String },
       },
     ],
     totalAmount: { type: Number, required: true },
@@ -23,8 +23,15 @@ const OrderSchema = new mongoose.Schema(
     },
     paymentMethod: {
       type: String,
-      enum: ['card', 'cod'],
+      enum: ['card', 'cod', 'bkash'],
       default: 'cod',
+    },
+    shippingZone: {
+      type: String,
+      enum: ['inside_dhaka', 'outside_dhaka'],
+    },
+    notes: {
+      type: String,
     },
     fulfillmentStatus: {
       type: String,

@@ -232,7 +232,10 @@ export default function AdminOrderDetailsPage() {
                   <div className="flex-1 min-w-0">
                     <h3 className="text-sm font-medium text-gray-900 truncate">{item.title}</h3>
                     <p className="text-sm text-gray-500 mt-1">
-                      {item.color} | {item.size}
+                      {item.variantOptions 
+                        ? Object.values(item.variantOptions).join(" | ")
+                        : [item.color !== "Default" ? item.color : null, item.size !== "Default" ? item.size : null].filter(Boolean).join(" | ")
+                      }
                     </p>
                   </div>
                   <div className="text-right">

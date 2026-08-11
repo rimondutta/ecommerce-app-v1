@@ -97,11 +97,11 @@ export default function CheckoutPage() {
           customerName: form.name,
           items: items.map((item) => ({
             productId: item.id,
+            variantId: item.variantId,
             title: item.title,
             price: item.price,
             quantity: item.quantity,
-            color: item.color,
-            size: item.size,
+            variantOptions: item.variantOptions,
             image: item.image,
           })),
           shippingAddress: {
@@ -445,7 +445,7 @@ export default function CheckoutPage() {
                     <div className="space-y-3">
                       {items.map((item) => (
                         <div
-                          key={`${item.id}-${item.color}-${item.size}`}
+                          key={`${item.id}-${JSON.stringify(item.variantOptions)}`}
                           className="flex items-center gap-4 p-3 rounded-xl bg-gray-50 border border-gray-100"
                         >
                           <div className="w-14 h-16 relative shrink-0 rounded-lg overflow-hidden bg-gray-100">
@@ -462,7 +462,7 @@ export default function CheckoutPage() {
                               {item.title}
                             </p>
                             <p className="text-xs text-gray-500 mt-0.5">
-                              {item.color} · {item.size} · Qty {item.quantity}
+                              {Object.entries(item.variantOptions || {}).map(([k, v]) => `${k}: ${v}`).join(" · ")} {Object.keys(item.variantOptions || {}).length > 0 && "·"} Qty {item.quantity}
                             </p>
                           </div>
                           <span className="text-sm font-bold text-black whitespace-nowrap">
@@ -557,7 +557,7 @@ export default function CheckoutPage() {
               <div className="space-y-3 max-h-64 overflow-y-auto pr-1 custom-scrollbar">
                 {items.map((item) => (
                   <div
-                    key={`${item.id}-${item.color}`}
+                    key={`${item.id}-${JSON.stringify(item.variantOptions)}`}
                     className="flex items-center gap-3"
                   >
                     <div className="w-12 h-14 relative shrink-0 rounded-lg overflow-hidden bg-gray-100 border border-gray-100">
@@ -573,6 +573,11 @@ export default function CheckoutPage() {
                       <p className="text-sm font-medium text-black truncate leading-snug">
                         {item.title}
                       </p>
+                      {Object.keys(item.variantOptions || {}).length > 0 && (
+                        <p className="text-xs text-gray-500 mt-0.5 truncate">
+                          {Object.entries(item.variantOptions || {}).map(([k, v]) => `${k}: ${v}`).join(" · ")}
+                        </p>
+                      )}
                       <p className="text-xs text-gray-400 mt-0.5">
                         ×{item.quantity}
                       </p>

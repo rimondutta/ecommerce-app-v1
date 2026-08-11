@@ -4,6 +4,7 @@ import { authOptions } from '@/lib/auth';
 import connectToDatabase from '@/lib/db';
 import Product from '@/models/Product';
 import { deleteImage } from '@/lib/cloudinary';
+import { touchProductsTimestamp } from '@/lib/lastUpdated';
 
 export async function GET(
   req: Request,
@@ -81,6 +82,9 @@ export async function PUT(
       revalidatePath(`/products/${product.slug}`);
     }
 
+    // Bump last-updated so mobile polling detects this update
+    await touchProductsTimestamp();
+
     return NextResponse.json({ product });
   } catch (error: any) {
     if (error.code === 11000) {
@@ -127,6 +131,9 @@ export async function DELETE(
 
     // Delete product from database
     await Product.findByIdAndDelete(id);
+
+    // Bump last-updated so mobile polling detects this deletion
+    await touchProductsTimestamp();
 
     return NextResponse.json({ message: 'Product and associated images deleted' });
   } catch (error: any) {

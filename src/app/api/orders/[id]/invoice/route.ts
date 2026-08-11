@@ -16,9 +16,11 @@ import { authOptions } from '@/lib/auth';
 import connectToDatabase from '@/lib/db';
 import Order from '@/models/Order';
 import { getInvoiceBufferForOrder } from '@/lib/invoice/generateInvoicePdf';
+import { getBearerSession } from '@/lib/mobile-auth';
+import { NextRequest } from 'next/server';
 
 export async function GET(
-  req: Request,
+  req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
@@ -32,7 +34,7 @@ export async function GET(
 
     // ── Auth check ──
     // If a session exists, ensure the user owns this order.
-    const session = await getServerSession(authOptions);
+    const session = (await getBearerSession(req)) || (await getServerSession(authOptions));
     const userRole = (session?.user as any)?.role;
     const isAdmin = userRole === 'admin' || userRole === 'manager';
 

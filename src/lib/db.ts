@@ -29,9 +29,12 @@ async function connectToDatabase() {
   if (!cached.promise) {
     const opts = {
       bufferCommands: false,
-      maxPoolSize: 2, // Scalability: serverless environments need tiny pools (2) to prevent MongoDB connection exhaustion during scale out
+      maxPoolSize: 10,
       minPoolSize: 1,
-      serverSelectionTimeoutMS: 3000, // Fail faster to free up serverless resources
+      serverSelectionTimeoutMS: 10000, // 10s — enough for cold starts and brief network hiccups
+      socketTimeoutMS: 45000,          // 45s — prevents mid-query drops
+      connectTimeoutMS: 10000,         // 10s connection timeout
+      heartbeatFrequencyMS: 10000,     // keep-alive ping every 10s
     };
 
     cached.promise = mongoose.connect(MONGODB_URI as string, opts).then((mongoose) => {

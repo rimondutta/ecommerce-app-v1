@@ -1,6 +1,8 @@
 import connectToDatabase from "@/lib/db";
 import Product from "@/models/Product";
 import Category from "@/models/Category";
+import "@/models/VariationType";
+import "@/models/VariationValue";
 import { notFound } from "next/navigation";
 import ProductDetailsClient from "@/components/product/ProductDetailsClient";
 import { Metadata } from "next";
@@ -62,10 +64,17 @@ export default async function ProductDetailPage({ params }: PageProps) {
 
   const sanitizedSlug = typeof slug === 'string' ? slug : String(slug);
 
+  const populateConfig = [
+    { path: 'category' },
+    { path: 'variationTypes' },
+    { path: 'variants.combination.variationType' },
+    { path: 'variants.combination.variationValue' }
+  ];
+
   const [dbProduct, dbRelated] = await Promise.all([
     Product.findOne({ slug: sanitizedSlug, isPublished: true })
-      .populate('category')
-      .select('-__v') 
+      .populate(populateConfig)
+      .select('-__v')
       .lean(),
     Product.find({ isPublished: true })
       .select('title price slug images category inventory rating reviewCount')

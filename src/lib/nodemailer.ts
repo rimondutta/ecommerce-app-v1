@@ -18,6 +18,7 @@ interface OrderItem {
   price: number;
   color?: string;
   size?: string;
+  variantOptions?: Record<string, string>;
 }
 
 interface OrderData {
@@ -43,7 +44,7 @@ export async function sendOrderConfirmationEmail(order: OrderData) {
     <tr>
       <td style="padding: 12px; border-bottom: 1px solid #eeeeee;">
         <div style="font-weight: bold; color: #000000;">${item.title}</div>
-        <div style="font-size: 12px; color: #666666;">${item.color ? `Color: ${item.color}` : ''} ${item.size ? `| Size: ${item.size}` : ''}</div>
+        <div style="font-size: 12px; color: #666666;">${item.variantOptions ? Object.entries(item.variantOptions).map(([k,v])=>`${k}: ${v}`).join(' | ') : [item.color && item.color !== 'Default' ? `Color: ${item.color}` : null, item.size && item.size !== 'Default' ? `Size: ${item.size}` : null].filter(Boolean).join(' | ')}</div>
       </td>
       <td style="padding: 12px; border-bottom: 1px solid #eeeeee; text-align: center;">${item.quantity}</td>
       <td style="padding: 12px; border-bottom: 1px solid #eeeeee; text-align: right;">৳${item.price.toLocaleString()}</td>

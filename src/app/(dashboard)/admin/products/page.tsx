@@ -95,6 +95,7 @@ export default function AdminProductsPage() {
                   <input type="checkbox" className="w-4 h-4 rounded border-gray-300 text-gray-900 focus:ring-gray-900" />
                 </th>
                 <th className="px-5 py-3 font-medium text-gray-500">Product</th>
+                <th className="px-5 py-3 font-medium text-gray-500">Price</th>
                 <th className="px-5 py-3 font-medium text-gray-500">Status</th>
                 <th className="px-5 py-3 font-medium text-gray-500">Inventory</th>
                 <th className="px-5 py-3 font-medium text-gray-500">Category</th>
@@ -132,8 +133,17 @@ export default function AdminProductsPage() {
                           <div className="font-medium text-gray-900 group-hover:text-blue-600 transition-colors cursor-pointer">
                             {product.title}
                           </div>
-                          <div className="text-xs text-gray-500 mt-0.5">৳{product.price?.toLocaleString()}</div>
                         </div>
+                      </div>
+                    </td>
+                    <td className="px-5 py-4">
+                      <div className="flex flex-col">
+                        {product.compareAtPrice && (
+                          <span className="text-xs text-gray-400 line-through">৳{product.compareAtPrice?.toLocaleString()}</span>
+                        )}
+                        <span className={`text-sm font-semibold ${product.compareAtPrice ? 'text-green-600' : 'text-gray-900'}`}>
+                          ৳{product.price?.toLocaleString()}
+                        </span>
                       </div>
                     </td>
                     <td className="px-5 py-4">

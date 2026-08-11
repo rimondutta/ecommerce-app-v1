@@ -116,10 +116,12 @@ export default async function InvoicePage({ params }: { params: Promise<{ id: st
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {(order.items as any[]).map((item: any, i: number) => {
-                  const variants = [
-                    item.color && item.color !== "Default" ? item.color : null,
-                    item.size && item.size !== "Default" ? item.size : null,
-                  ].filter(Boolean).join(" · ");
+                  const variants = item.variantOptions
+                    ? Object.values(item.variantOptions).join(" · ")
+                    : [
+                        item.color && item.color !== "Default" ? item.color : null,
+                        item.size && item.size !== "Default" ? item.size : null,
+                      ].filter(Boolean).join(" · ");
                   
                   return (
                     <tr key={i} className="hover:bg-slate-50/50 transition-colors">

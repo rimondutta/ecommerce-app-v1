@@ -1,9 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
-import ProductCardNike from "./product-card-nike";
+import React from "react";
+import ProductCardAwwwards from "./product-card-nike";
 import Link from "next/link";
-import { cn } from "@/lib/utils";
 
 interface Product {
   _id: string;
@@ -16,6 +15,8 @@ interface Product {
   ageRange?: string;
   rating?: number;
   reviewCount?: number;
+  category?: any;
+  inventory?: number;
 }
 
 interface ProductGridProps {
@@ -27,38 +28,45 @@ interface ProductGridProps {
   theme?: "dark" | "light";
 }
 
-export default function ProductGridNike({
-  products,
-}: ProductGridProps) {
-  const [activeTab, setActiveTab] = useState("tab1");
+// Assigns Awwwards-style layout to each card in a 4-product featured grid
+const LAYOUT_PATTERNS: Array<"tall" | "wide" | "standard"> = [
+  "tall",      // card 0 — 2 rows tall
+  "standard",  // card 1
+  "standard",  // card 2
+  "standard",  // card 3
+  "standard",  // card 4
+  "standard",  // card 5
+];
 
+export default function ProductGridNike({ products }: ProductGridProps) {
   if (!products || products.length === 0) return null;
 
   return (
-    <div className="flex flex-col items-center gap-10">
-
-
-
-      {/* ── Product Grid ── */}
-      <div className="w-full">
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-[30px] animate-in fade-in duration-500">
-          {products.map((product, idx) => (
-            <ProductCardNike key={product._id} product={product} priority={idx < 4} index={idx + 1} />
-          ))}
-        </div>
+    <div className="flex flex-col items-center gap-14">
+      {/* ── Clean Uniform Grid ── */}
+      <div className="w-full grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 md:gap-8">
+        {products.map((product, idx) => (
+          <ProductCardAwwwards
+            key={product._id}
+            product={product}
+            priority={idx < 2}
+            index={idx + 1}
+          />
+        ))}
       </div>
 
-      {/* ── Discover More ── */}
-      <div className="mt-2">
-        <Link
-          href="/products"
-          className="relative inline-block text-[14px] font-medium uppercase text-black no-underline group"
-        >
-          Discover More
-          <span className="absolute -bottom-1.5 left-0 w-[60%] h-[2px] bg-black transition-[width] duration-200 ease-out group-hover:w-full" />
-        </Link>
-      </div>
-
+      {/* ── View All — animated underline ── */}
+      <Link
+        href="/products"
+        className="group relative inline-flex items-center gap-3 font-mono text-[12px] uppercase tracking-widest text-ink-black hover:text-ink-black/70 transition-colors"
+      >
+        <span className="relative">
+          View All Products
+          <span className="absolute -bottom-1 left-0 h-[1px] bg-ink-black w-full origin-left scale-x-100 group-hover:scale-x-0 transition-transform duration-500 ease-[cubic-bezier(0.25,1,0.5,1)]" />
+          <span className="absolute -bottom-1 left-0 h-[1px] bg-ink-black w-full origin-right scale-x-0 group-hover:scale-x-100 transition-transform duration-500 ease-[cubic-bezier(0.25,1,0.5,1)] delay-100" />
+        </span>
+        <span className="group-hover:translate-x-1 transition-transform duration-300">→</span>
+      </Link>
     </div>
   );
 }

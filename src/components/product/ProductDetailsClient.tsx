@@ -78,8 +78,6 @@ export default function ProductDetailsClient({ product: initialProduct, relatedP
       title: product.title,
       price: product.price,
       quantity,
-      color: "Default",
-      size: "Default",
       image: product.images?.[0]?.url || "/placeholder.jpg"
     });
     showToast(`Added ${quantity} to your bag!`, "success");
@@ -93,8 +91,6 @@ export default function ProductDetailsClient({ product: initialProduct, relatedP
       title: product.title,
       price: product.price,
       quantity,
-      color: "Default",
-      size: "Default",
       image: product.images?.[0]?.url || "/placeholder.jpg"
     });
     router.push("/checkout");
