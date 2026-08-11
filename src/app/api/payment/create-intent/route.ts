@@ -47,7 +47,7 @@ export async function POST(req: NextRequest) {
 
     // Dynamic import to avoid Turbopack issues
     const Stripe = (await import('stripe')).default;
-    const stripe = new Stripe(stripeKey, { apiVersion: '2024-06-20' });
+    const stripe = new Stripe(stripeKey, { apiVersion: '2026-07-29.dahlia' });
 
     const paymentIntent = await stripe.paymentIntents.create({
       amount: totalCents,

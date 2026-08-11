@@ -16,14 +16,14 @@ const CORS_HEADERS = {
 // Auth: Bearer JWT required
 // ─────────────────────────────────────────────────────────────
 
-export async function PUT(req: NextRequest, { params }: { params: { addressId: string } }) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ addressId: string }> }) {
   try {
     const session = await getBearerSession(req);
     if (!session) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401, headers: CORS_HEADERS });
     }
 
-    const { addressId } = params;
+    const { addressId } = await params;
     const body = await req.json();
 
     await connectToDatabase();
@@ -53,14 +53,14 @@ export async function PUT(req: NextRequest, { params }: { params: { addressId: s
   }
 }
 
-export async function DELETE(req: NextRequest, { params }: { params: { addressId: string } }) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ addressId: string }> }) {
   try {
     const session = await getBearerSession(req);
     if (!session) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401, headers: CORS_HEADERS });
     }
 
-    const { addressId } = params;
+    const { addressId } = await params;
     await connectToDatabase();
 
     const user = await User.findByIdAndUpdate(
