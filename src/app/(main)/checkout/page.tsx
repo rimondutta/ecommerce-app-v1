@@ -58,6 +58,29 @@ export default function CheckoutPage() {
 
   const [step, setStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [shippingConfig, setShippingConfig] = useState({
+    insideDhakaRate: 120,
+    outsideDhakaRate: 150,
+    freeShippingEnabled: false,
+    freeShippingMinOrder: 0,
+    freeShippingZone: "all" as "all" | "inside_dhaka" | "outside_dhaka",
+  });
+  const [shippingConfigLoaded, setShippingConfigLoaded] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/settings/shipping")
+      .then((r) => r.json())
+      .then((data) => {
+        setShippingConfig(data);
+        // If free shipping covers ALL zones, lock shippingZone to inside_dhaka
+        // so the order is always submitted with a valid zone even when picker is hidden
+        if (data.freeShippingEnabled && data.freeShippingZone === "all") {
+          setForm((prev) => ({ ...prev, shippingZone: "inside_dhaka" }));
+        }
+      })
+      .catch(() => {})
+      .finally(() => setShippingConfigLoaded(true));
+  }, []);
 
   // Track InitiateCheckout when a customer lands on the checkout page with items
   useEffect(() => {
@@ -91,7 +114,30 @@ export default function CheckoutPage() {
     return true;
   };
 
-  const shippingCost = form.shippingZone === "outside_dhaka" ? 150 : 120;
+  // --- Dynamic shipping cost with free shipping logic ---
+  const baseShippingCost =
+    form.shippingZone === "outside_dhaka"
+      ? shippingConfig.outsideDhakaRate
+      : shippingConfig.insideDhakaRate;
+
+  const qualifiesForFreeShipping =
+    shippingConfig.freeShippingEnabled &&
+    (shippingConfig.freeShippingZone === "all" ||
+      shippingConfig.freeShippingZone === form.shippingZone) &&
+    total >= shippingConfig.freeShippingMinOrder;
+
+  const shippingCost = qualifiesForFreeShipping ? 0 : baseShippingCost;
+
+  // How much more the customer needs to spend to unlock free shipping
+  const freeShippingAvailableForZone =
+    shippingConfig.freeShippingEnabled &&
+    (shippingConfig.freeShippingZone === "all" ||
+      shippingConfig.freeShippingZone === form.shippingZone);
+  const amountToFreeShipping =
+    freeShippingAvailableForZone && !qualifiesForFreeShipping
+      ? shippingConfig.freeShippingMinOrder - total
+      : 0;
+
   const grandTotal = total + shippingCost;
 
   const handleSubmit = async () => {
@@ -255,85 +301,106 @@ export default function CheckoutPage() {
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <CheckoutField
-                      label="Full Name"
+                      label="আপনার নাম:"
                       value={form.name}
                       onChange={(v) => updateField("name", v)}
-                      placeholder="Your name"
+                      placeholder="আপনার নাম"
                       required
                     />
                     <CheckoutField
-                      label="Email (optional)"
-                      type="email"
-                      value={form.email}
-                      onChange={(v) => updateField("email", v)}
-                      placeholder="you@email.com"
-                    />
-                    <CheckoutField
-                      label="Phone"
+                      label="মোবাইল নাম্বার"
                       type="tel"
                       value={form.phone}
                       onChange={(v) => updateField("phone", v)}
                       placeholder="+880 1XXX XXXXXX"
                       required
                     />
-                    <CheckoutField
-                      label="ZIP / Postal Code"
-                      value={form.zip}
-                      onChange={(v) => updateField("zip", v)}
-                      placeholder="1207"
-                    />
                   </div>
                   <CheckoutField
-                    label="Street Address"
+                    label="ঠিকানা:"
                     value={form.address}
                     onChange={(v) => updateField("address", v)}
-                    placeholder="House, Road, Area"
+                    placeholder="আপনার সম্পূর্ণ ঠিকানা"
                     required
                   />
                   <CheckoutField
-                    label="City"
+                    label="জেলা:"
                     value={form.city}
                     onChange={(v) => updateField("city", v)}
-                    placeholder="Dhaka"
+                    placeholder="জেলা"
                     required
                   />
 
                   {/* ── Shipping Zone ── */}
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-2">
-                      <Truck size={15} className="text-amber-500" />
-                      <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">
-                        Delivery Area <span className="text-amber-500">*</span>
-                      </p>
-                    </div>
+                  {/* Hide the picker entirely when free shipping applies to ALL zones */}
+                  {!shippingConfigLoaded ? (
+                    // Skeleton while config loads — prevents jarring layout shift
                     <div className="grid grid-cols-2 gap-3">
-                      {[
-                        { key: "inside_dhaka", label: "Inside Dhaka", charge: 120, icon: "🏙️" },
-                        { key: "outside_dhaka", label: "Outside Dhaka", charge: 150, icon: "🚚" },
-                      ].map((zone) => {
-                        const isSelected = form.shippingZone === zone.key;
-                        return (
-                          <button
-                            key={zone.key}
-                            type="button"
-                            onClick={() => updateField("shippingZone", zone.key)}
-                            className={cn(
-                              "flex flex-col items-center gap-2 px-4 py-4 rounded-xl border-2 text-center transition-all duration-200",
-                              isSelected
-                                ? "border-amber-400 bg-amber-50 shadow-sm"
-                                : "border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50"
-                            )}
-                          >
-                            <span className="text-2xl">{zone.icon}</span>
-                            <p className="font-bold text-sm text-black leading-tight">{zone.label}</p>
-                            <span className={cn("text-sm font-bold", isSelected ? "text-amber-600" : "text-gray-500")}>
-                              ৳{zone.charge}
-                            </span>
-                          </button>
-                        );
-                      })}
+                      <div className="h-24 rounded-xl bg-gray-100 animate-pulse" />
+                      <div className="h-24 rounded-xl bg-gray-100 animate-pulse" />
                     </div>
-                  </div>
+                  ) : shippingConfig.freeShippingEnabled && shippingConfig.freeShippingZone === "all" ? (
+                    // Free for ALL zones — replace picker with a friendly banner
+                    <div className="flex items-center gap-3 px-4 py-4 bg-green-50 border border-green-200 rounded-xl">
+                      <Truck size={18} className="text-green-600 shrink-0" />
+                      <div>
+                        <p className="text-sm font-bold text-green-800">🎉 Free Delivery on Your Order!</p>
+                        <p className="text-xs text-green-600 mt-0.5">
+                          {shippingConfig.freeShippingMinOrder > 0 && !qualifiesForFreeShipping
+                            ? `Add ৳${Math.round(shippingConfig.freeShippingMinOrder - total).toLocaleString()} more to unlock free shipping.`
+                            : "Your order qualifies for free shipping to all areas."}
+                        </p>
+                      </div>
+                    </div>
+                  ) : (
+                    // Normal zone picker
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-2">
+                        <Truck size={15} className="text-amber-500" />
+                        <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">
+                          Delivery Area <span className="text-amber-500">*</span>
+                        </p>
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        {[
+                          { key: "inside_dhaka", label: "Inside Dhaka", charge: shippingConfig.insideDhakaRate, icon: "🏙️" },
+                          { key: "outside_dhaka", label: "Outside Dhaka", charge: shippingConfig.outsideDhakaRate, icon: "🚚" },
+                        ].map((zone) => {
+                          const isSelected = form.shippingZone === zone.key;
+                          const zoneFree =
+                            shippingConfig.freeShippingEnabled &&
+                            (shippingConfig.freeShippingZone === "all" || shippingConfig.freeShippingZone === zone.key) &&
+                            total >= shippingConfig.freeShippingMinOrder;
+                          return (
+                            <button
+                              key={zone.key}
+                              type="button"
+                              onClick={() => updateField("shippingZone", zone.key)}
+                              className={cn(
+                                "flex flex-col items-center gap-2 px-4 py-4 rounded-xl border-2 text-center transition-all duration-200",
+                                isSelected
+                                  ? "border-amber-400 bg-amber-50 shadow-sm"
+                                  : "border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50"
+                              )}
+                            >
+                              <span className="text-2xl">{zone.icon}</span>
+                              <p className="font-bold text-sm text-black leading-tight">{zone.label}</p>
+                              {zoneFree ? (
+                                <span className="text-sm font-bold text-green-600 flex items-center gap-1">
+                                  <span className="line-through text-gray-400 text-xs">৳{zone.charge}</span>
+                                  Free
+                                </span>
+                              ) : (
+                                <span className={cn("text-sm font-bold", isSelected ? "text-amber-600" : "text-gray-500")}>
+                                  ৳{zone.charge}
+                                </span>
+                              )}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
                 </motion.div>
               )}
 
@@ -434,12 +501,11 @@ export default function CheckoutPage() {
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       {[
-                        ["Recipient", form.name],
-                        ["Email", form.email],
-                        ["Phone", form.phone],
-                        ["Payment", form.paymentMethod === "cod" ? "Cash on Delivery" : form.paymentMethod === "bkash" ? "bKash" : "Card"],
-                        ["Delivery", form.shippingZone === "outside_dhaka" ? "Outside Dhaka" : "Inside Dhaka"],
-                        ["Address", `${form.address}, ${form.city} ${form.zip}`],
+                        ["আপনার নাম:", form.name],
+                        ["মোবাইল নাম্বার", form.phone],
+                        ["পেমেন্ট", form.paymentMethod === "cod" ? "Cash on Delivery" : form.paymentMethod === "bkash" ? "bKash" : "Card"],
+                        ["ডেলিভারি", form.shippingZone === "outside_dhaka" ? "Outside Dhaka" : "Inside Dhaka"],
+                        ["ঠিকানা:", `${form.address}, ${form.city}`],
                       ].map(([label, value]) => (
                         <div key={label} className="space-y-0.5">
                           <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
@@ -605,6 +671,22 @@ export default function CheckoutPage() {
                 ))}
               </div>
 
+              {/* Free Shipping Progress Banner */}
+              {freeShippingAvailableForZone && !qualifiesForFreeShipping && shippingConfig.freeShippingMinOrder > 0 && (
+                <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
+                  <p className="text-xs text-amber-700 font-medium">
+                    🎁 Add <span className="font-bold">৳{Math.round(amountToFreeShipping).toLocaleString()}</span> more to get{" "}
+                    <span className="font-bold">FREE shipping!</span>
+                  </p>
+                </div>
+              )}
+
+              {qualifiesForFreeShipping && (
+                <div className="bg-green-50 border border-green-200 rounded-xl px-4 py-3">
+                  <p className="text-xs text-green-700 font-semibold">🎉 You&apos;ve unlocked FREE shipping!</p>
+                </div>
+              )}
+
               {/* Divider */}
               <div className="h-px bg-gray-100" />
 
@@ -623,7 +705,14 @@ export default function CheckoutPage() {
                       ({form.shippingZone === "outside_dhaka" ? "Outside Dhaka" : "Inside Dhaka"})
                     </span>
                   </span>
-                  <span className="font-semibold text-black">৳{shippingCost}</span>
+                  {qualifiesForFreeShipping ? (
+                    <span className="font-semibold text-green-600 flex items-center gap-1">
+                      <span className="line-through text-gray-400 text-xs">৳{baseShippingCost}</span>
+                      Free
+                    </span>
+                  ) : (
+                    <span className="font-semibold text-black">৳{shippingCost}</span>
+                  )}
                 </div>
 
                 <div className="h-px bg-gray-100" />
