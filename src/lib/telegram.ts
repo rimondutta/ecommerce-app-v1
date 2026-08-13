@@ -32,27 +32,39 @@ export async function sendTelegramNotification(order: TelegramOrderData) {
     return;
   }
 
+  const escapeHtml = (text: string) =>
+    (text || '').replace(/[&<>"']/g, (m) => {
+      switch (m) {
+        case '&': return '&amp;';
+        case '<': return '&lt;';
+        case '>': return '&gt;';
+        case '"': return '&quot;';
+        case "'": return '&#39;';
+        default: return m;
+      }
+    });
+
   const itemsList = order.items
-    .map(item => `• ${item.title} x${item.quantity} (৳${item.price})`)
+    .map(item => `• ${escapeHtml(item.title)} x${item.quantity} (৳${item.price})`)
     .join('\n');
 
   const message = `
-📌*New Order Received!*
+📌 <b>New Order Received!</b>
 --------------------------------
-🆔 *Order ID:* #${order.orderId.slice(-8).toUpperCase()}
-👤 *Customer:* ${order.customerName}
-📞 *Phone:* ${order.shippingAddress.phone}
-📧 *Email:* ${order.customerEmail}
-💰 *Total:* ৳${order.totalAmount.toLocaleString()}
-💳 *Payment:* ${order.paymentMethod.toUpperCase()}
+🆔 <b>Order ID:</b> #${order.orderId.slice(-8).toUpperCase()}
+👤 <b>Customer:</b> ${escapeHtml(order.customerName)}
+📞 <b>Phone:</b> ${escapeHtml(order.shippingAddress.phone || '')}
+📧 <b>Email:</b> ${escapeHtml(order.customerEmail)}
+💰 <b>Total:</b> ৳${order.totalAmount.toLocaleString()}
+💳 <b>Payment:</b> ${order.paymentMethod.toUpperCase()}
 
-📦 *Items:*
+📦 <b>Items:</b>
 ${itemsList}
 
-📍 *Shipping to:*
-${order.shippingAddress.addressLine1}, ${order.shippingAddress.city}
+📍 <b>Shipping to:</b>
+${escapeHtml(order.shippingAddress.addressLine1)}, ${escapeHtml(order.shippingAddress.city)}
 
-🔗 [View Order Details](${process.env.NEXTAUTH_URL}/admin/orders)
+🔗 <a href="${process.env.NEXTAUTH_URL}/admin/orders">View Order Details</a>
   `;
 
   const url = `https://api.telegram.org/bot${token}/sendMessage`;
@@ -66,7 +78,7 @@ ${order.shippingAddress.addressLine1}, ${order.shippingAddress.city}
       body: JSON.stringify({
         chat_id: chatId,
         text: message,
-        parse_mode: 'Markdown',
+        parse_mode: 'HTML',
       }),
       signal: AbortSignal.timeout(5000),
     });

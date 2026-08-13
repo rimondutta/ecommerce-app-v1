@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import connectToDatabase from '@/lib/db';
 import Order from '@/models/Order';
+import Product from '@/models/Product';
 
 export async function GET(
   req: Request,
@@ -16,10 +17,34 @@ export async function GET(
 
     await connectToDatabase();
     const { id } = await params;
-    const order = await Order.findById(id);
+    const order = await Order.findById(id).lean() as any;
     
     if (!order) {
       return NextResponse.json({ error: 'Order not found' }, { status: 404 });
+    }
+
+    // Enrich each order item with its product's first image
+    if (order.items?.length) {
+      const productIds = order.items
+        .map((item: any) => item.product)
+        .filter(Boolean);
+
+      if (productIds.length) {
+        const products = await Product.find(
+          { _id: { $in: productIds } },
+          { images: 1 }
+        ).lean() as any[];
+
+        const productMap: Record<string, string> = {};
+        for (const p of products) {
+          productMap[p._id.toString()] = p.images?.[0]?.url || '';
+        }
+
+        order.items = order.items.map((item: any) => ({
+          ...item,
+          image: item.image || productMap[item.product?.toString()] || '',
+        }));
+      }
     }
 
     return NextResponse.json({ order });
