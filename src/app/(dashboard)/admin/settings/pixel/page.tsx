@@ -182,30 +182,7 @@ export default function PixelSettingsPage() {
             </p>
           </div>
 
-          {/* Events tracked info */}
-          <div className="px-6 py-5">
-            <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-3">
-              Events tracked automatically
-            </p>
-            <div className="grid grid-cols-2 gap-2">
-              {[
-                { label: "PageView", desc: "Every page" },
-                { label: "ViewContent", desc: "Product page" },
-                { label: "AddToCart", desc: "Add to cart" },
-                { label: "InitiateCheckout", desc: "Checkout page" },
-                { label: "Purchase", desc: "Order placed" },
-              ].map((ev) => (
-                <div
-                  key={ev.label}
-                  className="flex items-center gap-2 px-3 py-2 bg-gray-50 rounded-lg border border-gray-100"
-                >
-                  <span className="w-1.5 h-1.5 rounded-full bg-gray-400 shrink-0" />
-                  <span className="text-xs font-mono text-gray-700">{ev.label}</span>
-                  <span className="text-xs text-gray-400 ml-auto">{ev.desc}</span>
-                </div>
-              ))}
-            </div>
-          </div>
+
 
           {/* Save button + toast */}
           <div className="px-6 py-4 flex items-center gap-4">
