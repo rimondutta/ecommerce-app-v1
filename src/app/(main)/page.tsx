@@ -11,14 +11,18 @@ export default async function Home() {
   await connectToDatabase();
 
   // Fetch trending products and categories server-side in parallel
-  const [dbProducts, dbCategories] = await Promise.all([
-    Product.find({ isPublished: true })
-      .select('title price slug images category badge colors sizes inventory rating reviewCount')
-      .sort({ createdAt: -1 })
-      .limit(4)
-      .lean(),
-    Category.find({}).lean()
-  ]);
+  const { withCache } = await import('@/lib/cache');
+
+  const [dbProducts, dbCategories] = await withCache('home:isr:data', 60, async () => {
+    return await Promise.all([
+      Product.find({ isPublished: true })
+        .select('title price slug images category badge colors sizes inventory rating reviewCount')
+        .sort({ createdAt: -1 })
+        .limit(4)
+        .lean(),
+      Category.find({}).lean()
+    ]);
+  });
 
   // Serialize MongoDB Data (object IDs to strings)
   const trendingProducts = JSON.parse(JSON.stringify(dbProducts));

@@ -85,6 +85,10 @@ export async function PUT(
     // Bump last-updated so mobile polling detects this update
     await touchProductsTimestamp();
 
+    // Invalidate Redis caches
+    const { invalidateCache } = await import('@/lib/cache');
+    await invalidateCache('products:*', `product:*:*`);
+
     return NextResponse.json({ product });
   } catch (error: any) {
     if (error.code === 11000) {
@@ -134,6 +138,10 @@ export async function DELETE(
 
     // Bump last-updated so mobile polling detects this deletion
     await touchProductsTimestamp();
+
+    // Invalidate Redis caches
+    const { invalidateCache } = await import('@/lib/cache');
+    await invalidateCache('products:*', `product:*:*`);
 
     return NextResponse.json({ message: 'Product and associated images deleted' });
   } catch (error: any) {

@@ -1,22 +1,14 @@
 import { Ratelimit } from '@upstash/ratelimit';
-import { Redis } from '@upstash/redis';
+import { redis, hasRedis } from '@/lib/redis';
 
-// Check if Upstash Redis credentials exist
-const hasRedis = !!process.env.UPSTASH_REDIS_REST_URL && !!process.env.UPSTASH_REDIS_REST_TOKEN;
-
-// Initialize the Redis client only if credentials exist
-const redisClient = hasRedis ? new Redis({
-  url: process.env.UPSTASH_REDIS_REST_URL!,
-  token: process.env.UPSTASH_REDIS_REST_TOKEN!,
-}) : null;
-
-// Initialize rate limiter if Redis is available. 
+// Initialize rate limiter if Redis is available.
 // Uses sliding window: max 5 requests per 1 minute.
-const ratelimit = redisClient ? new Ratelimit({
-  redis: redisClient,
+const ratelimit = (hasRedis && redis) ? new Ratelimit({
+  redis,
   limiter: Ratelimit.slidingWindow(5, '1 m'),
   analytics: true,
 }) : null;
+
 
 /**
  * Validates whether the given identifier (e.g. IP address) is rate-limited.

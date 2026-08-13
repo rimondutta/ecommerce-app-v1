@@ -58,6 +58,10 @@ export async function POST(req: Request) {
     // Bump last-updated timestamp so mobile polling detects this new product
     await touchProductsTimestamp();
 
+    // Invalidate Redis caches
+    const { invalidateCache } = await import('@/lib/cache');
+    await invalidateCache('products:*', 'product:*');
+
     return NextResponse.json({ product }, { status: 201 });
   } catch (error: any) {
     if (error.code === 11000) {

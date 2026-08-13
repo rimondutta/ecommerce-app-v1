@@ -12,12 +12,16 @@ export default async function ShopPage() {
   // Pre-fetch top 200 products to allow instant client-side filtering without hitting API routes.
   // Note: For a real 500k catalog, you would want server-side pagination, but preserving the current filtering logic
   // means we pass the list to the client. This is still MUCH better than a client-side fetch on mount.
-  const products = await Product.find({ isPublished: true })
-    .populate('category')
-    .select('title price slug images category badge ageRange createdAt rating reviewCount')
-    .sort({ createdAt: -1 })
-    .limit(200)
-    .lean();
+  const { withCache } = await import('@/lib/cache');
+  
+  const products = await withCache('products:isr:list', 60, async () => {
+    return await Product.find({ isPublished: true })
+      .populate('category')
+      .select('title price slug images category badge ageRange createdAt rating reviewCount')
+      .sort({ createdAt: -1 })
+      .limit(200)
+      .lean();
+  });
 
   const serializedProducts = JSON.parse(JSON.stringify(products));
 

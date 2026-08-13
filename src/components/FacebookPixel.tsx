@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import Script from "next/script";
 
@@ -21,8 +21,9 @@ interface PixelConfig {
  * SPA Route Tracking:
  * Next.js App Router is a SPA — navigating via <Link> or router.push() does
  * NOT reload the page, so the base script's initial fbq('track', 'PageView')
- * only fires once. We use usePathname() to detect client-side route changes
- * and manually fire a new PageView on each navigation.
+ * only fires once. We track client-side route changes via usePathname() and
+ * fire a new PageView on each navigation — but ONLY after the pixel script has
+ * fully loaded (guarded by `pixelReady`) to avoid losing events.
  *
  * ⚠️  GDPR/PDPA Note: This implementation loads the pixel as soon as the page
  * opens. If your target market requires explicit cookie consent (e.g., EU/EEA,
@@ -31,7 +32,18 @@ interface PixelConfig {
  */
 export default function FacebookPixel() {
   const [config, setConfig] = useState<PixelConfig | null>(null);
+
+  // True once the <Script> onLoad fires — i.e., fbevents.js is downloaded,
+  // fbq() is fully initialised, and the first PageView was already tracked
+  // by the inline base code. Only fire route-change PageViews after this.
+  const [pixelReady, setPixelReady] = useState(false);
+
   const pathname = usePathname();
+
+  // Tracks the pathname that was current when the pixel became ready.
+  // We need to skip firing a PageView for that path because the inline
+  // base code already did it on first load.
+  const initialPathnameRef = useRef<string | null>(null);
 
   // Fetch pixel config once on mount
   useEffect(() => {
@@ -43,20 +55,15 @@ export default function FacebookPixel() {
       });
   }, []);
 
-  // Fire a PageView on every client-side route change.
-  // `pathname` changes whenever the user navigates via <Link> or router.push().
-  // We skip the very first render because the <Script> tag's inline code
-  // already calls fbq('track', 'PageView') on initial page load.
+  // Fire a PageView on every client-side route change AFTER the pixel is ready.
+  // Skips the very first pathname (initial page load) because the inline base
+  // code inside <Script> already calls fbq('track', 'PageView') on load.
   useEffect(() => {
-    if (!config?.enabled || !config.pixelId) return;
+    if (!pixelReady) return;
+    if (pathname === initialPathnameRef.current) return; // skip initial load
 
-    // window.fbq may not be defined yet on the very first render (script still
-    // loading). After that it is always present because next/script with
-    // "afterInteractive" guarantees the script runs before any interaction.
-    if (typeof window !== "undefined" && typeof (window as any).fbq === "function") {
-      (window as any).fbq("track", "PageView");
-    }
-  }, [pathname, config]);
+    (window as any).fbq("track", "PageView");
+  }, [pathname, pixelReady]);
 
   // Don't inject anything if not enabled or no pixel ID
   if (!config || !config.enabled || !config.pixelId) return null;
@@ -65,11 +72,6 @@ export default function FacebookPixel() {
 
   return (
     <>
-      {/*
-       * The base code runs once: initialises fbq and tracks the first PageView.
-       * Subsequent PageViews are handled by the useEffect above so we don't
-       * double-count the very first page load.
-       */}
       <Script
         id="fb-pixel"
         strategy="afterInteractive"
@@ -86,6 +88,14 @@ export default function FacebookPixel() {
             fbq('init', '${pixelId}');
             fbq('track', 'PageView');
           `,
+        }}
+        onLoad={() => {
+          // fbevents.js has downloaded and the inline base code has already
+          // fired fbq('init') + fbq('track', 'PageView') for the current page.
+          // Record the current path so the useEffect above can skip it,
+          // then mark the pixel as ready for all subsequent route changes.
+          initialPathnameRef.current = window.location.pathname;
+          setPixelReady(true);
         }}
       />
       {/* Noscript fallback for users with JavaScript disabled */}

@@ -71,18 +71,20 @@ export default async function ProductDetailPage({ params }: PageProps) {
     { path: 'variants.combination.variationValue' }
   ];
 
-  const [dbProduct, dbRelated] = await Promise.all([
-    Product.findOne({ slug: sanitizedSlug, isPublished: true })
-      .populate(populateConfig)
-      .select('-__v')
-      .lean(),
-    Product.find({ isPublished: true })
-      .select('title price slug images category inventory rating reviewCount')
-      .limit(8)
-      .lean(),
-  ]);
-  const product = dbProduct;
-  const relatedProducts = dbRelated;
+  const { withCache } = await import('@/lib/cache');
+
+  const [product, relatedProducts] = await withCache(`product:isr:${sanitizedSlug}`, 60, async () => {
+    return await Promise.all([
+      Product.findOne({ slug: sanitizedSlug, isPublished: true })
+        .populate(populateConfig)
+        .select('-__v')
+        .lean(),
+      Product.find({ isPublished: true })
+        .select('title price slug images category inventory rating reviewCount')
+        .limit(8)
+        .lean(),
+    ]);
+  });
 
   if (!product) {
     notFound();
