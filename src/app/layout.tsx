@@ -13,14 +13,12 @@ const bigShoulders = Oswald({
   subsets: ["latin"],
   display: "swap",
   variable: "--font-big-shoulders",
-  adjustFontFallback: false,
 });
 
 const inter = Inter({
   subsets: ["latin"],
   display: "swap",
   variable: "--font-inter",
-  adjustFontFallback: false,
 });
 
 const jetbrainsMono = JetBrains_Mono({
@@ -28,7 +26,6 @@ const jetbrainsMono = JetBrains_Mono({
   display: "swap",
   variable: "--font-jetbrains-mono",
   weight: ["400", "700"],
-  adjustFontFallback: false,
 });
 
 export const metadata: Metadata = {
