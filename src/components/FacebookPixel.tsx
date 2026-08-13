@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import Script from "next/script";
 
 interface PixelConfig {
@@ -17,6 +18,12 @@ interface PixelConfig {
  *
  * Rendered once in the root layout to avoid duplicate initialization.
  *
+ * SPA Route Tracking:
+ * Next.js App Router is a SPA — navigating via <Link> or router.push() does
+ * NOT reload the page, so the base script's initial fbq('track', 'PageView')
+ * only fires once. We use usePathname() to detect client-side route changes
+ * and manually fire a new PageView on each navigation.
+ *
  * ⚠️  GDPR/PDPA Note: This implementation loads the pixel as soon as the page
  * opens. If your target market requires explicit cookie consent (e.g., EU/EEA,
  * Thailand), integrate a consent management platform (CMP) and gate the
@@ -24,7 +31,9 @@ interface PixelConfig {
  */
 export default function FacebookPixel() {
   const [config, setConfig] = useState<PixelConfig | null>(null);
+  const pathname = usePathname();
 
+  // Fetch pixel config once on mount
   useEffect(() => {
     fetch("/api/settings/pixel")
       .then((r) => r.json())
@@ -34,6 +43,21 @@ export default function FacebookPixel() {
       });
   }, []);
 
+  // Fire a PageView on every client-side route change.
+  // `pathname` changes whenever the user navigates via <Link> or router.push().
+  // We skip the very first render because the <Script> tag's inline code
+  // already calls fbq('track', 'PageView') on initial page load.
+  useEffect(() => {
+    if (!config?.enabled || !config.pixelId) return;
+
+    // window.fbq may not be defined yet on the very first render (script still
+    // loading). After that it is always present because next/script with
+    // "afterInteractive" guarantees the script runs before any interaction.
+    if (typeof window !== "undefined" && typeof (window as any).fbq === "function") {
+      (window as any).fbq("track", "PageView");
+    }
+  }, [pathname, config]);
+
   // Don't inject anything if not enabled or no pixel ID
   if (!config || !config.enabled || !config.pixelId) return null;
 
@@ -41,6 +65,11 @@ export default function FacebookPixel() {
 
   return (
     <>
+      {/*
+       * The base code runs once: initialises fbq and tracks the first PageView.
+       * Subsequent PageViews are handled by the useEffect above so we don't
+       * double-count the very first page load.
+       */}
       <Script
         id="fb-pixel"
         strategy="afterInteractive"
