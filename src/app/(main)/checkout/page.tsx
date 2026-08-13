@@ -78,7 +78,7 @@ export default function CheckoutPage() {
           setForm((prev) => ({ ...prev, shippingZone: "inside_dhaka" }));
         }
       })
-      .catch(() => {})
+      .catch(() => { })
       .finally(() => setShippingConfigLoaded(true));
   }, []);
 
@@ -87,7 +87,7 @@ export default function CheckoutPage() {
     if (items.length > 0) {
       try { trackInitiateCheckout(items.map(i => ({ id: i.id, price: i.price, quantity: i.quantity })), total); } catch { /* noop */ }
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const [form, setForm] = useState({
@@ -252,8 +252,8 @@ export default function CheckoutPage() {
                     isActive
                       ? "bg-[#FFC93C] text-black shadow-[0_4px_14px_rgba(255,201,60,0.35)]"
                       : isCompleted
-                      ? "bg-green-100 text-green-700 border border-green-200"
-                      : "bg-white text-gray-400 border border-gray-200"
+                        ? "bg-green-100 text-green-700 border border-green-200"
+                        : "bg-white text-gray-400 border border-gray-200"
                   )}
                 >
                   {isCompleted ? (
@@ -344,7 +344,7 @@ export default function CheckoutPage() {
                     <div className="flex items-center gap-3 px-4 py-4 bg-green-50 border border-green-200 rounded-xl">
                       <Truck size={18} className="text-green-600 shrink-0" />
                       <div>
-                        <p className="text-sm font-bold text-green-800">🎉 Free Delivery on Your Order!</p>
+                        <p className="text-sm font-bold text-green-800">আজকে অডার করলে ডেলিভারি চার্জ সম্পুর্ন ফ্রী</p>
                         <p className="text-xs text-green-600 mt-0.5">
                           {shippingConfig.freeShippingMinOrder > 0 && !qualifiesForFreeShipping
                             ? `Add ৳${Math.round(shippingConfig.freeShippingMinOrder - total).toLocaleString()} more to unlock free shipping.`
