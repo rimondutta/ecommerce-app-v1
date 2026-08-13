@@ -7,6 +7,7 @@ import SearchProvider from "@/components/providers/SearchProvider";
 import GlobalUI from "@/components/layout/GlobalUI";
 import NextAuthProvider from "@/components/providers/NextAuthProvider";
 import { ToastProvider } from "@/components/playshelf/Toast";
+import FacebookPixel from "@/components/FacebookPixel";
 
 const bigShoulders = Oswald({
   subsets: ["latin"],
@@ -80,6 +81,7 @@ export default function RootLayout({
                 <ToastProvider>
                   {children}
                   <GlobalUI />
+                  <FacebookPixel />
                 </ToastProvider>
               </SearchProvider>
             </CartProvider>

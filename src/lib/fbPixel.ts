@@ -1,0 +1,108 @@
+/**
+ * Facebook/Meta Pixel event helper utilities.
+ *
+ * Each function is safe to call even before the pixel has loaded — a guard
+ * clause checks for window.fbq and no-ops silently if it isn't available.
+ * All monetary values are in BDT (Bangladeshi Taka).
+ *
+ * NOTE: cookie/tracking consent — if you add a consent banner in the future,
+ * gate these calls on consent state before invoking. GDPR / PDPA compliance
+ * may require explicit opt-in before firing any pixel events.
+ */
+
+declare global {
+  interface Window {
+    fbq?: (...args: any[]) => void;
+  }
+}
+
+function isPixelReady(): boolean {
+  return typeof window !== 'undefined' && typeof window.fbq === 'function';
+}
+
+/** ViewContent — fired when a customer views a product detail page. */
+export function trackViewContent(product: {
+  _id: string;
+  title?: string;
+  price?: number;
+  category?: { title?: string };
+}) {
+  try {
+    if (!isPixelReady()) return;
+    window.fbq!('track', 'ViewContent', {
+      content_ids: [product._id],
+      content_type: 'product',
+      content_name: product.title ?? '',
+      content_category: product.category?.title ?? '',
+      value: product.price ?? 0,
+      currency: 'BDT',
+    });
+  } catch {
+    // Pixel failures must never crash the page
+  }
+}
+
+/** AddToCart — fired when a customer adds a product to their cart. */
+export function trackAddToCart(
+  product: { _id: string; title?: string; price?: number },
+  quantity: number
+) {
+  try {
+    if (!isPixelReady()) return;
+    window.fbq!('track', 'AddToCart', {
+      content_ids: [product._id],
+      content_type: 'product',
+      content_name: product.title ?? '',
+      value: (product.price ?? 0) * quantity,
+      currency: 'BDT',
+      quantity,
+    });
+  } catch {
+    // Pixel failures must never crash the page
+  }
+}
+
+/** InitiateCheckout — fired when the checkout page loads with items. */
+export function trackInitiateCheckout(
+  cartItems: Array<{ id: string; price?: number; quantity?: number }>,
+  totalValue: number
+) {
+  try {
+    if (!isPixelReady()) return;
+    window.fbq!('track', 'InitiateCheckout', {
+      content_ids: cartItems.map((i) => i.id),
+      content_type: 'product',
+      num_items: cartItems.reduce((sum, i) => sum + (i.quantity ?? 1), 0),
+      value: totalValue,
+      currency: 'BDT',
+    });
+  } catch {
+    // Pixel failures must never crash the page
+  }
+}
+
+/** Purchase — fired after a successful order is created. */
+export function trackPurchase(order: {
+  _id?: string;
+  orderId?: string;
+  items: Array<{ productId?: string; id?: string }>;
+  totalAmount?: number;
+  total?: number;
+}) {
+  try {
+    if (!isPixelReady()) return;
+    const orderId = order._id ?? order.orderId ?? '';
+    const value = order.totalAmount ?? order.total ?? 0;
+    const contentIds = order.items.map((i) => i.productId ?? i.id ?? '');
+
+    window.fbq!('track', 'Purchase', {
+      content_ids: contentIds,
+      content_type: 'product',
+      value,
+      currency: 'BDT',
+      order_id: orderId,
+    });
+  } catch {
+    // Pixel failures must never crash the page
+  }
+}

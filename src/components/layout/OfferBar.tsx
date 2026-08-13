@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { X } from "lucide-react";
 
 const OFFERS = [
-  "Free Shipping on orders over ৳2,000 — Shop Now",
+  "30% Off and Free Shiping Every Deal",
   "Up to 50% Off on selected toys",
   "Buy 2 Get 1 Free on all Educational Toys this week",
 ];

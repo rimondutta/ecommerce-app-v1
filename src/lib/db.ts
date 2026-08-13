@@ -1,6 +1,9 @@
 import mongoose from 'mongoose';
 import '@/models/Product';
 import '@/models/Category';
+import '@/models/VariationType';
+import '@/models/VariationValue';
+import '@/models/Settings';
 
 const MONGODB_URI = process.env.MONGODB_URI;
 

@@ -21,6 +21,7 @@ export default function Sidebar() {
     { name: "Media Library", href: "/admin/media", icon: ImageIcon },
     { name: "Add User", href: "/admin/users/add", icon: UserPlus },
     { name: "Blog Upload", href: "/admin/blog/add", icon: Megaphone },
+    { name: "Pixel Settings", href: "/admin/settings/pixel", icon: BarChart2 },
   ]
 
   const isActive = (href: string) => {

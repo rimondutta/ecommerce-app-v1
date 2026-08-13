@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useCart } from "@/components/providers/CartProvider";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -8,6 +8,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useToast } from "@/components/playshelf/Toast";
 import { cn } from "@/lib/utils";
+import { trackInitiateCheckout, trackPurchase } from "@/lib/fbPixel";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ShoppingBag,
@@ -57,6 +58,14 @@ export default function CheckoutPage() {
 
   const [step, setStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Track InitiateCheckout when a customer lands on the checkout page with items
+  useEffect(() => {
+    if (items.length > 0) {
+      try { trackInitiateCheckout(items.map(i => ({ id: i.id, price: i.price, quantity: i.quantity })), total); } catch { /* noop */ }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const [form, setForm] = useState({
     name: session?.user?.name || "",
@@ -122,6 +131,13 @@ export default function CheckoutPage() {
       });
       const data = await res.json();
       if (data.success) {
+        try {
+          trackPurchase({
+            _id: data.orderId,
+            items: items.map((i) => ({ productId: i.id })),
+            totalAmount: grandTotal,
+          });
+        } catch { /* noop */ }
         clearCart();
         showToast("Order placed successfully! 🎉");
         router.push(`/invoice/${data.orderId}`);

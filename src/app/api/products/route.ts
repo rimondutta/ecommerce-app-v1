@@ -1,8 +1,6 @@
 import { NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/db';
 import Product from '@/models/Product';
-import '@/models/VariationType'; // side-effect import to ensure Mongoose registers the schema before .populate()
-import '@/models/Category'; // side-effect import for category
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { getBearerSession } from '@/lib/mobile-auth';

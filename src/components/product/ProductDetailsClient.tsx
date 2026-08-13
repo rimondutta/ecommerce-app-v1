@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
@@ -11,6 +11,7 @@ import { useToast } from "@/components/playshelf/Toast";
 import ProductGridNike from "@/components/ui/product-grid-nike";
 import { Star, Truck, RefreshCcw, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { trackViewContent, trackAddToCart } from "@/lib/fbPixel";
 
 // ─── Breadcrumb underline link ───
 function NavLink({ href, children }: { href: string; children: React.ReactNode }) {
@@ -32,6 +33,16 @@ export default function ProductDetailsClient({ product: initialProduct, relatedP
 
   const product = initialProduct;
   const wishlisted = isWishlisted(product._id);
+
+  // Track ViewContent when the product page is viewed
+  useEffect(() => {
+    try {
+      trackViewContent(product);
+    } catch {
+      // Never let pixel errors crash the page
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [product._id]);
 
   const handleWishlistClick = () => {
     toggleItem(product._id);
@@ -80,6 +91,7 @@ export default function ProductDetailsClient({ product: initialProduct, relatedP
       quantity,
       image: product.images?.[0]?.url || "/placeholder.jpg"
     });
+    try { trackAddToCart(product, quantity); } catch { /* noop */ }
     showToast(`Added ${quantity} to your bag!`, "success");
     openCart();
   };
