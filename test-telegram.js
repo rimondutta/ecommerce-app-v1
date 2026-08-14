@@ -15,10 +15,10 @@ fetch(url, {
     'Content-Type': 'application/json',
   },
   body: JSON.stringify({
-    chat_id: chatId,
-    text: "Test Message from Node.js",
+    chat_id: chatId, chatId,
+    text: "Hello bot abhi",
   }),
 })
-.then(res => res.json())
-.then(data => console.log(data))
-.catch(err => console.error(err));
+  .then(res => res.json())
+  .then(data => console.log(data))
+  .catch(err => console.error(err));

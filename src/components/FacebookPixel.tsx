@@ -56,6 +56,10 @@ export default function FacebookPixel() {
 
     (window as any).fbq("track", "PageView");
   }, [pathname, pixelReady]);
+  // Meta Pixel blocks requests from localhost — skip in non-production environments
+  // to avoid the "traffic permission settings" console error during development.
+  if (process.env.NODE_ENV !== "production") return null;
+
   if (!config || !config.enabled || !config.pixelId) return null;
 
   const pixelId = config.pixelId;
