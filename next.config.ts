@@ -28,7 +28,6 @@ const nextConfig: NextConfig = {
   },
 
   experimental: {
-    nextScriptWorkers: true,
     // Tree-shake these large packages to only import what is actually used.
     // Fixes "Reduce unused JavaScript" and "Legacy JavaScript" PageSpeed issues.
     optimizePackageImports: [
