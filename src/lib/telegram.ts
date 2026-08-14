@@ -48,6 +48,7 @@ export async function sendTelegramNotification(order: TelegramOrderData) {
     .map(item => `• ${escapeHtml(item.title)} x${item.quantity} (৳${item.price})`)
     .join('\n');
 
+const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXTAUTH_URL || 'https://toyhourse.com';
   const message = `
 📌 <b>New Order Received!</b>
 --------------------------------
@@ -64,31 +65,35 @@ ${itemsList}
 📍 <b>Shipping to:</b>
 ${escapeHtml(order.shippingAddress.addressLine1)}, ${escapeHtml(order.shippingAddress.city)}
 
-🔗 <a href="${process.env.NEXTAUTH_URL}/admin/orders">View Order Details</a>
+🔗 <a href="${baseUrl}/admin/orders">View Order Details</a>
   `;
 
   const url = `https://api.telegram.org/bot${token}/sendMessage`;
 
-  try {
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        chat_id: chatId,
-        text: message,
-        parse_mode: 'HTML',
-      }),
-      signal: AbortSignal.timeout(5000),
-    });
+  const chatIds = chatId.split(',').map(id => id.trim()).filter(Boolean);
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      console.warn('Telegram API Error:', errorData);
-    } else {
-      console.log('Telegram admin notification sent successfully.');
-    }
+  try {
+    await Promise.allSettled(
+      chatIds.map(async (id) => {
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            chat_id: id,
+            text: message,
+            parse_mode: 'HTML',
+          }),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          console.warn(`Telegram API Error for chat ${id}:`, errorData);
+        }
+      })
+    );
+    console.log('Telegram admin notification(s) sent successfully.');
   } catch (error: any) {
     console.warn('Telegram notification skipped (Network issue):', error.message || 'Unknown error');
   }
