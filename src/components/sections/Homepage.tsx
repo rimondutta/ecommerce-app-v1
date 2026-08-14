@@ -86,57 +86,46 @@ export default function Homepage({
           ═══════════════════════════════════════════════ */}
       <section className="relative overflow-hidden min-h-[90vh] md:min-h-screen flex items-end md:items-center pb-24 md:pb-0 border-b border-rule-grey">
 
-        {/* Cinematic full-bleed video */}
-        <motion.div
-          className="absolute inset-0 z-0"
-          variants={seq.photo}
-          initial="hidden"
-          animate="visible"
-        >
+        {/* Cinematic full-bleed video - STATIC for LCP optimization */}
+        <div className="absolute inset-0 z-0">
           <div className="absolute inset-0 bg-paper-white" />
           <video
             autoPlay
             muted
             loop
             playsInline
-            preload="none"
+            preload="auto"
             className="absolute inset-0 w-full h-full object-cover object-center"
           >
             <source src="/video/hero-bg.mp4" type="video/mp4" />
           </video>
           {/* Bottom vignette gradient — dark fade to transparent */}
           <div className="absolute inset-0 bg-gradient-to-t from-paper-white via-paper-white/60 to-paper-white/10 md:bg-gradient-to-r md:from-paper-white md:via-paper-white/80 md:to-transparent" />
-        </motion.div>
+        </div>
 
-        {/* Hero copy — overlaps the cinematic bg */}
-        <motion.div
-          className="relative z-10 px-4 sm:px-10 lg:px-[5vw] w-full md:max-w-[70%]"
-          variants={seq.container}
-          initial="hidden"
-          animate="visible"
-        >
+        {/* Hero copy — overlaps the cinematic bg - STATIC for LCP optimization */}
+        <div className="relative z-10 px-4 sm:px-10 lg:px-[5vw] w-full md:max-w-[70%]">
           {/* Section label */}
-          <motion.p variants={seq.label} className="font-mono text-[10px] uppercase tracking-[0.2em] text-rule-grey mb-6">
+          <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-rule-grey mb-6">
             
-          </motion.p>
+          </p>
 
           {/* Hairline rule draws in */}
-          <motion.div variants={seq.rule} className="h-[1px] w-16 bg-stamp-red mb-6 origin-left" />
+          <div className="h-[1px] w-16 bg-stamp-red mb-6 origin-left" />
 
           {/* Big display headline — typography-as-object */}
-          <motion.h1
-            variants={seq.title}
+          <h1
             className="font-display text-[72px] md:text-[100px] lg:text-[120px] uppercase text-ink-black leading-[0.9] tracking-[-0.02em] mb-8"
           >
            Endless Fun <br/> Starts at Toyhourse
-          </motion.h1>
+          </h1>
 
-          <motion.p variants={seq.label} className="font-body text-[14px] text-ink-black leading-[1.8] max-w-[400px] mb-10 opacity-80">
+          <p className="font-body text-[14px] text-ink-black leading-[1.8] max-w-[400px] mb-10 opacity-80">
             Explore premium toys designed to inspire imagination, creativity, and learning. Find the perfect gift for every little adventure.
-          </motion.p>
+          </p>
 
           {/* CTA — cinematic button */}
-          <motion.div variants={seq.label} className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
             <Link
               href="/products"
               className="font-mono text-[11px] uppercase tracking-[0.15em] bg-ink-black text-paper-white border border-ink-black px-8 py-4 hover:bg-transparent hover:text-ink-black transition-colors duration-500"
@@ -150,8 +139,8 @@ export default function Homepage({
               Shop
               <span className="absolute -bottom-0.5 left-0 h-[1px] bg-ink-black w-full" />
             </Link>
-          </motion.div>
-        </motion.div>
+          </div>
+        </div>
       </section>
 
       {/* ═══════════════════════════════════════════════

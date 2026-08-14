@@ -40,32 +40,22 @@ export default function FacebookPixel() {
 
   const pathname = usePathname();
 
-  // Tracks the pathname that was current when the pixel became ready.
-  // We need to skip firing a PageView for that path because the inline
-  // base code already did it on first load.
   const initialPathnameRef = useRef<string | null>(null);
 
-  // Fetch pixel config once on mount
   useEffect(() => {
     fetch("/api/settings/pixel")
       .then((r) => r.json())
       .then((data: PixelConfig) => setConfig(data))
       .catch(() => {
-        // Fail silently — pixel is optional, must not break the page
       });
   }, []);
 
-  // Fire a PageView on every client-side route change AFTER the pixel is ready.
-  // Skips the very first pathname (initial page load) because the inline base
-  // code inside <Script> already calls fbq('track', 'PageView') on load.
   useEffect(() => {
     if (!pixelReady) return;
-    if (pathname === initialPathnameRef.current) return; // skip initial load
+    if (pathname === initialPathnameRef.current) return;
 
     (window as any).fbq("track", "PageView");
   }, [pathname, pixelReady]);
-
-  // Don't inject anything if not enabled or no pixel ID
   if (!config || !config.enabled || !config.pixelId) return null;
 
   const pixelId = config.pixelId;
@@ -90,17 +80,11 @@ export default function FacebookPixel() {
           `,
         }}
         onLoad={() => {
-          // fbevents.js has downloaded and the inline base code has already
-          // fired fbq('init') + fbq('track', 'PageView') for the current page.
-          // Record the current path so the useEffect above can skip it,
-          // then mark the pixel as ready for all subsequent route changes.
           initialPathnameRef.current = window.location.pathname;
           setPixelReady(true);
         }}
       />
-      {/* Noscript fallback for users with JavaScript disabled */}
       <noscript>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           height="1"
           width="1"
