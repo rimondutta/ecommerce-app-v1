@@ -36,7 +36,7 @@ export default function Footer() {
           <div className="text-[13px] font-mono text-ink-black flex flex-col gap-1">
             <span>Chattogram, Bangladesh</span>
             <a href="mailto:toyhourse@gmail.com" className="hover:text-rule-grey transition-colors">toyhourse@gmail.com</a>
-            <a href="tel:+8801767968446" className="hover:text-rule-grey transition-colors">+880 1767-968446</a>
+            <a href="tel:+8801616921965" className="hover:text-rule-grey transition-colors">+880 1616-921965</a>
           </div>
           <div className="flex gap-5 mt-1">
             {[
