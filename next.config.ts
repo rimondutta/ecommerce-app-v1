@@ -28,6 +28,7 @@ const nextConfig: NextConfig = {
   },
 
   experimental: {
+    nextScriptWorkers: true,
     // Tree-shake these large packages to only import what is actually used.
     // Fixes "Reduce unused JavaScript" and "Legacy JavaScript" PageSpeed issues.
     optimizePackageImports: [
@@ -73,7 +74,19 @@ const nextConfig: NextConfig = {
           },
           {
             key: "Content-Security-Policy",
-            value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://connect.facebook.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://res.cloudinary.com https://images.unsplash.com https://picsum.photos https://fastly.picsum.photos https://www.facebook.com; connect-src 'self' https://api.telegram.org https://www.facebook.com; frame-ancestors 'none';",
+            value: [
+              "default-src 'self'",
+              "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://connect.facebook.net",
+              "worker-src 'self' blob:",
+              "child-src 'self' blob:",
+              "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+              "font-src 'self' https://fonts.gstatic.com",
+              "img-src 'self' data: blob: https://res.cloudinary.com https://images.unsplash.com https://picsum.photos https://fastly.picsum.photos https://www.facebook.com",
+              "connect-src 'self' https://api.telegram.org https://www.facebook.com https://res.cloudinary.com https://api.cloudinary.com",
+              "frame-ancestors 'none'",
+              "base-uri 'self'",
+              "form-action 'self'",
+            ].join('; '),
           },
         ],
       },
