@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { trackAddToCart } from "@/lib/fbPixel";
 import Link from "next/link";
 import Image from "next/image";
 // import { motion, useReducedMotion } from "framer-motion";
@@ -61,6 +62,7 @@ export default function ProductCardModern({ product, priority = false, index = 1
       quantity: 1,
       image: product.images?.[0]?.url || "/placeholder.jpg",
     });
+    try { trackAddToCart(product, 1); } catch { /* noop */ }
     await new Promise((r) => setTimeout(r, 600));
     setIsAdding(false);
     openCart();

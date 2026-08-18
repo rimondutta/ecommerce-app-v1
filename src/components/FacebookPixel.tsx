@@ -33,32 +33,32 @@ interface PixelConfig {
 export default function FacebookPixel() {
   const [config, setConfig] = useState<PixelConfig | null>(null);
 
-  // True once the <Script> onLoad fires — i.e., fbevents.js is downloaded,
-  // fbq() is fully initialised, and the first PageView was already tracked
-  // by the inline base code. Only fire route-change PageViews after this.
-  const [pixelReady, setPixelReady] = useState(false);
-
   const pathname = usePathname();
-
   const initialPathnameRef = useRef<string | null>(null);
 
   useEffect(() => {
+    // Set initial path once when component mounts
+    if (typeof window !== "undefined") {
+      initialPathnameRef.current = window.location.pathname;
+    }
+
     fetch("/api/settings/pixel")
       .then((r) => r.json())
       .then((data: PixelConfig) => setConfig(data))
-      .catch(() => {
-      });
+      .catch(() => {});
   }, []);
 
   useEffect(() => {
-    if (!pixelReady) return;
+    // Only track route changes if config is loaded and enabled
+    if (!config || !config.enabled || !config.pixelId) return;
+    
+    // Skip the first render because the inline script already tracks the initial PageView
     if (pathname === initialPathnameRef.current) return;
 
-    (window as any).fbq("track", "PageView");
-  }, [pathname, pixelReady]);
-  // Meta Pixel blocks requests from localhost — skip in non-production environments
-  // to avoid the "traffic permission settings" console error during development.
-  if (process.env.NODE_ENV !== "production") return null;
+    if (typeof window !== "undefined" && (window as any).fbq) {
+      (window as any).fbq("track", "PageView");
+    }
+  }, [pathname, config]);
 
   if (!config || !config.enabled || !config.pixelId) return null;
 
@@ -82,10 +82,6 @@ export default function FacebookPixel() {
             fbq('init', '${pixelId}');
             fbq('track', 'PageView');
           `,
-        }}
-        onLoad={() => {
-          initialPathnameRef.current = window.location.pathname;
-          setPixelReady(true);
         }}
       />
       <noscript>

@@ -105,6 +105,7 @@ export default function ProductDetailsClient({ product: initialProduct, relatedP
       quantity,
       image: product.images?.[0]?.url || "/placeholder.jpg"
     });
+    try { trackAddToCart(product, quantity); } catch { /* noop */ }
     router.push("/checkout");
   };
 
