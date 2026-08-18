@@ -16,8 +16,13 @@ declare global {
   }
 }
 
-function isPixelReady(): boolean {
-  return typeof window !== 'undefined' && typeof window.fbq === 'function';
+function fireWhenReady(action: () => void, retries = 20) {
+  if (typeof window === 'undefined') return;
+  if (typeof window.fbq === 'function') {
+    action();
+  } else if (retries > 0) {
+    setTimeout(() => fireWhenReady(action, retries - 1), 250);
+  }
 }
 
 /** ViewContent — fired when a customer views a product detail page. */
@@ -28,14 +33,15 @@ export function trackViewContent(product: {
   category?: { title?: string };
 }) {
   try {
-    if (!isPixelReady()) return;
-    window.fbq!('track', 'ViewContent', {
-      content_ids: [product._id],
-      content_type: 'product',
-      content_name: product.title ?? '',
-      content_category: product.category?.title ?? '',
-      value: product.price ?? 0,
-      currency: 'BDT',
+    fireWhenReady(() => {
+      window.fbq!('track', 'ViewContent', {
+        content_ids: [product._id],
+        content_type: 'product',
+        content_name: product.title ?? '',
+        content_category: product.category?.title ?? '',
+        value: product.price ?? 0,
+        currency: 'BDT',
+      });
     });
   } catch {
     // Pixel failures must never crash the page
@@ -48,14 +54,15 @@ export function trackAddToCart(
   quantity: number
 ) {
   try {
-    if (!isPixelReady()) return;
-    window.fbq!('track', 'AddToCart', {
-      content_ids: [product._id],
-      content_type: 'product',
-      content_name: product.title ?? '',
-      value: (product.price ?? 0) * quantity,
-      currency: 'BDT',
-      quantity,
+    fireWhenReady(() => {
+      window.fbq!('track', 'AddToCart', {
+        content_ids: [product._id],
+        content_type: 'product',
+        content_name: product.title ?? '',
+        value: (product.price ?? 0) * quantity,
+        currency: 'BDT',
+        quantity,
+      });
     });
   } catch {
     // Pixel failures must never crash the page
@@ -68,13 +75,14 @@ export function trackInitiateCheckout(
   totalValue: number
 ) {
   try {
-    if (!isPixelReady()) return;
-    window.fbq!('track', 'InitiateCheckout', {
-      content_ids: cartItems.map((i) => i.id),
-      content_type: 'product',
-      num_items: cartItems.reduce((sum, i) => sum + (i.quantity ?? 1), 0),
-      value: totalValue,
-      currency: 'BDT',
+    fireWhenReady(() => {
+      window.fbq!('track', 'InitiateCheckout', {
+        content_ids: cartItems.map((i) => i.id),
+        content_type: 'product',
+        num_items: cartItems.reduce((sum, i) => sum + (i.quantity ?? 1), 0),
+        value: totalValue,
+        currency: 'BDT',
+      });
     });
   } catch {
     // Pixel failures must never crash the page
@@ -90,17 +98,18 @@ export function trackPurchase(order: {
   total?: number;
 }) {
   try {
-    if (!isPixelReady()) return;
     const orderId = order._id ?? order.orderId ?? '';
     const value = order.totalAmount ?? order.total ?? 0;
     const contentIds = order.items.map((i) => i.productId ?? i.id ?? '');
 
-    window.fbq!('track', 'Purchase', {
-      content_ids: contentIds,
-      content_type: 'product',
-      value,
-      currency: 'BDT',
-      order_id: orderId,
+    fireWhenReady(() => {
+      window.fbq!('track', 'Purchase', {
+        content_ids: contentIds,
+        content_type: 'product',
+        value,
+        currency: 'BDT',
+        order_id: orderId,
+      });
     });
   } catch {
     // Pixel failures must never crash the page
