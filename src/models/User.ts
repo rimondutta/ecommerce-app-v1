@@ -36,9 +36,21 @@ const UserSchema = new mongoose.Schema(
     image: {
       type: String,
     },
+    // Legacy single-token field (kept for backward compat)
     pushToken: {
       type: String,
     },
+    // Multi-device push token array (deduped on save)
+    expoPushTokens: {
+      type: [String],
+      default: [],
+    },
+    // ── Password Reset OTP fields ──────────────────────────
+    resetOtpHash: { type: String, select: false },
+    resetOtpExpiresAt: { type: Date, select: false },
+    resetOtpAttempts: { type: Number, default: 0, select: false },
+    resetOtpRequestedAt: { type: Date, select: false },
+    // ──────────────────────────────────────────────────────
     addresses: {
       type: [AddressSchema],
       default: [],
@@ -47,5 +59,5 @@ const UserSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-
 export default mongoose.models.User || mongoose.model('User', UserSchema);
+

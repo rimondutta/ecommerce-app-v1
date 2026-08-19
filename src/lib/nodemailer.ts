@@ -225,3 +225,55 @@ export async function sendOrderStatusUpdateEmail(order: any, statusType: 'paymen
     return { success: false, error };
   }
 }
+export async function sendPasswordResetOtpEmail(
+  toEmail: string,
+  toName: string,
+  otp: string
+) {
+  const html = `
+    <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #333333; line-height: 1.6;">
+      <div style="padding: 40px 20px; text-align: center; background-color: #000000; color: #ffffff;">
+        <h1 style="margin: 0; text-transform: uppercase; letter-spacing: 4px; font-size: 24px;">TOY HOURSE</h1>
+        <p style="margin: 10px 0 0; font-size: 12px; opacity: 0.7; letter-spacing: 2px;">PASSWORD RESET</p>
+      </div>
+
+      <div style="padding: 40px 20px; background-color: #ffffff;">
+        <h2 style="font-size: 20px; font-weight: bold; margin-bottom: 20px; text-align: center;">Reset Your Password</h2>
+        <p>Hi ${toName || 'there'},</p>
+        <p>We received a request to reset the password for your Toy Hourse account. Use the code below to proceed:</p>
+
+        <div style="margin: 36px 0; text-align: center;">
+          <div style="display: inline-block; background-color: #f3f4f6; border-radius: 16px; padding: 24px 48px;">
+            <span style="font-size: 48px; font-weight: 800; letter-spacing: 12px; color: #1a1a1a; font-family: monospace;">${otp}</span>
+          </div>
+          <p style="margin-top: 16px; font-size: 14px; color: #6b7280;">This code expires in <strong>10 minutes</strong>.</p>
+        </div>
+
+        <div style="background-color: #fef3c7; border-left: 4px solid #f59e0b; padding: 16px 20px; border-radius: 4px; margin: 24px 0;">
+          <p style="margin: 0; font-size: 14px; color: #92400e;">
+            <strong>Didn't request this?</strong> You can safely ignore this email. Your password will not be changed.
+          </p>
+        </div>
+      </div>
+
+      <div style="padding: 20px; text-align: center; font-size: 12px; color: #999999; border-top: 1px solid #eeeeee;">
+        <p>&copy; ${new Date().getFullYear()} Toy Hourse. All rights reserved.</p>
+        <p>This is an automated message. Please do not reply to this email.</p>
+      </div>
+    </div>
+  `;
+
+  try {
+    const info = await transporter.sendMail({
+      from: DEFAULT_FROM,
+      to: toEmail,
+      subject: 'Your Toy Hourse password reset code',
+      html,
+    });
+    console.log('Password reset OTP email sent:', info.messageId);
+    return { success: true, messageId: info.messageId };
+  } catch (error) {
+    console.error('Password reset email failed:', error);
+    return { success: false, error };
+  }
+}
