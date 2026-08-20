@@ -41,9 +41,12 @@ export async function POST(req: Request) {
       '+resetOtpHash +resetOtpExpiresAt +resetOtpAttempts +resetOtpRequestedAt'
     );
 
-    // If user not found, return generic message (don't reveal account existence)
+    // If user not found, return an error for better UX
     if (!user) {
-      return NextResponse.json(GENERIC_OK, { headers: CORS });
+      return NextResponse.json(
+        { success: false, error: 'No account found with this email address.' },
+        { status: 404, headers: CORS }
+      );
     }
 
     // Rate limit: max 1 OTP request per 60 seconds
