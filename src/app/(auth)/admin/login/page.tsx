@@ -27,8 +27,19 @@ export default function AdminLogin() {
       setError("Invalid email or password")
       setIsLoading(false)
     } else {
-      router.push("/admin")
-      router.refresh()
+      // Check if the user is actually an admin before redirecting
+      const sessionRes = await fetch("/api/auth/session")
+      const session = await sessionRes.json()
+
+      if (session?.user?.role !== "admin") {
+        setError("Access denied. Admin privileges required.")
+        // Optionally sign them out of this session so they aren't stuck logged in as a user
+        await fetch("/api/auth/signout", { method: "POST" })
+        setIsLoading(false)
+      } else {
+        router.push("/admin")
+        router.refresh()
+      }
     }
   }
 
