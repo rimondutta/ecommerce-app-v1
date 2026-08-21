@@ -2,13 +2,13 @@
 
 import Link from "next/link"
 import Image from "next/image"
-import { 
-  ArrowUpRight, 
-  MoreHorizontal, 
-  Download, 
-  TrendingUp, 
-  Users, 
-  Package, 
+import {
+  ArrowUpRight,
+  MoreHorizontal,
+  Download,
+  TrendingUp,
+  Users,
+  Package,
   ShoppingCart,
   Calendar,
   ChevronRight,
@@ -76,30 +76,30 @@ export default function DashboardClient({
 
       {/* Main Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard 
-          title="Total revenue" 
-          value={`৳${Math.round(totalRevenue).toLocaleString()}`} 
-          change={12.5} 
+        <StatCard
+          title="Total revenue"
+          value={`৳${Math.round(totalRevenue).toLocaleString()}`}
+          change={12.5}
           icon={TrendingUp}
           colorClass="bg-green-50 text-green-600"
         />
-        <StatCard 
-          title="Orders" 
-          value={totalOrdersCount.toLocaleString()} 
-          change={8.2} 
+        <StatCard
+          title="Orders"
+          value={totalOrdersCount.toLocaleString()}
+          change={8.2}
           icon={ShoppingCart}
           colorClass="bg-blue-50 text-blue-600"
         />
-        <StatCard 
-          title="Customers" 
-          value={totalCustomersCount.toLocaleString()} 
-          change={-2.4} 
+        <StatCard
+          title="Customers"
+          value={totalCustomersCount.toLocaleString()}
+          change={-2.4}
           icon={Users}
           colorClass="bg-purple-50 text-purple-600"
         />
-        <StatCard 
-          title="Products" 
-          value={totalProductsCount.toLocaleString()} 
+        <StatCard
+          title="Products"
+          value={totalProductsCount.toLocaleString()}
           icon={Package}
           colorClass="bg-orange-50 text-orange-600"
         />
@@ -148,11 +148,10 @@ export default function DashboardClient({
                         <p className="text-xs text-gray-500 truncate max-w-[140px] mt-0.5">{order.customerEmail}</p>
                       </td>
                       <td className="px-5 py-3">
-                        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
-                          order.paymentStatus === 'paid' ? 'bg-green-100 text-green-800' : 
-                          order.paymentStatus === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                          'bg-red-100 text-red-800'
-                        }`}>
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${order.paymentStatus === 'paid' ? 'bg-green-100 text-green-800' :
+                            order.paymentStatus === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                              'bg-red-100 text-red-800'
+                          }`}>
                           {order.paymentStatus.charAt(0).toUpperCase() + order.paymentStatus.slice(1)}
                         </span>
                       </td>
@@ -178,10 +177,10 @@ export default function DashboardClient({
               {topProducts.map((product, i) => (
                 <div key={product._id || i} className="flex items-center gap-3">
                   <div className="w-12 h-12 rounded-md border border-gray-200 overflow-hidden flex-shrink-0 relative bg-gray-50">
-                    <Image 
-                      src={(product.images?.[0]?.url && (product.images[0].url.startsWith('http') || product.images[0].url.startsWith('/'))) ? product.images[0].url : "/placeholder.png"} 
-                      alt={product.title} 
-                      fill 
+                    <Image
+                      src={(product.images?.[0]?.url && (product.images[0].url.startsWith('http') || product.images[0].url.startsWith('/'))) ? product.images[0].url : "/placeholder.png"}
+                      alt={product.title}
+                      fill
                       sizes="48px"
                       className="object-cover"
                     />
@@ -198,7 +197,7 @@ export default function DashboardClient({
             </div>
           </div>
 
-          <div className="bg-indigo-50 border border-indigo-100 rounded-lg p-5">
+          {/* <div className="bg-indigo-50 border border-indigo-100 rounded-lg p-5">
             <div className="flex items-center gap-2 mb-3">
                <Info size={16} className="text-indigo-600" />
               <h3 className="text-sm font-semibold text-indigo-900">Tip</h3>
@@ -209,7 +208,7 @@ export default function DashboardClient({
             <button className="mt-4 w-full py-2 bg-white text-indigo-700 border border-indigo-200 text-sm font-medium rounded-md hover:bg-gray-50 transition-colors shadow-sm">
               Setup shipping rule
             </button>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>
