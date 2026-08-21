@@ -14,11 +14,6 @@ const nextConfig: NextConfig = {
   // Allow development from 127.0.0.1 for HMR and Studio
   allowedDevOrigins: ["127.0.0.1", "localhost"],
 
-  eslint: {
-    // Warning: This allows production builds to successfully complete even if
-    // your project has ESLint errors (currently 450+ errors).
-    ignoreDuringBuilds: true,
-  },
   typescript: {
     // Warning: This allows production builds to successfully complete even if
     // your project has type errors.
