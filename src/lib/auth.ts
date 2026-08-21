@@ -1,11 +1,17 @@
 import { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
+import GoogleProvider from 'next-auth/providers/google';
 import bcrypt from 'bcryptjs';
+import { randomUUID } from 'crypto';
 import connectToDatabase from './db';
 import User from '@/models/User';
 
 export const authOptions: NextAuthOptions = {
   providers: [
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    }),
     CredentialsProvider({
       name: 'Credentials',
       credentials: {
@@ -47,6 +53,38 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
+    async signIn({ user, account }) {
+      // Handle Google OAuth — auto-create customer account on first login
+      if (account?.provider === 'google') {
+        try {
+          await connectToDatabase();
+          // Generate a random placeholder password for Google-only users
+          const passwordHash = await bcrypt.hash(randomUUID(), 10);
+          const dbUser = await User.findOneAndUpdate(
+            { email: user.email },
+            {
+              $setOnInsert: {
+                name: user.name,
+                email: user.email,
+                password: passwordHash,
+                role: 'customer',
+              },
+              // Always refresh their profile photo from Google
+              $set: { image: user.image },
+            },
+            { upsert: true, new: true }
+          );
+          // Attach DB fields so jwt callback can access them
+          (user as any).id = dbUser._id.toString();
+          (user as any).role = dbUser.role;
+          return true;
+        } catch (error) {
+          console.error('[NextAuth] Google signIn error:', error);
+          return false;
+        }
+      }
+      return true;
+    },
     async jwt({ token, user }) {
       if (user) {
         token.role = (user as any).role;
