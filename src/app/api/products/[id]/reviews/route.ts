@@ -43,7 +43,8 @@ export async function POST(
       title: title.trim(),
       text: text.trim(),
       name: name.trim(),
-      date: new Date()
+      date: new Date(),
+      status: 'pending'
     };
 
     product.reviews.push(newReview);

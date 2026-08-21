@@ -534,7 +534,7 @@ export default function ProductDetailsClient({ product: initialProduct, relatedP
                       </form>
                     )}
 
-                    {!isWritingReview && (!product.reviews || product.reviews.length === 0) && (
+                    {!isWritingReview && (!product.reviews || product.reviews.filter((r: any) => r.status === 'published' || !r.status).length === 0) && (
                       <div className="py-12 bg-paper-grey border border-rule-grey text-center">
                         <p className="font-mono text-[11px] text-rule-grey uppercase tracking-[0.1em]">
                           No reviews yet. Be the first.
@@ -542,7 +542,7 @@ export default function ProductDetailsClient({ product: initialProduct, relatedP
                       </div>
                     )}
 
-                    {!isWritingReview && product.reviews && [...product.reviews].reverse().map((review: any, i: number) => (
+                    {!isWritingReview && product.reviews && [...product.reviews].filter((r: any) => r.status === 'published' || !r.status).reverse().map((review: any, i: number) => (
                       <div key={i} className="border-b border-rule-grey pb-8 last:border-0">
                         <div className="flex items-center justify-between mb-3">
                           <div className="flex items-center gap-3">

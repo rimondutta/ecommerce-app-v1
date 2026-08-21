@@ -30,6 +30,7 @@ const ProductSchema = new mongoose.Schema(
         text: { type: String, required: true },
         name: { type: String, required: true },
         date: { type: Date, default: Date.now },
+        status: { type: String, enum: ['pending', 'published'], default: 'published' },
       },
     ],
     rating: { type: Number, default: 0 },

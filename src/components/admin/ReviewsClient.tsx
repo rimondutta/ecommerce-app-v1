@@ -41,12 +41,12 @@ export default function ReviewsClient() {
     }
   }
 
-  const handleUpdateStatus = async (id: string, newStatus: 'pending' | 'published') => {
+  const handleUpdateStatus = async (id: string, productId: string, newStatus: 'pending' | 'published') => {
     try {
       const res = await fetch("/api/admin/reviews", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id, status: newStatus }),
+        body: JSON.stringify({ id, productId, status: newStatus }),
       })
       if (!res.ok) throw new Error("Failed to update review status")
       
@@ -56,11 +56,11 @@ export default function ReviewsClient() {
     }
   }
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (id: string, productId: string) => {
     if (!confirm("Are you sure you want to delete this review?")) return
 
     try {
-      const res = await fetch(`/api/admin/reviews?id=${id}`, {
+      const res = await fetch(`/api/admin/reviews?id=${id}&productId=${productId}`, {
         method: "DELETE",
       })
       if (!res.ok) throw new Error("Failed to delete review")
@@ -172,13 +172,13 @@ export default function ReviewsClient() {
                     <td className="px-6 py-4 text-right">
                       <div className="flex items-center justify-end gap-2">
                         <button
-                          onClick={() => handleUpdateStatus(review._id, review.status === 'published' ? 'pending' : 'published')}
+                          onClick={() => handleUpdateStatus(review._id, review.productId._id, review.status === 'published' ? 'pending' : 'published')}
                           className="px-3 py-1.5 text-xs font-medium bg-white border border-gray-300 rounded-lg hover:bg-gray-50 text-gray-700 transition-colors"
                         >
                           {review.status === 'published' ? 'Unpublish' : 'Publish'}
                         </button>
                         <button
-                          onClick={() => handleDelete(review._id)}
+                          onClick={() => handleDelete(review._id, review.productId._id)}
                           className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                           title="Delete Review"
                         >
