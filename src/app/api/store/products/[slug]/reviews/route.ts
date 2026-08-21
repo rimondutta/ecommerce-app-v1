@@ -26,7 +26,10 @@ export async function GET(
       return NextResponse.json({ error: 'Product not found' }, { status: 404 });
     }
 
-    const reviews = await Review.find({ productId: product._id })
+    const reviews = await Review.find({ 
+      productId: product._id,
+      $or: [{ status: 'published' }, { status: { $exists: false } }]
+    })
       .sort({ createdAt: -1 })
       .limit(50);
 

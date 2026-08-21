@@ -2,7 +2,9 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import connectToDatabase from '@/lib/db';
-import Order from '@/models/Order';
+import User from '@/models/User';
+// Make sure Order is loaded for aggregation
+import Order from '@/models/Order'; 
 
 export async function GET() {
   try {
@@ -13,20 +15,32 @@ export async function GET() {
 
     await connectToDatabase();
     
-    // Aggregate customers based on existing orders for accurate live reporting
-    const customers = await Order.aggregate([
+    // Fetch all customers, joining with their orders
+    const customers = await User.aggregate([
       {
-        $group: {
-          _id: "$customerEmail",
-          name: { $first: "$customerName" },
-          email: { $first: "$customerEmail" },
-          ordersCount: { $sum: 1 },
-          totalSpent: { $sum: "$totalAmount" },
-          lastOrderDate: { $max: "$createdAt" }
+        $match: { role: 'customer' }
+      },
+      {
+        $lookup: {
+          from: 'orders',
+          localField: 'email',
+          foreignField: 'customerEmail',
+          as: 'orders'
         }
       },
       {
-        $sort: { lastOrderDate: -1 }
+        $project: {
+          _id: 1,
+          name: 1,
+          email: 1,
+          createdAt: 1,
+          ordersCount: { $size: "$orders" },
+          totalSpent: { $sum: "$orders.totalAmount" },
+          lastOrderDate: { $max: "$orders.createdAt" }
+        }
+      },
+      {
+        $sort: { createdAt: -1 }
       }
     ]);
 

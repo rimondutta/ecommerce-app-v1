@@ -31,6 +31,11 @@ const ReviewSchema = new mongoose.Schema(
       type: Boolean,
       default: false
     },
+    status: {
+      type: String,
+      enum: ['pending', 'published'],
+      default: 'pending'
+    }
   },
   { timestamps: true }
 );

@@ -6,7 +6,7 @@ import { signOut, useSession } from "next-auth/react"
 import { 
   Home, ShoppingCart, Tag, Users, Inbox, BarChart2, 
   Megaphone, Ticket, Settings, Store, Search, Bell,
-  LogOut, Plus, ChevronRight, UserPlus, Image as ImageIcon, Layers, Sliders, Truck
+  LogOut, Plus, ChevronRight, UserPlus, Image as ImageIcon, Layers, Sliders, Truck, MessageSquare
 } from "lucide-react"
 
 export default function Sidebar() {
@@ -18,6 +18,8 @@ export default function Sidebar() {
     { name: "Products", href: "/admin/products", icon: Tag },
     { name: "Variations", href: "/admin/variations", icon: Sliders },
     { name: "Categories", href: "/admin/categories", icon: Layers },
+    { name: "Customers", href: "/admin/customers", icon: Users },
+    { name: "Reviews", href: "/admin/reviews", icon: MessageSquare },
     { name: "Media Library", href: "/admin/media", icon: ImageIcon },
     { name: "Add User", href: "/admin/users/add", icon: UserPlus },
     { name: "Blog Upload", href: "/admin/blog/add", icon: Megaphone },
