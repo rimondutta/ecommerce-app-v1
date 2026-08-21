@@ -15,12 +15,14 @@ export default function Sidebar() {
 
   const links = [
     { name: "Dashboard", href: "/admin", icon: Home },
+    { name: "Orders", href: "/admin/orders", icon: ShoppingCart },
     { name: "Products", href: "/admin/products", icon: Tag },
     { name: "Variations", href: "/admin/variations", icon: Sliders },
     { name: "Categories", href: "/admin/categories", icon: Layers },
     { name: "Customers", href: "/admin/customers", icon: Users },
     { name: "Reviews", href: "/admin/reviews", icon: MessageSquare },
     { name: "Media Library", href: "/admin/media", icon: ImageIcon },
+    { name: "Discounts", href: "/admin/coupons", icon: Ticket },
     { name: "Add User", href: "/admin/users/add", icon: UserPlus },
     { name: "Blog Upload", href: "/admin/blog/add", icon: Megaphone },
     { name: "Pixel Settings", href: "/admin/settings/pixel", icon: BarChart2 },

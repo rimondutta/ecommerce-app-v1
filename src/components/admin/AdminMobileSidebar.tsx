@@ -2,7 +2,7 @@
 
 import { Fragment } from "react"
 import { Dialog, DialogPanel, Transition, TransitionChild } from "@headlessui/react"
-import { X, Home, ShoppingCart, Tag, Users, Ticket, UserPlus, Image as ImageIcon, Settings, LogOut, Store, Layers } from "lucide-react"
+import { X, Home, ShoppingCart, Tag, Users, Ticket, UserPlus, Image as ImageIcon, Settings, LogOut, Store, Layers, MessageSquare, Sliders, Megaphone, BarChart2, Truck } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { signOut, useSession } from "next-auth/react"
@@ -20,11 +20,16 @@ export default function AdminMobileSidebar({ isOpen, onClose }: AdminMobileSideb
     { name: "Dashboard", href: "/admin", icon: Home },
     { name: "Orders", href: "/admin/orders", icon: ShoppingCart },
     { name: "Products", href: "/admin/products", icon: Tag },
+    { name: "Variations", href: "/admin/variations", icon: Sliders },
     { name: "Categories", href: "/admin/categories", icon: Layers },
-    { name: "Media Library", href: "/admin/media", icon: ImageIcon },
     { name: "Customers", href: "/admin/customers", icon: Users },
+    { name: "Reviews", href: "/admin/reviews", icon: MessageSquare },
+    { name: "Media Library", href: "/admin/media", icon: ImageIcon },
     { name: "Discounts", href: "/admin/coupons", icon: Ticket },
-    { name: "Admins", href: "/admin/invite", icon: UserPlus },
+    { name: "Add User", href: "/admin/users/add", icon: UserPlus },
+    { name: "Blog Upload", href: "/admin/blog/add", icon: Megaphone },
+    { name: "Pixel Settings", href: "/admin/settings/pixel", icon: BarChart2 },
+    { name: "Shipping Settings", href: "/admin/settings/shipping", icon: Truck },
   ]
 
   const isActive = (href: string) => {
