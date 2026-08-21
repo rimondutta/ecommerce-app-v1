@@ -1,4 +1,5 @@
 {
+  "installCommand": "npm install --foreground-scripts=false",
   "functions": {
     "src/app/api/**/*.ts": {
       "maxDuration": 10
