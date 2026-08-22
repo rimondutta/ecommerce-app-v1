@@ -84,14 +84,8 @@ export default function DownloadPage() {
                  src="/images/mobile-app.jpeg" 
                  alt="App Preview" 
                  fill 
-                 className="object-cover opacity-90 hover:scale-105 transition-transform duration-700"
+                 className="object-cover hover:scale-105 transition-transform duration-700"
                />
-               <div className="absolute inset-0 bg-gradient-to-t from-ink-black/80 via-transparent to-transparent"></div>
-               <div className="absolute bottom-10 left-6 right-6">
-                 <div className="h-4 w-1/3 bg-paper-white/40 rounded mb-4"></div>
-                 <div className="h-10 w-full bg-paper-white rounded-xl mb-4"></div>
-                 <div className="h-16 w-full bg-paper-white/20 backdrop-blur-md rounded-2xl"></div>
-               </div>
             </div>
           </div>
           

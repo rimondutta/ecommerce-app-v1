@@ -96,14 +96,8 @@ export default function AppDownloadSection() {
                     src="/images/mobile-app.jpeg"
                     alt="App Screenshot"
                     fill
-                    className="object-cover opacity-80"
+                    className="object-cover"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-ink-black via-transparent to-transparent"></div>
-                  <div className="absolute bottom-10 left-6 right-6">
-                    <div className="h-4 w-1/3 bg-paper-white/20 rounded mb-4"></div>
-                    <div className="h-10 w-full bg-paper-white rounded-xl mb-4"></div>
-                    <div className="h-16 w-full bg-paper-white/10 backdrop-blur-md rounded-2xl"></div>
-                  </div>
                 </div>
               </div>
             </motion.div>
