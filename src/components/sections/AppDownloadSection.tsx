@@ -12,9 +12,9 @@ export default function AppDownloadSection() {
     <AnimatedReveal>
       <section className="px-4 sm:px-10 lg:px-[5vw] py-14 md:py-24 bg-ink-black text-paper-white relative overflow-hidden">
         {/* Background Decorative Elements */}
-        <div className="absolute top-0 right-0 w-full h-full opacity-10 pointer-events-none">
-          <div className="absolute top-[-20%] right-[-10%] w-[600px] h-[600px] rounded-full bg-gradient-to-tr from-stamp-red/30 to-transparent blur-3xl"></div>
-          <div className="absolute bottom-[-10%] left-[-10%] w-[400px] h-[400px] rounded-full bg-gradient-to-tr from-paper-white/20 to-transparent blur-3xl"></div>
+        <div className="absolute top-0 right-0 w-full h-full pointer-events-none">
+          <div className="absolute top-[-20%] right-[-10%] w-[600px] h-[600px] rounded-full bg-violet-600/20 blur-[100px]"></div>
+          <div className="absolute bottom-[-10%] left-[-10%] w-[400px] h-[400px] rounded-full bg-rose-600/15 blur-[80px]"></div>
         </div>
 
         <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-12 lg:gap-20 max-w-7xl mx-auto">
@@ -64,8 +64,8 @@ export default function AppDownloadSection() {
             <div className="pt-6 flex items-center justify-center lg:justify-start gap-4 opacity-80">
               <div className="flex -space-x-3">
                 {[1, 2, 3, 4].map((i) => (
-                  <div key={i} className="w-10 h-10 rounded-full border-2 border-ink-black bg-rule-grey overflow-hidden relative">
-                    <Image src={`https://i.pravatar.cc/100?img=${i + 10}`} alt="User" fill className="object-cover" />
+                  <div key={i} className="w-10 h-10 rounded-full border-2 border-ink-black bg-rule-grey overflow-hidden relative" style={{ position: 'relative' }}>
+                    <Image src={`https://i.pravatar.cc/100?img=${i + 10}`} alt="User" fill sizes="40px" className="object-cover" />
                   </div>
                 ))}
               </div>
@@ -88,6 +88,7 @@ export default function AppDownloadSection() {
                 src="/images/mobile-app-image.png"
                 alt="App Screenshot"
                 fill
+                sizes="(max-width: 768px) 300px, 340px"
                 className="object-contain"
               />
             </motion.div>

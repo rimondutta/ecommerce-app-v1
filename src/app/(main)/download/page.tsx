@@ -99,16 +99,18 @@ export default function DownloadPage() {
           <div className="flex-1 flex justify-center lg:justify-end relative w-full">
             {/* Glow behind phone */}
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <div className="w-72 h-72 rounded-full bg-violet-600/25 blur-3xl" />
+              <div className="w-72 h-72 rounded-full bg-violet-600/30 blur-3xl" />
+              <div className="absolute w-48 h-48 rounded-full bg-rose-600/20 blur-2xl translate-x-16 translate-y-12" />
             </div>
 
             {/* Phone mockup */}
             <div className="relative z-10 w-full max-w-[260px] sm:max-w-[280px] lg:max-w-[300px] aspect-[9/19]">
-              <div className="w-full h-full rounded-[2.5rem] overflow-hidden ring-1 ring-white/10 shadow-[0_40px_80px_rgba(0,0,0,0.7)]">
+              <div className="relative w-full h-full rounded-[2.5rem] overflow-hidden ring-1 ring-white/10 shadow-[0_40px_80px_rgba(0,0,0,0.7)]">
                 <Image
                   src="/images/mobile-app-image.png"
                   alt="Toy Hourse App Preview"
                   fill
+                  sizes="(max-width: 640px) 260px, (max-width: 1024px) 280px, 300px"
                   className="object-contain"
                   priority
                 />
