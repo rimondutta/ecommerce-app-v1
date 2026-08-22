@@ -73,12 +73,12 @@ export default function DownloadPage() {
           {/* Decorative background shape */}
           <div className="absolute inset-0 bg-gradient-to-tr from-rule-grey/10 to-transparent rounded-[3rem] -rotate-3 scale-105 transform origin-bottom-left"></div>
           
-          <div className="relative aspect-[9/19] w-full max-w-[320px] lg:max-w-[340px] rounded-[2.5rem] overflow-hidden shadow-2xl bg-paper-white z-10">
+          <div className="relative aspect-[9/19] w-full max-w-[300px] lg:max-w-[320px] rounded-[3rem] overflow-hidden shadow-2xl bg-paper-white z-10">
              <Image 
                src="/images/mobile-app.jpeg" 
                alt="App Preview" 
                fill 
-               className="object-cover hover:scale-105 transition-transform duration-700"
+               className="object-contain hover:scale-105 transition-transform duration-700"
              />
           </div>
           

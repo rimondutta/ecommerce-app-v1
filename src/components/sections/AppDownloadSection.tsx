@@ -82,13 +82,13 @@ export default function AppDownloadSection() {
               whileInView={{ y: 0, opacity: 1 }}
               transition={{ duration: 0.8, ease: "easeOut" }}
               viewport={{ once: true, margin: "-100px" }}
-              className="relative w-full max-w-[320px] lg:max-w-[360px] aspect-[9/19] transform rotate-[-5deg] hover:rotate-0 transition-transform duration-700 ease-out rounded-[2.5rem] overflow-hidden shadow-2xl bg-paper-white"
+              className="relative w-full max-w-[300px] lg:max-w-[340px] aspect-[9/19] transform rotate-[-5deg] hover:rotate-0 transition-transform duration-700 ease-out rounded-[3rem] overflow-hidden shadow-2xl bg-paper-white"
             >
               <Image
                 src="/images/mobile-app.jpeg"
                 alt="App Screenshot"
                 fill
-                className="object-cover"
+                className="object-contain"
               />
             </motion.div>
           </div>
