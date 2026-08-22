@@ -13,11 +13,11 @@
 
 @theme {
   /* ─── Cinematic Color Tokens (Dark Mode) ─── */
-  --color-ink-black: #F5F5F5;
+  --color-ink-black: #F0F0F0;
   /* Text & primary foreground */
-  --color-paper-white: #050505;
+  --color-paper-white: #0A0A0F;
   /* Main background */
-  --color-paper-grey: #111111;
+  --color-paper-grey: #0D0D14;
   /* Off-background surfaces */
   --color-rule-grey: #737373;
   /* Cinematic borders and muted text */
@@ -49,12 +49,12 @@
 
 html {
   scroll-behavior: smooth;
-  background-color: #050505;
+  background-color: #0A0A0F;
 }
 
 body {
-  background-color: #050505;
-  color: #F5F5F5;
+  background-color: #0A0A0F;
+  color: #F0F0F0;
   font-family: var(--font-body);
   font-weight: 400;
   -webkit-font-smoothing: antialiased;
@@ -115,7 +115,7 @@ body {
 
 * {
   scrollbar-width: thin;
-  scrollbar-color: #2A2A2A #050505;
+  scrollbar-color: #2A2A2A #0A0A0F;
 }
 
 /* ═══════════════════════════════════════

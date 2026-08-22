@@ -10,7 +10,7 @@ import { FaApple, FaGooglePlay } from "react-icons/fa";
 export default function AppDownloadSection() {
   return (
     <AnimatedReveal>
-      <section className="px-4 sm:px-10 lg:px-[5vw] py-14 md:py-24 bg-ink-black text-paper-white relative overflow-hidden">
+      <section className="px-4 sm:px-10 lg:px-[5vw] py-14 md:py-24 bg-paper-grey/60 text-ink-black relative overflow-hidden border-t border-white/5">
         {/* Background Decorative Elements */}
         <div className="absolute top-0 right-0 w-full h-full pointer-events-none">
           <div className="absolute top-[-20%] right-[-10%] w-[600px] h-[600px] rounded-full bg-violet-600/20 blur-[100px]"></div>

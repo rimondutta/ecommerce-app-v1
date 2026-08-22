@@ -71,7 +71,7 @@ export default function RootLayout({
     >
       <body
         suppressHydrationWarning
-        className="relative min-h-screen flex flex-col bg-paper-white text-ink-black font-body selection:bg-violet-600 selection:text-white overflow-x-hidden"
+        className="relative min-h-screen flex flex-col bg-[#0A0A0F] text-ink-black font-body selection:bg-violet-600 selection:text-white overflow-x-hidden"
       >
         {/* ── Ambient glow blobs — appear on every page ── */}
         <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden" aria-hidden="true">
