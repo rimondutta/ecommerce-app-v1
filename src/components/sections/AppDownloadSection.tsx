@@ -85,7 +85,7 @@ export default function AppDownloadSection() {
               className="relative w-full max-w-[300px] lg:max-w-[340px] aspect-[9/19] transform rotate-[-5deg] hover:rotate-0 transition-transform duration-700 ease-out rounded-[3rem] overflow-hidden shadow-2xl bg-paper-white"
             >
               <Image
-                src="/images/mobile-app.jpeg"
+                src="/images/mobile-app-image.png"
                 alt="App Screenshot"
                 fill
                 className="object-contain"

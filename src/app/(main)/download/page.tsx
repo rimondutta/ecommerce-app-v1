@@ -75,7 +75,7 @@ export default function DownloadPage() {
           
           <div className="relative aspect-[9/19] w-full max-w-[300px] lg:max-w-[320px] rounded-[3rem] overflow-hidden shadow-2xl bg-paper-white z-10">
              <Image 
-               src="/images/mobile-app.jpeg" 
+               src="/images/mobile-app-image.png" 
                alt="App Preview" 
                fill 
                className="object-contain hover:scale-105 transition-transform duration-700"
