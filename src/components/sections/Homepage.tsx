@@ -263,45 +263,6 @@ export default function Homepage({
         />
       </section>
 
-      {/* ═══════════════════════════════════════════════
-          4. DEAL COUNTDOWN — stamp-red accent
-          ═══════════════════════════════════════════════ */}
-      <AnimatedReveal>
-        <section className="px-4 sm:px-10 lg:px-[5vw] py-16 md:py-24 border-b border-white/5 bg-transparent relative overflow-hidden">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-10">
-            <div>
-              <p className="font-mono text-[10px] uppercase tracking-[0.15em] text-stamp-red mb-3">
-                LIMITED TIME — CATALOG DEAL
-              </p>
-              <h3 className="font-display text-[40px] md:text-[56px] uppercase text-ink-black leading-none tracking-[-0.01em]">
-                Deal of<br />the Week
-              </h3>
-            </div>
-
-            {/* Countdown — mono digits */}
-            <div className="flex gap-0 border border-rule-grey">
-              {[
-                { val: timeLeft.days,    label: "DAYS" },
-                { val: timeLeft.hours,   label: "HRS" },
-                { val: timeLeft.minutes, label: "MIN" },
-                { val: timeLeft.seconds, label: "SEC" },
-              ].map(({ val, label }, i) => (
-                <div key={label} className="flex flex-col items-center px-6 py-5 border-r border-rule-grey last:border-r-0">
-                  <span className="font-mono text-[36px] md:text-[48px] text-ink-black leading-none">{pad(val)}</span>
-                  <span className="font-mono text-[9px] uppercase tracking-[0.15em] text-rule-grey mt-1">{label}</span>
-                </div>
-              ))}
-            </div>
-
-            <Link
-              href="/products"
-              className="font-mono text-[11px] uppercase tracking-[0.15em] bg-stamp-red text-paper-white px-8 py-4 hover:bg-ink-black transition-colors duration-200"
-            >
-              Shop the Deal →
-            </Link>
-          </div>
-        </section>
-      </AnimatedReveal>
 
       {/* ═══════════════════════════════════════════════
           5. SERVICES STRIP — editorial version

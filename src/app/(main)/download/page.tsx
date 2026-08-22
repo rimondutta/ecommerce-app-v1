@@ -91,7 +91,7 @@ export default function DownloadPage() {
               <div className="flex gap-0.5">
                 {[1, 2, 3, 4, 5].map(i => <FaStar key={i} className="w-4 h-4 text-amber-400" />)}
               </div>
-              <span className="text-sm text-white/40 font-body">4.9 &nbsp;·&nbsp; 10k+ happy users</span>
+              <span className="text-sm text-white/40 font-body">4.9 &nbsp;·&nbsp; 5k+ happy users</span>
             </div>
           </div>
 
