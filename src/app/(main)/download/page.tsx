@@ -81,7 +81,7 @@ export default function DownloadPage() {
             {/* Screen Content Image */}
             <div className="relative aspect-[9/19] w-full bg-rule-grey/20 rounded-[2rem] overflow-hidden">
                <Image 
-                 src="https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?q=80&w=2070&auto=format&fit=crop" 
+                 src="/images/mobile-app.jpeg" 
                  alt="App Preview" 
                  fill 
                  className="object-cover opacity-90 hover:scale-105 transition-transform duration-700"

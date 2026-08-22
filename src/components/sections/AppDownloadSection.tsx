@@ -93,7 +93,7 @@ export default function AppDownloadSection() {
                   </div>
                   {/* Phone Screen Content placeholder */}
                   <Image
-                    src="\images\mobile-app.jpeg"
+                    src="/images/mobile-app.jpeg"
                     alt="App Screenshot"
                     fill
                     className="object-cover opacity-80"
