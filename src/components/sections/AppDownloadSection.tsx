@@ -18,7 +18,7 @@ export default function AppDownloadSection() {
         </div>
 
         <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-12 lg:gap-20 max-w-7xl mx-auto">
-          
+
           {/* Text Content */}
           <div className="flex-1 space-y-8 text-center lg:text-left">
             <div className="space-y-4">
@@ -30,15 +30,15 @@ export default function AppDownloadSection() {
                 <span className="italic font-light text-rule-grey">Anytime.</span>
               </h2>
             </div>
-            
+
             <p className="font-body text-base lg:text-lg text-rule-grey max-w-md mx-auto lg:mx-0 leading-[1.7]">
               Download the Toy Hourse mobile app for exclusive deals, early access to new arrivals, and a seamless shopping experience on the go.
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-4">
               {/* Apple App Store Button */}
-              <Link 
-                href="#ios-app" 
+              <Link
+                href="#ios-app"
                 className="group flex items-center gap-4 bg-paper-white text-ink-black px-6 py-3.5 rounded-full hover:bg-rule-grey transition-colors duration-300 w-full sm:w-auto justify-center"
               >
                 <FaApple className="w-7 h-7" />
@@ -49,8 +49,8 @@ export default function AppDownloadSection() {
               </Link>
 
               {/* Google Play Button */}
-              <Link 
-                href="#android-app" 
+              <Link
+                href="#android-app"
                 className="group flex items-center gap-4 bg-transparent border border-paper-white/20 text-paper-white px-6 py-3.5 rounded-full hover:bg-paper-white/10 transition-colors duration-300 w-full sm:w-auto justify-center"
               >
                 <FaGooglePlay className="w-6 h-6" />
@@ -60,12 +60,12 @@ export default function AppDownloadSection() {
                 </div>
               </Link>
             </div>
-            
+
             <div className="pt-6 flex items-center justify-center lg:justify-start gap-4 opacity-80">
               <div className="flex -space-x-3">
                 {[1, 2, 3, 4].map((i) => (
                   <div key={i} className="w-10 h-10 rounded-full border-2 border-ink-black bg-rule-grey overflow-hidden relative">
-                     <Image src={`https://i.pravatar.cc/100?img=${i + 10}`} alt="User" fill className="object-cover" />
+                    <Image src={`https://i.pravatar.cc/100?img=${i + 10}`} alt="User" fill className="object-cover" />
                   </div>
                 ))}
               </div>
@@ -92,10 +92,10 @@ export default function AppDownloadSection() {
                     <div className="w-12 h-1.5 bg-paper-white/20 rounded-full"></div>
                   </div>
                   {/* Phone Screen Content placeholder */}
-                  <Image 
-                    src="https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?q=80&w=2070&auto=format&fit=crop" 
-                    alt="App Screenshot" 
-                    fill 
+                  <Image
+                    src="\images\mobile-app.jpeg"
+                    alt="App Screenshot"
+                    fill
                     className="object-cover opacity-80"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-ink-black via-transparent to-transparent"></div>
@@ -108,7 +108,7 @@ export default function AppDownloadSection() {
               </div>
             </motion.div>
           </div>
-          
+
         </div>
       </section>
     </AnimatedReveal>
