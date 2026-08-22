@@ -4,7 +4,7 @@ import React from "react";
 import Link from "next/link";
 import { IconBrandFacebook, IconBrandX, IconBrandInstagram, IconBrandYoutube } from "@tabler/icons-react";
 
-const companyLinks = ["About Us", "Blog", "Contact Us"];
+const companyLinks = ["About Us", "Blog", "Contact Us", "Download App"];
 const shopLinks = ["New Arrivals", "All Toys", "Sale"];
 const helpLinks = ["Customer Service", "My Account", "Returns", "Legal & Privacy"];
 
@@ -66,7 +66,7 @@ export default function Footer() {
             {companyLinks.map((item) => (
               <li key={item}>
                 <Link
-                  href={item.toLowerCase().includes("blog") ? "/blogs" : "#"}
+                  href={item === "Download App" ? "/download" : item.toLowerCase().includes("blog") ? "/blogs" : "#"}
                   onClick={scrollToTop}
                   className="font-body text-[13px] text-ink-black relative group inline-block"
                 >

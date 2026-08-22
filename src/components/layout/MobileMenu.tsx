@@ -13,6 +13,7 @@ const navItems = [
   { num: "04", label: "CONTACT", href: "/contact" },
   { num: "05", label: "ACCOUNT", href: "/account" },
   { num: "06", label: "WISHLIST", href: "/wishlist" },
+  { num: "07", label: "APP", href: "/download" },
 ];
 
 export default function MobileMenu() {

@@ -23,6 +23,7 @@ export default function TopNavbar() {
     { label: "BLOG", href: "/blogs" },
     { label: "ABOUT", href: "/about" },
     { label: "CONTACT", href: "/contact" },
+    { label: "APP", href: "/download" },
   ];
 
   return (
