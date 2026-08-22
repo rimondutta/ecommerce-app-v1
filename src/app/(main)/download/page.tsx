@@ -69,24 +69,17 @@ export default function DownloadPage() {
         </div>
 
         {/* Visual / Mockup */}
-        <div className="flex-1 w-full max-w-sm lg:max-w-md relative">
+        <div className="flex-1 w-full max-w-sm lg:max-w-md relative flex justify-center">
           {/* Decorative background shape */}
           <div className="absolute inset-0 bg-gradient-to-tr from-rule-grey/10 to-transparent rounded-[3rem] -rotate-3 scale-105 transform origin-bottom-left"></div>
           
-          <div className="relative bg-ink-black rounded-[2.5rem] p-3 shadow-2xl overflow-hidden border border-rule-grey/20">
-            {/* Phone Top Notch */}
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/3 h-7 bg-ink-black rounded-b-2xl z-20 flex justify-center items-center">
-              <div className="w-12 h-1.5 bg-paper-white/20 rounded-full"></div>
-            </div>
-            {/* Screen Content Image */}
-            <div className="relative aspect-[9/19] w-full bg-rule-grey/20 rounded-[2rem] overflow-hidden">
-               <Image 
-                 src="/images/mobile-app.jpeg" 
-                 alt="App Preview" 
-                 fill 
-                 className="object-cover hover:scale-105 transition-transform duration-700"
-               />
-            </div>
+          <div className="relative aspect-[9/19] w-full max-w-[320px] lg:max-w-[340px] rounded-[2.5rem] overflow-hidden shadow-2xl bg-paper-white z-10">
+             <Image 
+               src="/images/mobile-app.jpeg" 
+               alt="App Preview" 
+               fill 
+               className="object-cover hover:scale-105 transition-transform duration-700"
+             />
           </div>
           
           {/* Floating badge */}

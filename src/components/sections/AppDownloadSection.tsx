@@ -82,24 +82,14 @@ export default function AppDownloadSection() {
               whileInView={{ y: 0, opacity: 1 }}
               transition={{ duration: 0.8, ease: "easeOut" }}
               viewport={{ once: true, margin: "-100px" }}
-              className="relative w-full aspect-[4/5] lg:aspect-square max-w-[500px]"
+              className="relative w-full max-w-[320px] lg:max-w-[360px] aspect-[9/19] transform rotate-[-5deg] hover:rotate-0 transition-transform duration-700 ease-out rounded-[2.5rem] overflow-hidden shadow-2xl bg-paper-white"
             >
-              {/* Using a placeholder phone mockup. You can replace this with a real screenshot */}
-              <div className="absolute inset-0 bg-gradient-to-br from-paper-white/5 to-transparent rounded-[40px] border border-paper-white/10 p-4 transform rotate-[-5deg] hover:rotate-0 transition-transform duration-700 ease-out">
-                <div className="w-full h-full bg-ink-black rounded-[32px] overflow-hidden relative shadow-2xl">
-                  {/* Phone Notch */}
-                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/3 h-6 bg-ink-black rounded-b-3xl z-20 flex justify-center items-center">
-                    <div className="w-12 h-1.5 bg-paper-white/20 rounded-full"></div>
-                  </div>
-                  {/* Phone Screen Content placeholder */}
-                  <Image
-                    src="/images/mobile-app.jpeg"
-                    alt="App Screenshot"
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-              </div>
+              <Image
+                src="/images/mobile-app.jpeg"
+                alt="App Screenshot"
+                fill
+                className="object-cover"
+              />
             </motion.div>
           </div>
 
