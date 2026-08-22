@@ -7,6 +7,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import ProductGridNike from "@/components/ui/product-grid-nike";
 import AnimatedReveal from "@/components/ui/AnimatedReveal";
 import dynamic from "next/dynamic";
+import AppDownloadSection from "./AppDownloadSection";
 
 const DynamicInstagramSection = dynamic(() => import("./InstagramSection"), { ssr: false });
 
@@ -322,6 +323,11 @@ export default function Homepage({
           </div>
         </section>
       </AnimatedReveal>
+
+      {/* ═══════════════════════════════════════════════
+          6. APP DOWNLOAD SECTION
+          ═══════════════════════════════════════════════ */}
+      <AppDownloadSection />
 
       {/* Instagram — lazy loaded, untouched */}
       <DynamicInstagramSection />
