@@ -119,7 +119,7 @@ export default function ProductDetailsClient({ product: initialProduct, relatedP
   const hasDiscount = product.compareAtPrice && product.compareAtPrice > product.price;
 
   return (
-    <div className="bg-paper-white min-h-screen text-ink-black font-body pb-16 section-light">
+    <div className="bg-transparent min-h-screen text-ink-black font-body pb-16 section-light">
 
       {/* ═══════════════════════════════════════
           PRODUCT SHOWCASE

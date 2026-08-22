@@ -92,7 +92,7 @@ function ShopContent({ initialProducts }: { initialProducts: any[] }) {
   const activeFilterCount = [selectedCategory, selectedAge].filter(Boolean).length;
 
   return (
-    <div suppressHydrationWarning className="flex-1 bg-paper-white min-h-screen text-ink-black font-body">
+    <div suppressHydrationWarning className="flex-1 bg-transparent min-h-screen text-ink-black font-body">
 
       {/* ─── Sticky utility bar ─── */}
       <section className="sticky top-[57px] z-30 bg-paper-white/80 backdrop-blur-xl border-b border-rule-grey">
@@ -349,7 +349,7 @@ function ShopContent({ initialProducts }: { initialProducts: any[] }) {
 
 export default function ShopClient({ initialProducts }: { initialProducts: any[] }) {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-paper-white" />}>
+    <Suspense fallback={<div className="min-h-screen bg-transparent" />}>
       <ShopContent initialProducts={initialProducts} />
     </Suspense>
   );

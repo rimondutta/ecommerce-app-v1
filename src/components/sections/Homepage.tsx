@@ -80,7 +80,7 @@ export default function Homepage({
   };
 
   return (
-    <div className="bg-paper-white min-h-screen font-body">
+    <div className="bg-transparent min-h-screen font-body">
 
       {/* ═══════════════════════════════════════════════
           1. HERO — cinematic full-bleed exhibit
@@ -88,8 +88,8 @@ export default function Homepage({
       <section className="relative overflow-hidden min-h-[90vh] md:min-h-screen flex items-end md:items-center pb-24 md:pb-0 border-b border-rule-grey">
 
         {/* Cinematic full-bleed video - STATIC for LCP optimization */}
-        <div className="absolute inset-0 z-0">
-          <div className="absolute inset-0 bg-paper-white" />
+        <div className="absolute inset-0 z-0 opacity-40">
+          <div className="absolute inset-0 bg-transparent" />
           <video
             autoPlay
             muted
@@ -101,7 +101,7 @@ export default function Homepage({
             <source src="/video/hero-bg.mp4" type="video/mp4" />
           </video>
           {/* Bottom vignette gradient — dark fade to transparent */}
-          <div className="absolute inset-0 bg-gradient-to-t from-paper-white via-paper-white/60 to-paper-white/10 md:bg-gradient-to-r md:from-paper-white md:via-paper-white/80 md:to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0F] via-[#0A0A0F]/60 to-transparent md:bg-gradient-to-r md:from-[#0A0A0F] md:via-[#0A0A0F]/80 md:to-transparent" />
         </div>
 
         {/* Hero copy — overlaps the cinematic bg - STATIC for LCP optimization */}
@@ -207,7 +207,7 @@ export default function Homepage({
               <Link
                 key={cat.slug}
                 href={`/products?category=${cat.slug}`}
-                className="relative shrink-0 w-[80vw] sm:w-[60vw] aspect-[3/4] snap-center overflow-hidden bg-paper-grey border border-rule-grey"
+                className="relative shrink-0 w-[80vw] sm:w-[60vw] aspect-[3/4] snap-center overflow-hidden bg-transparent border border-white/10 rounded-2xl"
               >
                 {cat.image && (
                   <Image
@@ -218,7 +218,7 @@ export default function Homepage({
                     sizes="(max-width: 640px) 80vw, 60vw"
                   />
                 )}
-                <div className="absolute inset-0 bg-gradient-to-t from-paper-white via-paper-white/40 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0F] via-[#0A0A0F]/40 to-transparent" />
                 <div className="absolute inset-0 p-6 flex flex-col justify-end z-10">
                   <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-stamp-red mb-2">
                     EXHIBIT N°{String(i + 1).padStart(3, "0")}
@@ -267,7 +267,7 @@ export default function Homepage({
           4. DEAL COUNTDOWN — stamp-red accent
           ═══════════════════════════════════════════════ */}
       <AnimatedReveal>
-        <section className="px-4 sm:px-10 lg:px-[5vw] py-16 md:py-24 border-b border-rule-grey bg-paper-grey">
+        <section className="px-4 sm:px-10 lg:px-[5vw] py-16 md:py-24 border-b border-white/5 bg-transparent relative overflow-hidden">
           <div className="flex flex-col md:flex-row items-center justify-between gap-10">
             <div>
               <p className="font-mono text-[10px] uppercase tracking-[0.15em] text-stamp-red mb-3">
