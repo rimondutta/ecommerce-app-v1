@@ -21,8 +21,8 @@
   /* Off-background surfaces */
   --color-rule-grey: #737373;
   /* Cinematic borders and muted text */
-  --color-stamp-red: #D90429;
-  /* Dramatic accent */
+  --color-stamp-red: #7C3AED;
+  /* Violet accent */
 
   /* ─── Typography ─── */
   --font-display: var(--font-big-shoulders), 'Arial Narrow', sans-serif;
@@ -110,7 +110,7 @@ body {
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #F5F5F5;
+  background: #7C3AED;
 }
 
 * {

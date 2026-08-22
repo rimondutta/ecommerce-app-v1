@@ -27,7 +27,7 @@ export default function TopNavbar() {
   ];
 
   return (
-    <nav className="sticky top-0 z-50 w-full bg-paper-white/80 backdrop-blur-xl border-b border-rule-grey">
+    <nav className="sticky top-0 z-50 w-full bg-paper-white/70 backdrop-blur-xl border-b border-violet-500/10" style={{ boxShadow: '0 1px 40px rgba(124,58,237,0.06)' }}>
       <div className="flex items-center justify-between px-4 sm:px-10 lg:px-[5vw] py-4">
 
         {/* Mobile — Hamburger */}
@@ -66,7 +66,7 @@ export default function TopNavbar() {
                 {/* Hairline active / hover underline */}
                 <span
                   className={cn(
-                    "absolute -bottom-0.5 left-0 h-[1px] bg-ink-black transition-[width] duration-300 ease-[cubic-bezier(0.25,1,0.5,1)]",
+                    "absolute -bottom-0.5 left-0 h-[1px] bg-stamp-red transition-[width] duration-300 ease-[cubic-bezier(0.25,1,0.5,1)]",
                     active ? "w-full" : "w-0 group-hover:w-full"
                   )}
                 />
@@ -120,7 +120,7 @@ export default function TopNavbar() {
               <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" /><line x1="3" y1="6" x2="21" y2="6" /><path d="M16 10a4 4 0 0 1-8 0" />
             </svg>
             {mounted && cartCount > 0 && (
-              <span className="absolute -top-2 -right-2 bg-stamp-red text-paper-white font-mono text-[9px] font-bold w-4 h-4 flex items-center justify-center leading-none">
+              <span className="absolute -top-2 -right-2 bg-stamp-red text-white font-mono text-[9px] font-bold w-4 h-4 flex items-center justify-center leading-none rounded-full">
                 {cartCount > 9 ? "9+" : cartCount}
               </span>
             )}

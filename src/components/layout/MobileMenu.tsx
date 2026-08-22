@@ -52,7 +52,7 @@ export default function MobileMenu() {
             animate={{ x: 0 }}
             exit={{ x: reduced ? 0 : "-100%", opacity: reduced ? 0 : 1 }}
             transition={{ ease: [0.25, 1, 0.5, 1], duration: reduced ? 0.15 : 0.6 }}
-            className="fixed inset-y-0 left-0 w-[85vw] max-w-sm z-[1001] bg-paper-grey/90 backdrop-blur-2xl flex flex-col overflow-hidden border-r border-rule-grey"
+            className="fixed inset-y-0 left-0 w-[85vw] max-w-sm z-[1001] bg-[#0D0D14]/95 backdrop-blur-2xl flex flex-col overflow-hidden border-r border-violet-500/10"
           >
             {/* Header */}
             <div className="flex items-center justify-between px-6 py-5 border-b border-rule-grey">
@@ -86,12 +86,12 @@ export default function MobileMenu() {
                   <Link
                     href={link.href}
                     onClick={closeMobileMenu}
-                    className="group flex items-baseline gap-4 py-4 border-b border-rule-grey last:border-0"
+                    className="group flex items-baseline gap-4 py-4 border-b border-white/5 last:border-0"
                   >
-                    <span className="font-mono text-[11px] text-rule-grey w-6 shrink-0">
+                    <span className="font-mono text-[11px] text-violet-500 w-6 shrink-0">
                       {link.num}
                     </span>
-                    <span className="font-display text-[28px] uppercase text-ink-black leading-none tracking-[-0.02em] group-hover:text-rule-grey transition-colors duration-200">
+                    <span className="font-display text-[28px] uppercase text-white leading-none tracking-[-0.02em] group-hover:text-violet-400 transition-colors duration-200">
                       {link.label}
                     </span>
                   </Link>

@@ -122,7 +122,7 @@ export default function Footer() {
             />
             <button
               type="submit"
-              className="px-4 py-2.5 bg-ink-black text-paper-white font-mono text-[10px] uppercase tracking-[0.1em] whitespace-nowrap hover:bg-rule-grey hover:text-ink-black transition-colors"
+              className="px-4 py-2.5 bg-stamp-red text-white font-mono text-[10px] uppercase tracking-[0.1em] whitespace-nowrap hover:opacity-80 transition-opacity"
             >
               Join
             </button>

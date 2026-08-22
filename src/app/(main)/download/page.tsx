@@ -9,9 +9,9 @@ export const metadata = {
 };
 
 const features = [
-  { icon: FaBolt,  label: "Lightning Checkout",  desc: "Order in seconds with saved addresses & payments" },
-  { icon: FaTag,   label: "App-Only Deals",       desc: "Exclusive discounts only available in the app" },
-  { icon: FaTruck, label: "Live Order Tracking",  desc: "Know exactly where your order is, in real time" },
+  { icon: FaBolt, label: "Lightning Checkout", desc: "Order in seconds with saved addresses & payments" },
+  { icon: FaTag, label: "App-Only Deals", desc: "Exclusive discounts only available in the app" },
+  { icon: FaTruck, label: "Live Order Tracking", desc: "Know exactly where your order is, in real time" },
 ];
 
 export default function DownloadPage() {
@@ -89,7 +89,7 @@ export default function DownloadPage() {
             {/* Stars */}
             <div className="flex items-center justify-center lg:justify-start gap-2">
               <div className="flex gap-0.5">
-                {[1,2,3,4,5].map(i => <FaStar key={i} className="w-4 h-4 text-amber-400" />)}
+                {[1, 2, 3, 4, 5].map(i => <FaStar key={i} className="w-4 h-4 text-amber-400" />)}
               </div>
               <span className="text-sm text-white/40 font-body">4.9 &nbsp;·&nbsp; 10k+ happy users</span>
             </div>
@@ -120,7 +120,7 @@ export default function DownloadPage() {
                   <FaDownload className="w-4 h-4 text-violet-300" />
                 </div>
                 <div>
-                  <p className="font-bold text-white text-sm leading-none">10k+</p>
+                  <p className="font-bold text-white text-sm leading-none">5k+</p>
                   <p className="font-mono text-[10px] text-white/40 mt-0.5 uppercase tracking-wider">Downloads</p>
                 </div>
               </div>
