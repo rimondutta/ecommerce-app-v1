@@ -12,26 +12,41 @@ function FilterPill({
   label,
   selected,
   onClick,
-  isStampRed = false,
 }: {
   label: string;
   selected: boolean;
   onClick: () => void;
-  isStampRed?: boolean;
 }) {
   return (
     <button
       onClick={onClick}
       className={cn(
-        "font-mono text-[10px] uppercase tracking-[0.12em] px-3 py-1.5 border transition-colors duration-200 whitespace-nowrap",
+        "font-body text-sm px-4 py-2 rounded-full transition-all duration-200 whitespace-nowrap border",
         selected
-          ? isStampRed
-            ? "bg-stamp-red text-paper-white border-stamp-red"
-            : "bg-ink-black text-paper-white border-ink-black"
-          : "bg-paper-white text-ink-black border-rule-grey hover:border-ink-black"
+          ? "bg-stamp-red text-white border-stamp-red"
+          : "bg-white text-gray-700 border-gray-200 hover:border-gray-400"
       )}
     >
       {label}
+    </button>
+  );
+}
+
+function SidebarFilterItem({ label, selected, onClick }: { label: string; selected: boolean; onClick: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      className="flex items-center gap-3 w-full group py-1"
+    >
+      <div className={cn(
+        "w-4 h-4 rounded border flex items-center justify-center transition-colors",
+        selected ? "bg-stamp-red border-stamp-red" : "border-gray-300 group-hover:border-gray-400 bg-white"
+      )}>
+        {selected && <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg>}
+      </div>
+      <span className={cn("font-body text-sm transition-colors", selected ? "text-ink-black font-medium" : "text-gray-600 group-hover:text-ink-black")}>
+        {label}
+      </span>
     </button>
   );
 }
@@ -94,33 +109,33 @@ function ShopContent({ initialProducts }: { initialProducts: any[] }) {
   return (
     <div suppressHydrationWarning className="flex-1 bg-transparent min-h-screen text-ink-black font-body">
 
-      {/* ─── Sticky utility bar ─── */}
-      <section className="relative bg-paper-white/80 backdrop-blur-xl border-b border-rule-grey">
+      {/* ─── Top Utility Bar ─── */}
+      <section className="relative bg-paper-white/80 pb-4 pt-32 lg:pt-36">
 
         {/* Page title row */}
-        <div className="px-4 sm:px-10 lg:px-[5vw] py-5 flex items-baseline justify-between border-b border-rule-grey">
-          <h1 className="font-display text-[32px] md:text-[44px] uppercase text-ink-black leading-none tracking-[-0.01em]">
+        <div className="px-4 sm:px-10 lg:px-[5vw] py-5 flex items-end justify-between border-b border-gray-200">
+          <h1 className="font-body text-4xl md:text-5xl text-ink-black font-medium tracking-tight">
             {selectedCategory || "All Toys"}
           </h1>
-          <span className="font-mono text-[11px] text-rule-grey uppercase tracking-[0.1em]">
-            {filteredProducts.length} items
+          <span className="font-body text-sm text-gray-500 mb-1">
+            {filteredProducts.length} products
           </span>
         </div>
 
         {/* Filter + sort strip */}
-        <div className="px-4 sm:px-10 lg:px-[5vw] py-3 flex items-center gap-3 overflow-x-auto no-scrollbar">
+        <div className="px-4 sm:px-10 lg:px-[5vw] py-4 flex items-center justify-between">
 
           {/* Mobile: Filters button */}
           <button
             onClick={() => setIsMobileFiltersOpen(true)}
             className={cn(
-              "lg:hidden flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.12em] px-3 py-1.5 border border-rule-grey hover:border-ink-black transition-colors shrink-0",
-              activeFilterCount > 0 && "border-stamp-red text-stamp-red"
+              "lg:hidden flex items-center gap-2 font-body text-sm px-4 py-2 border rounded-full transition-colors",
+              activeFilterCount > 0 ? "border-stamp-red text-stamp-red bg-stamp-red/5" : "border-gray-300 text-gray-700 hover:border-gray-400"
             )}
           >
-            Filter
+            Filters
             {activeFilterCount > 0 && (
-              <span className="bg-stamp-red text-paper-white w-4 h-4 flex items-center justify-center text-[9px] leading-none">{activeFilterCount}</span>
+              <span className="bg-stamp-red text-white w-5 h-5 rounded-full flex items-center justify-center text-xs font-medium">{activeFilterCount}</span>
             )}
           </button>
 
@@ -138,24 +153,25 @@ function ShopContent({ initialProducts }: { initialProducts: any[] }) {
           </div>
 
           {/* Spacer */}
+          {/* Desktop spacer */}
           <div className="flex-1 hidden lg:block" />
 
           {/* Sort */}
-          <div className="relative flex items-center gap-1.5 shrink-0">
-            <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-rule-grey hidden sm:block">Sort</span>
+          <div className="relative flex items-center gap-3 shrink-0">
+            <span className="font-body text-sm text-gray-500 hidden sm:block">Sort by:</span>
             <div className="relative">
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="appearance-none font-mono text-[10px] uppercase tracking-[0.12em] text-ink-black bg-paper-white border border-rule-grey px-3 py-1.5 pr-6 focus:outline-none focus:border-ink-black cursor-pointer"
+                className="appearance-none font-body text-sm font-medium text-ink-black bg-transparent py-2 pr-8 focus:outline-none cursor-pointer"
                 suppressHydrationWarning
               >
                 <option value="featured">Featured</option>
-                <option value="newest">Newest</option>
-                <option value="price-low">Price ↑</option>
-                <option value="price-high">Price ↓</option>
+                <option value="newest">New Arrivals</option>
+                <option value="price-low">Price: Low to High</option>
+                <option value="price-high">Price: High to Low</option>
               </select>
-              <ChevronDown size={10} className="absolute right-2 top-1/2 -translate-y-1/2 text-ink-black pointer-events-none" />
+              <ChevronDown size={14} className="absolute right-0 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
             </div>
           </div>
 
@@ -163,9 +179,9 @@ function ShopContent({ initialProducts }: { initialProducts: any[] }) {
           {(selectedCategory || selectedAge) && (
             <button
               onClick={clearFilters}
-              className="flex items-center gap-1 font-mono text-[10px] uppercase tracking-[0.1em] text-stamp-red shrink-0 hover:opacity-70 transition-opacity"
+              className="hidden lg:flex items-center gap-1 font-body text-sm text-stamp-red hover:text-stamp-red/80 ml-4"
             >
-              <X size={10} /> Clear
+              <X size={14} /> Clear All
             </button>
           )}
         </div>
@@ -174,15 +190,15 @@ function ShopContent({ initialProducts }: { initialProducts: any[] }) {
       <div className="px-4 sm:px-10 lg:px-[5vw] py-10 flex flex-col lg:flex-row gap-10">
 
         {/* ─── Desktop Sidebar ─── */}
-        <aside className="hidden lg:block w-48 shrink-0">
-          <div className="sticky top-40 space-y-8">
+        <aside className="hidden lg:block w-56 shrink-0">
+          <div className="sticky top-32 space-y-10">
 
-            <div className="space-y-3">
-              <h4 className="font-mono text-[10px] uppercase tracking-[0.12em] text-rule-grey border-b border-rule-grey pb-2">Category</h4>
-              <div className="space-y-2">
-                <FilterPill label="All" selected={!selectedCategory} onClick={() => updateFilters("category", null)} />
+            <div className="space-y-4">
+              <h4 className="font-body text-base font-medium text-ink-black">Categories</h4>
+              <div className="space-y-1">
+                <SidebarFilterItem label="All Products" selected={!selectedCategory} onClick={() => updateFilters("category", null)} />
                 {categories.map((cat) => (
-                  <FilterPill
+                  <SidebarFilterItem
                     key={cat.slug}
                     label={cat.name}
                     selected={selectedCategory === cat.name || selectedCategory === cat.slug}
@@ -192,13 +208,13 @@ function ShopContent({ initialProducts }: { initialProducts: any[] }) {
               </div>
             </div>
 
-            <div className="space-y-3">
-              <h4 className="font-mono text-[10px] uppercase tracking-[0.12em] text-rule-grey border-b border-rule-grey pb-2">Age Range</h4>
-              <div className="space-y-2">
+            <div className="space-y-4">
+              <h4 className="font-body text-base font-medium text-ink-black">Age Range</h4>
+              <div className="space-y-1">
                 {ageRanges.map((age) => (
-                  <FilterPill
+                  <SidebarFilterItem
                     key={age}
-                    label={`${age} yrs`}
+                    label={`${age} Years`}
                     selected={selectedAge === age}
                     onClick={() => updateFilters("age", selectedAge === age ? null : age)}
                   />
@@ -206,14 +222,6 @@ function ShopContent({ initialProducts }: { initialProducts: any[] }) {
               </div>
             </div>
 
-            {(selectedCategory || selectedAge) && (
-              <button
-                onClick={clearFilters}
-                className="font-mono text-[10px] uppercase tracking-[0.1em] text-stamp-red flex items-center gap-1 hover:opacity-70 transition-opacity"
-              >
-                <X size={10} /> Clear filters
-              </button>
-            )}
           </div>
         </aside>
 
@@ -232,15 +240,14 @@ function ShopContent({ initialProducts }: { initialProducts: any[] }) {
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center py-24 text-center">
-              <p className="font-display text-[48px] uppercase text-rule-grey leading-none mb-4">—</p>
-              <p className="font-mono text-[11px] uppercase tracking-[0.12em] text-rule-grey mb-6">
-                No items match your filters
+              <p className="font-body text-xl font-medium text-gray-500 mb-6">
+                No items match your selected filters.
               </p>
               <button
                 onClick={clearFilters}
-                className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-black border border-ink-black px-5 py-2.5 hover:bg-ink-black hover:text-paper-white transition-colors"
+                className="bg-ink-black text-white px-6 py-3 rounded-full font-body text-sm font-medium hover:bg-ink-black/80 transition-colors"
               >
-                Clear Filters
+                Clear all filters
               </button>
             </div>
           )}
@@ -263,17 +270,17 @@ function ShopContent({ initialProducts }: { initialProducts: any[] }) {
               transition={{ type: "spring", damping: 28, stiffness: 220 }}
               className="fixed inset-x-0 bottom-0 h-[80vh] bg-paper-white z-[1001] flex flex-col overflow-hidden border-t border-rule-grey"
             >
-              <div className="flex justify-between items-center px-6 py-5 border-b border-rule-grey">
-                <h2 className="font-display text-[22px] uppercase text-ink-black">Filter & Sort</h2>
-                <button onClick={() => setIsMobileFiltersOpen(false)} className="text-ink-black hover:text-rule-grey transition-colors">
-                  <X size={18} />
+              <div className="flex justify-between items-center px-6 py-5 border-b border-gray-100">
+                <h2 className="font-body text-xl font-medium text-ink-black">Filters</h2>
+                <button onClick={() => setIsMobileFiltersOpen(false)} className="text-gray-400 hover:text-ink-black transition-colors bg-gray-100 p-2 rounded-full">
+                  <X size={20} />
                 </button>
               </div>
 
               <div className="flex-1 overflow-y-auto px-6 py-6 space-y-8">
                 {/* Sort */}
-                <div className="space-y-3">
-                  <h3 className="font-mono text-[10px] uppercase tracking-[0.12em] text-rule-grey border-b border-rule-grey pb-2">Sort by</h3>
+                <div className="space-y-4">
+                  <h3 className="font-body text-sm font-medium text-ink-black">Sort by</h3>
                   <div className="flex flex-wrap gap-2">
                     {[
                       { value: "featured", label: "Featured" },
@@ -292,8 +299,8 @@ function ShopContent({ initialProducts }: { initialProducts: any[] }) {
                 </div>
 
                 {/* Categories */}
-                <div className="space-y-3">
-                  <h3 className="font-mono text-[10px] uppercase tracking-[0.12em] text-rule-grey border-b border-rule-grey pb-2">Category</h3>
+                <div className="space-y-4">
+                  <h3 className="font-body text-sm font-medium text-ink-black">Category</h3>
                   <div className="flex flex-wrap gap-2">
                     <FilterPill label="All" selected={!selectedCategory} onClick={() => updateFilters("category", null)} />
                     {categories.map((cat) => (
@@ -308,8 +315,8 @@ function ShopContent({ initialProducts }: { initialProducts: any[] }) {
                 </div>
 
                 {/* Age */}
-                <div className="space-y-3">
-                  <h3 className="font-mono text-[10px] uppercase tracking-[0.12em] text-rule-grey border-b border-rule-grey pb-2">Age Range</h3>
+                <div className="space-y-4">
+                  <h3 className="font-body text-sm font-medium text-ink-black">Age Range</h3>
                   <div className="flex flex-wrap gap-2">
                     {ageRanges.map((age) => (
                       <FilterPill
@@ -323,17 +330,17 @@ function ShopContent({ initialProducts }: { initialProducts: any[] }) {
                 </div>
               </div>
 
-              <div className="p-6 border-t border-rule-grey bg-paper-grey space-y-3">
+              <div className="p-6 border-t border-gray-200 bg-white space-y-3 shadow-[0_-10px_20px_rgba(0,0,0,0.05)]">
                 <button
-                  className="w-full bg-ink-black text-paper-white font-mono text-[11px] uppercase tracking-[0.15em] py-4 hover:bg-rule-grey hover:text-ink-black transition-colors"
+                  className="w-full bg-ink-black text-white font-body text-sm font-medium py-4 rounded-full hover:bg-ink-black/90 transition-colors"
                   onClick={() => setIsMobileFiltersOpen(false)}
                 >
-                  View {filteredProducts.length} Items
+                  View {filteredProducts.length} Products
                 </button>
                 {(selectedCategory || selectedAge) && (
                   <button
                     onClick={() => { clearFilters(); setIsMobileFiltersOpen(false); }}
-                    className="w-full py-2 font-mono text-[10px] uppercase tracking-[0.1em] text-stamp-red hover:opacity-70 transition-opacity"
+                    className="w-full py-2 font-body text-sm font-medium text-stamp-red hover:opacity-70 transition-opacity"
                   >
                     Clear all filters
                   </button>

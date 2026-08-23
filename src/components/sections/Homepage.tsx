@@ -143,28 +143,28 @@ export default function Homepage({
       </section>
 
       {/* ═══════════════════════════════════════════════
-          2. CATALOG SECTION LABELS — categories (Cinematic Hover List)
+          2. CATALOG SECTION LABELS — categories (Modern E-commerce)
           ═══════════════════════════════════════════════ */}
       {categories.length > 0 && (
-        <section className="py-16 md:py-24 border-b border-rule-grey">
+        <section className="py-16 md:py-24">
           <AnimatedReveal className="mb-12 px-4 sm:px-10 lg:px-[5vw] flex items-baseline gap-6">
-            <h2 className="font-display text-[40px] md:text-[56px] uppercase text-ink-black leading-none tracking-[-0.01em]">
-              Browse Category
+            <h2 className="font-body text-[32px] md:text-[40px] text-ink-black font-medium tracking-tight">
+              Shop by Category
             </h2>
-            <div className="flex-1 h-[1px] bg-rule-grey hidden md:block" />
+            <div className="flex-1 h-[1px] bg-gray-200 hidden md:block" />
           </AnimatedReveal>
 
-          {/* DESKTOP: Cinematic Hover List */}
-          <div className="hidden md:flex flex-col border-t border-rule-grey">
+          {/* DESKTOP: Clean Hover List */}
+          <div className="hidden md:flex flex-col">
             {categories.slice(0, 6).map((cat, i) => (
               <AnimatedReveal key={cat.slug} delay={i * 0.1}>
                 <Link
                   href={`/products?category=${cat.slug}`}
-                  className="group relative flex items-center justify-between py-8 md:py-10 px-4 sm:px-10 lg:px-[5vw] border-b border-rule-grey overflow-hidden"
+                  className="group relative flex items-center justify-between py-8 md:py-10 px-4 sm:px-10 lg:px-[5vw] border-t border-gray-100 overflow-hidden"
                 >
                   {/* Background Image Reveal */}
                   {cat.image && (
-                    <div className="absolute inset-0 z-0 opacity-0 group-hover:opacity-30 transition-opacity duration-700 ease-[cubic-bezier(0.25,1,0.5,1)]">
+                    <div className="absolute inset-0 z-0 opacity-0 group-hover:opacity-20 transition-opacity duration-700 ease-[cubic-bezier(0.25,1,0.5,1)]">
                       <Image
                         src={cat.image}
                         alt={cat.name}
@@ -177,18 +177,15 @@ export default function Homepage({
 
                   {/* Text Content */}
                   <div className="relative z-10 flex flex-col md:flex-row md:items-center gap-2 md:gap-12 w-full">
-                    <span className="font-mono text-[10px] md:text-[12px] text-rule-grey uppercase tracking-[0.2em] group-hover:text-stamp-red transition-colors duration-500">
-                      N°{String(i + 1).padStart(3, "0")}
-                    </span>
-                    <h3 className="font-display text-[40px] md:text-[72px] lg:text-[90px] uppercase text-rule-grey group-hover:text-ink-black transition-colors duration-500 leading-none tracking-[-0.02em]">
+                    <h3 className="font-body text-4xl md:text-5xl lg:text-6xl text-gray-400 group-hover:text-ink-black transition-colors duration-500 font-medium tracking-tight">
                       {cat.name}
                     </h3>
                   </div>
                   
                   {/* Arrow Indicator */}
                   <div className="relative z-10 hidden md:flex items-center gap-4 opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-500 ease-[cubic-bezier(0.25,1,0.5,1)]">
-                    <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-ink-black whitespace-nowrap">
-                      Explore Exhibit
+                    <span className="font-body text-sm font-semibold text-ink-black whitespace-nowrap">
+                      Explore
                     </span>
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-ink-black">
                       <path d="M5 12h14M12 5l7 7-7 7" />
@@ -205,7 +202,7 @@ export default function Homepage({
               <Link
                 key={cat.slug}
                 href={`/products?category=${cat.slug}`}
-                className="relative shrink-0 w-[80vw] sm:w-[60vw] aspect-[3/4] snap-center overflow-hidden bg-transparent border border-white/10 rounded-2xl"
+                className="relative shrink-0 w-[80vw] sm:w-[60vw] aspect-[3/4] snap-center overflow-hidden bg-transparent rounded-2xl shadow-sm"
               >
                 {cat.image && (
                   <Image
@@ -216,12 +213,9 @@ export default function Homepage({
                     sizes="(max-width: 640px) 80vw, 60vw"
                   />
                 )}
-                <div className="absolute inset-0 bg-gradient-to-t from-paper-white via-paper-white/40 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
                 <div className="absolute inset-0 p-6 flex flex-col justify-end z-10">
-                  <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-stamp-red mb-2">
-                    EXHIBIT N°{String(i + 1).padStart(3, "0")}
-                  </span>
-                  <h3 className="font-display text-[48px] uppercase text-ink-black leading-[0.9] tracking-[-0.02em]">
+                  <h3 className="font-body text-3xl text-white font-medium tracking-tight">
                     {cat.name}
                   </h3>
                 </div>
@@ -234,7 +228,7 @@ export default function Homepage({
       {/* ═══════════════════════════════════════════════
           3. TRENDING — Homedine Section
           ═══════════════════════════════════════════════ */}
-      <section className="px-4 sm:px-10 lg:px-[5vw] py-16 md:py-24 border-b border-rule-grey">
+      <section className="px-4 sm:px-10 lg:px-[5vw] py-16 md:py-24">
         <AnimatedReveal className="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div>
             <p className="font-body text-gray-500 font-medium mb-1">
@@ -262,20 +256,19 @@ export default function Homepage({
 
 
       {/* ═══════════════════════════════════════════════
-          5. SERVICES STRIP — editorial version
+          5. SERVICES STRIP — modern version
           ═══════════════════════════════════════════════ */}
       <AnimatedReveal>
-        <section className="px-4 sm:px-10 lg:px-[5vw] py-14 md:py-20 border-b border-rule-grey">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-0 divide-y sm:divide-y-0 sm:divide-x divide-rule-grey">
+        <section className="px-4 sm:px-10 lg:px-[5vw] py-14 md:py-20 border-t border-gray-100 bg-paper-white">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 sm:gap-12 divide-y sm:divide-y-0 sm:divide-x divide-gray-200">
             {[
-              { num: "01", title: "Fast & Free Delivery", desc: "Free delivery for all orders over ৳1,500" },
-              { num: "02", title: "24/7 Support",         desc: "Friendly customer support, always available" },
-              { num: "03", title: "30-Day Returns",       desc: "We return money within 30 days" },
-            ].map(({ num, title, desc }) => (
-              <div key={num} className="flex flex-col gap-3 px-8 py-8 first:pl-0 last:pr-0">
-                <p className="font-mono text-[10px] uppercase tracking-[0.15em] text-stamp-red">{num}</p>
-                <h4 className="font-display text-[20px] uppercase text-ink-black leading-tight">{title}</h4>
-                <p className="font-body text-[13px] text-rule-grey leading-[1.7]">{desc}</p>
+              { title: "Fast & Free Delivery", desc: "Free delivery for all orders over ৳1,500" },
+              { title: "24/7 Support",         desc: "Friendly customer support, always available" },
+              { title: "30-Day Returns",       desc: "We return money within 30 days" },
+            ].map(({ title, desc }) => (
+              <div key={title} className="flex flex-col gap-2 pt-6 sm:pt-0 sm:px-8 first:pl-0 first:pt-0 last:pr-0 text-center sm:text-left">
+                <h4 className="font-body text-lg font-semibold text-ink-black">{title}</h4>
+                <p className="font-body text-sm text-gray-500 leading-relaxed">{desc}</p>
               </div>
             ))}
           </div>

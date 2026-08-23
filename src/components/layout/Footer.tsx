@@ -17,26 +17,23 @@ export default function Footer() {
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
 
   return (
-    <footer className="bg-paper-grey border-t border-rule-grey mt-24 section-light">
-
-      {/* Top rule */}
-      <div className="h-[1px] bg-rule-grey w-full" />
+    <footer className="bg-paper-grey mt-24">
 
       {/* Main grid */}
       <div className="px-4 sm:px-10 lg:px-[5vw] py-16 md:py-20 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-10 lg:gap-8">
 
         {/* Brand column */}
         <div className="lg:col-span-2 flex flex-col gap-5">
-          <Link href="/" className="font-display text-[28px] uppercase tracking-[-0.02em] text-ink-black leading-none">
-            TOYHOURSE
+          <Link href="/" className="font-display text-4xl text-ink-black leading-none tracking-tight">
+            Toyhourse
           </Link>
-          <p className="font-body text-[13px] text-ink-black leading-relaxed max-w-[280px]">
-            A design museum's catalog of toys — curated for curious kids aged 0–10.
+          <p className="font-body text-sm text-gray-600 leading-relaxed max-w-[280px]">
+            Beautifully curated toys designed to inspire imagination, creativity, and learning.
           </p>
-          <div className="text-[13px] font-mono text-ink-black flex flex-col gap-1">
+          <div className="text-sm font-body text-gray-600 flex flex-col gap-2 mt-2">
             <span>Chattogram, Bangladesh</span>
-            <a href="mailto:toyhourse@gmail.com" className="hover:text-rule-grey transition-colors">toyhourse@gmail.com</a>
-            <a href="tel:+8801616921965" className="hover:text-rule-grey transition-colors">+880 1616-921965</a>
+            <a href="mailto:toyhourse@gmail.com" className="hover:text-stamp-red transition-colors font-medium text-ink-black">toyhourse@gmail.com</a>
+            <a href="tel:+8801616921965" className="hover:text-stamp-red transition-colors font-medium text-ink-black">+880 1616-921965</a>
           </div>
           <div className="flex gap-5 mt-1">
             {[
@@ -51,7 +48,7 @@ export default function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={label}
-                className="text-ink-black hover:text-rule-grey transition-colors"
+                className="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center text-ink-black hover:bg-ink-black hover:text-white transition-all duration-300 shadow-sm"
               >
                 <Icon size={18} stroke={1.5} />
               </a>
@@ -60,18 +57,17 @@ export default function Footer() {
         </div>
 
         {/* Company */}
-        <div className="flex flex-col gap-4">
-          <h5 className="font-mono text-[10px] uppercase tracking-[0.12em] text-rule-grey">Company</h5>
+        <div className="flex flex-col gap-5">
+          <h5 className="font-body text-base font-semibold text-ink-black">Company</h5>
           <ul className="flex flex-col gap-3">
             {companyLinks.map((item) => (
               <li key={item}>
                 <Link
                   href={item === "Download App" ? "/download" : item.toLowerCase().includes("blog") ? "/blogs" : "#"}
                   onClick={scrollToTop}
-                  className="font-body text-[13px] text-ink-black relative group inline-block"
+                  className="font-body text-sm text-gray-600 hover:text-stamp-red transition-colors inline-block"
                 >
                   {item}
-                  <span className="absolute -bottom-0.5 left-0 w-0 h-[1px] bg-ink-black transition-[width] duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:w-full" />
                 </Link>
               </li>
             ))}
@@ -79,18 +75,17 @@ export default function Footer() {
         </div>
 
         {/* Shop */}
-        <div className="flex flex-col gap-4">
-          <h5 className="font-mono text-[10px] uppercase tracking-[0.12em] text-rule-grey">Shop</h5>
+        <div className="flex flex-col gap-5">
+          <h5 className="font-body text-base font-semibold text-ink-black">Shop</h5>
           <ul className="flex flex-col gap-3">
             {shopLinks.map((item) => (
               <li key={item}>
                 <Link
                   href="/products"
                   onClick={scrollToTop}
-                  className="font-body text-[13px] text-ink-black relative group inline-block"
+                  className="font-body text-sm text-gray-600 hover:text-stamp-red transition-colors inline-block"
                 >
                   {item}
-                  <span className="absolute -bottom-0.5 left-0 w-0 h-[1px] bg-ink-black transition-[width] duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:w-full" />
                 </Link>
               </li>
             ))}
@@ -98,31 +93,30 @@ export default function Footer() {
         </div>
 
         {/* Help + Subscribe */}
-        <div className="flex flex-col gap-4">
-          <h5 className="font-mono text-[10px] uppercase tracking-[0.12em] text-rule-grey">Help</h5>
+        <div className="flex flex-col gap-5">
+          <h5 className="font-body text-base font-semibold text-ink-black">Help</h5>
           <ul className="flex flex-col gap-3 mb-6">
             {helpLinks.map((item) => (
               <li key={item}>
-                <Link href="#" className="font-body text-[13px] text-ink-black relative group inline-block">
+                <Link href="#" className="font-body text-sm text-gray-600 hover:text-stamp-red transition-colors inline-block">
                   {item}
-                  <span className="absolute -bottom-0.5 left-0 w-0 h-[1px] bg-ink-black transition-[width] duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:w-full" />
                 </Link>
               </li>
             ))}
           </ul>
 
-          {/* Newsletter — flat catalog style */}
-          <h5 className="font-mono text-[10px] uppercase tracking-[0.12em] text-rule-grey">Newsletter</h5>
-          <form onSubmit={handleSubscribe} className="flex border border-rule-grey">
+          {/* Newsletter — modern pill form */}
+          <h5 className="font-body text-base font-semibold text-ink-black mt-2">Newsletter</h5>
+          <form onSubmit={handleSubscribe} className="flex bg-white rounded-full p-1.5 border border-gray-200 shadow-sm mt-1">
             <input
               type="email"
               placeholder="your@email.com"
               required
-              className="flex-1 px-3 py-2.5 bg-paper-white text-ink-black font-mono text-[12px] outline-none border-none placeholder:text-rule-grey"
+              className="flex-1 px-4 py-2 bg-transparent text-ink-black font-body text-sm outline-none border-none placeholder:text-gray-400"
             />
             <button
               type="submit"
-              className="px-4 py-2.5 bg-stamp-red text-white font-mono text-[10px] uppercase tracking-[0.1em] whitespace-nowrap hover:opacity-80 transition-opacity"
+              className="px-6 py-2 bg-stamp-red text-white font-body text-sm font-medium rounded-full hover:bg-stamp-red/90 transition-colors"
             >
               Join
             </button>
@@ -131,13 +125,13 @@ export default function Footer() {
       </div>
 
       {/* Bottom bar */}
-      <div className="border-t border-rule-grey px-4 sm:px-10 lg:px-[5vw] py-5 flex flex-wrap justify-between items-center gap-3">
-        <p className="font-mono text-[11px] text-rule-grey uppercase tracking-[0.08em]">
-          © {new Date().getFullYear()} TOYHOURSE. All Rights Reserved.
+      <div className="border-t border-gray-200 px-4 sm:px-10 lg:px-[5vw] py-6 flex flex-wrap justify-between items-center gap-4">
+        <p className="font-body text-sm text-gray-500">
+          © {new Date().getFullYear()} Toyhourse. All Rights Reserved.
         </p>
         <a
-          href="https//facebook.com/dutta.rimon/"
-          className="font-mono text-[11px] text-stamp-red uppercase tracking-[0.08em] hover:opacity-70 transition-opacity"
+          href="https://facebook.com/dutta.rimon/"
+          className="font-body text-sm font-medium text-stamp-red hover:opacity-70 transition-opacity"
         >
           Developed by Rimon Dutta
         </a>
