@@ -14,17 +14,19 @@
 @theme {
   --color-ink-black: #1F2937;
   /* Text & primary foreground */
-  --color-paper-white: #F9F5FF;
-  /* Main background */
-  --color-paper-grey: #FFFFFF;
-  /* Off-background surfaces */
-  --color-rule-grey: #E5E7EB;
+  --color-paper-white: #F7F7F4;
+  /* Main background - warm off-white */
+  --color-paper-grey: #E4E2DD;
+  /* Off-background surfaces (cards) */
+  --color-rule-grey: #D1CEC5;
   /* Cinematic borders and muted text */
-  --color-stamp-red: #8B5CF6;
-  /* Violet accent */
+  --color-stamp-red: #13513C;
+  /* Deep forest green accent */
+  --color-accent-yellow: #EBF0C8;
+  /* Pale chartreuse */
 
   /* ─── Typography ─── */
-  --font-display: var(--font-big-shoulders), 'Arial Narrow', sans-serif;
+  --font-display: var(--font-playfair), 'Georgia', serif;
   --font-body: var(--font-inter), system-ui, sans-serif;
   --font-mono: var(--font-jetbrains-mono), 'Courier New', monospace;
 
@@ -48,11 +50,11 @@
 
 html {
   scroll-behavior: smooth;
-  background-color: #F9F5FF;
+  background-color: #F7F7F4;
 }
 
 body {
-  background-color: #F9F5FF;
+  background-color: #F7F7F4;
   color: #1F2937;
   font-family: var(--font-body);
   font-weight: 400;

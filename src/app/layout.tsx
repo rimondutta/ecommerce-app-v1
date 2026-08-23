@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Oswald, Inter, JetBrains_Mono } from "next/font/google";
+import { Oswald, Inter, JetBrains_Mono, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import { CartProvider } from "@/components/providers/CartProvider";
 import { WishlistProvider } from "@/components/providers/WishlistProvider";
@@ -27,6 +27,12 @@ const jetbrainsMono = JetBrains_Mono({
   display: "swap",
   variable: "--font-jetbrains-mono",
   weight: ["400", "700"],
+});
+
+const playfair = Playfair_Display({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-playfair",
 });
 
 export const metadata: Metadata = {
@@ -68,18 +74,12 @@ export default function RootLayout({
       lang="en"
       suppressHydrationWarning
       data-scroll-behavior="smooth"
-      className={`${bigShoulders.variable} ${inter.variable} ${jetbrainsMono.variable}`}
+      className={`${bigShoulders.variable} ${inter.variable} ${jetbrainsMono.variable} ${playfair.variable}`}
     >
       <body
         suppressHydrationWarning
         className="relative min-h-screen flex flex-col bg-paper-white text-ink-black font-body selection:bg-stamp-red selection:text-paper-white overflow-x-hidden"
       >
-        {/* ── Ambient glow blobs — appear on every page ── */}
-        <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden" aria-hidden="true">
-          <div className="absolute top-0 left-0 w-[700px] h-[700px] rounded-full bg-purple-300/30 blur-[160px] -translate-x-1/3 -translate-y-1/3" />
-          <div className="absolute bottom-0 right-0 w-[600px] h-[600px] rounded-full bg-blue-300/20 blur-[140px] translate-x-1/3 translate-y-1/3" />
-          <div className="absolute top-1/2 left-1/2 w-[400px] h-[400px] rounded-full bg-violet-200/40 blur-[120px] -translate-x-1/2 -translate-y-1/2" />
-        </div>
         <NextAuthProvider>
           <WishlistProvider>
             <CartProvider>

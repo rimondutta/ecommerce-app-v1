@@ -19,102 +19,86 @@ export default function TopNavbar() {
   React.useEffect(() => setMounted(true), []);
 
   const navLinks = [
-    { label: "SHOP", href: "/products" },
-    { label: "BLOG", href: "/blogs" },
-    { label: "ABOUT", href: "/about" },
-    { label: "CONTACT", href: "/contact" },
-    { label: "APP", href: "/download" },
+    { label: "Shop", href: "/products" },
+    { label: "Bestsellers", href: "/bestsellers" },
+    { label: "Gallery", href: "/gallery" },
+    { label: "About", href: "/about" },
   ];
 
   return (
-    <nav className="sticky top-0 z-50 w-full bg-paper-white/70 backdrop-blur-xl border-b border-violet-500/10" style={{ boxShadow: '0 1px 40px rgba(124,58,237,0.06)' }}>
-      <div className="flex items-center justify-between px-4 sm:px-10 lg:px-[5vw] py-4">
-
-
-        {/* Logo — Oswald Display */}
-        <Link
-          href="/"
-          className="font-display text-[22px] md:text-[26px] uppercase tracking-[-0.02em] text-ink-black leading-none"
-        >
-          TOYHOURSE
-        </Link>
-
-        {/* Desktop — Nav links */}
-        <div className="hidden md:flex items-center gap-8">
-          {navLinks.map((link) => {
-            const active = pathname === link.href || pathname.startsWith(link.href + "/");
-            return (
-              <Link
-                key={link.label}
-                href={link.href}
-                className={cn(
-                  "font-body text-[11px] uppercase tracking-[0.12em] relative group transition-colors duration-200",
-                  active ? "text-ink-black" : "text-rule-grey hover:text-ink-black"
-                )}
-              >
-                {link.label}
-                {/* Hairline active / hover underline */}
-                <span
-                  className={cn(
-                    "absolute -bottom-0.5 left-0 h-[1px] bg-stamp-red transition-[width] duration-300 ease-[cubic-bezier(0.25,1,0.5,1)]",
-                    active ? "w-full" : "w-0 group-hover:w-full"
-                  )}
-                />
-              </Link>
-            );
-          })}
+    <nav className="absolute top-0 z-50 w-full bg-transparent px-4 sm:px-10 lg:px-[5vw] pt-6 pb-4">
+      <div className="flex items-center justify-between">
+        
+        {/* Left — Nav links */}
+        <div className="hidden md:flex items-center gap-6 w-1/3">
+          {navLinks.map((link) => (
+            <Link
+              key={link.label}
+              href={link.href}
+              className="font-body text-sm font-medium text-white hover:text-white/80 transition-colors"
+            >
+              {link.label}
+            </Link>
+          ))}
         </div>
 
-        {/* Icons — Search, Account, Wishlist, Cart */}
-        <div className="flex items-center gap-4 md:gap-5">
-          {/* Search */}
+        {/* Center — Logo (Playfair Display) */}
+        <div className="flex justify-start md:justify-center w-full md:w-1/3">
+          <Link
+            href="/"
+            className="font-display text-3xl md:text-4xl text-white tracking-tight"
+          >
+            Toyhourse
+          </Link>
+        </div>
+
+        {/* Right — Search & Icons */}
+        <div className="flex items-center justify-end gap-3 w-1/3">
+          {/* Search Pill */}
+          <div className="hidden lg:flex items-center gap-2 bg-white/90 backdrop-blur-md rounded-full px-4 py-2 w-64 shadow-sm cursor-text border border-white/20">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6B7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
+            </svg>
+            <span className="text-sm text-gray-500 font-body">Search Product...</span>
+          </div>
+          
+          {/* Mobile Search Icon */}
           <button
             onClick={openSearch}
-            className="hidden md:flex text-ink-black hover:text-rule-grey transition-colors"
+            className="lg:hidden flex items-center justify-center w-10 h-10 rounded-full bg-white/20 backdrop-blur-md text-white border border-white/20 hover:bg-white/30 transition-colors"
             aria-label="Search"
           >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
             </svg>
           </button>
 
-          {/* Account */}
-          <Link
-            href="/account"
-            className="hidden md:flex text-ink-black hover:text-rule-grey transition-colors"
-            aria-label="Account"
-          >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" />
-            </svg>
-          </Link>
-
-          {/* Wishlist */}
-          <Link
-            href="/wishlist"
-            className="hidden md:flex text-ink-black hover:text-rule-grey transition-colors"
-            aria-label="Wishlist"
-          >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-            </svg>
-          </Link>
-
-          {/* Cart — stamp-red count */}
+          {/* Cart Icon (Glassmorphic Circle) */}
           <button
             onClick={openCart}
-            className="relative text-ink-black hover:text-rule-grey transition-colors"
+            className="relative flex items-center justify-center w-10 h-10 rounded-full bg-white/20 backdrop-blur-md text-white border border-white/20 hover:bg-white/30 transition-colors"
             aria-label="Cart"
           >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" /><line x1="3" y1="6" x2="21" y2="6" /><path d="M16 10a4 4 0 0 1-8 0" />
             </svg>
             {mounted && cartCount > 0 && (
-              <span className="absolute -top-2 -right-2 bg-stamp-red text-white font-mono text-[9px] font-bold w-4 h-4 flex items-center justify-center leading-none rounded-full">
+              <span className="absolute -top-1 -right-1 bg-stamp-red text-white font-mono text-[9px] font-bold w-4 h-4 flex items-center justify-center leading-none rounded-full">
                 {cartCount > 9 ? "9+" : cartCount}
               </span>
             )}
           </button>
+
+          {/* Account Icon (Glassmorphic Circle) */}
+          <Link
+            href="/account"
+            className="flex items-center justify-center w-10 h-10 rounded-full bg-white/20 backdrop-blur-md text-white border border-white/20 hover:bg-white/30 transition-colors"
+            aria-label="Account"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" />
+            </svg>
+          </Link>
         </div>
       </div>
     </nav>
