@@ -106,7 +106,7 @@ export default function ProductCardModern({ product, priority = false, index = 1
       animate="rest"
       suppressHydrationWarning
     >
-      {/* ─── Image Container ─── */}
+      <motion.div
         className="relative w-full aspect-[4/5] overflow-hidden bg-paper-grey rounded-[1.5rem] p-4"
         variants={imageVariants}
       >
