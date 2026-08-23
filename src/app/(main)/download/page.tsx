@@ -16,12 +16,12 @@ const features = [
 
 export default function DownloadPage() {
   return (
-    <div className="min-h-screen bg-[#0A0A0F] text-white overflow-x-hidden">
+    <div className="min-h-screen bg-transparent text-ink-black overflow-x-hidden">
 
       {/* ── Ambient glow ── */}
       <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
-        <div className="absolute top-0 left-0 w-[700px] h-[700px] rounded-full bg-violet-700/20 blur-[140px] -translate-x-1/4 -translate-y-1/4" />
-        <div className="absolute bottom-0 right-0 w-[500px] h-[500px] rounded-full bg-rose-700/15 blur-[120px] translate-x-1/4 translate-y-1/4" />
+        <div className="absolute top-0 left-0 w-[700px] h-[700px] rounded-full bg-purple-300/30 blur-[140px] -translate-x-1/4 -translate-y-1/4" />
+        <div className="absolute bottom-0 right-0 w-[500px] h-[500px] rounded-full bg-blue-300/20 blur-[120px] translate-x-1/4 translate-y-1/4" />
       </div>
 
       {/* ── Hero ── */}
@@ -40,14 +40,14 @@ export default function DownloadPage() {
             </div>
 
             {/* Heading */}
-            <h1 className="font-display text-5xl sm:text-6xl lg:text-7xl uppercase leading-[1.05] tracking-tight text-white">
+            <h1 className="font-display text-5xl sm:text-6xl lg:text-7xl uppercase leading-[1.05] tracking-tight text-ink-black">
               Get the<br />
               <span className="text-violet-400">Toy Hourse</span><br />
               App
             </h1>
 
             {/* Description */}
-            <p className="font-body text-base lg:text-lg text-white/60 max-w-md mx-auto lg:mx-0 leading-relaxed">
+            <p className="font-body text-base lg:text-lg text-ink-black/60 max-w-md mx-auto lg:mx-0 leading-relaxed">
               Shop smarter on the go — faster checkout, app-only deals,
               and live order tracking, all in your pocket.
             </p>
@@ -58,31 +58,31 @@ export default function DownloadPage() {
               <a
                 href="/app-release.apk"
                 download
-                className="group flex items-center gap-4 bg-violet-600 hover:bg-violet-500 text-white px-7 py-4 rounded-2xl transition-all duration-300 w-full sm:w-auto justify-center shadow-[0_8px_30px_rgba(124,58,237,0.35)] hover:shadow-[0_12px_40px_rgba(124,58,237,0.55)] hover:-translate-y-0.5"
+                className="group flex items-center gap-4 bg-violet-600 hover:bg-violet-500 text-ink-black px-7 py-4 rounded-2xl transition-all duration-300 w-full sm:w-auto justify-center shadow-[0_8px_30px_rgba(124,58,237,0.35)] hover:shadow-[0_12px_40px_rgba(124,58,237,0.55)] hover:-translate-y-0.5"
               >
                 <FaAndroid className="w-7 h-7 text-green-300 shrink-0" />
                 <div className="flex flex-col items-start text-left">
-                  <span className="text-[10px] font-medium uppercase tracking-widest leading-none text-white/60">Direct Download</span>
+                  <span className="text-[10px] font-medium uppercase tracking-widest leading-none text-ink-black/60">Direct Download</span>
                   <span className="text-lg font-bold leading-snug">Android APK</span>
                 </div>
-                <FaDownload className="w-4 h-4 ml-1 text-white/50 group-hover:text-white transition-colors shrink-0" />
+                <FaDownload className="w-4 h-4 ml-1 text-ink-black/50 group-hover:text-ink-black transition-colors shrink-0" />
               </a>
 
               {/* iOS */}
               <Link
                 href="#ios-coming-soon"
-                className="flex items-center gap-4 bg-white/5 border border-white/10 hover:bg-white/10 text-white px-7 py-4 rounded-2xl transition-all duration-300 w-full sm:w-auto justify-center backdrop-blur-sm"
+                className="flex items-center gap-4 bg-white/5 border border-white/10 hover:bg-white/10 text-ink-black px-7 py-4 rounded-2xl transition-all duration-300 w-full sm:w-auto justify-center backdrop-blur-sm"
               >
                 <FaApple className="w-6 h-6 shrink-0" />
                 <div className="flex flex-col items-start text-left">
-                  <span className="text-[10px] font-medium uppercase tracking-widest leading-none text-white/40">Coming soon</span>
+                  <span className="text-[10px] font-medium uppercase tracking-widest leading-none text-ink-black/40">Coming soon</span>
                   <span className="text-lg font-bold leading-snug">App Store</span>
                 </div>
               </Link>
             </div>
 
             {/* Version info */}
-            <p className="font-mono text-[11px] text-white/30 tracking-widest">
+            <p className="font-mono text-[11px] text-ink-black/30 tracking-widest">
               v1.0.0 &nbsp;·&nbsp; 45 MB &nbsp;·&nbsp; Android 8.0+
             </p>
 
@@ -91,7 +91,7 @@ export default function DownloadPage() {
               <div className="flex gap-0.5">
                 {[1, 2, 3, 4, 5].map(i => <FaStar key={i} className="w-4 h-4 text-amber-400" />)}
               </div>
-              <span className="text-sm text-white/40 font-body">4.9 &nbsp;·&nbsp; 5k+ happy users</span>
+              <span className="text-sm text-ink-black/40 font-body">4.9 &nbsp;·&nbsp; 5k+ happy users</span>
             </div>
           </div>
 
@@ -122,8 +122,8 @@ export default function DownloadPage() {
                   <FaDownload className="w-4 h-4 text-violet-300" />
                 </div>
                 <div>
-                  <p className="font-bold text-white text-sm leading-none">5k+</p>
-                  <p className="font-mono text-[10px] text-white/40 mt-0.5 uppercase tracking-wider">Downloads</p>
+                  <p className="font-bold text-ink-black text-sm leading-none">5k+</p>
+                  <p className="font-mono text-[10px] text-ink-black/40 mt-0.5 uppercase tracking-wider">Downloads</p>
                 </div>
               </div>
 
@@ -135,8 +135,8 @@ export default function DownloadPage() {
                   </svg>
                 </div>
                 <div>
-                  <p className="font-bold text-white text-sm leading-none">Verified</p>
-                  <p className="font-mono text-[10px] text-white/40 mt-0.5 uppercase tracking-wider">Safe APK</p>
+                  <p className="font-bold text-ink-black text-sm leading-none">Verified</p>
+                  <p className="font-mono text-[10px] text-ink-black/40 mt-0.5 uppercase tracking-wider">Safe APK</p>
                 </div>
               </div>
             </div>
@@ -154,8 +154,8 @@ export default function DownloadPage() {
                 <Icon className="w-5 h-5 text-violet-400" />
               </div>
               <div>
-                <h3 className="font-display text-base uppercase text-white tracking-wide mb-1">{label}</h3>
-                <p className="font-body text-sm text-white/40 leading-relaxed">{desc}</p>
+                <h3 className="font-display text-base uppercase text-ink-black tracking-wide mb-1">{label}</h3>
+                <p className="font-body text-sm text-ink-black/40 leading-relaxed">{desc}</p>
               </div>
             </div>
           ))}

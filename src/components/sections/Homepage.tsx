@@ -101,7 +101,7 @@ export default function Homepage({
             <source src="/video/hero-bg.mp4" type="video/mp4" />
           </video>
           {/* Bottom vignette gradient — dark fade to transparent */}
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0F] via-[#0A0A0F]/60 to-transparent md:bg-gradient-to-r md:from-[#0A0A0F] md:via-[#0A0A0F]/80 md:to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-paper-white via-paper-white/60 to-transparent md:bg-gradient-to-r md:from-paper-white md:via-paper-white/80 md:to-transparent" />
         </div>
 
         {/* Hero copy — overlaps the cinematic bg - STATIC for LCP optimization */}
@@ -218,7 +218,7 @@ export default function Homepage({
                     sizes="(max-width: 640px) 80vw, 60vw"
                   />
                 )}
-                <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0F] via-[#0A0A0F]/40 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-paper-white via-paper-white/40 to-transparent" />
                 <div className="absolute inset-0 p-6 flex flex-col justify-end z-10">
                   <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-stamp-red mb-2">
                     EXHIBIT N°{String(i + 1).padStart(3, "0")}

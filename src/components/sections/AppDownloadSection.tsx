@@ -13,8 +13,8 @@ export default function AppDownloadSection() {
       <section className="px-4 sm:px-10 lg:px-[5vw] py-14 md:py-24 bg-paper-grey/60 text-ink-black relative overflow-hidden border-t border-white/5">
         {/* Background Decorative Elements */}
         <div className="absolute top-0 right-0 w-full h-full pointer-events-none">
-          <div className="absolute top-[-20%] right-[-10%] w-[600px] h-[600px] rounded-full bg-violet-600/20 blur-[100px]"></div>
-          <div className="absolute bottom-[-10%] left-[-10%] w-[400px] h-[400px] rounded-full bg-rose-600/15 blur-[80px]"></div>
+          <div className="absolute top-[-20%] right-[-10%] w-[600px] h-[600px] rounded-full bg-purple-300/30 blur-[100px]"></div>
+          <div className="absolute bottom-[-10%] left-[-10%] w-[400px] h-[400px] rounded-full bg-blue-300/20 blur-[80px]"></div>
         </div>
 
         <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-12 lg:gap-20 max-w-7xl mx-auto">
@@ -36,26 +36,24 @@ export default function AppDownloadSection() {
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-4">
-              {/* Apple App Store Button */}
               <Link
                 href="/download"
-                className="group flex items-center gap-4 bg-white text-[#0A0A0F] px-6 py-3.5 rounded-full hover:bg-white/90 transition-colors duration-300 w-full sm:w-auto justify-center shadow-lg"
+                className="group flex items-center gap-4 bg-ink-black text-paper-white px-6 py-3.5 rounded-full hover:opacity-90 transition-opacity duration-300 w-full sm:w-auto justify-center shadow-lg"
               >
                 <FaApple className="w-7 h-7" />
                 <div className="flex flex-col items-start">
-                  <span className="text-[10px] font-medium uppercase tracking-wider leading-none text-[#0A0A0F]/60">Download on the</span>
+                  <span className="text-[10px] font-medium uppercase tracking-wider leading-none text-paper-white/70">Download on the</span>
                   <span className="text-base font-bold font-display leading-tight">App Store</span>
                 </div>
               </Link>
 
-              {/* Google Play / APK Button */}
               <Link
                 href="/download"
-                className="group flex items-center gap-4 bg-transparent border border-white/20 text-white px-6 py-3.5 rounded-full hover:bg-white/10 transition-colors duration-300 w-full sm:w-auto justify-center"
+                className="group flex items-center gap-4 bg-transparent border border-ink-black/20 text-ink-black px-6 py-3.5 rounded-full hover:bg-ink-black/5 transition-colors duration-300 w-full sm:w-auto justify-center"
               >
                 <FaGooglePlay className="w-6 h-6" />
                 <div className="flex flex-col items-start">
-                  <span className="text-[10px] font-medium uppercase tracking-wider leading-none text-white/60">GET IT ON</span>
+                  <span className="text-[10px] font-medium uppercase tracking-wider leading-none text-ink-black/60">GET IT ON</span>
                   <span className="text-base font-bold font-display leading-tight">Google Play</span>
                 </div>
               </Link>
@@ -69,8 +67,8 @@ export default function AppDownloadSection() {
                   </div>
                 ))}
               </div>
-              <div className="text-sm font-body text-white/70">
-                <span className="font-bold text-white">10k+</span> happy users
+              <div className="text-sm font-body text-ink-black/70">
+                <span className="font-bold text-ink-black">10k+</span> happy users
               </div>
             </div>
           </div>

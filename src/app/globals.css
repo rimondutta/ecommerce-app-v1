@@ -12,16 +12,15 @@
    ═══════════════════════════════════════════════════ */
 
 @theme {
-  /* ─── Cinematic Color Tokens (Dark Mode) ─── */
-  --color-ink-black: #F0F0F0;
+  --color-ink-black: #1F2937;
   /* Text & primary foreground */
-  --color-paper-white: #0A0A0F;
+  --color-paper-white: #F9F5FF;
   /* Main background */
-  --color-paper-grey: #0D0D14;
+  --color-paper-grey: #FFFFFF;
   /* Off-background surfaces */
-  --color-rule-grey: #737373;
+  --color-rule-grey: #E5E7EB;
   /* Cinematic borders and muted text */
-  --color-stamp-red: #7C3AED;
+  --color-stamp-red: #8B5CF6;
   /* Violet accent */
 
   /* ─── Typography ─── */
@@ -49,12 +48,12 @@
 
 html {
   scroll-behavior: smooth;
-  background-color: #0A0A0F;
+  background-color: #F9F5FF;
 }
 
 body {
-  background-color: #0A0A0F;
-  color: #F0F0F0;
+  background-color: #F9F5FF;
+  color: #1F2937;
   font-family: var(--font-body);
   font-weight: 400;
   -webkit-font-smoothing: antialiased;
@@ -115,7 +114,7 @@ body {
 
 * {
   scrollbar-width: thin;
-  scrollbar-color: #2A2A2A #0A0A0F;
+  scrollbar-color: #D1D5DB #F9F5FF;
 }
 
 /* ═══════════════════════════════════════

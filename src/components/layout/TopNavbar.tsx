@@ -30,16 +30,6 @@ export default function TopNavbar() {
     <nav className="sticky top-0 z-50 w-full bg-paper-white/70 backdrop-blur-xl border-b border-violet-500/10" style={{ boxShadow: '0 1px 40px rgba(124,58,237,0.06)' }}>
       <div className="flex items-center justify-between px-4 sm:px-10 lg:px-[5vw] py-4">
 
-        {/* Mobile — Hamburger */}
-        <button
-          onClick={openMobileMenu}
-          className="md:hidden flex flex-col gap-[5px] p-1"
-          aria-label="Open menu"
-        >
-          <span className="block w-5 h-[1px] bg-ink-black" />
-          <span className="block w-5 h-[1px] bg-ink-black" />
-          <span className="block w-3 h-[1px] bg-ink-black" />
-        </button>
 
         {/* Logo — Oswald Display */}
         <Link
