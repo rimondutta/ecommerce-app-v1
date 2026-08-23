@@ -83,63 +83,61 @@ export default function Homepage({
     <div className="bg-transparent min-h-screen font-body">
 
       {/* ═══════════════════════════════════════════════
-          1. HERO — cinematic full-bleed exhibit
+          1. HERO — Eco-Friendly Kitchenware
           ═══════════════════════════════════════════════ */}
-      <section className="relative overflow-hidden min-h-[90vh] md:min-h-screen flex items-end md:items-center pb-24 md:pb-0 border-b border-rule-grey">
+      <section className="px-3 sm:px-6 lg:px-8 pt-3 sm:pt-6 pb-12 md:pb-24">
+        <div className="relative rounded-[2rem] md:rounded-[3rem] overflow-hidden min-h-[85vh] flex items-center bg-[#133A2B] shadow-2xl">
+          
+          {/* Cinematic full-bleed video - keeping video but styling like the kitchenware image */}
+          <div className="absolute inset-0 z-0">
+            <video
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload="auto"
+              className="absolute inset-0 w-full h-full object-cover object-center opacity-70 mix-blend-overlay"
+            >
+              <source src="/video/hero-bg.mp4" type="video/mp4" />
+            </video>
+            {/* Gradient overlay for readability — left-aligned dark green fade */}
+            <div className="absolute inset-0 bg-gradient-to-r from-[#0C2A1E]/90 via-[#0C2A1E]/50 to-transparent" />
+          </div>
 
-        {/* Cinematic full-bleed video - STATIC for LCP optimization */}
-        <div className="absolute inset-0 z-0 opacity-40">
-          <div className="absolute inset-0 bg-transparent" />
-          <video
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="auto"
-            className="absolute inset-0 w-full h-full object-cover object-center"
-          >
-            <source src="/video/hero-bg.mp4" type="video/mp4" />
-          </video>
-          {/* Bottom vignette gradient — dark fade to transparent */}
-          <div className="absolute inset-0 bg-gradient-to-t from-paper-white via-paper-white/60 to-transparent md:bg-gradient-to-r md:from-paper-white md:via-paper-white/80 md:to-transparent" />
-        </div>
+          {/* Hero copy */}
+          <div className="relative z-10 px-8 sm:px-16 lg:px-24 w-full md:max-w-3xl text-white mt-12 md:mt-0">
+            <h1 className="font-body text-5xl sm:text-6xl lg:text-[76px] leading-[1.05] tracking-tight font-medium mb-6">
+              Eco-Friendly <br/>
+              <span className="font-display italic font-normal text-white/95">Kitchenware</span> for <br/>
+              a greener home
+            </h1>
 
-        {/* Hero copy — overlaps the cinematic bg - STATIC for LCP optimization */}
-        <div className="relative z-10 px-4 sm:px-10 lg:px-[5vw] w-full md:max-w-[70%]">
-          {/* Section label */}
-          <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-rule-grey mb-6">
-            
-          </p>
+            <p className="font-body text-sm sm:text-base text-white/80 max-w-[360px] mb-10 leading-[1.6]">
+              The eco-friendly kitchenware niche with a sense of urgency, much like the original banner. Let me know if you'd like adjustments!
+            </p>
 
-          {/* Hairline rule draws in */}
-          <div className="h-[1px] w-16 bg-stamp-red mb-6 origin-left" />
-
-          {/* Big display headline — typography-as-object */}
-          <h1
-            className="font-display text-[72px] md:text-[100px] lg:text-[120px] uppercase text-ink-black leading-[0.9] tracking-[-0.02em] mb-8"
-          >
-           Endless Fun <br/> Starts at Toyhourse
-          </h1>
-
-          <p className="font-body text-[14px] text-ink-black leading-[1.8] max-w-[400px] mb-10 opacity-80">
-            Explore premium toys designed to inspire imagination, creativity, and learning. Find the perfect gift for every little adventure.
-          </p>
-
-          {/* CTA — cinematic button */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
             <Link
               href="/products"
-              className="font-mono text-[11px] uppercase tracking-[0.15em] bg-ink-black text-paper-white border border-ink-black px-8 py-4 hover:bg-transparent hover:text-ink-black transition-colors duration-500"
+              className="inline-flex items-center gap-3 bg-accent-yellow text-ink-black px-7 py-3.5 rounded-full font-medium text-sm hover:bg-white transition-colors duration-300 shadow-[0_4px_20px_rgba(235,240,200,0.3)]"
             >
-              Browse Category →
+              Shop now <span className="text-lg leading-none transition-transform group-hover:translate-x-1">→</span>
             </Link>
-            <Link
-              href="/shop"
-              className="font-mono text-[11px] uppercase tracking-[0.1em] text-ink-black relative group"
-            >
-              Shop
-              <span className="absolute -bottom-0.5 left-0 h-[1px] bg-ink-black w-full" />
-            </Link>
+          </div>
+
+          {/* Glassmorphic Stats Card (Desktop Only) */}
+          <div className="hidden lg:flex absolute bottom-12 right-12 w-[280px] p-8 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 text-white flex-col gap-10 shadow-2xl">
+            {/* Leaf Icon Top Right */}
+            <svg className="absolute top-6 right-6 w-6 h-6 text-white/60" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+            </svg>
+            <p className="font-body text-sm leading-[1.6] text-white/90 font-medium">
+              Natural.<br/>
+              Sustainable.<br/>
+              Eco-conscious.
+            </p>
+            <p className="font-display italic text-[80px] leading-none text-white/95">
+              96%
+            </p>
           </div>
         </div>
       </section>
@@ -234,24 +232,23 @@ export default function Homepage({
       )}
 
       {/* ═══════════════════════════════════════════════
-          3. TRENDING — "EXHIBIT" PRODUCT GRID
+          3. TRENDING — Homedine Section
           ═══════════════════════════════════════════════ */}
       <section className="px-4 sm:px-10 lg:px-[5vw] py-16 md:py-24 border-b border-rule-grey">
-        <AnimatedReveal className="mb-10 flex items-baseline gap-6">
+        <AnimatedReveal className="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div>
-            <p className="font-mono text-[10px] uppercase tracking-[0.15em] text-rule-grey mb-2">
-              Explore Our Product
+            <p className="font-body text-gray-500 font-medium mb-1">
+              Eco Essentials Planet-Friendly
             </p>
-            <h2 className="font-display text-[40px] md:text-[56px] uppercase text-ink-black leading-none tracking-[-0.01em]">
-              Trending Now
+            <h2 className="font-body text-[32px] md:text-[40px] text-ink-black leading-tight font-medium tracking-tight">
+              Bestselling <span className="font-display italic font-normal text-4xl md:text-5xl">Products</span>
             </h2>
           </div>
-          <div className="flex-1 h-[1px] bg-rule-grey hidden md:block" />
           <Link
             href="/products"
-            className="hidden md:block font-mono text-[10px] uppercase tracking-[0.12em] text-rule-grey hover:text-ink-black transition-colors whitespace-nowrap"
+            className="hidden md:flex items-center gap-2 font-body text-sm font-semibold text-ink-black hover:text-stamp-red transition-colors whitespace-nowrap group"
           >
-            View All →
+            More products <span className="text-lg leading-none transition-transform group-hover:translate-x-1">→</span>
           </Link>
         </AnimatedReveal>
 
