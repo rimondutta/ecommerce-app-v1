@@ -5,7 +5,6 @@ import { CartProvider } from "@/components/providers/CartProvider";
 import { WishlistProvider } from "@/components/providers/WishlistProvider";
 import SearchProvider from "@/components/providers/SearchProvider";
 import GlobalUI from "@/components/layout/GlobalUI";
-import MobileTabBar from "@/components/layout/MobileTabBar";
 import NextAuthProvider from "@/components/providers/NextAuthProvider";
 import { ToastProvider } from "@/components/playshelf/Toast";
 import FacebookPixel from "@/components/FacebookPixel";
@@ -89,7 +88,6 @@ export default function RootLayout({
                   {children}
                   <GlobalUI />
                   <FacebookPixel />
-                  <MobileTabBar />
                 </ToastProvider>
               </SearchProvider>
             </CartProvider>
