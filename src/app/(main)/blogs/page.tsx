@@ -24,104 +24,115 @@ export const metadata = {
 // Enable ISR to cache the page at the Edge and prevent DB crashes under load
 export const revalidate = 60;
 
-const BlogListingPage = async () => {
+const BlogListingPage = async ({
+  searchParams,
+}: {
+  searchParams: Promise<{ category?: string }>;
+}) => {
+  const { category: currentCategory = "All" } = await searchParams;
   const posts: any = await getBlogs();
+  
+  // Extract unique categories from posts and sort them alphabetically
+  const uniqueCategories = Array.from(
+    new Set(posts.map((p: any) => p.category).filter(Boolean))
+  ).sort() as string[];
+  
+  const displayCategories = ["All", ...uniqueCategories];
+
+  // Filter posts based on selected category
+  const filteredPosts = currentCategory === "All" 
+    ? posts 
+    : posts.filter((p: any) => p.category === currentCategory);
 
   return (
-    <div className="w-full flex-1">
+    <div className="w-full flex-1 bg-[#FAFAFA] min-h-screen pt-20">
+      
       {/* ── Header Container ── */}
-      <div className="border-2 border-[#e4e4e4] p-2.5 m-2.5 mb-12">
-        <div className="bg-[#eeeeee] flex flex-col justify-center px-8 md:px-[140px] gap-4 h-[240px] md:h-[440px]">
-          <h2 className="text-[37px] md:text-[60px] font-bold uppercase text-black leading-tight">
-            The Blog
-          </h2>
-          
-          <div className="flex flex-wrap gap-4 mt-2">
-            {["ALL", "COMPANY", "FASHION", "STYLE", "TRENDS", "BEAUTY"].map((cat, idx) => (
-              <div
+      <div className="flex flex-col items-center text-center justify-center pt-16 pb-20 px-4">
+        <h1 className="font-serif font-light text-[50px] md:text-[80px] text-black tracking-tight leading-none mb-6">
+          The Editorial
+        </h1>
+        <p className="font-body text-zinc-500 max-w-md text-sm leading-relaxed mb-10">
+          Stories, guides, and inspiration for curious kids and the parents who love them.
+        </p>
+        
+        <div className="flex flex-wrap items-center justify-center gap-6 md:gap-10">
+          {displayCategories.map((cat, idx) => {
+            const isActive = currentCategory === cat;
+            return (
+              <Link
+                href={cat === "All" ? "/blogs" : `/blogs?category=${encodeURIComponent(cat)}`}
                 key={cat}
-                className={`relative text-[16px] font-semibold cursor-pointer group ${
-                  idx === 0 ? "text-black" : "text-[#767676] hover:text-black"
+                className={`font-mono text-[10px] uppercase tracking-[0.2em] font-bold cursor-pointer transition-colors ${
+                  isActive ? "text-black border-b border-black pb-1" : "text-zinc-400 hover:text-black border-b border-transparent pb-1"
                 }`}
               >
                 {cat}
-                {idx === 0 && (
-                  <span className="absolute left-0 -bottom-1.5 w-[60%] border-b-2 border-black" />
-                )}
-                {idx !== 0 && (
-                  <span className="absolute left-0 -bottom-1.5 w-0 border-b-2 border-black transition-all duration-200 ease-out group-hover:w-[60%]" />
-                )}
-              </div>
-            ))}
-          </div>
+              </Link>
+            );
+          })}
         </div>
       </div>
 
       {/* ── Blog Post Grid ── */}
-      <div className="px-4 sm:px-[60px] lg:px-[160px] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-[30px] gap-y-[50px]">
-        {posts.map((post: any) => (
-          <div key={post._id.toString()} className="flex flex-col gap-5">
+      <div className="px-4 sm:px-8 lg:px-[5vw] max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 gap-y-16 pb-32">
+        {filteredPosts.map((post: any) => (
+          <div key={post._id.toString()} className="group cursor-pointer flex flex-col gap-6">
             {/* Thumbnail */}
-            <div className="w-full aspect-[4/3] relative overflow-hidden bg-neutral-100">
+            <div className="w-full aspect-[3/4] relative overflow-hidden bg-zinc-200">
               <Link href={`/blogs/${post.slug}`} className="block w-full h-full">
-                <Image
-                  src={post.featuredImage.url}
-                  alt={post.featuredImage.alt || post.title}
-                  fill
-                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                  className="object-cover transition-transform duration-500 hover:scale-105"
-                />
+                {post.featuredImage?.url && (
+                  <Image
+                    src={post.featuredImage.url}
+                    alt={post.featuredImage.alt || post.title}
+                    fill
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03]"
+                  />
+                )}
               </Link>
             </div>
 
             {/* Content */}
-            <div className="flex flex-col gap-2.5">
-              <div className="flex gap-[30px] text-[14px] text-[#767676] uppercase">
-                <p>by {post.author?.name || "admin"}</p>
-                <p>
+            <div className="flex flex-col gap-3">
+              <div className="flex items-center gap-3 font-mono text-[10px] uppercase tracking-[0.2em] font-bold text-zinc-400">
+                <span>{post.category || "Editorial"}</span>
+                <span className="w-1 h-1 rounded-full bg-zinc-300" />
+                <span>
                   {new Date(post.publishedAt || post.createdAt).toLocaleDateString('en-US', {
                     month: 'short',
                     day: 'numeric',
                     year: 'numeric'
                   })}
-                </p>
+                </span>
               </div>
               
-              <div className="mt-1">
-                <Link href={`/blogs/${post.slug}`} className="text-black text-[18px] font-medium hover:underline">
+              <Link href={`/blogs/${post.slug}`}>
+                <h2 className="font-serif text-2xl md:text-3xl text-black leading-snug group-hover:text-[#D5AEFD] transition-colors line-clamp-2">
                   {post.title}
-                </Link>
-              </div>
+                </h2>
+              </Link>
               
-              <div className="text-[14px] text-black/80 mt-1 line-clamp-3">
-                <p>{post.excerpt}</p>
-              </div>
+              <p className="font-body text-sm font-light text-zinc-600 line-clamp-2 leading-relaxed">
+                {post.excerpt}
+              </p>
               
-              <div className="mt-2">
-                <Link 
-                  href={`/blogs/${post.slug}`}
-                  className="text-[14px] uppercase text-black font-medium relative inline-block group"
-                >
-                  Continue Reading
-                  <span className="absolute left-0 -bottom-1.5 w-[70%] border-b-2 border-black transition-all duration-200 ease-out group-hover:w-full" />
-                </Link>
-              </div>
+              <Link 
+                href={`/blogs/${post.slug}`}
+                className="inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.2em] font-bold text-black mt-2 hover:text-zinc-500 transition-colors w-max border-b border-black/20 hover:border-zinc-500 pb-1"
+              >
+                Read Story
+              </Link>
             </div>
           </div>
         ))}
 
-        {posts.length === 0 && (
-          <div className="col-span-full py-20 text-center text-neutral-500">
-            <p>No blog posts found.</p>
+        {filteredPosts.length === 0 && (
+          <div className="col-span-full py-20 text-center text-zinc-400 font-body text-sm">
+            <p>No stories found for this category.</p>
           </div>
         )}
       </div>
-
-      {posts.length > 0 && (
-        <div className="text-center text-[14px] font-medium uppercase mt-[60px] mb-[60px] cursor-pointer hover:text-neutral-600 transition-colors">
-          Show More
-        </div>
-      )}
     </div>
   );
 };

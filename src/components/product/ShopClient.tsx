@@ -7,7 +7,6 @@ import { X, ChevronDown } from "lucide-react";
 import ProductCardNike from "@/components/ui/product-card-nike";
 import { cn } from "@/lib/utils";
 
-// ─── Flat catalog filter row ───────────────────────────────────────────────
 function FilterPill({
   label,
   selected,
@@ -21,10 +20,10 @@ function FilterPill({
     <button
       onClick={onClick}
       className={cn(
-        "font-body text-sm px-4 py-2 rounded-full transition-all duration-200 whitespace-nowrap border",
+        "font-display font-semibold text-sm px-4 py-2 rounded-xl transition-all duration-200 whitespace-nowrap",
         selected
-          ? "bg-stamp-red text-white border-stamp-red"
-          : "bg-white text-gray-700 border-gray-200 hover:border-gray-400"
+          ? "bg-joy-cobalt text-white shadow-[0_4px_12px_rgba(45,91,227,0.3)]"
+          : "bg-joy-mist text-joy-navy hover:bg-joy-cobalt/10 hover:text-joy-cobalt"
       )}
     >
       {label}
@@ -36,15 +35,15 @@ function SidebarFilterItem({ label, selected, onClick }: { label: string; select
   return (
     <button
       onClick={onClick}
-      className="flex items-center gap-3 w-full group py-1"
+      className="flex items-center gap-3 w-full group py-1.5"
     >
       <div className={cn(
-        "w-4 h-4 rounded border flex items-center justify-center transition-colors",
-        selected ? "bg-stamp-red border-stamp-red" : "border-gray-300 group-hover:border-gray-400 bg-white"
+        "w-4 h-4 rounded-md border-2 flex items-center justify-center transition-all",
+        selected ? "bg-joy-cobalt border-joy-cobalt" : "border-joy-rule bg-white group-hover:border-joy-cobalt/50"
       )}>
-        {selected && <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg>}
+        {selected && <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg>}
       </div>
-      <span className={cn("font-body text-sm transition-colors", selected ? "text-ink-black font-medium" : "text-gray-600 group-hover:text-ink-black")}>
+      <span className={cn("font-display font-medium text-sm transition-colors", selected ? "text-joy-navy" : "text-joy-muted group-hover:text-joy-navy")}>
         {label}
       </span>
     </button>
@@ -55,7 +54,7 @@ function ShopContent({ initialProducts }: { initialProducts: any[] }) {
   const [products] = useState<any[]>(initialProducts);
   const searchParams = useSearchParams();
   const router = useRouter();
-  const reduced = useReducedMotion();
+  const reduced = useReducedMotion() ?? false;
 
   const categoryParam = searchParams.get("category");
   const ageParam = searchParams.get("age");
@@ -107,35 +106,35 @@ function ShopContent({ initialProducts }: { initialProducts: any[] }) {
   const activeFilterCount = [selectedCategory, selectedAge].filter(Boolean).length;
 
   return (
-    <div suppressHydrationWarning className="flex-1 bg-transparent min-h-screen text-ink-black font-body">
+    <div suppressHydrationWarning className="flex-1 bg-joy-cream min-h-screen text-joy-navy font-body">
 
       {/* ─── Top Utility Bar ─── */}
-      <section className="relative bg-paper-white/80 pb-4 pt-32 lg:pt-36">
+      <section className="relative bg-joy-cream pb-4 pt-32 lg:pt-36">
 
         {/* Page title row */}
-        <div className="px-4 sm:px-10 lg:px-[5vw] py-5 flex items-end justify-between border-b border-gray-200">
-          <h1 className="font-body text-4xl md:text-5xl text-ink-black font-medium tracking-tight">
+        <div className="px-4 sm:px-8 lg:px-[5vw] py-5 flex items-end justify-between border-b border-joy-rule">
+          <h1 className="font-display font-bold text-4xl md:text-5xl text-joy-navy tracking-tight">
             {selectedCategory || "All Toys"}
           </h1>
-          <span className="font-body text-sm text-gray-500 mb-1">
+          <span className="font-body text-sm text-joy-muted mb-1">
             {filteredProducts.length} products
           </span>
         </div>
 
         {/* Filter + sort strip */}
-        <div className="px-4 sm:px-10 lg:px-[5vw] py-4 flex items-center justify-between">
+        <div className="px-4 sm:px-8 lg:px-[5vw] py-4 flex items-center justify-between gap-4">
 
           {/* Mobile: Filters button */}
           <button
             onClick={() => setIsMobileFiltersOpen(true)}
             className={cn(
-              "lg:hidden flex items-center gap-2 font-body text-sm px-4 py-2 border rounded-full transition-colors",
-              activeFilterCount > 0 ? "border-stamp-red text-stamp-red bg-stamp-red/5" : "border-gray-300 text-gray-700 hover:border-gray-400"
+              "lg:hidden flex items-center gap-2 font-display font-semibold text-sm px-4 py-2.5 rounded-xl border-2 transition-all",
+              activeFilterCount > 0 ? "border-joy-cobalt text-joy-cobalt bg-joy-cobalt/5" : "border-joy-rule text-joy-navy hover:border-joy-cobalt/50"
             )}
           >
             Filters
             {activeFilterCount > 0 && (
-              <span className="bg-stamp-red text-white w-5 h-5 rounded-full flex items-center justify-center text-xs font-medium">{activeFilterCount}</span>
+              <span className="bg-joy-cobalt text-white w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold">{activeFilterCount}</span>
             )}
           </button>
 
@@ -158,12 +157,12 @@ function ShopContent({ initialProducts }: { initialProducts: any[] }) {
 
           {/* Sort */}
           <div className="relative flex items-center gap-3 shrink-0">
-            <span className="font-body text-sm text-gray-500 hidden sm:block">Sort by:</span>
+            <span className="font-display font-medium text-sm text-joy-muted hidden sm:block">Sort by:</span>
             <div className="relative">
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="appearance-none font-body text-sm font-medium text-ink-black bg-transparent py-2 pr-8 focus:outline-none cursor-pointer"
+                className="appearance-none font-display font-semibold text-sm text-joy-navy bg-joy-mist px-4 py-2 pr-8 rounded-xl focus:outline-none focus:ring-2 focus:ring-joy-cobalt/30 cursor-pointer"
                 suppressHydrationWarning
               >
                 <option value="featured">Featured</option>
@@ -171,7 +170,7 @@ function ShopContent({ initialProducts }: { initialProducts: any[] }) {
                 <option value="price-low">Price: Low to High</option>
                 <option value="price-high">Price: High to Low</option>
               </select>
-              <ChevronDown size={14} className="absolute right-0 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+              <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-joy-muted pointer-events-none" />
             </div>
           </div>
 
@@ -179,22 +178,22 @@ function ShopContent({ initialProducts }: { initialProducts: any[] }) {
           {(selectedCategory || selectedAge) && (
             <button
               onClick={clearFilters}
-              className="hidden lg:flex items-center gap-1 font-body text-sm text-stamp-red hover:text-stamp-red/80 ml-4"
+              className="hidden lg:flex items-center gap-1 font-display font-semibold text-sm text-joy-coral hover:text-joy-coral/70 ml-2"
             >
-              <X size={14} /> Clear All
+              <X size={14} /> Clear
             </button>
           )}
         </div>
       </section>
 
-      <div className="px-4 sm:px-10 lg:px-[5vw] py-10 flex flex-col lg:flex-row gap-10">
+      <div className="px-4 sm:px-8 lg:px-[5vw] py-10 flex flex-col lg:flex-row gap-10">
 
         {/* ─── Desktop Sidebar ─── */}
         <aside className="hidden lg:block w-56 shrink-0">
-          <div className="sticky top-32 space-y-10">
+          <div className="sticky top-32 space-y-8 bg-white border border-joy-rule rounded-2xl p-6">
 
-            <div className="space-y-4">
-              <h4 className="font-body text-base font-medium text-ink-black">Categories</h4>
+            <div className="space-y-3">
+              <h4 className="font-display font-bold text-joy-navy text-sm uppercase tracking-wide">Category</h4>
               <div className="space-y-1">
                 <SidebarFilterItem label="All Products" selected={!selectedCategory} onClick={() => updateFilters("category", null)} />
                 {categories.map((cat) => (
@@ -208,8 +207,10 @@ function ShopContent({ initialProducts }: { initialProducts: any[] }) {
               </div>
             </div>
 
-            <div className="space-y-4">
-              <h4 className="font-body text-base font-medium text-ink-black">Age Range</h4>
+            <div className="border-t border-joy-rule" />
+
+            <div className="space-y-3">
+              <h4 className="font-display font-bold text-joy-navy text-sm uppercase tracking-wide">Age Range</h4>
               <div className="space-y-1">
                 {ageRanges.map((age) => (
                   <SidebarFilterItem
@@ -228,7 +229,7 @@ function ShopContent({ initialProducts }: { initialProducts: any[] }) {
         {/* ─── Product Grid ─── */}
         <div className="flex-1">
           {filteredProducts.length > 0 ? (
-            <div className="grid grid-cols-2 lg:grid-cols-3 gap-x-4 sm:gap-x-8 gap-y-10 sm:gap-y-14">
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-x-4 sm:gap-x-6 gap-y-8 sm:gap-y-12">
               {filteredProducts.map((product: any, idx: number) => (
                 <ProductCardNike
                   key={product._id}
@@ -239,13 +240,19 @@ function ShopContent({ initialProducts }: { initialProducts: any[] }) {
               ))}
             </div>
           ) : (
-            <div className="flex flex-col items-center justify-center py-24 text-center">
-              <p className="font-body text-xl font-medium text-gray-500 mb-6">
-                No items match your selected filters.
+            <div className="flex flex-col items-center justify-center py-24 text-center gap-4">
+              <div className="w-16 h-16 rounded-2xl bg-joy-mist flex items-center justify-center text-3xl">
+                🧸
+              </div>
+              <p className="font-display font-semibold text-xl text-joy-navy">
+                Nothing here yet.
+              </p>
+              <p className="font-body text-joy-muted text-sm">
+                Try adjusting your filters to find what you're looking for.
               </p>
               <button
                 onClick={clearFilters}
-                className="bg-ink-black text-white px-6 py-3 rounded-full font-body text-sm font-medium hover:bg-ink-black/80 transition-colors"
+                className="bg-joy-cobalt text-white px-6 py-3 rounded-xl font-display font-bold text-sm hover:bg-joy-cobalt/90 transition-colors shadow-[0_4px_16px_rgba(45,91,227,0.3)]"
               >
                 Clear all filters
               </button>
@@ -268,11 +275,11 @@ function ShopContent({ initialProducts }: { initialProducts: any[] }) {
               animate={reduced ? { opacity: 1 } : { y: 0 }}
               exit={reduced ? { opacity: 0 } : { y: "100%" }}
               transition={{ type: "spring", damping: 28, stiffness: 220 }}
-              className="fixed inset-x-0 bottom-0 h-[80vh] bg-paper-white z-[1001] flex flex-col overflow-hidden border-t border-rule-grey"
+              className="fixed inset-x-0 bottom-0 h-[82vh] bg-joy-cream z-[1001] flex flex-col overflow-hidden rounded-t-3xl shadow-[0_-20px_60px_rgba(26,31,58,0.15)]"
             >
-              <div className="flex justify-between items-center px-6 py-5 border-b border-gray-100">
-                <h2 className="font-body text-xl font-medium text-ink-black">Filters</h2>
-                <button onClick={() => setIsMobileFiltersOpen(false)} className="text-gray-400 hover:text-ink-black transition-colors bg-gray-100 p-2 rounded-full">
+              <div className="flex justify-between items-center px-6 py-5 border-b border-joy-rule">
+                <h2 className="font-display font-bold text-xl text-joy-navy">Filters</h2>
+                <button onClick={() => setIsMobileFiltersOpen(false)} className="text-joy-muted hover:text-joy-navy transition-colors bg-joy-mist p-2 rounded-xl">
                   <X size={20} />
                 </button>
               </div>
@@ -330,17 +337,17 @@ function ShopContent({ initialProducts }: { initialProducts: any[] }) {
                 </div>
               </div>
 
-              <div className="p-6 border-t border-gray-200 bg-white space-y-3 shadow-[0_-10px_20px_rgba(0,0,0,0.05)]">
+              <div className="p-6 border-t border-joy-rule bg-white space-y-3">
                 <button
-                  className="w-full bg-ink-black text-white font-body text-sm font-medium py-4 rounded-full hover:bg-ink-black/90 transition-colors"
+                  className="w-full bg-joy-cobalt text-white font-display font-bold text-sm py-4 rounded-xl hover:bg-joy-cobalt/90 transition-colors shadow-[0_4px_16px_rgba(45,91,227,0.3)]"
                   onClick={() => setIsMobileFiltersOpen(false)}
                 >
-                  View {filteredProducts.length} Products
+                  View {filteredProducts.length} {filteredProducts.length === 1 ? "Product" : "Products"}
                 </button>
                 {(selectedCategory || selectedAge) && (
                   <button
                     onClick={() => { clearFilters(); setIsMobileFiltersOpen(false); }}
-                    className="w-full py-2 font-body text-sm font-medium text-stamp-red hover:opacity-70 transition-opacity"
+                    className="w-full py-2 font-display font-semibold text-sm text-joy-coral hover:opacity-70 transition-opacity"
                   >
                     Clear all filters
                   </button>

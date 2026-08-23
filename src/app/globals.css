@@ -7,41 +7,48 @@
 @import "swiper/css/navigation";
 
 /* ═══════════════════════════════════════════════════
-   PLAYSHELF — Cinematic Design System
-   "An immersive, dramatic toy catalog"
+   TOYHOURSE — Joy Lab Design System
+   "Premium toy brand. Tactile, colorful, confident."
    ═══════════════════════════════════════════════════ */
 
 @theme {
-  --color-ink-black: #1F2937;
-  /* Text & primary foreground */
-  --color-paper-white: #F7F7F4;
-  /* Main background - warm off-white */
-  --color-paper-grey: #E4E2DD;
-  /* Off-background surfaces (cards) */
-  --color-rule-grey: #D1CEC5;
-  /* Cinematic borders and muted text */
-  --color-stamp-red: #13513C;
-  /* Deep forest green accent */
-  --color-accent-yellow: #EBF0C8;
-  /* Pale chartreuse */
+  /* ─── Joy Lab Palette ─── */
+  --color-joy-cream:   #FEFAF3; /* Base background — warmer than white */
+  --color-joy-navy:    #1A1F3A; /* Primary text + dark surfaces */
+  --color-joy-cobalt:  #043224; /* Primary brand color — dark hunter green */
+  --color-joy-coral:   #FF5533; /* CTAs, badges, urgency */
+  --color-joy-sun:     #FFB800; /* Stars, promos, warmth */
+  --color-joy-mist:    #EEF0F7; /* Card surfaces, hover backgrounds */
+  --color-joy-rule:    #D8DAE8; /* Borders, dividers */
+  --color-joy-muted:   #6B7280; /* Secondary text */
+
+  /* ─── Semantic aliases (used in components) ─── */
+  --color-ink-black:   #1A1F3A;
+  --color-paper-white: #FEFAF3;
+  --color-paper-grey:  #EEF0F7;
+  --color-rule-grey:   #D8DAE8;
+  --color-stamp-red:   #FF5533; /* re-mapped to coral for CTAs */
+  --color-accent-yellow: #FFB800;
 
   /* ─── Typography ─── */
-  --font-display: var(--font-playfair), 'Georgia', serif;
-  --font-body: var(--font-inter), system-ui, sans-serif;
-  --font-mono: var(--font-jetbrains-mono), 'Courier New', monospace;
+  --font-display: var(--font-dm-sans), 'system-ui', sans-serif;
+  --font-body:    var(--font-inter), system-ui, sans-serif;
+  --font-mono:    var(--font-jetbrains-mono), 'Courier New', monospace;
+  --font-serif:   var(--font-playfair), 'Georgia', serif;
 
-  /* ─── Radii ─── */
+  /* ─── Radii — rounded but not bubbly ─── */
   --radius-none: 0px;
-  --radius-sm: 0px;
-  --radius-md: 0px;
-  --radius-lg: 0px;
-  --radius-xl: 0px;
-  --radius-2xl: 0px;
-  --radius-3xl: 0px;
-  --radius: 0px;
+  --radius-sm:   4px;
+  --radius-md:   8px;
+  --radius-lg:   12px;
+  --radius-xl:   16px;
+  --radius-2xl:  24px;
+  --radius-3xl:  32px;
+  --radius:      8px;
 
-  /* ─── Easing — Slower, cinematic smooth motion ─── */
-  --ease-catalog: cubic-bezier(0.25, 1, 0.5, 1);
+  /* ─── Easing ─── */
+  --ease-joy:     cubic-bezier(0.34, 1.56, 0.64, 1); /* spring-like */
+  --ease-smooth:  cubic-bezier(0.25, 1, 0.5, 1);
 }
 
 /* ═══════════════════════════════════════
@@ -50,12 +57,12 @@
 
 html {
   scroll-behavior: smooth;
-  background-color: #F7F7F4;
+  background-color: #FEFAF3;
 }
 
 body {
-  background-color: #F7F7F4;
-  color: #1F2937;
+  background-color: #FEFAF3;
+  color: #1A1F3A;
   font-family: var(--font-body);
   font-weight: 400;
   -webkit-font-smoothing: antialiased;
@@ -65,8 +72,8 @@ body {
 }
 
 ::selection {
-  background-color: #F5F5F5;
-  color: #050505;
+  background-color: #043224;
+  color: #FEFAF3;
 }
 
 /* ═══════════════════════════════════════
@@ -85,42 +92,48 @@ body {
   font-family: var(--font-mono);
 }
 
+.font-serif {
+  font-family: var(--font-serif);
+}
+
 /* ═══════════════════════════════════════
-   Focus Rings (Accessibility)
+   Focus Rings (Accessibility — WCAG AA)
    ═══════════════════════════════════════ */
 
 :focus-visible {
-  outline: 1px solid #F5F5F5;
-  outline-offset: 2px;
+  outline: 2px solid #043224;
+  outline-offset: 3px;
+  border-radius: 4px;
 }
 
 /* ═══════════════════════════════════════
-   Custom Scrollbar (Cinematic)
+   Custom Scrollbar
    ═══════════════════════════════════════ */
 
 ::-webkit-scrollbar {
-  width: 4px;
+  width: 5px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #050505;
+  background: #EEF0F7;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #2A2A2A;
+  background: #D8DAE8;
+  border-radius: 99px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #7C3AED;
+  background: #2D5BE3;
 }
 
 * {
   scrollbar-width: thin;
-  scrollbar-color: #D1D5DB #F9F5FF;
+  scrollbar-color: #D8DAE8 #EEF0F7;
 }
 
 /* ═══════════════════════════════════════
-   Horizontal Scroll
+   Horizontal Scroll Utilities
    ═══════════════════════════════════════ */
 
 .scroll-snap-x {
@@ -129,7 +142,7 @@ body {
   -webkit-overflow-scrolling: touch;
 }
 
-.scroll-snap-x>* {
+.scroll-snap-x > * {
   scroll-snap-align: start;
 }
 
@@ -147,7 +160,7 @@ body {
 }
 
 /* ═══════════════════════════════════════
-   Utility
+   Line Clamp
    ═══════════════════════════════════════ */
 
 .line-clamp-1 {
@@ -166,18 +179,17 @@ body {
   line-clamp: 2;
 }
 
-/* Form resets for dark sections */
-.section-light input,
-.section-light textarea,
-.section-light select {
-  background-color: #050505;
-  border-color: #2A2A2A;
-  color: #F5F5F5;
+/* ═══════════════════════════════════════
+   Joy Pop — Signature Interaction
+   ═══════════════════════════════════════ */
+
+.joy-card-shadow {
+  box-shadow: 0 2px 8px rgba(26,31,58,0.06), 0 0 0 1px rgba(26,31,58,0.04);
+  transition: box-shadow 0.4s cubic-bezier(0.25,1,0.5,1), transform 0.4s cubic-bezier(0.25,1,0.5,1);
 }
 
-.section-light input::placeholder,
-.section-light textarea::placeholder {
-  color: #2A2A2A;
+.joy-card-shadow:hover {
+  box-shadow: 0 20px 48px rgba(26,31,58,0.14), 0 0 0 1px rgba(26,31,58,0.06);
 }
 
 /* ═══════════════════════════════════════
@@ -185,7 +197,6 @@ body {
    ═══════════════════════════════════════ */
 
 @media (prefers-reduced-motion: reduce) {
-
   *,
   *::before,
   *::after {
@@ -196,21 +207,25 @@ body {
   }
 }
 
+/* ═══════════════════════════════════════
+   Keyframes
+   ═══════════════════════════════════════ */
 
 @keyframes gradientMove {
-  0% {
-    background-position: 0% 50%;
-  }
-
-  50% {
-    background-position: 100% 50%;
-  }
-
-  100% {
-    background-position: 0% 50%;
-  }
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
 .animate-gradient {
   animation: gradientMove 4s linear infinite;
+}
+
+@keyframes joyBounce {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-4px); }
+}
+
+.animate-joy-bounce {
+  animation: joyBounce 2s ease-in-out infinite;
 }

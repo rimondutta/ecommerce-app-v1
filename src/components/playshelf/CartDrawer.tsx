@@ -49,7 +49,7 @@ export default function CartDrawer() {
                 <h2 className="font-display text-[32px] uppercase text-ink-black leading-none tracking-[-0.01em]">
                   Your Cart
                 </h2>
-                <p className="font-mono text-[11px] text-rule-grey uppercase tracking-[0.12em] mt-1">
+                <p className="font-mono text-[11px] text-rule-black uppercase tracking-[0.12em] mt-1">
                   {count} {count === 1 ? "item" : "items"}
                 </p>
               </div>
@@ -86,10 +86,10 @@ export default function CartDrawer() {
                   <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" className="text-rule-grey">
                     <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" /><line x1="3" y1="6" x2="21" y2="6" /><path d="M16 10a4 4 0 0 1-8 0" />
                   </svg>
-                  <p className="font-body text-[14px] text-rule-grey">Your cart is empty.</p>
+                  <p className="font-body text-[14px] text-[#043224]">Your cart is empty.</p>
                   <button
                     onClick={closeCart}
-                    className="font-mono text-[11px] uppercase tracking-[0.1em] text-ink-black border border-ink-black px-5 py-2.5 hover:bg-ink-black hover:text-paper-white transition-colors"
+                    className="font-mono text-[11px] uppercase tracking-[0.1em] text-[#043224] border border-[#043224] px-5 py-2.5 hover:bg-[#043224]/90 hover:text-white transition-colors cursor-pointer"
                   >
                     Continue Shopping
                   </button>
@@ -169,14 +169,14 @@ export default function CartDrawer() {
             {items.length > 0 && (
               <div className="border-t border-rule-grey px-6 py-6 space-y-4 bg-paper-grey">
                 <div className="flex justify-between items-baseline">
-                  <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-rule-grey">Subtotal</span>
-                  <span className="font-mono text-[20px] text-ink-black">৳{total.toLocaleString()}</span>
+                  <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-[#043224]">Subtotal</span>
+                  <span className="font-mono text-[20px] text-[#043224]">৳{total.toLocaleString()}</span>
                 </div>
-                <p className="font-mono text-[10px] text-rule-grey uppercase tracking-[0.08em]">
+                <p className="font-mono text-[10px] text-[#043224] uppercase tracking-[0.08em]">
                   Shipping & taxes calculated at checkout.
                 </p>
                 <Link href="/checkout" onClick={closeCart} className="block">
-                  <button className="w-full bg-ink-black text-paper-white font-mono text-[11px] uppercase tracking-[0.15em] py-4 hover:bg-rule-grey hover:text-ink-black transition-colors duration-200">
+                  <button className="w-full bg-[#043224] text-white font-mono text-[11px] uppercase tracking-[0.15em] py-4 hover:bg-[#043224]/90 hover:text-white transition-colors cursor-pointer duration-200">
                     Proceed to Checkout →
                   </button>
                 </Link>

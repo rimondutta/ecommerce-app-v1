@@ -34,107 +34,89 @@ const SingleBlogPage = async ({
   }
 
   return (
-    <div className="w-full flex-1 pb-20">
-      <div className="max-w-[800px] mx-auto px-4 sm:px-6 pt-12 md:pt-20">
+    <div className="w-full flex-1 bg-[#FAFAFA] min-h-screen pb-32 pt-20">
+      
+      {/* ── Header Container ── */}
+      <div className="max-w-4xl mx-auto px-4 sm:px-8 pt-16 pb-12 flex flex-col items-center text-center">
+        <div className="flex items-center gap-3 font-mono text-[10px] uppercase tracking-[0.2em] font-bold text-zinc-400 mb-8">
+          <span>{post.category || "Editorial"}</span>
+          <span className="w-1 h-1 rounded-full bg-zinc-300" />
+          <span>
+            {new Date(post.publishedAt || post.createdAt).toLocaleDateString('en-US', {
+              month: 'short',
+              day: 'numeric',
+              year: 'numeric'
+            })}
+          </span>
+          <span className="w-1 h-1 rounded-full bg-zinc-300" />
+          <span>BY {post.author?.name || "admin"}</span>
+        </div>
         
-        {/* ── Heading & Meta ── */}
-        <div className="text-center mb-10 flex flex-col items-center">
-          <h1 className="text-3xl md:text-[45px] font-bold text-black leading-tight mb-6">
-            {post.title}
-          </h1>
-          <div className="flex flex-wrap items-center justify-center gap-4 text-sm text-[#767676] uppercase tracking-wide">
-            <span>by {post.author?.name || "admin"}</span>
-            <span>
-              {new Date(post.publishedAt || post.createdAt).toLocaleDateString('en-US', {
-                month: 'short',
-                day: 'numeric',
-                year: 'numeric'
-              })}
-            </span>
-            <span>{post.category}</span>
+        <h1 className="font-serif font-light text-[45px] md:text-[70px] text-black tracking-tight leading-tight mb-8">
+          {post.title}
+        </h1>
+      </div>
+
+      {/* ── Featured Image ── */}
+      {post.featuredImage?.url && (
+        <div className="w-full max-w-[1200px] mx-auto px-4 sm:px-8 mb-20">
+          <div className="relative w-full aspect-[16/9] md:aspect-[21/9] overflow-hidden bg-zinc-200">
+            <Image
+              src={post.featuredImage.url}
+              alt={post.featuredImage.alt || post.title}
+              fill
+              sizes="(max-width: 1200px) 100vw, 1200px"
+              className="object-cover"
+              priority
+            />
           </div>
         </div>
+      )}
 
-        {/* ── Featured Image ── */}
-        <div className="relative w-full aspect-[16/9] md:aspect-[2/1] mb-12">
-          <Image
-            src={post.featuredImage.url}
-            alt={post.featuredImage.alt || post.title}
-            fill
-            sizes="(max-width: 800px) 100vw, 800px"
-            className="object-cover"
-            priority
-          />
-        </div>
-
-        {/* ── Content Body ── */}
-        <div className="prose prose-lg max-w-none prose-p:text-[#444] prose-p:leading-relaxed prose-headings:font-semibold prose-headings:text-black">
+      {/* ── Content Body ── */}
+      <div className="max-w-3xl mx-auto px-4 sm:px-8">
+        <div className="prose prose-lg md:prose-xl max-w-none prose-p:font-body prose-p:font-light prose-p:text-zinc-700 prose-p:leading-relaxed prose-headings:font-serif prose-headings:font-light prose-headings:text-black prose-a:text-[#043224] prose-a:underline prose-li:font-body prose-li:font-light prose-li:text-zinc-700">
           {post.content.split('\n\n').map((paragraph: string, i: number) => {
             if (paragraph.startsWith('# ')) {
-              return <h2 key={i} className="text-3xl mt-12 mb-6">{paragraph.replace('# ', '')}</h2>;
+              return <h2 key={i} className="text-4xl mt-16 mb-8 tracking-tight">{paragraph.replace('# ', '')}</h2>;
             }
             if (paragraph.startsWith('## ')) {
-              return <h3 key={i} className="text-2xl mt-10 mb-4">{paragraph.replace('## ', '')}</h3>;
+              return <h3 key={i} className="text-3xl mt-12 mb-6 tracking-tight">{paragraph.replace('## ', '')}</h3>;
             }
             if (paragraph.startsWith('- ')) {
-               return <li key={i} className="ml-6 list-disc mb-2">{paragraph.replace('- ', '')}</li>;
+               return <li key={i} className="ml-6 list-disc mb-3">{paragraph.replace('- ', '')}</li>;
             }
-            return <p key={i} className="mb-6">{paragraph}</p>;
+            return <p key={i} className="mb-8">{paragraph}</p>;
           })}
         </div>
 
         {/* ── Tags ── */}
         {post.tags && post.tags.length > 0 && (
-          <div className="flex flex-wrap gap-2 mt-12 pt-8 border-t border-neutral-200">
+          <div className="flex flex-wrap gap-3 mt-16 pt-12 border-t border-black/10">
             {post.tags.map((tag: string) => (
-              <span key={tag} className="text-xs uppercase bg-neutral-100 px-3 py-1 text-neutral-600">
+              <span key={tag} className="font-mono text-[10px] uppercase tracking-[0.1em] font-bold text-zinc-500 bg-zinc-100 px-4 py-2">
                 {tag}
               </span>
             ))}
           </div>
         )}
 
-        {/* ── Share Buttons ── */}
-        <div className="flex flex-wrap items-center gap-4 mt-10">
-          <button className="flex items-center gap-2 bg-[#3b5998] text-white px-4 py-2 text-sm font-medium hover:opacity-90 transition-opacity">
-            <FaFacebookF /> Share on Facebook
-          </button>
-          <button className="flex items-center gap-2 bg-black text-white px-4 py-2 text-sm font-medium hover:opacity-90 transition-opacity">
-            <FaXTwitter /> Share on Twitter
-          </button>
-          <button className="flex items-center gap-2 bg-[#cb2027] text-white px-4 py-2 text-sm font-medium hover:opacity-90 transition-opacity">
-            <FaPinterest /> Share on Pinterest
-          </button>
-          <button className="flex items-center justify-center bg-neutral-200 text-black w-9 h-9 rounded hover:bg-neutral-300 transition-colors">
-            <FaPlus size={16} />
-          </button>
-        </div>
-
-        {/* ── Next / Prev Navigation ── */}
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 mt-16 pt-10 border-t border-neutral-200">
-          <Link href="/blogs" className="group flex flex-col gap-2 cursor-pointer w-full md:w-1/2">
-            <div className="flex items-center gap-2 text-sm text-[#767676] font-medium tracking-widest transition-colors group-hover:text-black">
-              <GoChevronLeft size={18} />
-              <p>PREVIOUS POST</p>
+        {/* ── Navigation ── */}
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-8 mt-24 pt-12 border-t border-black/10">
+          <Link href="/blogs" className="group flex flex-col items-center sm:items-start gap-3 cursor-pointer">
+            <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.2em] font-bold text-zinc-400 group-hover:text-black transition-colors">
+              <GoChevronLeft size={16} />
+              <span>Back to Editorial</span>
             </div>
-            <p className="text-black font-semibold line-clamp-1 transition-colors group-hover:underline">
-              Return to Archives
-            </p>
           </Link>
           
-          <div className="hidden md:block w-px h-16 bg-neutral-200" />
-
-          <Link href="/blogs" className="group flex flex-col items-end gap-2 cursor-pointer w-full md:w-1/2 text-right">
-            <div className="flex items-center gap-2 text-sm text-[#767676] font-medium tracking-widest transition-colors group-hover:text-black">
-              <p>NEXT POST</p>
-              <GoChevronRight size={18} />
+          <Link href="/blogs" className="group flex flex-col items-center sm:items-end gap-3 cursor-pointer">
+            <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.2em] font-bold text-zinc-400 group-hover:text-black transition-colors">
+              <span>Next Article</span>
+              <GoChevronRight size={16} />
             </div>
-            <p className="text-black font-semibold line-clamp-1 transition-colors group-hover:underline">
-              Discover More
-            </p>
           </Link>
         </div>
-
       </div>
     </div>
   );

@@ -21,7 +21,7 @@ export default function Button({
       className={cn(
         "inline-flex items-center justify-center font-semibold transition-colors duration-200 cursor-pointer border",
         // variants
-        variant === "default" && "bg-black text-white border-black hover:bg-neutral-800",
+        variant === "default" && "bg-[#043224] text-white border-[#043224] hover:bg-[#043224]/90",
         variant === "outline" && "bg-transparent text-black border-black hover:bg-black hover:text-white",
         variant === "ghost" && "bg-transparent text-black border-transparent hover:bg-neutral-100",
         // sizes

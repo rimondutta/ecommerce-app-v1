@@ -8,33 +8,10 @@ import ProductGridNike from "@/components/ui/product-grid-nike";
 import AnimatedReveal from "@/components/ui/AnimatedReveal";
 import dynamic from "next/dynamic";
 import AppDownloadSection from "./AppDownloadSection";
+import { ArrowRight, Truck, RotateCcw, Headphones, Star } from "lucide-react";
 
 const DynamicInstagramSection = dynamic(() => import("./InstagramSection"), { ssr: false });
 
-// ─── Countdown Timer Hook ───
-function useCountdown(d: number, h: number, m: number, s: number) {
-  const [timeLeft, setTimeLeft] = useState({ days: d, hours: h, minutes: m, seconds: s });
-  useEffect(() => {
-    // Delay initialization to not block first render
-    const init = setTimeout(() => {
-      const timer = setInterval(() => {
-        setTimeLeft((prev) => {
-          let { days, hours, minutes, seconds } = prev;
-          if (days === 0 && hours === 0 && minutes === 0 && seconds === 0) { clearInterval(timer); return prev; }
-          seconds -= 1;
-          if (seconds < 0) { seconds = 59; minutes -= 1; }
-          if (minutes < 0) { minutes = 59; hours -= 1; }
-          if (hours < 0) { hours = 23; days -= 1; }
-          return { days, hours, minutes, seconds };
-        });
-      }, 1000);
-      return () => clearInterval(timer);
-    }, 500); // defer 500ms so first paint is not delayed
-    return () => clearTimeout(init);
-  }, []);
-  return timeLeft;
-}
-function pad(n: number) { return String(n).padStart(2, "0"); }
 
 interface Product {
   _id: string; title: string; slug: string; price: number;
@@ -46,15 +23,17 @@ interface Category { name: string; slug: string; image: string; }
 export default function Homepage({
   initialTrendingProducts = [],
   initialCategories = [],
+  initialBlogs = [],
 }: {
   initialTrendingProducts?: Product[];
   initialCategories?: Category[];
+  initialBlogs?: any[];
 }) {
   const [trendingProducts, setTrendingProducts] = useState<any[]>(initialTrendingProducts);
   const [categories, setCategories] = useState<Category[]>(initialCategories);
-  const reduced = useReducedMotion();
+  const [blogs, setBlogs] = useState<any[]>(initialBlogs);
+  const reduced = useReducedMotion() ?? false;
 
-  // Fallback client fetch — data logic untouched
   useEffect(() => {
     if (initialTrendingProducts.length === 0) {
       fetch('/api/store/products?limit=4')
@@ -66,159 +45,167 @@ export default function Homepage({
         .then(r => r.json()).then(d => { if (d.categories) setCategories(d.categories); })
         .catch(console.error);
     }
-  }, [initialTrendingProducts, initialCategories]);
+    if (initialBlogs.length === 0) {
+      fetch('/api/blogs?limit=3') // Assuming such an endpoint exists or we rely on the server fetch
+        .then(r => r.json()).then(d => { if (d.blogs) setBlogs(d.blogs); })
+        .catch(console.error);
+    }
+  }, [initialTrendingProducts, initialCategories, initialBlogs]);
 
-  const timeLeft = useCountdown(12, 8, 45, 0);
 
-  // Animation variants — tightened durations for better TTI without sacrificing aesthetics
-  const seq: any = {
-    container: { hidden: {}, visible: { transition: { staggerChildren: reduced ? 0 : 0.15, delayChildren: 0 } } },
-    rule:  { hidden: reduced ? { opacity: 0 } : { scaleX: 0, opacity: 0 },  visible: { scaleX: 1, opacity: 1, transition: { duration: 0.7, ease: [0.25, 1, 0.5, 1] } } },
-    label: { hidden: reduced ? { opacity: 0 } : { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.25, 1, 0.5, 1] } } },
-    title: { hidden: reduced ? { opacity: 0 } : { opacity: 0, y: 32 }, visible: { opacity: 1, y: 0, transition: { duration: 0.9,  ease: [0.25, 1, 0.5, 1] } } },
-    photo: { hidden: reduced ? { opacity: 0 } : { opacity: 0, scale: 1.03 }, visible: { opacity: 1, scale: 1.0, transition: { duration: 0.9, ease: [0.25, 1, 0.5, 1] } } },
+  // Hero entrance variants
+  const heroVariants = {
+    container: { hidden: {}, visible: { transition: { staggerChildren: reduced ? 0 : 0.12 } } },
+    item: {
+      hidden: reduced ? { opacity: 0 } : { opacity: 0, y: 24 },
+      visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.25, 1, 0.5, 1] as any } },
+    },
   };
 
   return (
-    <div className="bg-transparent min-h-screen font-body">
+    <div className="bg-white min-h-screen font-body">
 
       {/* ═══════════════════════════════════════════════
-          1. HERO — Eco-Friendly Kitchenware
+          HERO — Full width video background
           ═══════════════════════════════════════════════ */}
-      <section className="px-3 sm:px-6 lg:px-8 pt-3 sm:pt-6 pb-12 md:pb-24">
-        <div className="relative rounded-[2rem] md:rounded-[3rem] overflow-hidden min-h-[85vh] flex items-center bg-[#133A2B] shadow-2xl">
-          
-          {/* Cinematic full-bleed video - keeping video but styling like the kitchenware image */}
-          <div className="absolute inset-0 z-0">
-            <video
-              autoPlay
-              muted
-              loop
-              playsInline
-              preload="auto"
-              className="absolute inset-0 w-full h-full object-cover object-center opacity-70 mix-blend-overlay"
+      <section className="relative min-h-[92vh] flex items-center overflow-hidden">
+        {/* Background Video */}
+        <div className="absolute inset-0 z-0">
+          <div className="absolute inset-0 bg-black/40 z-10" /> {/* Dark overlay for readability */}
+          <video
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="auto"
+            className="absolute inset-0 w-full h-full object-cover object-center"
+          >
+            <source src="/video/hero-bg.mp4" type="video/mp4" />
+          </video>
+        </div>
+
+        <div className="relative z-10 w-full px-4 sm:px-8 lg:px-[5vw] pt-32 pb-12 md:pb-20">
+          <motion.div
+            variants={heroVariants.container}
+            initial="hidden"
+            animate="visible"
+            className="flex flex-col max-w-2xl"
+          >
+            <motion.div variants={heroVariants.item} className="mb-4">
+              <span className="inline-flex items-center gap-2 bg-transparent text-white/80 font-mono text-xs uppercase tracking-[0.2em] border border-white/20 px-4 py-2">
+                Curated Collection
+              </span>
+            </motion.div>
+
+            <motion.h1
+              variants={heroVariants.item}
+              className="font-serif font-light text-[52px] sm:text-[64px] lg:text-[80px] xl:text-[96px] text-white leading-[1.05] tracking-tight mb-8"
             >
-              <source src="/video/hero-bg.mp4" type="video/mp4" />
-            </video>
-            {/* Gradient overlay for readability — left-aligned dark green fade */}
-            <div className="absolute inset-0 bg-gradient-to-r from-[#0C2A1E]/90 via-[#0C2A1E]/50 to-transparent" />
-          </div>
+              Toys They'll
+              <br />
+              <span className="italic text-white/90">Actually</span>
+              <br />
+              Play With.
+            </motion.h1>
 
-          {/* Hero copy */}
-          <div className="relative z-10 px-8 sm:px-16 lg:px-24 w-full md:max-w-3xl text-white mt-12 md:mt-0">
-            <h1 className="font-body text-5xl sm:text-6xl lg:text-[76px] leading-[1.05] tracking-tight font-medium mb-6">
-              Eco-Friendly <br/>
-              <span className="font-display italic font-normal text-white/95">Kitchenware</span> for <br/>
-              a greener home
-            </h1>
-
-            <p className="font-body text-sm sm:text-base text-white/80 max-w-[360px] mb-10 leading-[1.6]">
-              The eco-friendly kitchenware niche with a sense of urgency, much like the original banner. Let me know if you'd like adjustments!
-            </p>
-
-            <Link
-              href="/products"
-              className="inline-flex items-center gap-3 bg-accent-yellow text-ink-black px-7 py-3.5 rounded-full font-medium text-sm hover:bg-white transition-colors duration-300 shadow-[0_4px_20px_rgba(235,240,200,0.3)]"
+            <motion.p
+              variants={heroVariants.item}
+              className="font-body font-light text-lg text-white/70 max-w-md mb-12 leading-relaxed"
             >
-              Shop now <span className="text-lg leading-none transition-transform group-hover:translate-x-1">→</span>
-            </Link>
-          </div>
+              Beautifully curated toys for curious kids. Safety-tested, parent-approved, endlessly fun.
+            </motion.p>
 
-          {/* Glassmorphic Stats Card (Desktop Only) */}
-          <div className="hidden lg:flex absolute bottom-12 right-12 w-[280px] p-8 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 text-white flex-col gap-10 shadow-2xl">
-            {/* Leaf Icon Top Right */}
-            <svg className="absolute top-6 right-6 w-6 h-6 text-white/60" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-            </svg>
-            <p className="font-body text-sm leading-[1.6] text-white/90 font-medium">
-              Natural.<br/>
-              Sustainable.<br/>
-              Eco-conscious.
-            </p>
-            <p className="font-display italic text-[80px] leading-none text-white/95">
-              96%
-            </p>
-          </div>
+            <motion.div variants={heroVariants.item} className="flex items-center gap-4 flex-wrap">
+              <Link
+                href="/products"
+                className="inline-flex items-center justify-center bg-[#D5AEFD] text-black font-body font-medium text-sm uppercase tracking-widest px-8 py-4 hover:bg-[#D5AEFD]/90 transition-colors"
+              >
+                Shop All Toys
+              </Link>
+              <Link
+                href="/products"
+                className="inline-flex items-center justify-center bg-transparent border border-white/30 text-white font-body font-medium text-sm uppercase tracking-widest px-8 py-4 hover:bg-white/10 transition-colors"
+              >
+                Browse by age
+              </Link>
+            </motion.div>
+
+            {/* Trust indicators */}
+            <motion.div variants={heroVariants.item} className="mt-16 flex items-center gap-8 flex-wrap">
+              {[
+                { label: "4.9 from 2,400+ parents" },
+                { label: "Free shipping over ৳1,500" },
+                { label: "30-day returns" },
+              ].map((item, i) => (
+                <div key={i} className="flex items-center gap-1.5 opacity-60">
+                  <span className="font-mono text-xs uppercase tracking-wider text-white">{item.label}</span>
+                </div>
+              ))}
+            </motion.div>
+          </motion.div>
+
         </div>
       </section>
 
       {/* ═══════════════════════════════════════════════
-          2. CATALOG SECTION LABELS — categories (Modern E-commerce)
+          CATEGORIES — Horizontal scroll cards on mobile, grid on desktop
           ═══════════════════════════════════════════════ */}
       {categories.length > 0 && (
-        <section className="py-16 md:py-24">
-          <AnimatedReveal className="mb-12 px-4 sm:px-10 lg:px-[5vw] flex items-baseline gap-6">
-            <h2 className="font-body text-[32px] md:text-[40px] text-ink-black font-medium tracking-tight">
-              Shop by Category
-            </h2>
-            <div className="flex-1 h-[1px] bg-gray-200 hidden md:block" />
+        <section className="py-16 md:py-24 px-4 sm:px-8 lg:px-[5vw]">
+          <AnimatedReveal className="flex items-end justify-between mb-12">
+            <div>
+              <p className="font-mono text-xs uppercase tracking-[0.2em] text-zinc-500 mb-3">Shop by Category</p>
+              <h2 className="font-serif font-light text-4xl md:text-5xl text-black tracking-tight">
+                Curated Collections
+              </h2>
+            </div>
+            <Link
+              href="/products"
+              className="hidden md:flex items-center gap-2 font-mono text-xs uppercase tracking-widest text-black hover:text-zinc-500 transition-colors border-b border-black/20 hover:border-zinc-500 pb-1"
+            >
+              All categories
+            </Link>
           </AnimatedReveal>
 
-          {/* DESKTOP: Clean Hover List */}
-          <div className="hidden md:flex flex-col">
+          {/* Desktop: grid */}
+          <div className="hidden md:grid grid-cols-3 lg:grid-cols-6 gap-4">
             {categories.slice(0, 6).map((cat, i) => (
-              <AnimatedReveal key={cat.slug} delay={i * 0.1}>
+              <AnimatedReveal key={cat.slug} delay={i * 0.06}>
                 <Link
                   href={`/products?category=${cat.slug}`}
-                  className="group relative flex items-center justify-between py-8 md:py-10 px-4 sm:px-10 lg:px-[5vw] border-t border-gray-100 overflow-hidden"
+                  className="group relative aspect-[3/4] overflow-hidden bg-zinc-100 flex flex-col items-center justify-end p-6 hover:shadow-2xl transition-all duration-500"
                 >
-                  {/* Background Image Reveal */}
                   {cat.image && (
-                    <div className="absolute inset-0 z-0 opacity-0 group-hover:opacity-20 transition-opacity duration-700 ease-[cubic-bezier(0.25,1,0.5,1)]">
-                      <Image
-                        src={cat.image}
-                        alt={cat.name}
-                        fill
-                        className="object-cover scale-105 group-hover:scale-100 transition-transform duration-1000 ease-[cubic-bezier(0.25,1,0.5,1)]"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-r from-paper-white/90 via-paper-white/50 to-transparent" />
-                    </div>
+                    <Image
+                      src={cat.image}
+                      alt={cat.name}
+                      fill
+                      className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                      sizes="(max-width: 1024px) 33vw, 16vw"
+                    />
                   )}
-
-                  {/* Text Content */}
-                  <div className="relative z-10 flex flex-col md:flex-row md:items-center gap-2 md:gap-12 w-full">
-                    <h3 className="font-body text-4xl md:text-5xl lg:text-6xl text-gray-400 group-hover:text-ink-black transition-colors duration-500 font-medium tracking-tight">
-                      {cat.name}
-                    </h3>
-                  </div>
-                  
-                  {/* Arrow Indicator */}
-                  <div className="relative z-10 hidden md:flex items-center gap-4 opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-500 ease-[cubic-bezier(0.25,1,0.5,1)]">
-                    <span className="font-body text-sm font-semibold text-ink-black whitespace-nowrap">
-                      Explore
-                    </span>
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-ink-black">
-                      <path d="M5 12h14M12 5l7 7-7 7" />
-                    </svg>
-                  </div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-80 group-hover:opacity-100 transition-opacity duration-500" />
+                  <span className="relative z-10 font-serif font-light italic text-white text-xl text-center leading-tight tracking-wide">
+                    {cat.name}
+                  </span>
                 </Link>
               </AnimatedReveal>
             ))}
           </div>
 
-          {/* MOBILE: Immersive Horizontal Poster Scroll */}
-          <div className="md:hidden flex gap-4 overflow-x-auto snap-x snap-mandatory px-4 sm:px-10 pb-8 no-scrollbar">
-            {categories.slice(0, 6).map((cat, i) => (
+          {/* Mobile: horizontal scroll */}
+          <div className="md:hidden flex gap-4 overflow-x-auto snap-x snap-mandatory pb-6 no-scrollbar -mx-4 px-4">
+            {categories.slice(0, 6).map((cat) => (
               <Link
                 key={cat.slug}
                 href={`/products?category=${cat.slug}`}
-                className="relative shrink-0 w-[80vw] sm:w-[60vw] aspect-[3/4] snap-center overflow-hidden bg-transparent rounded-2xl shadow-sm"
+                className="relative shrink-0 w-48 aspect-[3/4] snap-center overflow-hidden bg-zinc-100 flex items-end p-5 shadow-sm"
               >
                 {cat.image && (
-                  <Image
-                    src={cat.image}
-                    alt={cat.name}
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 640px) 80vw, 60vw"
-                  />
+                  <Image src={cat.image} alt={cat.name} fill className="object-cover" sizes="200px" />
                 )}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
-                <div className="absolute inset-0 p-6 flex flex-col justify-end z-10">
-                  <h3 className="font-body text-3xl text-white font-medium tracking-tight">
-                    {cat.name}
-                  </h3>
-                </div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-80" />
+                <span className="relative z-10 font-serif font-light italic text-white text-lg leading-tight tracking-wide">{cat.name}</span>
               </Link>
             ))}
           </div>
@@ -226,23 +213,21 @@ export default function Homepage({
       )}
 
       {/* ═══════════════════════════════════════════════
-          3. TRENDING — Homedine Section
+          TRENDING PRODUCTS
           ═══════════════════════════════════════════════ */}
-      <section className="px-4 sm:px-10 lg:px-[5vw] py-16 md:py-24">
-        <AnimatedReveal className="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
+      <section className="px-4 sm:px-8 lg:px-[5vw] py-16 md:py-24">
+        <AnimatedReveal className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div>
-            <p className="font-body text-gray-500 font-medium mb-1">
-              Eco Essentials Planet-Friendly
-            </p>
-            <h2 className="font-body text-[32px] md:text-[40px] text-ink-black leading-tight font-medium tracking-tight">
-              Bestselling <span className="font-display italic font-normal text-4xl md:text-5xl">Products</span>
+            <p className="font-mono text-xs uppercase tracking-[0.2em] text-zinc-500 mb-3">Most Loved</p>
+            <h2 className="font-serif font-light text-4xl md:text-5xl text-black tracking-tight">
+              Bestselling Picks
             </h2>
           </div>
           <Link
             href="/products"
-            className="hidden md:flex items-center gap-2 font-body text-sm font-semibold text-ink-black hover:text-stamp-red transition-colors whitespace-nowrap group"
+            className="hidden md:flex items-center gap-2 font-mono text-xs uppercase tracking-widest text-black hover:text-zinc-500 transition-colors border-b border-black/20 hover:border-zinc-500 pb-1"
           >
-            More products <span className="text-lg leading-none transition-transform group-hover:translate-x-1">→</span>
+            More products
           </Link>
         </AnimatedReveal>
 
@@ -254,21 +239,23 @@ export default function Homepage({
         />
       </section>
 
-
       {/* ═══════════════════════════════════════════════
-          5. SERVICES STRIP — modern version
+          TRUST STRIP
           ═══════════════════════════════════════════════ */}
       <AnimatedReveal>
-        <section className="px-4 sm:px-10 lg:px-[5vw] py-14 md:py-20 border-t border-gray-100 bg-paper-white">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 sm:gap-12 divide-y sm:divide-y-0 sm:divide-x divide-gray-200">
+        <section className="mx-4 sm:mx-8 lg:mx-[5vw] my-8 border-t border-b border-black/10 py-16">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-12 text-center max-w-5xl mx-auto">
             {[
-              { title: "Fast & Free Delivery", desc: "Free delivery for all orders over ৳1,500" },
-              { title: "24/7 Support",         desc: "Friendly customer support, always available" },
-              { title: "30-Day Returns",       desc: "We return money within 30 days" },
-            ].map(({ title, desc }) => (
-              <div key={title} className="flex flex-col gap-2 pt-6 sm:pt-0 sm:px-8 first:pl-0 first:pt-0 last:pr-0 text-center sm:text-left">
-                <h4 className="font-body text-lg font-semibold text-ink-black">{title}</h4>
-                <p className="font-body text-sm text-gray-500 leading-relaxed">{desc}</p>
+              { Icon: Truck, title: "Free Delivery", desc: "On all orders over ৳1,500" },
+              { Icon: Headphones, title: "24/7 Support", desc: "Friendly help, always available" },
+              { Icon: RotateCcw, title: "30-Day Returns", desc: "No questions asked" },
+            ].map(({ Icon, title, desc }) => (
+              <div key={title} className="flex flex-col items-center gap-4">
+                <div className="text-black mb-2 opacity-80">
+                  <Icon size={28} strokeWidth={1} />
+                </div>
+                <h4 className="font-serif font-light text-xl tracking-wide text-black">{title}</h4>
+                <p className="font-body font-light text-zinc-500 text-sm">{desc}</p>
               </div>
             ))}
           </div>
@@ -276,11 +263,83 @@ export default function Homepage({
       </AnimatedReveal>
 
       {/* ═══════════════════════════════════════════════
-          6. APP DOWNLOAD SECTION
+          LATEST EDITORIALS (BLOG)
+          ═══════════════════════════════════════════════ */}
+      {blogs.length > 0 && (
+        <section className="px-4 sm:px-8 lg:px-[5vw] py-16 md:py-24 bg-[#F5F5F5]">
+          <AnimatedReveal className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
+            <div>
+              <p className="font-mono text-xs uppercase tracking-[0.2em] text-zinc-500 mb-3">Editorial</p>
+              <h2 className="font-serif font-light text-4xl md:text-5xl text-black tracking-tight">
+                Latest Articles
+              </h2>
+            </div>
+            <Link
+              href="/blogs"
+              className="hidden md:flex items-center justify-center bg-[#D5AEFD] text-black font-body font-bold text-sm uppercase tracking-widest px-8 py-3 hover:bg-[#D5AEFD]/90 transition-colors"
+            >
+              Explore All
+            </Link>
+          </AnimatedReveal>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            {blogs.map((post) => (
+              <AnimatedReveal key={post._id} className="group cursor-pointer flex flex-col gap-5">
+                <div className="w-full aspect-[4/3] relative overflow-hidden bg-zinc-200">
+                  <Link href={`/blogs/${post.slug}`} className="block w-full h-full">
+                    {post.featuredImage?.url ? (
+                      <Image
+                        src={post.featuredImage.url}
+                        alt={post.featuredImage.alt || post.title}
+                        fill
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                        className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                      />
+                    ) : null}
+                  </Link>
+                </div>
+                
+                <div className="flex flex-col gap-3 pr-4">
+                  <div className="flex items-center gap-4 text-xs font-mono uppercase tracking-widest text-zinc-500">
+                    <span>{post.category || 'Editorial'}</span>
+                    <span className="w-1 h-1 rounded-full bg-zinc-300" />
+                    <span>
+                      {new Date(post.publishedAt || post.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                    </span>
+                  </div>
+                  <Link href={`/blogs/${post.slug}`}>
+                    <h3 className="font-serif text-xl sm:text-2xl text-black leading-snug group-hover:text-[#D5AEFD] transition-colors line-clamp-2">
+                      {post.title}
+                    </h3>
+                  </Link>
+                  <p className="font-body text-sm font-light text-zinc-600 line-clamp-2 leading-relaxed">
+                    {post.excerpt}
+                  </p>
+                  <Link href={`/blogs/${post.slug}`} className="inline-flex items-center gap-2 font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-black mt-2 hover:text-[#043224] transition-colors w-max border-b border-black/20 hover:border-black pb-1">
+                    Read Story <ArrowRight size={14} />
+                  </Link>
+                </div>
+              </AnimatedReveal>
+            ))}
+          </div>
+          
+          <div className="mt-12 flex justify-center md:hidden">
+            <Link
+              href="/blogs"
+              className="w-full flex items-center justify-center bg-[#D5AEFD] text-black font-body font-bold text-sm uppercase tracking-widest px-8 py-4 hover:bg-[#D5AEFD]/90 transition-colors"
+            >
+              Explore All
+            </Link>
+          </div>
+        </section>
+      )}
+
+      {/* ═══════════════════════════════════════════════
+          APP DOWNLOAD
           ═══════════════════════════════════════════════ */}
       <AppDownloadSection />
 
-      {/* Instagram — lazy loaded, untouched */}
+      {/* Instagram — lazy loaded */}
       <DynamicInstagramSection />
 
     </div>

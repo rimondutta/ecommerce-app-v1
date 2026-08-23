@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Oswald, Inter, JetBrains_Mono, Playfair_Display } from "next/font/google";
+import { DM_Sans, Inter, JetBrains_Mono, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import { CartProvider } from "@/components/providers/CartProvider";
 import { WishlistProvider } from "@/components/providers/WishlistProvider";
@@ -10,10 +10,11 @@ import NextAuthProvider from "@/components/providers/NextAuthProvider";
 import { ToastProvider } from "@/components/playshelf/Toast";
 import FacebookPixel from "@/components/FacebookPixel";
 
-const bigShoulders = Oswald({
+const dmSans = DM_Sans({
   subsets: ["latin"],
   display: "swap",
-  variable: "--font-big-shoulders",
+  variable: "--font-dm-sans",
+  axes: ["opsz"],
 });
 
 const inter = Inter({
@@ -74,11 +75,11 @@ export default function RootLayout({
       lang="en"
       suppressHydrationWarning
       data-scroll-behavior="smooth"
-      className={`${bigShoulders.variable} ${inter.variable} ${jetbrainsMono.variable} ${playfair.variable}`}
+      className={`${dmSans.variable} ${inter.variable} ${jetbrainsMono.variable} ${playfair.variable}`}
     >
       <body
         suppressHydrationWarning
-        className="relative min-h-screen flex flex-col bg-paper-white text-ink-black font-body selection:bg-stamp-red selection:text-paper-white overflow-x-hidden"
+        className="relative min-h-screen flex flex-col bg-joy-cream text-joy-navy font-body selection:bg-joy-cobalt selection:text-joy-cream overflow-x-hidden"
       >
         <NextAuthProvider>
           <WishlistProvider>

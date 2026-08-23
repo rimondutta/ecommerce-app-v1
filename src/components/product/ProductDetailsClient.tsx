@@ -29,7 +29,7 @@ export default function ProductDetailsClient({ product: initialProduct, relatedP
   const { addItem, openCart } = useCart();
   const { showToast } = useToast();
   const { toggleItem, isWishlisted } = useWishlist();
-  const reduced = useReducedMotion();
+  const reduced = useReducedMotion() ?? false;
 
   const product = initialProduct;
   const wishlisted = isWishlisted(product._id);
@@ -119,28 +119,20 @@ export default function ProductDetailsClient({ product: initialProduct, relatedP
   const hasDiscount = product.compareAtPrice && product.compareAtPrice > product.price;
 
   return (
-    <div className="bg-transparent min-h-screen text-ink-black font-body pb-16 section-light">
+    <div className="bg-joy-cream min-h-screen text-joy-navy font-body pb-16">
 
       {/* ═══════════════════════════════════════
           PRODUCT SHOWCASE
           ═══════════════════════════════════════ */}
-      <section className="px-4 sm:px-10 lg:px-[5vw] pt-8 pb-10 md:pb-16">
+      <section className="px-4 sm:px-8 lg:px-[5vw] pt-8 pb-10 md:pb-16">
 
         {/* Breadcrumb */}
-        <nav className="flex items-center justify-between mb-10 border-b border-rule-grey pb-4">
-          <div className="flex items-center gap-3 font-mono text-[11px] uppercase tracking-[0.1em] text-rule-grey">
-            <NavLink href="/">Home</NavLink>
-            <span>/</span>
-            <NavLink href="/products">Shop</NavLink>
-          </div>
-          <div className="flex items-center gap-4">
-            <Link href="/products" className="flex items-center gap-1 font-mono text-[11px] uppercase tracking-[0.1em] text-rule-grey hover:text-ink-black transition-colors">
-              <ChevronLeft size={12} /> Prev
-            </Link>
-            <Link href="/products" className="flex items-center gap-1 font-mono text-[11px] uppercase tracking-[0.1em] text-rule-grey hover:text-ink-black transition-colors">
-              Next <ChevronRight size={12} />
-            </Link>
-          </div>
+        <nav className="flex items-center gap-3 mb-10 pt-20">
+          <NavLink href="/">Home</NavLink>
+          <span className="text-joy-muted">/</span>
+          <NavLink href="/products">Shop</NavLink>
+          <span className="text-joy-muted">/</span>
+          <span className="font-display font-medium text-sm text-joy-muted line-clamp-1">{product.title}</span>
         </nav>
 
         {/* Main layout — asymmetric: gallery 7/12, info 5/12 */}
@@ -149,18 +141,7 @@ export default function ProductDetailsClient({ product: initialProduct, relatedP
           {/* ─── LEFT: Gallery ─── */}
           <div className="w-full lg:w-7/12 flex flex-col md:flex-row gap-4 lg:sticky lg:top-24 h-fit">
 
-            {/* Vertical Index number in margin — catalog signature */}
-            <div className="hidden lg:flex flex-col items-center justify-start pt-4 shrink-0 w-10 select-none">
-              <div
-                className="font-display text-[13px] uppercase text-rule-grey leading-none tracking-tight"
-                style={{ writingMode: "vertical-rl", textOrientation: "mixed", transform: "rotate(180deg)" }}
-              >
-                N°{(product._id || "000").slice(-3).toUpperCase()}
-              </div>
-              <div className="mt-4 w-[1px] flex-1 bg-rule-grey" />
-            </div>
-
-            {/* Desktop thumbnails */}
+            {/* Desktop thumbnails — rounded */}
             {product.images && product.images.length > 1 && (
               <div className="hidden md:flex flex-col gap-2 w-[72px] shrink-0">
                 {product.images.map((img: any, idx: number) => (
@@ -168,10 +149,10 @@ export default function ProductDetailsClient({ product: initialProduct, relatedP
                     key={idx}
                     onClick={() => setActiveImage(idx)}
                     className={cn(
-                      "relative w-[72px] h-[72px] overflow-hidden border transition-all duration-200",
+                      "relative w-[72px] h-[72px] overflow-hidden rounded-xl border-2 transition-all duration-200",
                       activeImage === idx
-                        ? "border-ink-black"
-                        : "border-rule-grey opacity-50 hover:opacity-100 hover:border-ink-black"
+                        ? "border-joy-cobalt shadow-[0_0_0_3px_rgba(45,91,227,0.15)]"
+                        : "border-transparent opacity-60 hover:opacity-100 hover:border-joy-rule"
                     )}
                   >
                     <Image src={img.url} alt={img.alt || "Thumbnail"} fill className="object-cover" sizes="72px" />
@@ -181,7 +162,7 @@ export default function ProductDetailsClient({ product: initialProduct, relatedP
             )}
 
             {/* Main image */}
-            <div className="relative flex-1 aspect-square md:aspect-[4/5] bg-paper-grey overflow-hidden">
+            <div className="relative flex-1 aspect-square md:aspect-[4/5] bg-joy-mist rounded-3xl overflow-hidden">
               {product.images?.[activeImage] && (
                 <Image
                   src={product.images[activeImage].url}
@@ -193,35 +174,35 @@ export default function ProductDetailsClient({ product: initialProduct, relatedP
                 />
               )}
 
-              {/* Arrow navigation — flat squares not circles */}
+              {/* Arrow navigation — rounded */}
               {totalImages > 1 && (
-                <div className="absolute top-1/2 -translate-y-1/2 inset-x-0 flex justify-between px-3 pointer-events-none">
+                <div className="absolute top-1/2 -translate-y-1/2 inset-x-0 flex justify-between px-4 pointer-events-none">
                   <button
                     onClick={prevImage}
-                    className="w-8 h-8 bg-paper-white border border-rule-grey flex items-center justify-center pointer-events-auto hover:bg-ink-black hover:text-paper-white transition-colors"
+                    className="w-10 h-10 bg-white/90 backdrop-blur-sm rounded-xl flex items-center justify-center pointer-events-auto hover:bg-white shadow-sm transition-all"
                     aria-label="Previous image"
                   >
-                    <ChevronLeft size={14} />
+                    <ChevronLeft size={16} className="text-joy-navy" />
                   </button>
                   <button
                     onClick={nextImage}
-                    className="w-8 h-8 bg-paper-white border border-rule-grey flex items-center justify-center pointer-events-auto hover:bg-ink-black hover:text-paper-white transition-colors"
+                    className="w-10 h-10 bg-white/90 backdrop-blur-sm rounded-xl flex items-center justify-center pointer-events-auto hover:bg-white shadow-sm transition-all"
                     aria-label="Next image"
                   >
-                    <ChevronRight size={14} />
+                    <ChevronRight size={16} className="text-joy-navy" />
                   </button>
                 </div>
               )}
 
-              {/* Out of stock overlay */}
+              {/* Out of stock badge */}
               {product.inventory !== undefined && product.inventory <= 0 && (
-                <div className="absolute top-3 left-3 bg-stamp-red text-paper-white font-mono text-[10px] uppercase tracking-[0.1em] px-2.5 py-1">
+                <div className="absolute top-4 left-4 bg-joy-navy text-white font-display font-bold text-xs px-3 py-1.5 rounded-full">
                   Sold Out
                 </div>
               )}
             </div>
 
-            {/* Mobile thumbnails */}
+            {/* Mobile thumbnails — rounded */}
             {product.images && product.images.length > 1 && (
               <div className="flex md:hidden gap-2 overflow-x-auto no-scrollbar pb-2">
                 {product.images.map((img: any, idx: number) => (
@@ -229,8 +210,8 @@ export default function ProductDetailsClient({ product: initialProduct, relatedP
                     key={idx}
                     onClick={() => setActiveImage(idx)}
                     className={cn(
-                      "relative w-14 h-14 shrink-0 border transition-all duration-200 overflow-hidden",
-                      activeImage === idx ? "border-ink-black" : "border-rule-grey opacity-50"
+                      "relative w-14 h-14 shrink-0 border-2 rounded-xl transition-all duration-200 overflow-hidden",
+                      activeImage === idx ? "border-joy-cobalt" : "border-transparent opacity-50"
                     )}
                   >
                     <Image src={img.url} alt={img.alt || "Thumbnail"} fill className="object-cover" sizes="56px" />
@@ -245,81 +226,83 @@ export default function ProductDetailsClient({ product: initialProduct, relatedP
 
             {/* Category label */}
             {product.category?.name && (
-              <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-rule-grey mb-3">
+              <span className="inline-flex items-center bg-joy-cobalt/10 text-joy-cobalt font-display font-semibold text-xs px-3 py-1.5 rounded-full mb-4">
                 {product.category.name}
-              </p>
+              </span>
             )}
 
             {/* Product title */}
-            <h1 className="font-display text-[36px] md:text-[44px] uppercase text-ink-black leading-[1.0] tracking-[-0.01em] mb-4">
+            <h1 className="font-display font-bold text-3xl md:text-4xl text-joy-navy leading-tight tracking-tight mb-4">
               {product.title}
             </h1>
 
             {/* Star rating */}
             {product.reviewCount > 0 && (
-              <div className="flex items-center gap-2 mb-4">
+              <div className="flex items-center gap-2 mb-5">
                 <div className="flex items-center gap-0.5">
                   {[...Array(5)].map((_, i) => (
                     <Star
                       key={i}
-                      size={10}
-                      className={i < Math.floor(product.rating || 0) ? "fill-stamp-red text-stamp-red" : "fill-rule-grey text-rule-grey"}
+                      size={14}
+                      className={i < Math.floor(product.rating || 0) ? "fill-joy-sun text-joy-sun" : "fill-joy-rule text-joy-rule"}
                     />
                   ))}
                 </div>
-                <a href="#reviews" className="font-mono text-[10px] text-rule-grey uppercase tracking-[0.1em] hover:text-ink-black transition-colors">
+                <a href="#reviews" className="font-display font-medium text-sm text-joy-muted hover:text-joy-navy transition-colors">
                   {product.reviewCount} reviews
                 </a>
               </div>
             )}
 
-            {/* Price in mono */}
-            <div className="flex items-baseline gap-3 mb-2">
-              <span className="font-mono text-[22px] text-ink-black">৳{product.price.toLocaleString()}</span>
+            {/* Price */}
+            <div className="flex items-baseline gap-3 mb-3">
+              <span className="font-display font-bold text-3xl text-joy-navy">৳{product.price.toLocaleString()}</span>
               {hasDiscount && (
-                <span className="font-mono text-[14px] text-rule-grey line-through">৳{product.compareAtPrice.toLocaleString()}</span>
+                <span className="font-body text-lg text-joy-muted line-through">৳{product.compareAtPrice.toLocaleString()}</span>
               )}
               {hasDiscount && (
-                <span className="font-mono text-[10px] text-stamp-red uppercase tracking-[0.08em]">
-                  −{Math.round(((product.compareAtPrice - product.price) / product.compareAtPrice) * 100)}%
+                <span className="bg-joy-coral text-white font-display font-bold text-xs px-2.5 py-1 rounded-full">
+                  -{Math.round(((product.compareAtPrice - product.price) / product.compareAtPrice) * 100)}%
                 </span>
               )}
             </div>
 
-            {/* Age range */}
-            <p className="font-mono text-[11px] text-rule-grey uppercase tracking-[0.1em] mb-5">
-              {product.ageRange ? `Ages ${product.ageRange}` : "Kids Toy"}
-            </p>
+            {/* Age range tag */}
+            {product.ageRange && (
+              <span className="inline-flex items-center font-display font-medium text-sm text-joy-muted mb-6">
+                Ages {product.ageRange}
+              </span>
+            )}
 
             {/* Description */}
-            <div className="border-t border-rule-grey pt-5 mb-6">
-              <p className="font-body text-[14px] text-ink-black leading-[1.7]">{product.description}</p>
+            <div className="bg-joy-mist rounded-2xl p-5 mb-6">
+              <p className="font-body text-sm text-joy-navy leading-relaxed">{product.description}</p>
             </div>
 
             {/* Quantity + Add to Cart */}
             <div className="mb-4">
-              <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-rule-grey mb-2">Quantity</p>
-              <div className="flex items-stretch gap-0">
-                {/* Flat qty stepper */}
-                <div className="flex items-center border border-rule-grey">
+              <p className="font-display font-semibold text-xs text-joy-muted uppercase tracking-wide mb-3">Quantity</p>
+              <div className="flex items-stretch gap-3">
+                {/* Rounded qty stepper */}
+                <div className="flex items-center bg-joy-mist rounded-xl border border-joy-rule">
                   <button
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className="px-4 py-4 font-mono text-[16px] text-ink-black hover:bg-paper-grey transition-colors leading-none"
+                    className="px-4 py-3 font-display font-bold text-lg text-joy-navy hover:text-joy-cobalt transition-colors leading-none"
                     aria-label="Decrease quantity"
                   >−</button>
-                  <span className="w-10 text-center font-mono text-[13px] text-ink-black border-x border-rule-grey py-4">{quantity}</span>
+                  <span className="w-10 text-center font-display font-bold text-base text-joy-navy">{quantity}</span>
                   <button
                     onClick={() => setQuantity(quantity + 1)}
-                    className="px-4 py-4 font-mono text-[16px] text-ink-black hover:bg-paper-grey transition-colors leading-none"
+                    className="px-4 py-3 font-display font-bold text-lg text-joy-navy hover:text-joy-cobalt transition-colors leading-none"
                     aria-label="Increase quantity"
                   >+</button>
                 </div>
 
-                {/* Add to Cart — flat black, full press animation */}
+                {/* Add to Cart */}
                 <motion.button
                   onClick={handleAddToCart}
-                  whileTap={reduced ? {} : { scale: 0.98 }}
-                  className="flex-1 bg-ink-black text-paper-white font-mono text-[11px] uppercase tracking-[0.12em] hover:bg-rule-grey hover:text-ink-black transition-colors duration-200 border border-ink-black ml-2"
+                  whileTap={reduced ? {} : { scale: 0.97 }}
+                  className="flex-1 bg-[#D5AEFD] text-black font-display font-bold text-sm rounded-xl hover:bg-[#D5AEFD]/90 transition-colors shadow-[0_4px_16px_rgba(213,174,253,0.3)]"
                 >
                   Add to Cart
                 </motion.button>
@@ -329,8 +312,8 @@ export default function ProductDetailsClient({ product: initialProduct, relatedP
             {/* Buy Now */}
             <motion.button
               onClick={handleBuyNow}
-              whileTap={reduced ? {} : { scale: 0.98 }}
-              className="w-full py-4 bg-paper-white text-ink-black font-mono text-[11px] uppercase tracking-[0.12em] border border-ink-black hover:bg-ink-black hover:text-paper-white transition-colors duration-200 mb-3"
+              whileTap={reduced ? {} : { scale: 0.97 }}
+              className="w-full py-4 bg-[#043224] text-white font-display font-bold text-sm rounded-xl hover:bg-[#043224]/90 transition-colors mb-3"
             >
               Buy Now
             </motion.button>
@@ -340,7 +323,7 @@ export default function ProductDetailsClient({ product: initialProduct, relatedP
               href={whatsappUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="w-full py-4 bg-[#25D366] text-paper-white font-mono text-[11px] uppercase tracking-[0.12em] flex items-center justify-center gap-2 hover:bg-[#128C7E] transition-colors duration-200 mb-6"
+              className="w-full py-4 bg-[#25D366] text-white font-display font-bold text-sm rounded-xl flex items-center justify-center gap-2 hover:bg-[#128C7E] transition-colors mb-6 shadow-[0_4px_16px_rgba(37,211,102,0.3)]"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
                 <path d="M13.601 2.326A7.854 7.854 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.933 7.933 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.898 7.898 0 0 0 13.6 2.326zM7.994 14.521a6.573 6.573 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.557 6.557 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592zm3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.729.729 0 0 0-.529.247c-.182.198-.691.677-.691 1.654 0 .977.71 1.916.81 2.049.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232z" />
@@ -348,34 +331,39 @@ export default function ProductDetailsClient({ product: initialProduct, relatedP
               Chat on WhatsApp
             </a>
 
-            {/* Wishlist + Share */}
-            <div className="flex items-center gap-6 mb-6">
+            {/* Wishlist */}
+            <div className="flex items-center gap-4 mb-6">
               <button
                 onClick={handleWishlistClick}
-                className="flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.1em] text-ink-black hover:text-rule-grey transition-colors relative group"
+                className={cn(
+                  "flex items-center gap-2 font-display font-semibold text-sm transition-colors px-4 py-2 rounded-xl border-2",
+                  wishlisted
+                    ? "border-joy-coral text-joy-coral bg-joy-coral/5"
+                    : "border-joy-rule text-joy-muted hover:border-joy-coral hover:text-joy-coral"
+                )}
               >
-                <svg width="14" height="14" fill={wishlisted ? "#E8391D" : "none"} stroke={wishlisted ? "#E8391D" : "currentColor"} strokeWidth="1.5" viewBox="0 0 24 24">
+                <svg width="14" height="14" fill={wishlisted ? "#FF5533" : "none"} stroke={wishlisted ? "#FF5533" : "currentColor"} strokeWidth="1.8" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
                 </svg>
-                {wishlisted ? "Wishlisted" : "Wishlist"}
+                {wishlisted ? "Wishlisted" : "Save to Wishlist"}
               </button>
             </div>
 
-            {/* Catalog metadata */}
-            <div className="flex flex-col gap-1.5 border-t border-rule-grey pt-5">
-              <p className="font-mono text-[11px] text-ink-black">
-                <span className="text-rule-grey mr-2">SKU:</span>
+            {/* Product metadata */}
+            <div className="flex flex-col gap-2 bg-joy-mist rounded-2xl p-5">
+              <p className="font-body text-sm text-joy-navy">
+                <span className="text-joy-muted mr-2 font-display font-semibold">SKU:</span>
                 {(product._id || "").slice(-6).toUpperCase()}
               </p>
               {product.category?.name && (
-                <p className="font-mono text-[11px] text-ink-black">
-                  <span className="text-rule-grey mr-2">Category:</span>
+                <p className="font-body text-sm text-joy-navy">
+                  <span className="text-joy-muted mr-2 font-display font-semibold">Category:</span>
                   {product.category.name}
                 </p>
               )}
               {product.ageRange && (
-                <p className="font-mono text-[11px] text-ink-black">
-                  <span className="text-rule-grey mr-2">Ages:</span>
+                <p className="font-body text-sm text-joy-navy">
+                  <span className="text-joy-muted mr-2 font-display font-semibold">Ages:</span>
                   {product.ageRange}
                 </p>
               )}
@@ -387,11 +375,11 @@ export default function ProductDetailsClient({ product: initialProduct, relatedP
       {/* ═══════════════════════════════════════
           TABS — Description & Reviews
           ═══════════════════════════════════════ */}
-      <section id="reviews" className="px-4 sm:px-10 lg:px-[5vw] py-14 md:py-20 border-t border-rule-grey">
+      <section id="reviews" className="px-4 sm:px-8 lg:px-[5vw] py-14 md:py-20 border-t border-joy-rule">
         <div className="max-w-[960px] mx-auto">
 
           {/* Tab headers */}
-          <div className="flex gap-0 border-b border-rule-grey mb-12">
+          <div className="flex gap-2 mb-12">
             {[
               { key: "description", label: "Description" },
               { key: "reviews", label: `Reviews${product.reviewCount ? ` (${product.reviewCount})` : ""}` },
@@ -400,12 +388,13 @@ export default function ProductDetailsClient({ product: initialProduct, relatedP
                 key={key}
                 onClick={() => setActiveTab(key)}
                 className={cn(
-                  "relative px-6 pb-4 pt-0 font-mono text-[11px] uppercase tracking-[0.12em] transition-colors",
-                  activeTab === key ? "text-ink-black" : "text-rule-grey hover:text-ink-black"
+                  "px-5 py-2.5 font-display font-bold text-sm rounded-xl transition-all duration-200",
+                  activeTab === key
+                    ? "bg-[#D5AEFD] text-black shadow-[0_4px_12px_rgba(213,174,253,0.3)]"
+                    : "bg-joy-mist text-joy-muted hover:text-joy-navy"
                 )}
               >
                 {label}
-                {activeTab === key && <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-ink-black" />}
               </button>
             ))}
           </div>
@@ -415,37 +404,37 @@ export default function ProductDetailsClient({ product: initialProduct, relatedP
             {activeTab === "description" && (
               <div>
                 <div className="mb-8">
-                  <h3 className="font-display text-[24px] uppercase text-ink-black mb-4">{product.title}</h3>
-                  <p className="font-body text-[14px] text-ink-black leading-[1.8]">{product.description}</p>
+                  <h3 className="font-display font-bold text-2xl text-joy-navy mb-4">{product.title}</h3>
+                  <p className="font-body text-sm text-joy-navy leading-relaxed">{product.description}</p>
                 </div>
                 <div className="grid md:grid-cols-2 gap-8 mb-8">
                   <div>
-                    <h4 className="font-mono text-[10px] uppercase tracking-[0.12em] text-rule-grey mb-3">Why This Product?</h4>
+                    <h4 className="font-display font-bold text-sm text-joy-navy mb-3">Why This Product?</h4>
                     <ul className="list-none space-y-2">
                       {["Non-toxic, child-safe materials", "Open-ended, creative play", "Sustainably sourced & eco-friendly"].map(f => (
-                        <li key={f} className="font-body text-[14px] text-ink-black flex gap-2">
-                          <span className="text-rule-grey">—</span>{f}
+                        <li key={f} className="font-body text-sm text-joy-navy flex gap-2">
+                          <span className="text-joy-cobalt mt-0.5">✓</span>{f}
                         </li>
                       ))}
                     </ul>
                   </div>
                   <div>
-                    <h4 className="font-mono text-[10px] uppercase tracking-[0.12em] text-rule-grey mb-3">Product Details</h4>
-                    <p className="font-body text-[14px] text-ink-black leading-[1.8]">
+                    <h4 className="font-display font-bold text-sm text-joy-navy mb-3">Product Details</h4>
+                    <p className="font-body text-sm text-joy-navy leading-relaxed">
                       {product.longDescription || "Experience the perfect blend of fun and learning. Made from premium, child-safe materials, it stands up to enthusiastic play and looks beautiful in any playroom."}
                     </p>
                   </div>
                 </div>
-                <div className="border-t border-rule-grey pt-8">
-                  <h4 className="font-mono text-[10px] uppercase tracking-[0.12em] text-rule-grey mb-4">Shipping & Returns</h4>
+                <div className="bg-joy-mist rounded-2xl p-6 mt-4">
+                  <h4 className="font-display font-bold text-sm text-joy-navy mb-4">Shipping & Returns</h4>
                   <div className="flex flex-col gap-3">
                     <div className="flex items-start gap-3">
-                      <Truck className="w-4 h-4 text-ink-black shrink-0 mt-0.5" />
-                      <p className="font-body text-[13px] text-ink-black">Free standard shipping on orders over ৳1,500.</p>
+                      <Truck className="w-5 h-5 text-joy-cobalt shrink-0 mt-0.5" />
+                      <p className="font-body text-sm text-joy-navy">Free standard shipping on orders over ৳1,500.</p>
                     </div>
                     <div className="flex items-start gap-3">
-                      <RefreshCcw className="w-4 h-4 text-ink-black shrink-0 mt-0.5" />
-                      <p className="font-body text-[13px] text-ink-black">Return within 30 days of receiving your order.</p>
+                      <RefreshCcw className="w-5 h-5 text-joy-cobalt shrink-0 mt-0.5" />
+                      <p className="font-body text-sm text-joy-navy">Return within 30 days of receiving your order.</p>
                     </div>
                   </div>
                 </div>
@@ -458,20 +447,20 @@ export default function ProductDetailsClient({ product: initialProduct, relatedP
                 <div className="flex flex-col md:flex-row gap-8 lg:gap-16 items-start">
 
                   {/* Rating summary */}
-                  <div className="flex flex-col items-center justify-center bg-paper-grey p-10 w-full md:w-auto min-w-[240px]">
-                    <span className="font-display text-[64px] text-ink-black leading-none mb-3">{product.rating || 0}</span>
+                  <div className="flex flex-col items-center justify-center bg-joy-mist p-10 rounded-2xl w-full md:w-auto min-w-[240px]">
+                    <span className="font-display font-bold text-7xl text-joy-navy leading-none mb-3">{product.rating || 0}</span>
                     <div className="flex mb-2">
                       {[...Array(5)].map((_, i) => (
-                        <Star key={i} size={20} className={i < Math.floor(product.rating || 0) ? "fill-stamp-red text-stamp-red" : "fill-rule-grey text-rule-grey"} />
+                        <Star key={i} size={20} className={i < Math.floor(product.rating || 0) ? "fill-joy-sun text-joy-sun" : "fill-joy-rule text-joy-rule"} />
                       ))}
                     </div>
-                    <span className="font-mono text-[11px] text-rule-grey uppercase tracking-[0.08em]">
+                    <span className="font-display font-medium text-sm text-joy-muted">
                       {product.reviewCount || 0} reviews
                     </span>
                     {!isWritingReview && (
                       <button
                         onClick={() => setIsWritingReview(true)}
-                        className="mt-6 w-full py-3 px-4 border border-ink-black font-mono text-[10px] uppercase tracking-[0.12em] text-ink-black hover:bg-ink-black hover:text-paper-white transition-colors"
+                        className="mt-6 w-full py-3 px-4 bg-joy-cobalt text-white font-display font-bold text-sm rounded-xl hover:bg-joy-cobalt/90 transition-colors shadow-[0_4px_12px_rgba(45,91,227,0.3)]"
                       >
                         Write a Review
                       </button>
@@ -481,13 +470,13 @@ export default function ProductDetailsClient({ product: initialProduct, relatedP
                   {/* Reviews list + form */}
                   <div className="flex-1 w-full space-y-8">
                     {isWritingReview && (
-                      <form onSubmit={submitReview} className="bg-paper-grey p-6 md:p-8 space-y-5 border border-rule-grey section-light">
+                      <form onSubmit={submitReview} className="bg-joy-mist p-6 md:p-8 space-y-5 rounded-2xl border border-joy-rule">
                         <div className="flex justify-between items-center">
-                          <h3 className="font-display text-[20px] uppercase text-ink-black">Write a Review</h3>
-                          <button type="button" onClick={() => setIsWritingReview(false)} className="font-mono text-[10px] uppercase tracking-[0.1em] text-rule-grey hover:text-ink-black">Cancel</button>
+                          <h3 className="font-display font-bold text-xl text-joy-navy">Write a Review</h3>
+                          <button type="button" onClick={() => setIsWritingReview(false)} className="font-display font-semibold text-sm text-joy-muted hover:text-joy-navy transition-colors">Cancel</button>
                         </div>
                         <div>
-                          <label className="block font-mono text-[10px] uppercase tracking-[0.12em] text-rule-grey mb-2">Rating *</label>
+                          <label className="block font-display font-semibold text-sm text-joy-navy mb-2">Rating *</label>
                           <div className="flex gap-1">
                             {[1,2,3,4,5].map(star => (
                               <button
@@ -496,38 +485,38 @@ export default function ProductDetailsClient({ product: initialProduct, relatedP
                                 onClick={() => setReviewForm(p => ({ ...p, rating: star }))}
                                 className="transition-transform hover:scale-110"
                               >
-                                <Star size={24} className={star <= reviewForm.rating ? "fill-stamp-red text-stamp-red" : "fill-rule-grey text-rule-grey"} />
+                                <Star size={24} className={star <= reviewForm.rating ? "fill-joy-sun text-joy-sun" : "fill-joy-rule text-joy-rule"} />
                               </button>
                             ))}
                           </div>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div>
-                            <label className="block font-mono text-[10px] uppercase tracking-[0.12em] text-rule-grey mb-1.5">Name</label>
+                            <label className="block font-display font-semibold text-sm text-joy-navy mb-1.5">Name</label>
                             <input required type="text" value={reviewForm.name}
                               onChange={e => setReviewForm(p => ({ ...p, name: e.target.value }))}
-                              className="w-full border border-rule-grey px-4 py-3 font-body text-[13px] text-ink-black bg-paper-white outline-none focus:border-ink-black transition-colors"
+                              className="w-full border-2 border-joy-rule rounded-xl px-4 py-3 font-body text-sm text-joy-navy bg-white outline-none focus:border-joy-cobalt transition-colors"
                               placeholder="Your name" />
                           </div>
                           <div>
-                            <label className="block font-mono text-[10px] uppercase tracking-[0.12em] text-rule-grey mb-1.5">Review Title</label>
+                            <label className="block font-display font-semibold text-sm text-joy-navy mb-1.5">Review Title</label>
                             <input required type="text" value={reviewForm.title}
                               onChange={e => setReviewForm(p => ({ ...p, title: e.target.value }))}
-                              className="w-full border border-rule-grey px-4 py-3 font-body text-[13px] text-ink-black bg-paper-white outline-none focus:border-ink-black transition-colors"
+                              className="w-full border-2 border-joy-rule rounded-xl px-4 py-3 font-body text-sm text-joy-navy bg-white outline-none focus:border-joy-cobalt transition-colors"
                               placeholder="Summarize your experience" />
                           </div>
                         </div>
                         <div>
-                          <label className="block font-mono text-[10px] uppercase tracking-[0.12em] text-rule-grey mb-1.5">Your Review</label>
+                          <label className="block font-display font-semibold text-sm text-joy-navy mb-1.5">Your Review</label>
                           <textarea required rows={4} value={reviewForm.text}
                             onChange={e => setReviewForm(p => ({ ...p, text: e.target.value }))}
-                            className="w-full border border-rule-grey px-4 py-3 font-body text-[13px] text-ink-black bg-paper-white outline-none focus:border-ink-black transition-colors resize-none"
+                            className="w-full border-2 border-joy-rule rounded-xl px-4 py-3 font-body text-sm text-joy-navy bg-white outline-none focus:border-joy-cobalt transition-colors resize-none"
                             placeholder="Tell us what you think..." />
                         </div>
                         <button
                           disabled={isSubmittingReview}
                           type="submit"
-                          className="bg-ink-black text-paper-white font-mono text-[10px] uppercase tracking-[0.12em] py-3.5 px-6 hover:bg-rule-grey hover:text-ink-black disabled:opacity-60 transition-colors"
+                          className="bg-joy-cobalt text-white font-display font-bold text-sm py-3.5 px-6 rounded-xl hover:bg-joy-cobalt/90 disabled:opacity-60 transition-colors shadow-[0_4px_12px_rgba(45,91,227,0.3)]"
                         >
                           {isSubmittingReview ? "Submitting…" : "Submit Review"}
                         </button>
@@ -535,35 +524,33 @@ export default function ProductDetailsClient({ product: initialProduct, relatedP
                     )}
 
                     {!isWritingReview && (!product.reviews || product.reviews.filter((r: any) => r.status === 'published' || !r.status).length === 0) && (
-                      <div className="py-12 bg-paper-grey border border-rule-grey text-center">
-                        <p className="font-mono text-[11px] text-rule-grey uppercase tracking-[0.1em]">
-                          No reviews yet. Be the first.
-                        </p>
+                      <div className="py-16 bg-joy-mist rounded-2xl text-center">
+                        <p className="font-display font-semibold text-joy-muted">No reviews yet — be the first!</p>
                       </div>
                     )}
 
                     {!isWritingReview && product.reviews && [...product.reviews].filter((r: any) => r.status === 'published' || !r.status).reverse().map((review: any, i: number) => (
-                      <div key={i} className="border-b border-rule-grey pb-8 last:border-0">
+                      <div key={i} className="border-b border-joy-rule pb-8 last:border-0">
                         <div className="flex items-center justify-between mb-3">
                           <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 bg-ink-black flex items-center justify-center text-paper-white font-mono text-[11px] shrink-0">
+                            <div className="w-9 h-9 bg-joy-cobalt rounded-xl flex items-center justify-center text-white font-display font-bold text-sm shrink-0">
                               {review.name?.[0]?.toUpperCase() || "A"}
                             </div>
                             <div>
-                              <p className="font-body text-[13px] font-medium text-ink-black">{review.name}</p>
+                              <p className="font-display font-bold text-sm text-joy-navy">{review.name}</p>
                               <div className="flex gap-0.5 mt-0.5">
                                 {[...Array(5)].map((_, j) => (
-                                  <Star key={j} size={9} className={j < review.rating ? "fill-stamp-red text-stamp-red" : "fill-rule-grey text-rule-grey"} />
+                                  <Star key={j} size={10} className={j < review.rating ? "fill-joy-sun text-joy-sun" : "fill-joy-rule text-joy-rule"} />
                                 ))}
                               </div>
                             </div>
                           </div>
-                          <span className="font-mono text-[10px] text-rule-grey uppercase tracking-[0.08em]">
+                          <span className="font-body text-xs text-joy-muted">
                             {new Date(review.date).toLocaleDateString()}
                           </span>
                         </div>
-                        {review.title && <p className="font-body text-[13px] font-medium text-ink-black mb-1">{review.title}</p>}
-                        <p className="font-body text-[13px] text-ink-black leading-[1.7] whitespace-pre-line">"{review.text}"</p>
+                        {review.title && <p className="font-display font-bold text-sm text-joy-navy mb-1">{review.title}</p>}
+                        <p className="font-body text-sm text-joy-navy leading-relaxed">"{review.text}"</p>
                       </div>
                     ))}
                   </div>
@@ -578,12 +565,14 @@ export default function ProductDetailsClient({ product: initialProduct, relatedP
           RELATED PRODUCTS
           ═══════════════════════════════════════ */}
       {relatedProducts && relatedProducts.length > 0 && (
-        <section className="px-4 sm:px-10 lg:px-[5vw] py-14 md:py-20 border-t border-rule-grey">
-          <div className="mb-10 flex items-baseline gap-6">
-            <h2 className="font-display text-[40px] md:text-[56px] uppercase text-ink-black leading-none tracking-[-0.01em]">
-              You Might Also Like
-            </h2>
-            <div className="flex-1 h-[1px] bg-rule-grey hidden md:block" />
+        <section className="px-4 sm:px-8 lg:px-[5vw] py-14 md:py-20 border-t border-joy-rule">
+          <div className="mb-10 flex items-center justify-between">
+            <div>
+              <p className="font-display text-joy-cobalt font-semibold text-sm mb-2">Keep exploring</p>
+              <h2 className="font-display font-bold text-4xl text-joy-navy tracking-tight">
+                You Might Also Like
+              </h2>
+            </div>
           </div>
           <ProductGridNike title={undefined} products={relatedProducts} theme="light" />
         </section>

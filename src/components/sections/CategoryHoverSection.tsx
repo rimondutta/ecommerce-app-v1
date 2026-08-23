@@ -102,7 +102,7 @@ export default function CategoryHoverSection({ categories }: { categories: Categ
                 opacity: activeIdx === idx ? 1 : 0,
                 scale: activeIdx === idx ? 1 : 1.04,
               }}
-              transition={{ duration: 0.6, ease: [0.25, 1, 0.5, 1] }}
+              transition={{ duration: 0.8, ease: [0.25, 1, 0.5, 1] as any }}
             >
               {item.image ? (
                 <Image

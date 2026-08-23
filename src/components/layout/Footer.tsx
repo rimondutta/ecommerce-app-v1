@@ -1,141 +1,106 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { IconBrandFacebook, IconBrandX, IconBrandInstagram, IconBrandYoutube } from "@tabler/icons-react";
+import { ArrowRight } from "lucide-react";
 
-const companyLinks = ["About Us", "Blog", "Contact Us", "Download App"];
-const shopLinks = ["New Arrivals", "All Toys", "Sale"];
-const helpLinks = ["Customer Service", "My Account", "Returns", "Legal & Privacy"];
+const companyLinks = [
+  { label: "About Us", href: "/about" },
+  { label: "Blog", href: "/blogs" },
+  { label: "Contact Us", href: "/contact" },
+  { label: "Download App", href: "/download" },
+];
+const shopLinks = [
+  { label: "New Arrivals", href: "/products?sort=newest" },
+  { label: "All Toys", href: "/products" },
+  { label: "Sale", href: "/products?sale=true" },
+];
+const helpLinks = [
+  { label: "Customer Service", href: "#" },
+  { label: "My Account", href: "/account" },
+  { label: "Returns", href: "#" },
+  { label: "Legal & Privacy", href: "#" },
+];
 
 export default function Footer() {
+  const [email, setEmail] = useState("");
+  const [subscribed, setSubscribed] = useState(false);
+
   const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault();
-    alert("Subscribed Successfully");
+    setSubscribed(true);
+    setEmail("");
   };
 
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
 
   return (
-    <footer className="bg-paper-grey mt-24">
+    <footer className="bg-gradient-to-b from-[#ECDDFE] to-[#DABCFD] text-black pt-20 pb-0 overflow-hidden min-h-[60vh] flex flex-col justify-between mt-20 relative">
+      
+      {/* ─── Top Grid (Links & Socials) ─── */}
+      <div className="px-4 sm:px-8 lg:px-[5vw] grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-10">
+        
+        {/* Shop Links */}
+        <div className="flex flex-col gap-3">
+          <h5 className="font-mono font-bold text-[10px] uppercase tracking-[0.2em] text-black/80 mb-1">Shop</h5>
+          {shopLinks.map(link => (
+            <Link key={link.label} href={link.href} className="font-mono text-[11px] uppercase tracking-[0.1em] text-black hover:text-black/70 transition-colors font-bold">
+              {link.label}
+            </Link>
+          ))}
+        </div>
 
-      {/* Main grid */}
-      <div className="px-4 sm:px-10 lg:px-[5vw] py-16 md:py-20 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-10 lg:gap-8">
+        {/* Company Links */}
+        <div className="flex flex-col gap-3">
+          <h5 className="font-mono font-bold text-[10px] uppercase tracking-[0.2em] text-black/80 mb-1">Company</h5>
+          {companyLinks.map(link => (
+            <Link key={link.label} href={link.href} className="font-mono text-[11px] uppercase tracking-[0.1em] text-black hover:text-black/70 transition-colors font-bold">
+              {link.label}
+            </Link>
+          ))}
+        </div>
 
-        {/* Brand column */}
-        <div className="lg:col-span-2 flex flex-col gap-5">
-          <Link href="/" className="font-display text-4xl text-ink-black leading-none tracking-tight">
-            Toyhourse
-          </Link>
-          <p className="font-body text-sm text-gray-600 leading-relaxed max-w-[280px]">
-            Beautifully curated toys designed to inspire imagination, creativity, and learning.
+        {/* Help Links */}
+        <div className="flex flex-col gap-3">
+          <h5 className="font-mono font-bold text-[10px] uppercase tracking-[0.2em] text-black/80 mb-1">Help</h5>
+          {helpLinks.map(link => (
+            <Link key={link.label} href={link.href} className="font-mono text-[11px] uppercase tracking-[0.1em] text-black hover:text-black/70 transition-colors font-bold">
+              {link.label}
+            </Link>
+          ))}
+        </div>
+
+        {/* Socials - Horizontal */}
+        <div className="lg:col-span-2 flex flex-wrap gap-x-8 gap-y-4 md:justify-end content-start">
+          <a href="#" className="font-mono text-[11px] uppercase tracking-[0.1em] text-black hover:text-black/70 transition-colors font-black">LinkedIn</a>
+          <a href="#" className="font-mono text-[11px] uppercase tracking-[0.1em] text-black hover:text-black/70 transition-colors font-black">X</a>
+          <a href="#" className="font-mono text-[11px] uppercase tracking-[0.1em] text-black hover:text-black/70 transition-colors font-black">Instagram</a>
+          <a href="#" className="font-mono text-[11px] uppercase tracking-[0.1em] text-black hover:text-black/70 transition-colors font-black">YouTube</a>
+        </div>
+      </div>
+
+      {/* ─── Bottom Section (Copyright & Huge Text) ─── */}
+      <div className="mt-20">
+        {/* Fine Print Row */}
+        <div className="px-4 sm:px-8 lg:px-[5vw] flex flex-col md:flex-row justify-between items-center gap-4 mb-8">
+          <p className="font-mono text-[11px] uppercase tracking-[0.1em] text-black font-bold">
+            © {new Date().getFullYear()} Toyhourse Corp. All Rights Reserved.
           </p>
-          <div className="text-sm font-body text-gray-600 flex flex-col gap-2 mt-2">
-            <span>Chattogram, Bangladesh</span>
-            <a href="mailto:toyhourse@gmail.com" className="hover:text-stamp-red transition-colors font-medium text-ink-black">toyhourse@gmail.com</a>
-            <a href="tel:+8801616921965" className="hover:text-stamp-red transition-colors font-medium text-ink-black">+880 1616-921965</a>
-          </div>
-          <div className="flex gap-5 mt-1">
-            {[
-              { Icon: IconBrandFacebook, href: "https://facebook.com/toyhourse", label: "Facebook" },
-              { Icon: IconBrandX, href: "https://x.com/toyhourse", label: "X" },
-              { Icon: IconBrandInstagram, href: "https://instagram.com/toyhourse", label: "Instagram" },
-              { Icon: IconBrandYoutube, href: "https://youtube.com/toyhourse", label: "YouTube" },
-            ].map(({ Icon, href, label }) => (
-              <a
-                key={label}
-                href={href}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={label}
-                className="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center text-ink-black hover:bg-ink-black hover:text-white transition-all duration-300 shadow-sm"
-              >
-                <Icon size={18} stroke={1.5} />
-              </a>
-            ))}
+          <div className="flex gap-8">
+            <Link href="#" className="font-mono text-[11px] uppercase tracking-[0.1em] text-black hover:text-black/70 font-bold">Terms & Conditions</Link>
+            <Link href="#" className="font-mono text-[11px] uppercase tracking-[0.1em] text-black hover:text-black/70 font-bold">Privacy Policy</Link>
           </div>
         </div>
 
-        {/* Company */}
-        <div className="flex flex-col gap-5">
-          <h5 className="font-body text-base font-semibold text-ink-black">Company</h5>
-          <ul className="flex flex-col gap-3">
-            {companyLinks.map((item) => (
-              <li key={item}>
-                <Link
-                  href={item === "Download App" ? "/download" : item.toLowerCase().includes("blog") ? "/blogs" : "#"}
-                  onClick={scrollToTop}
-                  className="font-body text-sm text-gray-600 hover:text-stamp-red transition-colors inline-block"
-                >
-                  {item}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        {/* Shop */}
-        <div className="flex flex-col gap-5">
-          <h5 className="font-body text-base font-semibold text-ink-black">Shop</h5>
-          <ul className="flex flex-col gap-3">
-            {shopLinks.map((item) => (
-              <li key={item}>
-                <Link
-                  href="/products"
-                  onClick={scrollToTop}
-                  className="font-body text-sm text-gray-600 hover:text-stamp-red transition-colors inline-block"
-                >
-                  {item}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        {/* Help + Subscribe */}
-        <div className="flex flex-col gap-5">
-          <h5 className="font-body text-base font-semibold text-ink-black">Help</h5>
-          <ul className="flex flex-col gap-3 mb-6">
-            {helpLinks.map((item) => (
-              <li key={item}>
-                <Link href="#" className="font-body text-sm text-gray-600 hover:text-stamp-red transition-colors inline-block">
-                  {item}
-                </Link>
-              </li>
-            ))}
-          </ul>
-
-          {/* Newsletter — modern pill form */}
-          <h5 className="font-body text-base font-semibold text-ink-black mt-2">Newsletter</h5>
-          <form onSubmit={handleSubscribe} className="flex bg-white rounded-full p-1.5 border border-gray-200 shadow-sm mt-1">
-            <input
-              type="email"
-              placeholder="your@email.com"
-              required
-              className="flex-1 px-4 py-2 bg-transparent text-ink-black font-body text-sm outline-none border-none placeholder:text-gray-400"
-            />
-            <button
-              type="submit"
-              className="px-6 py-2 bg-stamp-red text-white font-body text-sm font-medium rounded-full hover:bg-stamp-red/90 transition-colors"
-            >
-              Join
-            </button>
-          </form>
+        {/* Massive Text Overlay */}
+        <div className="w-full flex justify-center pb-2">
+          <h1 className="font-sans font-black text-[14vw] sm:text-[15vw] text-black leading-none tracking-tighter m-0 p-0 text-center w-full">
+            TOYHOURSE
+          </h1>
         </div>
       </div>
 
-      {/* Bottom bar */}
-      <div className="border-t border-gray-200 px-4 sm:px-10 lg:px-[5vw] py-6 flex flex-wrap justify-between items-center gap-4">
-        <p className="font-body text-sm text-gray-500">
-          © {new Date().getFullYear()} Toyhourse. All Rights Reserved.
-        </p>
-        <a
-          href="https://facebook.com/dutta.rimon/"
-          className="font-body text-sm font-medium text-stamp-red hover:opacity-70 transition-opacity"
-        >
-          Developed by Rimon Dutta
-        </a>
-      </div>
     </footer>
   );
 }

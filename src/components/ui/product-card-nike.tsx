@@ -4,12 +4,11 @@ import React, { useState } from "react";
 import { trackAddToCart } from "@/lib/fbPixel";
 import Link from "next/link";
 import Image from "next/image";
-// import { motion, useReducedMotion } from "framer-motion";
-import { motion, useReducedMotion, type Variants } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { useCart } from "@/components/providers/CartProvider";
 import { useWishlist } from "@/store/wishlistStore";
 import { cn } from "@/lib/utils";
-import IndexTag from "@/components/ui/IndexTag";
+import { Heart } from "lucide-react";
 
 interface Product {
   _id: string;
@@ -31,14 +30,15 @@ interface Product {
 interface Props {
   product: Product;
   priority?: boolean;
-  index?: number; // 1-based position in catalog for Index tag
+  index?: number;
 }
 
 export default function ProductCardModern({ product, priority = false, index = 1 }: Props) {
   const { addItem, openCart } = useCart();
   const { toggleItem, isWishlisted } = useWishlist();
   const [isAdding, setIsAdding] = useState(false);
-  const reduced = useReducedMotion();
+  const [isHovered, setIsHovered] = useState(false);
+  const reduced = useReducedMotion() ?? false;
 
   const wishlisted = isWishlisted(product._id);
   const isOutOfStock = product.inventory !== undefined && product.inventory <= 0;
@@ -75,118 +75,119 @@ export default function ProductCardModern({ product, priority = false, index = 1
 
   const frontImg = product.images?.[0];
   const backImg = product.images?.[1];
-  const categoryName = product.category?.name || "";
-
-  // Cinematic physics for a subtle, dramatic slow zoom
-  const imageVariants: Variants = {
-    rest: {
-      scale: 1,
-      filter: "brightness(0.9)",
-      transition: {
-        duration: 0.8,
-        ease: [0.25, 1, 0.5, 1] as const,
-      },
-    },
-
-    hover: {
-      scale: reduced ? 1 : 1.05,
-      filter: "brightness(1)",
-      transition: {
-        duration: 1.2,
-        ease: [0.25, 1, 0.5, 1] as const,
-      },
-    },
-  };
 
   return (
     <motion.div
-      className="relative group flex flex-col w-full cursor-pointer"
-      initial="rest"
-      whileHover="hover"
-      animate="rest"
+      className="relative group flex flex-col w-full cursor-pointer bg-white border border-gray-200 rounded-[20px] overflow-hidden"
+      onHoverStart={() => setIsHovered(true)}
+      onHoverEnd={() => setIsHovered(false)}
+      animate={reduced ? {} : { y: isHovered ? -6 : 0 }}
+      transition={{ type: "spring", stiffness: 400, damping: 28 }}
       suppressHydrationWarning
     >
-      <motion.div
-        className="relative w-full aspect-[4/5] overflow-hidden bg-paper-grey rounded-[1.5rem]"
-        variants={imageVariants}
-      >
-        {/* Badges — top left as hollow pills */}
+      {/* ─── Image Container ─── */}
+      <div className="relative w-full aspect-[4/5] overflow-hidden bg-[#F5F5F5]">
+
+        {/* Badges */}
         <div className="absolute top-4 left-4 z-20 flex gap-2 pointer-events-none">
           {product.badge && (
-            <span className="border border-ink-black/20 text-ink-black/80 font-body text-[11px] px-3 py-1 rounded-full bg-white/40 backdrop-blur-md">
+            <span className="bg-[#A3E635] text-[#14532D] font-bold text-[11px] px-3 py-1 rounded-full shadow-sm">
               {product.badge}
             </span>
           )}
           {hasDiscount && (
-            <span className="border border-ink-black/20 text-ink-black/80 font-body text-[11px] px-3 py-1 rounded-full bg-white/40 backdrop-blur-md">
-              Promotion
+            <span className="bg-[#A3E635] text-[#14532D] font-bold text-[11px] px-3 py-1 rounded-full shadow-sm">
+              {discountPercentage}% ছাড়
+            </span>
+          )}
+          {isOutOfStock && (
+            <span className="bg-gray-900 text-white font-bold text-[11px] px-3 py-1 rounded-full shadow-sm">
+              Sold Out
             </span>
           )}
         </div>
 
-        <Link href={`/products/${product.slug}`} className="block w-full h-full relative z-[2] group-hover:opacity-0 transition-opacity duration-300">
+        <button
+          onClick={handleWishlistClick}
+          className={cn(
+            "absolute top-4 right-4 z-20 w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300 shadow-sm",
+            wishlisted
+              ? "bg-[#043224] text-white scale-110"
+              : "bg-white/80 backdrop-blur-sm text-gray-500 hover:bg-[#043224] hover:text-white"
+          )}
+          aria-label={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
+        >
+          <Heart size={15} fill={wishlisted ? "currentColor" : "none"} />
+        </button>
+
+        {/* Product Images */}
+        <Link href={`/products/${product.slug}`} className="block w-full h-full absolute inset-0 z-[1]">
           {frontImg ? (
             <Image
               src={frontImg.url}
               alt={frontImg.alt || product.title}
               fill
-              className="object-cover"
+              className={cn(
+                "object-cover transition-opacity duration-500",
+                isHovered && backImg ? "opacity-0" : "opacity-100"
+              )}
               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
               priority={priority}
               fetchPriority={priority ? "high" : "auto"}
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center">
-              <Image src="/placeholder.jpg" alt="Placeholder" fill className="object-cover mix-blend-multiply opacity-50" />
+            <div className="w-full h-full flex items-center justify-center bg-joy-mist">
+              <Image src="/placeholder.jpg" alt="Placeholder" fill className="object-cover opacity-40" />
             </div>
           )}
-        </Link>
 
-        {/* Back image (hover reveal) */}
-        {backImg && (
-          <Link href={`/products/${product.slug}`} className="block w-full h-full absolute inset-0 z-[1] opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+          {/* Back image on hover */}
+          {backImg && (
             <Image
               src={backImg.url}
               alt={backImg.alt || product.title}
               fill
-              className="object-cover"
+              className={cn(
+                "object-cover transition-opacity duration-500",
+                isHovered ? "opacity-100" : "opacity-0"
+              )}
               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
             />
-          </Link>
-        )}
-
-        {/* Right Arrow (Carousel hint, shown on hover for interaction) */}
-        <div className="absolute inset-y-0 right-4 flex items-center z-20 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-          <div className="w-8 h-8 rounded-full bg-white/70 backdrop-blur-md flex items-center justify-center shadow-sm">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-          </div>
-        </div>
-      </motion.div>
-
-      {/* ─── Product Info ─── */}
-      <div className="flex flex-col mt-4 gap-1 px-1" suppressHydrationWarning>
-
-        {/* Title */}
-        <Link href={`/products/${product.slug}`} className="no-underline">
-          <h5 className="font-body text-[15px] font-medium text-ink-black leading-tight line-clamp-2 min-h-[44px]">
-            {product.title}
-          </h5>
+          )}
         </Link>
 
-        {/* Price and Cart Button */}
-        <div className="flex items-center justify-between mt-2">
-          <p className="font-body font-bold text-lg text-ink-black">
-            ${(product.price / 110).toFixed(2)} {/* Mock USD price for aesthetic match */}
-          </p>
-          <button
-            onClick={handleQuickAdd}
-            disabled={isOutOfStock || isAdding}
-            className="flex items-center gap-1.5 bg-stamp-red text-white px-4 py-1.5 rounded-full font-body text-xs font-semibold hover:bg-stamp-red/90 transition-colors disabled:opacity-50"
-          >
-            <span>+</span> Cart
-          </button>
-        </div>
+      </div>
 
+      {/* ─── Product Info ─── */}
+      <div className="flex flex-col p-4 sm:p-5 flex-1" suppressHydrationWarning>
+
+        {/* Title */}
+        <Link href={`/products/${product.slug}`} className="no-underline mb-1">
+          <h3 className="font-body text-[16px] font-bold text-gray-900 leading-tight line-clamp-2">
+            {product.title}
+          </h3>
+        </Link>
+
+        {/* Price */}
+        <div className="flex items-center gap-2 mt-auto pt-2">
+          <span className="font-body font-bold text-[17px] text-gray-900">
+            ৳{product.price.toLocaleString("en-IN")}
+          </span>
+          {hasDiscount && (
+            <span className="font-body text-[14px] text-gray-400 line-through">
+              ৳{product.compareAtPrice!.toLocaleString("en-IN")}
+            </span>
+          )}
+        </div>
+        
+        {/* Order Button */}
+        <button
+          onClick={handleQuickAdd}
+          disabled={isAdding || isOutOfStock}
+          className="w-full mt-5 bg-[#D5AEFD] hover:bg-[#D5AEFD]/90 text-black font-body font-bold text-[15px] py-3.5 rounded-full transition-colors disabled:opacity-70 flex justify-center items-center"
+        >
+          {isAdding ? "Adding..." : (isOutOfStock ? "Sold Out" : "Add to Cart")}
+        </button>
       </div>
     </motion.div>
   );

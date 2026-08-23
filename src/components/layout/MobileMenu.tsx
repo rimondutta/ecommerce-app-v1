@@ -18,7 +18,7 @@ const navItems = [
 
 export default function MobileMenu() {
   const { isMobileMenuOpen, closeMobileMenu } = useUIStore();
-  const reduced = useReducedMotion();
+  const reduced = useReducedMotion() ?? false;
 
   const container: any = {
     hidden: {},
@@ -51,7 +51,7 @@ export default function MobileMenu() {
             initial={{ x: reduced ? 0 : "-100%" }}
             animate={{ x: 0 }}
             exit={{ x: reduced ? 0 : "-100%", opacity: reduced ? 0 : 1 }}
-            transition={{ ease: [0.25, 1, 0.5, 1], duration: reduced ? 0.15 : 0.6 }}
+            transition={{ ease: [0.25, 1, 0.5, 1] as any, duration: reduced ? 0.15 : 0.6 }}
             className="fixed inset-y-0 left-0 w-[85vw] max-w-sm z-[1001] bg-[#0D0D14]/95 backdrop-blur-2xl flex flex-col overflow-hidden border-r border-violet-500/10"
           >
             {/* Header */}

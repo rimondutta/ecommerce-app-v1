@@ -21,7 +21,7 @@ export default function AnimatedReveal({
   delay = 0,
   direction = "up",
 }: AnimatedRevealProps) {
-  const reduced = useReducedMotion();
+  const reduced = useReducedMotion() ?? false;
 
   const hidden =
     reduced
