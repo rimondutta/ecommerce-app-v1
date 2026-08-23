@@ -107,7 +107,7 @@ export default function ProductCardModern({ product, priority = false, index = 1
       suppressHydrationWarning
     >
       <motion.div
-        className="relative w-full aspect-[4/5] overflow-hidden bg-paper-grey rounded-[1.5rem] p-4"
+        className="relative w-full aspect-[4/5] overflow-hidden bg-paper-grey rounded-[1.5rem]"
         variants={imageVariants}
       >
         {/* Badges — top left as hollow pills */}
@@ -130,14 +130,14 @@ export default function ProductCardModern({ product, priority = false, index = 1
               src={frontImg.url}
               alt={frontImg.alt || product.title}
               fill
-              className="object-contain p-6"
+              className="object-cover"
               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
               priority={priority}
               fetchPriority={priority ? "high" : "auto"}
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
-              <Image src="/placeholder.jpg" alt="Placeholder" fill className="object-contain p-6 mix-blend-multiply opacity-50" />
+              <Image src="/placeholder.jpg" alt="Placeholder" fill className="object-cover mix-blend-multiply opacity-50" />
             </div>
           )}
         </Link>
@@ -149,7 +149,7 @@ export default function ProductCardModern({ product, priority = false, index = 1
               src={backImg.url}
               alt={backImg.alt || product.title}
               fill
-              className="object-contain p-6"
+              className="object-cover"
               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
             />
           </Link>
