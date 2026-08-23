@@ -165,13 +165,6 @@ export default function ProductCardModern({ product, priority = false, index = 1
 
       {/* ─── Product Info ─── */}
       <div className="flex flex-col mt-4 gap-1 px-1" suppressHydrationWarning>
-        
-        {/* Swatches (Placeholder colors) */}
-        <div className="flex items-center gap-1.5 mb-1">
-          <div className="w-3 h-3 rounded-full bg-[#8E9B90] border border-black/10" />
-          <div className="w-3 h-3 rounded-full bg-[#B5B5B5] border border-black/10" />
-          <div className="w-3 h-3 rounded-full bg-[#D4B398] border border-black/10" />
-        </div>
 
         {/* Title */}
         <Link href={`/products/${product.slug}`} className="no-underline">
