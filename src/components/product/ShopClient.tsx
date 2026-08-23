@@ -95,7 +95,7 @@ function ShopContent({ initialProducts }: { initialProducts: any[] }) {
     <div suppressHydrationWarning className="flex-1 bg-transparent min-h-screen text-ink-black font-body">
 
       {/* ─── Sticky utility bar ─── */}
-      <section className="sticky top-[57px] z-30 bg-paper-white/80 backdrop-blur-xl border-b border-rule-grey">
+      <section className="relative bg-paper-white/80 backdrop-blur-xl border-b border-rule-grey">
 
         {/* Page title row */}
         <div className="px-4 sm:px-10 lg:px-[5vw] py-5 flex items-baseline justify-between border-b border-rule-grey">
