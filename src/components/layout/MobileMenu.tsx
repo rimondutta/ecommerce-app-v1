@@ -10,10 +10,10 @@ const navItems = [
   { num: "01", label: "SHOP", href: "/products" },
   { num: "02", label: "ABOUT", href: "/about" },
   { num: "03", label: "BLOG", href: "/blogs" },
-  { num: "04", label: "CONTACT", href: "/contact" },
-  { num: "05", label: "ACCOUNT", href: "/account" },
-  { num: "06", label: "WISHLIST", href: "/wishlist" },
-  { num: "07", label: "APP", href: "/download" },
+  { num: "04", label: "APP DOWNLOAD", href: "/download" },
+  { num: "05", label: "CONTACT", href: "/contact" },
+  { num: "06", label: "ACCOUNT", href: "/account" },
+  { num: "07", label: "WISHLIST", href: "/wishlist" },
 ];
 
 export default function MobileMenu() {
@@ -40,7 +40,7 @@ export default function MobileMenu() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.25 }}
-            className="fixed inset-0 bg-paper-white/80 backdrop-blur-sm z-[1000]"
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[1000]"
             onClick={closeMobileMenu}
             aria-hidden="true"
           />
@@ -55,17 +55,17 @@ export default function MobileMenu() {
             className="fixed inset-y-0 left-0 w-[85vw] max-w-sm z-[1001] bg-[#0D0D14]/95 backdrop-blur-2xl flex flex-col overflow-hidden border-r border-violet-500/10"
           >
             {/* Header */}
-            <div className="flex items-center justify-between px-6 py-5 border-b border-rule-grey">
+            <div className="flex items-center justify-between px-6 py-5 border-b border-white/10">
               <Link
                 href="/"
                 onClick={closeMobileMenu}
-                className="font-display text-[22px] uppercase tracking-[-0.02em] text-ink-black"
+                className="font-serif text-[22px] uppercase tracking-[-0.02em] text-white"
               >
                 TOYHOURSE
               </Link>
               <button
                 onClick={closeMobileMenu}
-                className="text-ink-black hover:text-rule-grey transition-colors"
+                className="text-white/70 hover:text-white transition-colors"
                 aria-label="Close menu"
               >
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
@@ -100,8 +100,8 @@ export default function MobileMenu() {
             </motion.nav>
 
             {/* Footer strip */}
-            <div className="px-6 py-4 border-t border-rule-grey">
-              <p className="font-mono text-[10px] text-rule-grey uppercase tracking-[0.1em]">
+            <div className="px-6 py-4 border-t border-white/10">
+              <p className="font-mono text-[10px] text-white/40 uppercase tracking-[0.1em]">
                 © {new Date().getFullYear()} TOYHOURSE
               </p>
             </div>
