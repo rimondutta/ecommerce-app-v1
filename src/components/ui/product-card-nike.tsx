@@ -48,7 +48,6 @@ export default function ProductCardModern({ product, priority = false, index = 1
 
   const wishlisted = isWishlisted(product._id);
   const isOutOfStock = product.inventory !== undefined && product.inventory <= 0;
-  const hasDiscount = !!(product.compareAtPrice && product.compareAtPrice > product.price);
 
   const handleWishlistClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -186,7 +185,7 @@ export default function ProductCardModern({ product, priority = false, index = 1
                 ৳{formatPrice(product.compareAtPrice!)}
               </span>
               <span className="text-[11px] font-bold bg-red-100 text-red-600 px-1.5 py-0.5 rounded-full">
-                -{Math.round(((product.compareAtPrice! - product.price) / product.compareAtPrice!) * 100)}%
+                -{discountPercentage}%
               </span>
             </>
           )}
