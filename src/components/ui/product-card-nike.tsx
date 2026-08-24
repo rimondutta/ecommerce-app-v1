@@ -169,14 +169,19 @@ export default function ProductCardModern({ product, priority = false, index = 1
         </Link>
 
         {/* Price */}
-        <div className="flex items-center gap-2 mt-auto pt-2">
+        <div className="flex items-center gap-2 mt-auto pt-2 flex-wrap">
           <span className="font-body font-bold text-[17px] text-gray-900">
             ৳{product.price.toLocaleString("en-IN")}
           </span>
           {hasDiscount && (
-            <span className="font-body text-[14px] text-gray-400 line-through">
-              ৳{product.compareAtPrice!.toLocaleString("en-IN")}
-            </span>
+            <>
+              <span className="font-body text-[13px] text-gray-400 line-through">
+                ৳{product.compareAtPrice!.toLocaleString("en-IN")}
+              </span>
+              <span className="text-[11px] font-bold bg-red-100 text-red-600 px-1.5 py-0.5 rounded-full">
+                -{Math.round(((product.compareAtPrice! - product.price) / product.compareAtPrice!) * 100)}%
+              </span>
+            </>
           )}
         </div>
         
