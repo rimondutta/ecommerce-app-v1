@@ -1,19 +1,10 @@
-import React from "react";
-// import Image from "next/image";
-// import Link from "next/link";
-// import Card from "@/components/ui/Card";
-
-// import Button from "@/components/ui/Button";
+﻿import AboutClient from "@/components/sections/AboutClient";
 
 export const metadata = {
-  title: "About Us",
-  description: "comming soon",
+  title: "About Us | Toyhourse",
+  description: "Learn about Toyhourse — Bangladesh's most loved toy store, built by parents, for parents.",
 };
 
 export default function AboutPage() {
-  return (
-    <div className="bg-paper min-h-screen">
-    <span>Comming Soon</span>
-    </div>
-  );
+  return <AboutClient />;
 }

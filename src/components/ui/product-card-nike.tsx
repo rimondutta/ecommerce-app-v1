@@ -33,8 +33,6 @@ interface Props {
   index?: number;
 }
 
-
-// Consistent price formatter — avoids hydration mismatches from toLocaleString
 function formatPrice(n: number): string {
   return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
@@ -59,7 +57,9 @@ export default function ProductCardModern({ product, priority = false, index = 1
     e.preventDefault();
     e.stopPropagation();
     if (isOutOfStock) return;
+
     setIsAdding(true);
+    await new Promise(resolve => setTimeout(resolve, 600));
     addItem({
       id: product._id,
       slug: product.slug,
@@ -68,15 +68,20 @@ export default function ProductCardModern({ product, priority = false, index = 1
       quantity: 1,
       image: product.images?.[0]?.url || "/placeholder.jpg",
     });
-    try { trackAddToCart(product, 1); } catch { /* noop */ }
-    await new Promise((r) => setTimeout(r, 600));
     setIsAdding(false);
+
+    try {
+      trackAddToCart(product, 1);
+    } catch { /* noop */ }
+
     openCart();
   };
 
-  const hasDiscount = product.compareAtPrice && product.compareAtPrice > product.price;
-  const discountPercentage = hasDiscount
-    ? Math.round(((product.compareAtPrice! - product.price) / product.compareAtPrice!) * 100)
+  // Database discount calculation logic
+  const hasDiscount = Boolean(product.compareAtPrice && product.compareAtPrice > product.price);
+
+  const discountPercentage = hasDiscount && product.compareAtPrice
+    ? Math.round(((product.compareAtPrice - product.price) / product.compareAtPrice) * 100)
     : 0;
 
   const frontImg = product.images?.[0];
@@ -91,9 +96,8 @@ export default function ProductCardModern({ product, priority = false, index = 1
       transition={{ type: "spring", stiffness: 400, damping: 28 }}
       suppressHydrationWarning
     >
-      {/* ─── Image Container ─── */}
+      {/* Image Container */}
       <div className="relative w-full aspect-[4/5] overflow-hidden bg-[#F5F5F5]">
-
         {/* Badges */}
         <div className="absolute top-4 left-4 z-20 flex gap-2 pointer-events-none">
           {product.badge && (
@@ -103,7 +107,7 @@ export default function ProductCardModern({ product, priority = false, index = 1
           )}
           {hasDiscount && (
             <span className="bg-[#A3E635] text-[#14532D] font-bold text-[11px] px-3 py-1 rounded-full shadow-sm">
-              {discountPercentage}% ছাড়
+              {discountPercentage}% OFF
             </span>
           )}
           {isOutOfStock && (
@@ -113,6 +117,7 @@ export default function ProductCardModern({ product, priority = false, index = 1
           )}
         </div>
 
+        {/* Wishlist Button */}
         <button
           onClick={handleWishlistClick}
           className={cn(
@@ -147,7 +152,6 @@ export default function ProductCardModern({ product, priority = false, index = 1
             </div>
           )}
 
-          {/* Back image on hover */}
           {backImg && (
             <Image
               src={backImg.url}
@@ -161,37 +165,34 @@ export default function ProductCardModern({ product, priority = false, index = 1
             />
           )}
         </Link>
-
       </div>
 
-      {/* ─── Product Info ─── */}
+      {/* Product Details & Price */}
       <div className="flex flex-col p-4 sm:p-5 flex-1" suppressHydrationWarning>
-
-        {/* Title */}
         <Link href={`/products/${product.slug}`} className="no-underline mb-1">
           <h3 className="font-body text-[16px] font-bold text-gray-900 leading-tight line-clamp-2">
             {product.title}
           </h3>
         </Link>
 
-        {/* Price */}
-        <div className="flex items-center gap-2 mt-auto pt-2 flex-wrap">
-          <span className="font-body font-bold text-[17px] text-gray-900">
+        {/* Price Section */}
+        <div className="flex items-center gap-2 mt-auto pt-3 flex-wrap">
+          <span className="font-body font-extrabold text-[22px] text-[#0A1A3A]">
             ৳{formatPrice(product.price)}
           </span>
-          {hasDiscount && (
+          {hasDiscount && product.compareAtPrice && (
             <>
-              <span className="font-body text-[13px] text-gray-400 line-through">
-                ৳{formatPrice(product.compareAtPrice!)}
+              <span className="font-body font-medium text-[15px] text-gray-500 line-through">
+                ৳{formatPrice(product.compareAtPrice)}
               </span>
-              <span className="text-[11px] font-bold bg-red-100 text-red-600 px-1.5 py-0.5 rounded-full">
+              <span className="text-[12px] font-bold bg-[#FF5733] text-white px-2 py-0.5 rounded-full">
                 -{discountPercentage}%
               </span>
             </>
           )}
         </div>
-        
-        {/* Order Button */}
+
+        {/* Action Button */}
         <button
           onClick={handleQuickAdd}
           disabled={isAdding || isOutOfStock}

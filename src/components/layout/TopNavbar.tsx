@@ -20,15 +20,15 @@ export default function TopNavbar() {
 
   const navLinks = [
     { label: "Shop", href: "/products" },
-    { label: "Bestsellers", href: "/bestsellers" },
-    { label: "Gallery", href: "/gallery" },
-    { label: "About", href: "/about" },
+    { label: "Contact", href: "/contact" },
+    { label: "App Download", href: "/download" },
+    { label: "Blog", href: "/blogs" },
   ];
 
   return (
     <nav className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-6xl bg-[#D5AEFD]/80 backdrop-blur-xl border border-white/20 rounded-full px-6 py-3 shadow-[0_8px_32px_rgba(0,0,0,0.15)] transition-all duration-300 hover:bg-[#D5AEFD]/95">
       <div className="flex items-center justify-between">
-        
+
         {/* Left — Nav links */}
         <div className="hidden md:flex items-center gap-2 w-1/3">
           {navLinks.map((link) => (
@@ -48,7 +48,7 @@ export default function TopNavbar() {
             href="/"
             className="font-display text-2xl md:text-3xl text-black tracking-tight hover:opacity-80 transition-opacity"
           >
-            Toyhourse
+            TOY HOURSE
           </Link>
         </div>
 
@@ -61,7 +61,7 @@ export default function TopNavbar() {
             </svg>
             <span className="text-sm text-black/60 font-body">Search...</span>
           </div>
-          
+
           {/* Mobile Search Icon */}
           <button
             onClick={openSearch}

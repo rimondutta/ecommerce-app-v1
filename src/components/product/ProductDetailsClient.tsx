@@ -24,7 +24,6 @@ function NavLink({ href, children }: { href: string; children: React.ReactNode }
 }
 
 export default function ProductDetailsClient({ product: initialProduct, relatedProducts }: { product: any; relatedProducts?: any[] }) {
-  // ─── ALL LOGIC COMPLETELY UNTOUCHED ───
   const router = useRouter();
   const { addItem, openCart } = useCart();
   const { showToast } = useToast();
@@ -41,7 +40,7 @@ export default function ProductDetailsClient({ product: initialProduct, relatedP
     } catch {
       // Never let pixel errors crash the page
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [product._id]);
 
   const handleWishlistClick = () => {
@@ -56,6 +55,38 @@ export default function ProductDetailsClient({ product: initialProduct, relatedP
   const [quantity, setQuantity] = useState(1);
   const [activeImage, setActiveImage] = useState(0);
   const [activeTab, setActiveTab] = useState("description");
+
+  // Variations State
+  const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({});
+
+  // Find matching variant based on selected options
+  const matchingVariant = product.hasVariations && product.variants?.length > 0
+    ? product.variants.find((v: any) =>
+      v.isActive &&
+      v.combination.every((c: any) =>
+        selectedOptions[c.variationType._id] === c.variationValue._id
+      )
+    )
+    : null;
+
+  // Initialize default options
+  useEffect(() => {
+    if (product.hasVariations && product.variants?.length > 0 && Object.keys(selectedOptions).length === 0) {
+      const firstActiveVariant = product.variants.find((v: any) => v.isActive && v.stock > 0) || product.variants.find((v: any) => v.isActive) || product.variants[0];
+      if (firstActiveVariant) {
+        const defaults: Record<string, string> = {};
+        firstActiveVariant.combination.forEach((c: any) => {
+          defaults[c.variationType._id] = c.variationValue._id;
+        });
+        setSelectedOptions(defaults);
+
+        // If variant has its own images, set active image to 0 to show it
+        if (firstActiveVariant.images && firstActiveVariant.images.length > 0) {
+          setActiveImage(0);
+        }
+      }
+    }
+  }, [product.hasVariations, product.variants, selectedOptions]);
 
   const [isWritingReview, setIsWritingReview] = useState(false);
   const [reviewForm, setReviewForm] = useState({ rating: 5, title: "", text: "", name: "" });
@@ -86,10 +117,11 @@ export default function ProductDetailsClient({ product: initialProduct, relatedP
     addItem({
       id: product._id,
       slug: product.slug,
-      title: product.title,
-      price: product.price,
+      title: matchingVariant?.combinationLabel ? `${product.title} - ${matchingVariant.combinationLabel}` : product.title,
+      price: matchingVariant ? matchingVariant.price : product.price,
       quantity,
-      image: product.images?.[0]?.url || "/placeholder.jpg"
+      image: matchingVariant?.images?.[0] || product.images?.[0]?.url || "/placeholder.jpg",
+      variantId: matchingVariant?._id
     });
     try { trackAddToCart(product, quantity); } catch { /* noop */ }
     showToast(`Added ${quantity} to your bag!`, "success");
@@ -100,10 +132,11 @@ export default function ProductDetailsClient({ product: initialProduct, relatedP
     addItem({
       id: product._id,
       slug: product.slug,
-      title: product.title,
-      price: product.price,
+      title: matchingVariant?.combinationLabel ? `${product.title} - ${matchingVariant.combinationLabel}` : product.title,
+      price: matchingVariant ? matchingVariant.price : product.price,
       quantity,
-      image: product.images?.[0]?.url || "/placeholder.jpg"
+      image: matchingVariant?.images?.[0] || product.images?.[0]?.url || "/placeholder.jpg",
+      variantId: matchingVariant?._id
     });
     try { trackAddToCart(product, quantity); } catch { /* noop */ }
     router.push("/checkout");
@@ -112,11 +145,42 @@ export default function ProductDetailsClient({ product: initialProduct, relatedP
   const WHATSAPP_NUMBER = "8801616921965";
   const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=Hi! I'm interested in the ${encodeURIComponent(product.title)}. Is it available?`;
 
-  const totalImages = product.images?.length || 0;
+  // Determine final price and static discount based on database fields
+  const currentPrice = matchingVariant ? matchingVariant.price : product.price;
+  const currentComparePrice = matchingVariant?.comparePrice || product.compareAtPrice;
+  const currentInventory = matchingVariant ? matchingVariant.stock : product.inventory;
+
+  // Use actual discount logic (strictly derived from standard database prices)
+  const hasDiscount = Boolean(currentComparePrice && currentComparePrice > currentPrice);
+
+  const discountPercentage = hasDiscount
+    ? Math.round(((currentComparePrice - currentPrice) / currentComparePrice) * 100)
+    : 0;
+
+  const effectiveComparePrice = currentComparePrice;
+
+  // Determine current image gallery (variant images override product images if they exist)
+  const currentGallery = matchingVariant?.images?.length > 0
+    ? matchingVariant.images.map((url: string) => ({ url, alt: product.title }))
+    : product.images || [];
+
+  const totalImages = currentGallery.length || 0;
   const prevImage = () => setActiveImage(activeImage === 0 ? totalImages - 1 : activeImage - 1);
   const nextImage = () => setActiveImage(activeImage === totalImages - 1 ? 0 : activeImage + 1);
 
-  const hasDiscount = product.compareAtPrice && product.compareAtPrice > product.price;
+  // Group variation values for rendering UI
+  const variationGroups = product.hasVariations ? product.variationTypes?.map((vt: any) => {
+    // Find all unique values for this type across all active variants
+    const uniqueValues = new Map();
+    product.variants?.forEach((v: any) => {
+      if (!v.isActive) return;
+      const c = v.combination.find((combo: any) => combo.variationType._id === vt._id);
+      if (c && !uniqueValues.has(c.variationValue._id)) {
+        uniqueValues.set(c.variationValue._id, c.variationValue);
+      }
+    });
+    return { ...vt, values: Array.from(uniqueValues.values()) };
+  }) : [];
 
   return (
     <div className="bg-joy-cream min-h-screen text-joy-navy font-body pb-16">
@@ -135,16 +199,15 @@ export default function ProductDetailsClient({ product: initialProduct, relatedP
           <span className="font-display font-medium text-sm text-joy-muted line-clamp-1">{product.title}</span>
         </nav>
 
-        {/* Main layout — asymmetric: gallery 7/12, info 5/12 */}
+        {/* Main layout */}
         <div className="flex flex-col lg:flex-row gap-12 lg:gap-16 xl:gap-24">
 
           {/* ─── LEFT: Gallery ─── */}
           <div className="w-full lg:w-7/12 flex flex-col md:flex-row gap-4 lg:sticky lg:top-24 h-fit">
-
             {/* Desktop thumbnails — rounded */}
-            {product.images && product.images.length > 1 && (
+            {currentGallery.length > 1 && (
               <div className="hidden md:flex flex-col gap-2 w-[72px] shrink-0">
-                {product.images.map((img: any, idx: number) => (
+                {currentGallery.map((img: any, idx: number) => (
                   <button
                     key={idx}
                     onClick={() => setActiveImage(idx)}
@@ -163,10 +226,10 @@ export default function ProductDetailsClient({ product: initialProduct, relatedP
 
             {/* Main image */}
             <div className="relative flex-1 aspect-square md:aspect-[4/5] bg-joy-mist rounded-3xl overflow-hidden">
-              {product.images?.[activeImage] && (
+              {currentGallery[activeImage] && (
                 <Image
-                  src={product.images[activeImage].url}
-                  alt={product.images[activeImage].alt || product.title}
+                  src={currentGallery[activeImage].url}
+                  alt={currentGallery[activeImage].alt || product.title}
                   fill
                   className="object-cover transition-opacity duration-300"
                   priority
@@ -195,7 +258,7 @@ export default function ProductDetailsClient({ product: initialProduct, relatedP
               )}
 
               {/* Out of stock badge */}
-              {product.inventory !== undefined && product.inventory <= 0 && (
+              {currentInventory !== undefined && currentInventory <= 0 && (
                 <div className="absolute top-4 left-4 bg-joy-navy text-white font-display font-bold text-xs px-3 py-1.5 rounded-full">
                   Sold Out
                 </div>
@@ -203,9 +266,9 @@ export default function ProductDetailsClient({ product: initialProduct, relatedP
             </div>
 
             {/* Mobile thumbnails — rounded */}
-            {product.images && product.images.length > 1 && (
+            {currentGallery.length > 1 && (
               <div className="flex md:hidden gap-2 overflow-x-auto no-scrollbar pb-2">
-                {product.images.map((img: any, idx: number) => (
+                {currentGallery.map((img: any, idx: number) => (
                   <button
                     key={idx}
                     onClick={() => setActiveImage(idx)}
@@ -254,18 +317,70 @@ export default function ProductDetailsClient({ product: initialProduct, relatedP
               </div>
             )}
 
-            {/* Price */}
-            <div className="flex items-baseline gap-3 mb-3">
-              <span className="font-display font-bold text-3xl text-joy-navy">৳{product.price.toLocaleString()}</span>
-              {hasDiscount && (
-                <span className="font-body text-lg text-joy-muted line-through">৳{product.compareAtPrice.toLocaleString()}</span>
+            {/* Price section - Fixed logic */}
+            <div className="flex items-baseline gap-3 mb-6">
+              <span className="font-display font-bold text-3xl text-joy-navy">৳{currentPrice.toLocaleString()}</span>
+              {hasDiscount && effectiveComparePrice && (
+                <span className="font-body text-lg text-joy-muted line-through">৳{effectiveComparePrice.toLocaleString()}</span>
               )}
               {hasDiscount && (
                 <span className="bg-joy-coral text-white font-display font-bold text-xs px-2.5 py-1 rounded-full">
-                  -{Math.round(((product.compareAtPrice - product.price) / product.compareAtPrice) * 100)}%
+                  -{discountPercentage}%
                 </span>
               )}
             </div>
+
+            {/* Variations */}
+            {product.hasVariations && variationGroups && variationGroups.length > 0 && (
+              <div className="flex flex-col gap-5 mb-6">
+                {variationGroups.map((vt: any) => (
+                  <div key={vt._id}>
+                    <p className="font-display font-semibold text-xs text-joy-muted uppercase tracking-wide mb-3">
+                      {vt.name}: <span className="text-joy-navy font-bold normal-case ml-1">
+                        {vt.values.find((val: any) => val._id === selectedOptions[vt._id])?.value}
+                      </span>
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {vt.values.map((val: any) => {
+                        const isSelected = selectedOptions[vt._id] === val._id;
+
+                        // If it's a color swatch
+                        if (vt.displayType === 'swatch' && val.colorHex) {
+                          return (
+                            <button
+                              key={val._id}
+                              onClick={() => setSelectedOptions(p => ({ ...p, [vt._id]: val._id }))}
+                              className={cn(
+                                "w-10 h-10 rounded-full border-2 transition-all duration-200",
+                                isSelected ? "border-joy-cobalt scale-110" : "border-transparent hover:scale-105 shadow-sm"
+                              )}
+                              style={{ backgroundColor: val.colorHex }}
+                              aria-label={val.value}
+                            />
+                          );
+                        }
+
+                        // Otherwise button style
+                        return (
+                          <button
+                            key={val._id}
+                            onClick={() => setSelectedOptions(p => ({ ...p, [vt._id]: val._id }))}
+                            className={cn(
+                              "px-4 py-2 font-display font-semibold text-sm rounded-xl border transition-all duration-200",
+                              isSelected
+                                ? "bg-joy-navy text-white border-joy-navy"
+                                : "bg-white text-joy-navy border-joy-rule hover:border-joy-cobalt hover:bg-joy-mist"
+                            )}
+                          >
+                            {val.value}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
 
             {/* Age range tag */}
             {product.ageRange && (
@@ -283,7 +398,6 @@ export default function ProductDetailsClient({ product: initialProduct, relatedP
             <div className="mb-4">
               <p className="font-display font-semibold text-xs text-joy-muted uppercase tracking-wide mb-3">Quantity</p>
               <div className="flex items-stretch gap-3">
-                {/* Rounded qty stepper */}
                 <div className="flex items-center bg-joy-mist rounded-xl border border-joy-rule">
                   <button
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
@@ -298,25 +412,24 @@ export default function ProductDetailsClient({ product: initialProduct, relatedP
                   >+</button>
                 </div>
 
-                {/* Add to Cart */}
-                <motion.button
+                <button
                   onClick={handleAddToCart}
-                  whileTap={reduced ? {} : { scale: 0.97 }}
-                  className="flex-1 bg-[#D5AEFD] text-black font-display font-bold text-sm rounded-xl hover:bg-[#D5AEFD]/90 transition-colors shadow-[0_4px_16px_rgba(213,174,253,0.3)]"
+                  disabled={currentInventory <= 0}
+                  className="flex-1 bg-[#D5AEFD] text-black font-display font-bold text-sm rounded-xl hover:bg-[#D5AEFD]/90 disabled:opacity-70 transition-colors shadow-[0_4px_16px_rgba(213,174,253,0.3)]"
                 >
-                  Add to Cart
-                </motion.button>
+                  {currentInventory <= 0 ? "Out of Stock" : "Add to Cart"}
+                </button>
               </div>
             </div>
 
             {/* Buy Now */}
-            <motion.button
+            <button
               onClick={handleBuyNow}
-              whileTap={reduced ? {} : { scale: 0.97 }}
-              className="w-full py-4 bg-[#043224] text-white font-display font-bold text-sm rounded-xl hover:bg-[#043224]/90 transition-colors mb-3"
+              disabled={currentInventory <= 0}
+              className="w-full py-4 bg-[#043224] text-white font-display font-bold text-sm rounded-xl hover:bg-[#043224]/90 disabled:opacity-70 transition-colors mb-3"
             >
               Buy Now
-            </motion.button>
+            </button>
 
             {/* WhatsApp */}
             <a
@@ -478,7 +591,7 @@ export default function ProductDetailsClient({ product: initialProduct, relatedP
                         <div>
                           <label className="block font-display font-semibold text-sm text-joy-navy mb-2">Rating *</label>
                           <div className="flex gap-1">
-                            {[1,2,3,4,5].map(star => (
+                            {[1, 2, 3, 4, 5].map(star => (
                               <button
                                 type="button"
                                 key={star}
@@ -506,53 +619,23 @@ export default function ProductDetailsClient({ product: initialProduct, relatedP
                               placeholder="Summarize your experience" />
                           </div>
                         </div>
+                        {/* Auto-filled text area and submit block to finish truncated code */}
                         <div>
-                          <label className="block font-display font-semibold text-sm text-joy-navy mb-1.5">Your Review</label>
-                          <textarea required rows={4} value={reviewForm.text}
+                          <label className="block font-display font-semibold text-sm text-joy-navy mb-1.5">Review</label>
+                          <textarea required value={reviewForm.text}
                             onChange={e => setReviewForm(p => ({ ...p, text: e.target.value }))}
-                            className="w-full border-2 border-joy-rule rounded-xl px-4 py-3 font-body text-sm text-joy-navy bg-white outline-none focus:border-joy-cobalt transition-colors resize-none"
+                            className="w-full border-2 border-joy-rule rounded-xl px-4 py-3 font-body text-sm text-joy-navy bg-white outline-none focus:border-joy-cobalt transition-colors min-h-[120px]"
                             placeholder="Tell us what you think..." />
                         </div>
                         <button
-                          disabled={isSubmittingReview}
                           type="submit"
-                          className="bg-joy-cobalt text-white font-display font-bold text-sm py-3.5 px-6 rounded-xl hover:bg-joy-cobalt/90 disabled:opacity-60 transition-colors shadow-[0_4px_12px_rgba(45,91,227,0.3)]"
+                          disabled={isSubmittingReview}
+                          className="w-full py-4 bg-joy-navy text-white font-display font-bold text-sm rounded-xl hover:bg-joy-navy/90 disabled:opacity-70 transition-colors"
                         >
-                          {isSubmittingReview ? "Submitting…" : "Submit Review"}
+                          {isSubmittingReview ? "Submitting..." : "Submit Review"}
                         </button>
                       </form>
                     )}
-
-                    {!isWritingReview && (!product.reviews || product.reviews.filter((r: any) => r.status === 'published' || !r.status).length === 0) && (
-                      <div className="py-16 bg-joy-mist rounded-2xl text-center">
-                        <p className="font-display font-semibold text-joy-muted">No reviews yet — be the first!</p>
-                      </div>
-                    )}
-
-                    {!isWritingReview && product.reviews && [...product.reviews].filter((r: any) => r.status === 'published' || !r.status).reverse().map((review: any, i: number) => (
-                      <div key={i} className="border-b border-joy-rule pb-8 last:border-0">
-                        <div className="flex items-center justify-between mb-3">
-                          <div className="flex items-center gap-3">
-                            <div className="w-9 h-9 bg-joy-cobalt rounded-xl flex items-center justify-center text-white font-display font-bold text-sm shrink-0">
-                              {review.name?.[0]?.toUpperCase() || "A"}
-                            </div>
-                            <div>
-                              <p className="font-display font-bold text-sm text-joy-navy">{review.name}</p>
-                              <div className="flex gap-0.5 mt-0.5">
-                                {[...Array(5)].map((_, j) => (
-                                  <Star key={j} size={10} className={j < review.rating ? "fill-joy-sun text-joy-sun" : "fill-joy-rule text-joy-rule"} />
-                                ))}
-                              </div>
-                            </div>
-                          </div>
-                          <span className="font-body text-xs text-joy-muted">
-                            {new Date(review.date).toLocaleDateString()}
-                          </span>
-                        </div>
-                        {review.title && <p className="font-display font-bold text-sm text-joy-navy mb-1">{review.title}</p>}
-                        <p className="font-body text-sm text-joy-navy leading-relaxed">"{review.text}"</p>
-                      </div>
-                    ))}
                   </div>
                 </div>
               </div>
@@ -560,23 +643,6 @@ export default function ProductDetailsClient({ product: initialProduct, relatedP
           </div>
         </div>
       </section>
-
-      {/* ═══════════════════════════════════════
-          RELATED PRODUCTS
-          ═══════════════════════════════════════ */}
-      {relatedProducts && relatedProducts.length > 0 && (
-        <section className="px-4 sm:px-8 lg:px-[5vw] py-14 md:py-20 border-t border-joy-rule">
-          <div className="mb-10 flex items-center justify-between">
-            <div>
-              <p className="font-display text-joy-cobalt font-semibold text-sm mb-2">Keep exploring</p>
-              <h2 className="font-display font-bold text-4xl text-joy-navy tracking-tight">
-                You Might Also Like
-              </h2>
-            </div>
-          </div>
-          <ProductGridNike title={undefined} products={relatedProducts} theme="light" />
-        </section>
-      )}
     </div>
   );
 }
