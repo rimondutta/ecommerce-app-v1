@@ -33,6 +33,12 @@ interface Props {
   index?: number;
 }
 
+
+// Consistent price formatter — avoids hydration mismatches from toLocaleString
+function formatPrice(n: number): string {
+  return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
 export default function ProductCardModern({ product, priority = false, index = 1 }: Props) {
   const { addItem, openCart } = useCart();
   const { toggleItem, isWishlisted } = useWishlist();
@@ -42,6 +48,7 @@ export default function ProductCardModern({ product, priority = false, index = 1
 
   const wishlisted = isWishlisted(product._id);
   const isOutOfStock = product.inventory !== undefined && product.inventory <= 0;
+  const hasDiscount = !!(product.compareAtPrice && product.compareAtPrice > product.price);
 
   const handleWishlistClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -171,12 +178,12 @@ export default function ProductCardModern({ product, priority = false, index = 1
         {/* Price */}
         <div className="flex items-center gap-2 mt-auto pt-2 flex-wrap">
           <span className="font-body font-bold text-[17px] text-gray-900">
-            ৳{product.price.toLocaleString("en-IN")}
+            ৳{formatPrice(product.price)}
           </span>
           {hasDiscount && (
             <>
               <span className="font-body text-[13px] text-gray-400 line-through">
-                ৳{product.compareAtPrice!.toLocaleString("en-IN")}
+                ৳{formatPrice(product.compareAtPrice!)}
               </span>
               <span className="text-[11px] font-bold bg-red-100 text-red-600 px-1.5 py-0.5 rounded-full">
                 -{Math.round(((product.compareAtPrice! - product.price) / product.compareAtPrice!) * 100)}%
