@@ -31,9 +31,9 @@
   --color-accent-yellow: #FFB800;
 
   /* ─── Typography ─── */
-  --font-display: var(--font-dm-sans), 'system-ui', sans-serif;
-  --font-body:    var(--font-inter), system-ui, sans-serif;
-  --font-mono:    var(--font-jetbrains-mono), 'Courier New', monospace;
+  --font-display: var(--font-playfair), 'Georgia', serif;
+  --font-body:    var(--font-playfair), 'Georgia', serif;
+  --font-mono:    var(--font-playfair), 'Georgia', serif;
   --font-serif:   var(--font-playfair), 'Georgia', serif;
 
   /* ─── Radii — rounded but not bubbly ─── */
@@ -63,7 +63,7 @@ html {
 body {
   background-color: #FEFAF3;
   color: #1A1F3A;
-  font-family: var(--font-body);
+  font-family: var(--font-playfair), 'Georgia', serif;
   font-weight: 400;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

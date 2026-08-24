@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { DM_Sans, Inter, JetBrains_Mono, Playfair_Display } from "next/font/google";
+import { Playfair_Display } from "next/font/google";
 import "./globals.css";
 import { CartProvider } from "@/components/providers/CartProvider";
 import { WishlistProvider } from "@/components/providers/WishlistProvider";
@@ -9,30 +9,11 @@ import NextAuthProvider from "@/components/providers/NextAuthProvider";
 import { ToastProvider } from "@/components/playshelf/Toast";
 import FacebookPixel from "@/components/FacebookPixel";
 
-const dmSans = DM_Sans({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-dm-sans",
-  axes: ["opsz"],
-});
-
-const inter = Inter({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-inter",
-});
-
-const jetbrainsMono = JetBrains_Mono({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-jetbrains-mono",
-  weight: ["400", "700"],
-});
-
 const playfair = Playfair_Display({
   subsets: ["latin"],
   display: "swap",
   variable: "--font-playfair",
+  weight: ["400", "500", "600", "700", "800", "900"],
 });
 
 export const metadata: Metadata = {
@@ -74,7 +55,7 @@ export default function RootLayout({
       lang="en"
       suppressHydrationWarning
       data-scroll-behavior="smooth"
-      className={`${dmSans.variable} ${inter.variable} ${jetbrainsMono.variable} ${playfair.variable}`}
+      className={playfair.variable}
     >
       <body
         suppressHydrationWarning
