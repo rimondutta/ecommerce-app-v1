@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { Playfair_Display } from "next/font/google";
+import { Poppins, DM_Sans, Manrope } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 import { CartProvider } from "@/components/providers/CartProvider";
 import { WishlistProvider } from "@/components/providers/WishlistProvider";
@@ -8,12 +9,29 @@ import GlobalUI from "@/components/layout/GlobalUI";
 import NextAuthProvider from "@/components/providers/NextAuthProvider";
 import { ToastProvider } from "@/components/playshelf/Toast";
 import FacebookPixel from "@/components/FacebookPixel";
+import ExtensionHydrationFix from "@/components/ExtensionHydrationFix";
 
-const playfair = Playfair_Display({
+const poppins = Poppins({
   subsets: ["latin"],
+  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
+  style: ["normal", "italic"],
+  variable: "--font-poppins",
   display: "swap",
-  variable: "--font-playfair",
-  weight: ["400", "500", "600", "700", "800", "900"],
+});
+
+const dmSans = DM_Sans({
+  subsets: ["latin"],
+  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900", "1000"],
+  style: ["normal", "italic"],
+  variable: "--font-dm-sans",
+  display: "swap",
+});
+
+const manrope = Manrope({
+  subsets: ["latin"],
+  weight: ["200", "300", "400", "500", "600", "700", "800"],
+  variable: "--font-manrope",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -23,10 +41,10 @@ export const metadata: Metadata = {
     template: "%s | Toy Hourse",
   },
   description:
-    "Beautifully curated toys for curious kids aged 0–10. Safety-tested, parent-approved, endlessly fun.",
+    "Endlessly fun, safety-tested toys for curious kids aged 0–10.",
   openGraph: {
     title: "Toy Hourse — Toys They'll Actually Play With Twice",
-    description: "Beautifully curated toys for curious kids. Safety-tested, parent-approved.",
+    description: "Endlessly fun, safety-tested toys for curious kids aged 0–10.",
     type: "website",
     locale: "en_US",
     siteName: "Toy Hourse",
@@ -35,11 +53,10 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Toy Hourse — Toys They'll Actually Play With Twice",
-    description: "Beautifully curated toys for curious kids.",
+    description: "Endlessly fun, safety-tested toys for curious kids aged 0–10.",
   },
 };
 
-// Preconnect to Google Fonts to eliminate render-blocking font fetches
 export const links = [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
   { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
@@ -55,8 +72,50 @@ export default function RootLayout({
       lang="en"
       suppressHydrationWarning
       data-scroll-behavior="smooth"
-      className={playfair.variable}
+      className={`${poppins.variable} ${dmSans.variable} ${manrope.variable}`}
     >
+      <head>
+        <Script
+          id="extension-attribute-cleaner"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                if (typeof window === 'undefined') return;
+                var clean = function(node) {
+                  if (node && node.removeAttribute) {
+                    if (node.hasAttribute('bis_skin_checked')) node.removeAttribute('bis_skin_checked');
+                    if (node.hasAttribute('bis_status')) node.removeAttribute('bis_status');
+                  }
+                };
+                var observer = new MutationObserver(function(mutations) {
+                  for (var i = 0; i < mutations.length; i++) {
+                    var m = mutations[i];
+                    if (m.type === 'attributes') {
+                      clean(m.target);
+                    } else if (m.type === 'childList') {
+                      for (var j = 0; j < m.addedNodes.length; j++) {
+                        var node = m.addedNodes[j];
+                        clean(node);
+                        if (node.querySelectorAll) {
+                          var children = node.querySelectorAll('[bis_skin_checked],[bis_status]');
+                          for (var k = 0; k < children.length; k++) clean(children[k]);
+                        }
+                      }
+                    }
+                  }
+                });
+                observer.observe(document.documentElement, {
+                  attributes: true,
+                  subtree: true,
+                  childList: true,
+                  attributeFilter: ['bis_skin_checked', 'bis_status']
+                });
+              })();
+            `,
+          }}
+        />
+      </head>
       <body
         suppressHydrationWarning
         className="relative min-h-screen flex flex-col bg-joy-cream text-joy-navy font-body selection:bg-joy-cobalt selection:text-joy-cream overflow-x-hidden"
@@ -66,6 +125,7 @@ export default function RootLayout({
             <CartProvider>
               <SearchProvider>
                 <ToastProvider>
+                  <ExtensionHydrationFix />
                   {children}
                   <GlobalUI />
                   <FacebookPixel />

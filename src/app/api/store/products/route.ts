@@ -29,7 +29,7 @@ export async function GET(req: Request) {
         if (idList.length > 0) {
           return await Product.find({ _id: { $in: idList }, isPublished: true })
             .populate('category')
-            .select('title price slug images category badge colors sizes inventory rating reviewCount')
+            .select('title price compareAtPrice slug images category badge colors sizes inventory rating reviewCount')
             .limit(requestedLimit)
             .lean();
         }
@@ -57,7 +57,7 @@ export async function GET(req: Request) {
           { $limit: requestedLimit },
           {
             $project: {
-              title: 1, price: 1, slug: 1, images: 1, category: 1,
+              title: 1, price: 1, compareAtPrice: 1, slug: 1, images: 1, category: 1,
               badge: 1, colors: 1, sizes: 1, inventory: 1, rating: 1,
               reviewCount: 1, ageRange: 1, createdAt: 1,
             },
@@ -79,7 +79,7 @@ export async function GET(req: Request) {
 
       return await Product.find(query)
         .populate('category')
-        .select('title price slug images category badge colors sizes inventory rating reviewCount ageRange createdAt')
+        .select('title price compareAtPrice slug images category badge colors sizes inventory rating reviewCount ageRange createdAt')
         .sort({ createdAt: -1 })
         .limit(requestedLimit)
         .lean();

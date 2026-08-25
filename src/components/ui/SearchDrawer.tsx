@@ -151,7 +151,12 @@ export default function SearchDrawer({ isOpen, onClose }: SearchDrawerProps) {
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="font-medium text-gray-900 truncate group-hover:text-black transition-colors">{product.title}</p>
-                          <p className="text-sm text-gray-500">৳{Math.round(product.price).toLocaleString()}</p>
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-semibold text-gray-900">৳{Math.round(product.price).toLocaleString()}</span>
+                            {product.compareAtPrice && product.compareAtPrice > product.price && (
+                              <span className="text-xs text-gray-400 line-through">৳{Math.round(product.compareAtPrice).toLocaleString()}</span>
+                            )}
+                          </div>
                         </div>
                         <div className="w-8 h-8 rounded-full bg-white border border-gray-200 flex items-center justify-center opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all shadow-sm">
                           <ArrowRight size={14} className="text-gray-900" />
@@ -189,7 +194,12 @@ export default function SearchDrawer({ isOpen, onClose }: SearchDrawerProps) {
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="font-medium text-gray-900 truncate group-hover:text-black transition-colors">{product.title}</p>
-                          <p className="text-sm text-gray-500">৳{Math.round(product.price).toLocaleString()}</p>
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-semibold text-gray-900">৳{Math.round(product.price).toLocaleString()}</span>
+                            {product.compareAtPrice && product.compareAtPrice > product.price && (
+                              <span className="text-xs text-gray-400 line-through">৳{Math.round(product.compareAtPrice).toLocaleString()}</span>
+                            )}
+                          </div>
                         </div>
                         <div className="w-8 h-8 rounded-full bg-white border border-gray-200 flex items-center justify-center opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all shadow-sm">
                           <ArrowRight size={14} className="text-gray-900" />

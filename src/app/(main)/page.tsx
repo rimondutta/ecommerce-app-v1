@@ -17,7 +17,7 @@ export default async function Home() {
   const [dbProducts, dbCategories, dbBlogs] = await withCache('home:isr:data', 60, async () => {
     return await Promise.all([
       Product.find({ isPublished: true })
-        .select('title price slug images category badge colors sizes inventory rating reviewCount')
+        .select('title price compareAtPrice slug images category badge colors sizes inventory rating reviewCount')
         .sort({ createdAt: -1 })
         .limit(4)
         .lean(),

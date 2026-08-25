@@ -36,11 +36,11 @@ export default function Footer() {
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
 
   return (
-    <footer className="bg-gradient-to-b from-[#ECDDFE] to-[#DABCFD] text-black pt-20 pb-0 overflow-hidden min-h-[60vh] flex flex-col justify-between mt-20 relative">
-      
+    <footer className="bg-gradient-to-b from-[#ECDDFE] to-[#DABCFD] text-black pt-20 pb-0 overflow-hidden min-h-[60vh] flex flex-col justify-between mt-20 relative" suppressHydrationWarning>
+
       {/* ─── Top Grid (Links & Socials) ─── */}
       <div className="px-4 sm:px-8 lg:px-[5vw] grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-10">
-        
+
         {/* Shop Links */}
         <div className="flex flex-col gap-3">
           <h5 className="font-mono font-bold text-[10px] uppercase tracking-[0.2em] text-black/80 mb-1">Shop</h5>
@@ -84,9 +84,23 @@ export default function Footer() {
       <div className="mt-20">
         {/* Fine Print Row */}
         <div className="px-4 sm:px-8 lg:px-[5vw] flex flex-col md:flex-row justify-between items-center gap-4 mb-8">
-          <p className="font-mono text-[11px] uppercase tracking-[0.1em] text-black font-bold">
-            © {new Date().getFullYear()} Toyhourse Corp. All Rights Reserved.
-          </p>
+          <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4 text-center sm:text-left">
+            <p className="font-mono text-[11px] uppercase tracking-[0.1em] text-black font-bold">
+              © {new Date().getFullYear()} Toyhourse Corp. All Rights Reserved.
+            </p>
+            <span className="hidden sm:inline text-black/40">·</span>
+            <p className="font-mono text-[11px] uppercase tracking-[0.1em] text-black/80 font-semibold">
+              Developed by{" "}
+              <a
+                href="https://www.facebook.com/dutta.rimon/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-bold text-black hover:text-violet-900 underline underline-offset-4 transition-colors"
+              >
+                Rimon Dutta
+              </a>
+            </p>
+          </div>
           <div className="flex gap-8">
             <Link href="#" className="font-mono text-[11px] uppercase tracking-[0.1em] text-black hover:text-black/70 font-bold">Terms & Conditions</Link>
             <Link href="#" className="font-mono text-[11px] uppercase tracking-[0.1em] text-black hover:text-black/70 font-bold">Privacy Policy</Link>

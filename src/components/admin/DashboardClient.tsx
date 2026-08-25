@@ -13,7 +13,8 @@ import {
   Calendar,
   ChevronRight,
   Info,
-  Plus
+  Plus,
+  FileText
 } from "lucide-react"
 
 interface DashboardClientProps {
@@ -63,10 +64,10 @@ export default function DashboardClient({
           <p className="text-sm text-gray-500 mt-1">Real-time store performance insights</p>
         </div>
         <div className="flex items-center gap-3">
-          <button className="flex items-center gap-2 bg-white border border-gray-200 px-3 py-1.5 text-sm font-medium rounded-md text-gray-700 hover:bg-gray-50 shadow-sm transition-colors">
-            <Calendar size={16} />
-            Last 30 days
-          </button>
+          <Link href="/admin/blog" className="flex items-center gap-2 bg-white border border-gray-200 px-3 py-1.5 text-sm font-medium rounded-md text-gray-700 hover:bg-gray-50 shadow-sm transition-colors">
+            <FileText size={16} />
+            Blog Posts
+          </Link>
           <Link href="/admin/categories" className="flex items-center gap-2 bg-gray-900 text-white border border-transparent px-3 py-1.5 text-sm font-medium rounded-md hover:bg-gray-800 shadow-sm transition-colors">
             <Plus size={16} />
             Add Category

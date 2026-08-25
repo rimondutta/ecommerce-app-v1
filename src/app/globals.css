@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Manrope:wght@200..800&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
 @import "tailwindcss";
 
 /* Swiper — bundled here to avoid render-blocking separate stylesheet requests */
@@ -31,10 +32,13 @@
   --color-accent-yellow: #FFB800;
 
   /* ─── Typography ─── */
-  --font-display: var(--font-playfair), 'Georgia', serif;
-  --font-body:    var(--font-playfair), 'Georgia', serif;
-  --font-mono:    var(--font-playfair), 'Georgia', serif;
-  --font-serif:   var(--font-playfair), 'Georgia', serif;
+  --font-display: var(--font-poppins), 'Poppins', var(--font-manrope), 'Manrope', sans-serif;
+  --font-heading: var(--font-poppins), 'Poppins', var(--font-manrope), 'Manrope', sans-serif;
+  --font-serif:   var(--font-poppins), 'Poppins', var(--font-manrope), 'Manrope', sans-serif;
+  --font-poppins: var(--font-poppins), 'Poppins', var(--font-manrope), 'Manrope', sans-serif;
+  --font-body:    var(--font-dm-sans), 'DM Sans', var(--font-manrope), 'Manrope', sans-serif;
+  --font-sans:    var(--font-dm-sans), 'DM Sans', var(--font-manrope), 'Manrope', sans-serif;
+  --font-mono:    var(--font-dm-sans), 'DM Sans', sans-serif;
 
   /* ─── Radii — rounded but not bubbly ─── */
   --radius-none: 0px;
@@ -63,12 +67,51 @@ html {
 body {
   background-color: #FEFAF3;
   color: #1A1F3A;
-  font-family: var(--font-playfair), 'Georgia', serif;
+  font-family: var(--font-dm-sans), 'DM Sans', var(--font-manrope), 'Manrope', sans-serif;
   font-weight: 400;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
   line-height: 1.6;
+}
+
+/* Logo, Main Heading, Product Title, Price -> Poppins */
+h1, h2, h3, h4, h5, h6,
+.font-display,
+.font-heading,
+.font-serif,
+.font-poppins,
+.font-logo,
+.font-price,
+.font-title,
+.logo-text,
+.product-title,
+.price-tag {
+  font-family: var(--font-poppins), 'Poppins', var(--font-manrope), 'Manrope', sans-serif;
+}
+
+/* Body text, Button, Nav text -> DM Sans */
+p, span, li, td, th, input, select, textarea, label,
+button,
+nav,
+nav a,
+.font-body,
+.font-sans,
+.font-mono,
+.font-dm-sans,
+.font-button,
+.font-nav {
+  font-family: var(--font-dm-sans), 'DM Sans', var(--font-manrope), 'Manrope', sans-serif;
+}
+
+/* Explicit Button Font Override */
+button, input[type="button"], input[type="submit"], [role="button"], .btn {
+  font-family: var(--font-dm-sans), 'DM Sans', var(--font-manrope), 'Manrope', sans-serif !important;
+}
+
+/* Explicit Logo & Product Title & Price Font Overrides */
+[data-logo="true"], .brand-logo, .site-logo {
+  font-family: var(--font-poppins), 'Poppins', var(--font-manrope), 'Manrope', sans-serif !important;
 }
 
 ::selection {
@@ -81,19 +124,19 @@ body {
    ═══════════════════════════════════════ */
 
 .font-display {
-  font-family: var(--font-display);
+  font-family: var(--font-poppins), 'Poppins', var(--font-manrope), 'Manrope', sans-serif;
 }
 
 .font-body {
-  font-family: var(--font-body);
+  font-family: var(--font-dm-sans), 'DM Sans', var(--font-manrope), 'Manrope', sans-serif;
 }
 
 .font-mono {
-  font-family: var(--font-mono);
+  font-family: var(--font-dm-sans), 'DM Sans', sans-serif;
 }
 
 .font-serif {
-  font-family: var(--font-serif);
+  font-family: var(--font-poppins), 'Poppins', var(--font-manrope), 'Manrope', sans-serif;
 }
 
 /* ═══════════════════════════════════════

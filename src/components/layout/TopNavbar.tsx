@@ -16,7 +16,21 @@ export default function TopNavbar() {
 
   // Prevent hydration mismatch by deferring the cart count render
   const [mounted, setMounted] = React.useState(false);
-  React.useEffect(() => setMounted(true), []);
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Keyboard shortcut for desktop search (Cmd+K / Ctrl+K)
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        openSearch();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [openSearch]);
 
   const navLinks = [
     { label: "Shop", href: "/products" },
@@ -26,7 +40,7 @@ export default function TopNavbar() {
   ];
 
   return (
-    <nav className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-6xl bg-[#D5AEFD]/80 backdrop-blur-xl border border-white/20 rounded-full px-6 py-3 shadow-[0_8px_32px_rgba(0,0,0,0.15)] transition-all duration-300 hover:bg-[#D5AEFD]/95">
+    <nav className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-6xl bg-[#D5AEFD]/80 backdrop-blur-xl border border-white/20 rounded-full px-6 py-3 shadow-[0_8px_32px_rgba(0,0,0,0.15)] transition-all duration-300 hover:bg-[#D5AEFD]/95" suppressHydrationWarning>
       <div className="flex items-center justify-between">
 
         {/* Left — Nav links */}
@@ -55,12 +69,18 @@ export default function TopNavbar() {
         {/* Right — Search & Icons */}
         <div className="flex items-center justify-end gap-2 w-1/3">
           {/* Search Pill */}
-          <div className="hidden lg:flex items-center gap-2 bg-black/5 hover:bg-black/10 backdrop-blur-md rounded-full px-4 py-2 w-56 cursor-text border border-black/5 transition-colors duration-300">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-black/60">
+          <button
+            type="button"
+            onClick={openSearch}
+            className="hidden lg:flex items-center gap-2 bg-black/5 hover:bg-black/10 backdrop-blur-md rounded-full px-4 py-2 w-56 cursor-pointer border border-black/5 transition-all duration-300 text-left active:scale-[0.98]"
+            aria-label="Open search drawer"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-black/60 shrink-0">
               <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
             </svg>
-            <span className="text-sm text-black/60 font-body">Search...</span>
-          </div>
+            <span className="text-sm text-black/60 font-body flex-1">Search...</span>
+            <kbd className="hidden xl:inline-block text-[10px] font-mono bg-black/10 text-black/60 px-1.5 py-0.5 rounded">⌘K</kbd>
+          </button>
 
           {/* Mobile Search Icon */}
           <button

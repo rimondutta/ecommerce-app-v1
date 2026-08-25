@@ -63,7 +63,7 @@ export default function Homepage({
   };
 
   return (
-    <div className="bg-white min-h-screen font-body">
+    <div className="bg-white min-h-screen font-body" suppressHydrationWarning>
 
       {/* ═══════════════════════════════════════════════
           HERO — Full width video background
@@ -173,7 +173,7 @@ export default function Homepage({
               <AnimatedReveal key={cat.slug} delay={i * 0.06}>
                 <Link
                   href={`/products?category=${cat.slug}`}
-                  className="group relative aspect-[3/4] overflow-hidden bg-zinc-100 flex flex-col items-center justify-end p-6 hover:shadow-2xl transition-all duration-500"
+                  className="group relative aspect-[3/4] rounded-2xl md:rounded-3xl overflow-hidden bg-zinc-100 flex flex-col items-center justify-end p-6 hover:shadow-2xl transition-all duration-500"
                 >
                   {cat.image && (
                     <Image
@@ -199,7 +199,7 @@ export default function Homepage({
               <Link
                 key={cat.slug}
                 href={`/products?category=${cat.slug}`}
-                className="relative shrink-0 w-48 aspect-[3/4] snap-center overflow-hidden bg-zinc-100 flex items-end p-5 shadow-sm"
+                className="relative shrink-0 w-48 aspect-[3/4] snap-center rounded-2xl overflow-hidden bg-zinc-100 flex items-end p-5 shadow-sm"
               >
                 {cat.image && (
                   <Image src={cat.image} alt={cat.name} fill className="object-cover" sizes="200px" />

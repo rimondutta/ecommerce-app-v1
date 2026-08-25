@@ -67,7 +67,7 @@ export async function GET(req: Request) {
         const [items, total] = await Promise.all([
           Product.find({ _id: { $in: idList }, isPublished: true })
             .populate('category', 'name slug')
-            .select('title price slug images category badge ageRange rating reviewCount inventory')
+            .select('title price compareAtPrice slug images category badge ageRange rating reviewCount inventory')
             .limit(limit)
             .lean(),
           Product.countDocuments({ _id: { $in: idList }, isPublished: true }),
@@ -96,7 +96,7 @@ export async function GET(req: Request) {
                 { $limit: limit },
                 {
                   $project: {
-                    title: 1, price: 1, slug: 1, images: 1, category: 1,
+                    title: 1, price: 1, compareAtPrice: 1, slug: 1, images: 1, category: 1,
                     badge: 1, ageRange: 1, rating: 1, reviewCount: 1,
                     inventory: 1, createdAt: 1,
                   },
@@ -126,7 +126,7 @@ export async function GET(req: Request) {
       const [items, total] = await Promise.all([
         Product.find(query)
           .populate('category', 'name slug')
-          .select('title price slug images category badge ageRange rating reviewCount inventory createdAt')
+          .select('title price compareAtPrice slug images category badge ageRange rating reviewCount inventory createdAt')
           .sort({ createdAt: -1 })
           .skip(skip)
           .limit(limit)
