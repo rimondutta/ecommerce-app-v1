@@ -12,7 +12,7 @@ export interface SearchDrawerProps {
   onClose: () => void;
 }
 
-const quickTags = ["T-Shirts", "Hoodies", "Sneakers", "Jackets", "Accessories"];
+const quickTags = ["Kid Toy", "", "Sneakers", "Jackets", "Accessories"];
 
 export default function SearchDrawer({ isOpen, onClose }: SearchDrawerProps) {
   const [query, setQuery] = useState("");
