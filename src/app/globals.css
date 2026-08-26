@@ -32,13 +32,13 @@
   --color-accent-yellow: #FFB800;
 
   /* ─── Typography ─── */
-    --font-display: var(--font-manrope), 'Manrope', sans-serif;
-    --font-heading: var(--font-manrope), 'Manrope', sans-serif;
-    --font-serif: var(--font-manrope), 'Manrope', sans-serif;
-    --font-poppins: var(--font-manrope), 'Manrope', sans-serif;
-    --font-body: var(--font-dm-sans), 'DM Sans', sans-serif;
-    --font-sans: var(--font-dm-sans), 'DM Sans', sans-serif;
-    --font-mono: var(--font-dm-sans), 'DM Sans', sans-serif;
+  --font-display: var(--font-poppins), 'Poppins', var(--font-manrope), 'Manrope', sans-serif;
+  --font-heading: var(--font-poppins), 'Poppins', var(--font-manrope), 'Manrope', sans-serif;
+  --font-serif:   var(--font-poppins), 'Poppins', var(--font-manrope), 'Manrope', sans-serif;
+  --font-poppins: var(--font-poppins), 'Poppins', var(--font-manrope), 'Manrope', sans-serif;
+  --font-body:    var(--font-dm-sans), 'DM Sans', var(--font-manrope), 'Manrope', sans-serif;
+  --font-sans:    var(--font-dm-sans), 'DM Sans', var(--font-manrope), 'Manrope', sans-serif;
+  --font-mono:    var(--font-dm-sans), 'DM Sans', sans-serif;
 
   /* ─── Radii — rounded but not bubbly ─── */
   --radius-none: 0px;
