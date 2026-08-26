@@ -212,7 +212,7 @@ export default function CheckoutPage() {
         <Link
           href="/products"
           className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl font-semibold text-sm text-black transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
-          style={{ background: "linear-gradient(135deg, #FFC93C 0%, #F5A623 100%)" }}
+          style={{ background: "linear-gradient(135deg, #DDBEFD 0%, #DDBEFD 100%)" }}
         >
           <Sparkles size={16} />
           Shop Now
