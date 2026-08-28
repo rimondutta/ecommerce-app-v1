@@ -17,9 +17,14 @@ export default function AppDownloadSection() {
           {/* Text Content */}
           <div className="flex-1 space-y-8 text-center lg:text-left">
             <div className="space-y-4">
-              <p className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-slate-700">
-                Experience More
-              </p>
+              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2">
+                <p className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-slate-700">
+                  Experience More
+                </p>
+                <span className="bg-emerald-100 border border-emerald-300 text-emerald-800 font-mono text-[10px] font-bold uppercase px-3 py-1 rounded-full">
+                  100% Open Source
+                </span>
+              </div>
               <h2 className="font-serif font-bold text-4xl sm:text-5xl lg:text-6xl text-slate-900 leading-[1.1] tracking-tight">
                 Shop Anywhere, <br className="hidden lg:block" />
                 <span className="italic text-violet-700 font-normal">Anytime.</span>
@@ -27,7 +32,7 @@ export default function AppDownloadSection() {
             </div>
 
             <p className="font-body font-medium text-base lg:text-lg text-slate-700 max-w-md mx-auto lg:mx-0 leading-[1.7]">
-              Download the Toyhourse mobile app for exclusive deals, early access to new arrivals, and a seamless shopping experience on the go.
+              Download our 100% open-source mobile app for exclusive deals, early access to new arrivals, and a seamless, transparent shopping experience on the go.
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-4">

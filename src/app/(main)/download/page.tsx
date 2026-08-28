@@ -1,17 +1,18 @@
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { FaAndroid, FaApple, FaDownload, FaStar, FaBolt, FaTruck, FaTag } from "react-icons/fa";
+import { FaAndroid, FaApple, FaDownload, FaStar, FaBolt, FaTruck, FaTag, FaCode } from "react-icons/fa";
 
 export const metadata = {
   title: "Download App | Toy Hourse",
-  description: "Download the official Toy Hourse app for Android and iOS.",
+  description: "Download the official Toy Hourse app for Android and iOS. 100% Open Source.",
 };
 
 const features = [
   { icon: FaBolt, label: "Lightning Checkout", desc: "Order in seconds with saved addresses & payments" },
   { icon: FaTag, label: "App-Only Deals", desc: "Exclusive discounts only available in the app" },
   { icon: FaTruck, label: "Live Order Tracking", desc: "Know exactly where your order is, in real time" },
+  { icon: FaCode, label: "100% Open Source", desc: "Transparent, secure, and completely open source codebase for everyone" },
 ];
 
 export default function DownloadPage() {
@@ -25,12 +26,20 @@ export default function DownloadPage() {
           {/* ── Left: Text + Buttons ── */}
           <div className="flex-1 min-w-0 space-y-7 text-center lg:text-left">
 
-            {/* Badge */}
-            <div className="inline-flex items-center gap-2 bg-violet-100 border border-violet-300 px-4 py-1.5 rounded-full">
-              <span className="w-2 h-2 rounded-full bg-violet-600 animate-pulse shrink-0" />
-              <span className="font-mono text-[11px] font-bold uppercase tracking-[0.16em] text-violet-800 whitespace-nowrap">
-                Official Mobile App
-              </span>
+            {/* Badges */}
+            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2">
+              <div className="inline-flex items-center gap-2 bg-violet-100 border border-violet-300 px-4 py-1.5 rounded-full">
+                <span className="w-2 h-2 rounded-full bg-violet-600 animate-pulse shrink-0" />
+                <span className="font-mono text-[11px] font-bold uppercase tracking-[0.16em] text-violet-800 whitespace-nowrap">
+                  Official Mobile App
+                </span>
+              </div>
+              <div className="inline-flex items-center gap-2 bg-emerald-100 border border-emerald-300 px-4 py-1.5 rounded-full">
+                <FaCode className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
+                <span className="font-mono text-[11px] font-bold uppercase tracking-[0.16em] text-emerald-800 whitespace-nowrap">
+                  100% Open Source
+                </span>
+              </div>
             </div>
 
             {/* Heading */}
@@ -135,9 +144,9 @@ export default function DownloadPage() {
 
       {/* ── Features Strip ── */}
       <section className="relative z-10 border-t border-slate-200 bg-white">
-        <div className="max-w-7xl mx-auto px-6 sm:px-12 lg:px-20 py-14 grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-slate-200">
+        <div className="max-w-7xl mx-auto px-6 sm:px-12 lg:px-20 py-14 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-0 lg:divide-x divide-slate-200">
           {features.map(({ icon: Icon, label, desc }) => (
-            <div key={label} className="flex items-start gap-5 py-8 sm:py-0 sm:px-8 first:pl-0 last:pr-0">
+            <div key={label} className="flex items-start gap-5 py-4 sm:py-0 lg:px-6 first:pl-0 last:pr-0">
               <div className="shrink-0 w-11 h-11 rounded-xl bg-violet-100 border border-violet-200 flex items-center justify-center">
                 <Icon className="w-5 h-5 text-violet-700" />
               </div>
