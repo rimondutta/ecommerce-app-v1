@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import AnimatedReveal from "@/components/ui/AnimatedReveal";
-import { FaApple, FaGooglePlay } from "react-icons/fa";
+import { FaApple, FaGooglePlay, FaGithub } from "react-icons/fa";
 
 export default function AppDownloadSection() {
   return (
@@ -35,7 +35,7 @@ export default function AppDownloadSection() {
               Download our 100% open-source mobile app for exclusive deals, early access to new arrivals, and a seamless, transparent shopping experience on the go.
             </p>
 
-            <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-4">
+            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-4">
               <Link
                 href="/download"
                 className="group flex items-center gap-4 bg-[#D5AEFD] text-slate-900 border border-[#D5AEFD] px-8 py-4 hover:bg-[#D5AEFD]/90 transition-colors duration-300 w-full sm:w-auto justify-center rounded-2xl shadow-sm"
@@ -57,6 +57,19 @@ export default function AppDownloadSection() {
                   <span className="font-body text-sm font-bold uppercase tracking-widest leading-tight">Google Play</span>
                 </div>
               </Link>
+
+              <a
+                href="https://github.com/rimondutta/toyhourse-mobile-app"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group flex items-center gap-4 bg-slate-900 text-white px-8 py-4 hover:bg-slate-800 transition-colors duration-300 w-full sm:w-auto justify-center rounded-2xl shadow-sm"
+              >
+                <FaGithub className="w-5 h-5 text-white" />
+                <div className="flex flex-col items-start">
+                  <span className="font-mono text-[9px] font-bold uppercase tracking-wider leading-none text-slate-400">View Source Code</span>
+                  <span className="font-body text-sm font-bold uppercase tracking-widest leading-tight text-white">GitHub Repo</span>
+                </div>
+              </a>
             </div>
 
             <div className="pt-8 flex items-center justify-center lg:justify-start gap-4">

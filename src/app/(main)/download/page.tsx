@@ -1,7 +1,7 @@
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { FaAndroid, FaApple, FaDownload, FaStar, FaBolt, FaTruck, FaTag, FaCode } from "react-icons/fa";
+import { FaAndroid, FaApple, FaDownload, FaStar, FaBolt, FaTruck, FaTag, FaCode, FaGithub } from "react-icons/fa";
 
 export const metadata = {
   title: "Download App | Toy Hourse",
@@ -55,8 +55,8 @@ export default function DownloadPage() {
               and live order tracking, all in your pocket.
             </p>
 
-            {/* Download Buttons */}
-            <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-2">
+            {/* Download & Source Code Buttons */}
+            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-2">
               {/* Android */}
               <a
                 href="/app-release.apk"
@@ -82,6 +82,20 @@ export default function DownloadPage() {
                   <span className="text-lg font-bold leading-snug text-slate-900">App Store</span>
                 </div>
               </Link>
+
+              {/* GitHub Source Code */}
+              <a
+                href="https://github.com/rimondutta/toyhourse-mobile-app"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-4 bg-slate-900 hover:bg-slate-800 text-white px-7 py-4 rounded-2xl transition-all duration-300 w-full sm:w-auto justify-center shadow-md hover:-translate-y-0.5"
+              >
+                <FaGithub className="w-6 h-6 shrink-0 text-white" />
+                <div className="flex flex-col items-start text-left">
+                  <span className="text-[10px] font-semibold uppercase tracking-widest leading-none text-slate-400">View Code</span>
+                  <span className="text-lg font-bold leading-snug text-white">GitHub Repo</span>
+                </div>
+              </a>
             </div>
 
             {/* Version info */}
