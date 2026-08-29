@@ -20,6 +20,7 @@ import {
   ChevronRight,
   Clock,
   Download,
+  Truck,
 } from "lucide-react";
 
 
@@ -243,17 +244,27 @@ export default function AccountPage() {
                                </div>
                              )}
                            </div>
-                           <a
-                             href={`/api/orders/${order._id}/invoice`}
-                             target="_blank"
-                             rel="noopener noreferrer"
-                             download={`Invoice-${order.invoiceNumber || order._id}.pdf`}
-                             className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
-                             title="Download Invoice PDF"
-                           >
-                             <Download size={12} />
-                             Invoice PDF
-                           </a>
+                           <div className="flex items-center gap-2">
+                             <Link
+                               href={`/track-order?id=${order.invoiceNumber || order._id}`}
+                               className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-violet-700 bg-violet-50 hover:bg-violet-100 rounded-lg transition-colors border border-violet-200"
+                               title="Live Track Package"
+                             >
+                               <Truck size={12} />
+                               Track Live
+                             </Link>
+                             <a
+                               href={`/api/orders/${order._id}/invoice`}
+                               target="_blank"
+                               rel="noopener noreferrer"
+                               download={`Invoice-${order.invoiceNumber || order._id}.pdf`}
+                               className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                               title="Download Invoice PDF"
+                             >
+                               <Download size={12} />
+                               Invoice PDF
+                             </a>
+                           </div>
                         </div>
                       </div>
                     ))}

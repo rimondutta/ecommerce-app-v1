@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
-import { ArrowLeft, Package, CreditCard, Truck, User, MapPin, Mail, Phone, Calendar, Trash2, Download, RefreshCw } from "lucide-react"
+import { ArrowLeft, Package, CreditCard, Truck, User, MapPin, Mail, Phone, Calendar, Trash2, Download, RefreshCw, Link2, Save, Clock } from "lucide-react"
 
 export default function AdminOrderDetailsPage() {
   const params = useParams()
@@ -13,6 +13,13 @@ export default function AdminOrderDetailsPage() {
   const [loading, setLoading] = useState(true)
   const [updating, setUpdating] = useState(false)
   const [regenerating, setRegenerating] = useState(false)
+
+  // Courier assignment state
+  const [configuredCouriers, setConfiguredCouriers] = useState<{name:string;code:string}[]>([])
+  const [courierForm, setCourierForm] = useState({
+    courierName: '', trackingId: '', courierStatus: '', estimatedDeliveryDate: '', timelineNote: '', timelineLocation: ''
+  })
+  const [savingCourier, setSavingCourier] = useState(false)
 
   const fetchOrder = async () => {
     try {
@@ -30,7 +37,27 @@ export default function AdminOrderDetailsPage() {
     if (params.id) {
       fetchOrder()
     }
+    // Load configured couriers for picker
+    fetch('/api/admin/settings/couriers')
+      .then(r => r.json())
+      .then(d => setConfiguredCouriers((d.couriers ?? []).filter((c:any) => c.enabled)))
+      .catch(() => {})
   }, [params.id])
+
+  // Sync courier form when order loads
+  useEffect(() => {
+    if (order) {
+      setCourierForm(prev => ({
+        ...prev,
+        courierName: order.courier?.name || '',
+        trackingId: order.courier?.trackingId || '',
+        courierStatus: order.courierStatus || '',
+        estimatedDeliveryDate: order.estimatedDeliveryDate
+          ? new Date(order.estimatedDeliveryDate).toISOString().slice(0,10)
+          : '',
+      }))
+    }
+  }, [order?._id])
 
   const updateStatus = async (type: 'fulfillment' | 'payment', status: string) => {
     setUpdating(true)
@@ -55,6 +82,35 @@ export default function AdminOrderDetailsPage() {
       alert("Error updating status")
     } finally {
       setUpdating(false)
+    }
+  }
+
+  const saveCourierInfo = async () => {
+    setSavingCourier(true)
+    try {
+      const payload: any = {}
+      if (courierForm.courierName)          payload.courierName          = courierForm.courierName
+      if (courierForm.trackingId)           payload.trackingId           = courierForm.trackingId
+      if (courierForm.courierStatus)        payload.courierStatus        = courierForm.courierStatus
+      if (courierForm.estimatedDeliveryDate) payload.estimatedDeliveryDate = courierForm.estimatedDeliveryDate
+      if (courierForm.timelineNote)         payload.timelineNote         = courierForm.timelineNote
+      if (courierForm.timelineLocation)     payload.timelineLocation     = courierForm.timelineLocation
+
+      const res = await fetch(`/api/admin/orders/${params.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
+      if (res.ok) {
+        await fetchOrder()
+        setCourierForm(prev => ({ ...prev, timelineNote: '', timelineLocation: '' }))
+      } else {
+        alert('Failed to update courier info')
+      }
+    } catch {
+      alert('Error saving courier info')
+    } finally {
+      setSavingCourier(false)
     }
   }
 
@@ -215,6 +271,173 @@ export default function AdminOrderDetailsPage() {
                 </select>
               </div>
             </div>
+          </div>
+
+          {/* Courier Assignment */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 space-y-4">
+            <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+              <Truck className="text-indigo-400" size={20} /> Courier Assignment
+            </h2>
+
+            {/* Current courier badge */}
+            {order.courier?.name && (
+              <div className="flex items-center gap-3 px-4 py-3 bg-indigo-50 border border-indigo-100 rounded-xl text-sm">
+                <Truck size={16} className="text-indigo-500" />
+                <span className="font-medium text-indigo-800">{order.courier.name}</span>
+                {order.courier.trackingId && (
+                  <>
+                    <span className="text-indigo-300">·</span>
+                    <code className="text-indigo-700">{order.courier.trackingId}</code>
+                  </>
+                )}
+                {order.courier.trackingUrl && (
+                  <a href={order.courier.trackingUrl} target="_blank" rel="noopener noreferrer"
+                     className="ml-auto flex items-center gap-1 text-xs text-indigo-600 hover:text-indigo-800 font-medium">
+                    <Link2 size={12} /> Track Live
+                  </a>
+                )}
+              </div>
+            )}
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* Courier Name */}
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">Courier Service</label>
+                {configuredCouriers.length > 0 ? (
+                  <select
+                    className="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 focus:ring-indigo-500 focus:border-indigo-500"
+                    value={courierForm.courierName}
+                    onChange={e => setCourierForm(p => ({ ...p, courierName: e.target.value }))}
+                  >
+                    <option value="">Select courier…</option>
+                    {configuredCouriers.map(c => (
+                      <option key={c.code} value={c.name}>{c.name}</option>
+                    ))}
+                    <option value="__manual">Other (type below)</option>
+                  </select>
+                ) : (
+                  <input
+                    value={courierForm.courierName}
+                    onChange={e => setCourierForm(p => ({ ...p, courierName: e.target.value }))}
+                    placeholder="e.g. Steadfast"
+                    className="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 focus:ring-indigo-500 focus:border-indigo-500"
+                  />
+                )}
+                {courierForm.courierName === '__manual' && (
+                  <input
+                    value=""
+                    onChange={e => setCourierForm(p => ({ ...p, courierName: e.target.value }))}
+                    placeholder="Enter courier name…"
+                    className="mt-2 w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 focus:ring-indigo-500 focus:border-indigo-500"
+                  />
+                )}
+              </div>
+
+              {/* Tracking ID */}
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">Tracking ID</label>
+                <input
+                  value={courierForm.trackingId}
+                  onChange={e => setCourierForm(p => ({ ...p, trackingId: e.target.value }))}
+                  placeholder="Consignment / tracking number"
+                  className="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 focus:ring-indigo-500 focus:border-indigo-500"
+                />
+              </div>
+
+              {/* Courier Status */}
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">Courier Status</label>
+                <select
+                  className="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 focus:ring-indigo-500 focus:border-indigo-500"
+                  value={courierForm.courierStatus}
+                  onChange={e => setCourierForm(p => ({ ...p, courierStatus: e.target.value }))}
+                >
+                  <option value="">Select status…</option>
+                  <option value="pending">Pending</option>
+                  <option value="picked_up">Picked Up</option>
+                  <option value="in_transit">In Transit</option>
+                  <option value="out_for_delivery">Out for Delivery</option>
+                  <option value="delivered">Delivered</option>
+                  <option value="failed">Failed</option>
+                  <option value="returned">Returned</option>
+                </select>
+              </div>
+
+              {/* Estimated Delivery */}
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1 flex items-center gap-1"><Clock size={11}/> Estimated Delivery</label>
+                <input
+                  type="date"
+                  value={courierForm.estimatedDeliveryDate}
+                  onChange={e => setCourierForm(p => ({ ...p, estimatedDeliveryDate: e.target.value }))}
+                  className="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 focus:ring-indigo-500 focus:border-indigo-500"
+                />
+              </div>
+
+              {/* Timeline Note */}
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">Add Timeline Note <span className="text-gray-400">(optional)</span></label>
+                <input
+                  value={courierForm.timelineNote}
+                  onChange={e => setCourierForm(p => ({ ...p, timelineNote: e.target.value }))}
+                  placeholder="e.g. Package arrived at Dhaka hub"
+                  className="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 focus:ring-indigo-500 focus:border-indigo-500"
+                />
+              </div>
+
+              {/* Timeline Location */}
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">Location <span className="text-gray-400">(optional)</span></label>
+                <input
+                  value={courierForm.timelineLocation}
+                  onChange={e => setCourierForm(p => ({ ...p, timelineLocation: e.target.value }))}
+                  placeholder="e.g. Dhaka Hub, Chittagong Branch"
+                  className="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 focus:ring-indigo-500 focus:border-indigo-500"
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between pt-2 border-t border-gray-100">
+              <div>
+                {order.estimatedDeliveryDate && (
+                  <p className="text-xs text-gray-500">
+                    Current EDD: <span className="font-medium text-gray-700">{new Date(order.estimatedDeliveryDate).toLocaleDateString()}</span>
+                  </p>
+                )}
+                {order.courierStatus && (
+                  <p className="text-xs text-gray-500 mt-0.5">
+                    Courier status: <span className="font-medium text-gray-700 capitalize">{order.courierStatus.replace('_', ' ')}</span>
+                  </p>
+                )}
+              </div>
+              <button
+                onClick={saveCourierInfo}
+                disabled={savingCourier || updating}
+                className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 disabled:opacity-50 transition-colors"
+              >
+                <Save size={14} /> {savingCourier ? 'Saving…' : 'Save Courier Info'}
+              </button>
+            </div>
+
+            {/* Timeline history */}
+            {order.trackingTimeline?.length > 0 && (
+              <div className="mt-2">
+                <p className="text-xs font-medium text-gray-500 mb-2 uppercase tracking-wider">Timeline History</p>
+                <div className="space-y-2">
+                  {[...order.trackingTimeline].reverse().map((t: any, i: number) => (
+                    <div key={i} className="flex items-start gap-3 text-xs">
+                      <div className="w-2 h-2 rounded-full bg-indigo-400 mt-1.5 flex-shrink-0" />
+                      <div>
+                        <p className="font-medium text-gray-800">{t.title || t.status}</p>
+                        <p className="text-gray-500">{t.description}</p>
+                        {t.location && <p className="text-gray-400">{t.location}</p>}
+                        <p className="text-gray-400">{new Date(t.timestamp).toLocaleString()}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Items */}

@@ -45,6 +45,30 @@ const OrderSchema = new mongoose.Schema(
       country: { type: String, default: 'Bangladesh' },
       phone: String,
     },
+    // ── Courier & Live Tracking System ──
+    courier: {
+      name: { type: String }, // e.g. "Steadfast", "Pathao", "Paperfly", "RedX", "Custom Courier"
+      code: { type: String }, // e.g. "steadfast", "pathao"
+      trackingId: { type: String }, // Consignment ID / Tracking Code
+      trackingUrl: { type: String }, // Direct link to courier live tracking page
+    },
+    courierStatus: {
+      type: String,
+      enum: ['pending', 'picked_up', 'in_transit', 'out_for_delivery', 'delivered', 'returned', 'failed'],
+      default: 'pending',
+    },
+    estimatedDeliveryDate: {
+      type: Date,
+    },
+    trackingTimeline: [
+      {
+        status: { type: String },
+        title: { type: String },
+        description: { type: String },
+        location: { type: String },
+        timestamp: { type: Date, default: Date.now },
+      },
+    ],
     // ── Invoice fields (added for PDF invoice system) ──
     invoiceNumber: {
       type: String,

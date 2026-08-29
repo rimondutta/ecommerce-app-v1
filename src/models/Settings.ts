@@ -18,12 +18,28 @@ const ShippingSchema = new mongoose.Schema({
   },
 });
 
+/**
+ * Courier integration config — one entry per courier service.
+ * Sensitive credentials (apiKey, apiSecret) are stored server-side only.
+ */
+const CourierConfigSchema = new mongoose.Schema({
+  name: { type: String, required: true },          // e.g. "Steadfast"
+  code: { type: String, required: true },          // e.g. "steadfast" (slug)
+  apiKey: { type: String, default: '' },           // API key / token
+  apiSecret: { type: String, default: '' },        // API secret (if applicable)
+  webhookSecret: { type: String, default: '' },    // Webhook verification secret
+  trackingUrlPattern: { type: String, default: '' }, // e.g. https://steadfast.com.bd/tracking/{trackingId}
+  enabled: { type: Boolean, default: false },
+  notes: { type: String, default: '' },
+});
+
 const SettingsSchema = new mongoose.Schema(
   {
     // Singleton key — always "global"
     key: { type: String, default: 'global', unique: true },
     facebookPixel: { type: FacebookPixelSchema, default: () => ({}) },
     shipping: { type: ShippingSchema, default: () => ({}) },
+    couriers: { type: [CourierConfigSchema], default: () => [] },
   },
   { timestamps: true }
 );

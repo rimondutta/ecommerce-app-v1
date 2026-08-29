@@ -6,7 +6,7 @@ import { signOut, useSession } from "next-auth/react"
 import { 
   Home, ShoppingCart, Tag, Users, Inbox, BarChart2, 
   Megaphone, Ticket, Settings, Store, Search, Bell,
-  LogOut, Plus, ChevronRight, UserPlus, Image as ImageIcon, Layers, Sliders, Truck, MessageSquare, FileText
+  LogOut, Plus, ChevronRight, UserPlus, Image as ImageIcon, Layers, Sliders, Truck, MessageSquare, FileText, Package
 } from "lucide-react"
 
 export default function Sidebar() {
@@ -28,6 +28,7 @@ export default function Sidebar() {
     { name: "Add User", href: "/admin/users/add", icon: UserPlus },
     { name: "Pixel Settings", href: "/admin/settings/pixel", icon: BarChart2 },
     { name: "Shipping Settings", href: "/admin/settings/shipping", icon: Truck },
+    { name: "Courier APIs", href: "/admin/settings/couriers", icon: Package },
   ]
 
   const isActive = (href: string) => {

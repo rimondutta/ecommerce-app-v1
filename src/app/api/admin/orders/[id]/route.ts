@@ -74,10 +74,55 @@ export async function PUT(
       return NextResponse.json({ error: 'Order not found' }, { status: 404 });
     }
 
-    const order = await Order.findByIdAndUpdate(id, {
+    const updatePayload: any = {
       fulfillmentStatus: data.fulfillmentStatus || oldOrder.fulfillmentStatus,
-      paymentStatus: data.paymentStatus || oldOrder.paymentStatus
-    }, {
+      paymentStatus: data.paymentStatus || oldOrder.paymentStatus,
+    };
+
+    // Update Courier Info if provided
+    if (data.courier || data.courierName || data.trackingId) {
+      const courierName = data.courierName || data.courier?.name || oldOrder.courier?.name || 'Steadfast';
+      const trackingId = data.trackingId || data.courier?.trackingId || oldOrder.courier?.trackingId || '';
+      const { getCourierTrackingUrl } = await import('@/lib/courier');
+      const trackingUrl = data.trackingUrl || data.courier?.trackingUrl || getCourierTrackingUrl(courierName, trackingId);
+
+      updatePayload.courier = {
+        name: courierName,
+        code: courierName.toLowerCase().replace(/\s+/g, '-'),
+        trackingId,
+        trackingUrl,
+      };
+    }
+
+    if (data.courierStatus && data.courierStatus !== oldOrder.courierStatus) {
+      updatePayload.courierStatus = data.courierStatus;
+    }
+
+    if (data.estimatedDeliveryDate) {
+      updatePayload.estimatedDeliveryDate = new Date(data.estimatedDeliveryDate);
+    }
+
+    // Append new checkpoint to tracking timeline if custom note or status change occurs
+    if (data.timelineNote || (data.courierStatus && data.courierStatus !== oldOrder.courierStatus)) {
+      const { getTrackingSteps } = await import('@/lib/courier');
+      const steps = getTrackingSteps(
+        data.fulfillmentStatus || oldOrder.fulfillmentStatus,
+        data.courierStatus || oldOrder.courierStatus
+      );
+      const activeStep = steps.find(s => s.active) || steps[0];
+
+      const newTimelineItem = {
+        status: data.courierStatus || oldOrder.courierStatus || 'in_transit',
+        title: data.timelineTitle || activeStep.title || 'Tracking Update',
+        description: data.timelineNote || activeStep.description || 'Order status updated by delivery network.',
+        location: data.timelineLocation || 'Dhaka Hub',
+        timestamp: new Date(),
+      };
+
+      updatePayload.$push = { trackingTimeline: newTimelineItem };
+    }
+
+    const order = await Order.findByIdAndUpdate(id, updatePayload, {
       returnDocument: 'after',
       runValidators: true,
     });
