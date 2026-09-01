@@ -56,16 +56,6 @@ export async function POST(req: Request) {
     }
     const order = await Order.create(orderData);
 
-    // ── Fire-and-forget invoice generation ──
-    // Runs async; never blocks the checkout response.
-    // If it fails, the order still succeeds — admin can regenerate later.
-    import('@/lib/invoice/generateInvoicePdf')
-      .then(({ generateInvoiceForOrder }) =>
-        generateInvoiceForOrder(order._id.toString())
-      )
-      .catch((err) =>
-        console.error('[invoice] generation failed for order', order._id, err)
-      );
 
     // Performance: Replace N sequential inventory writes with a single bulkWrite.
     // Before: for (item of items) { await findByIdAndUpdate() } — N serial DB round-trips.
@@ -98,60 +88,39 @@ export async function POST(req: Request) {
       );
     }
 
-    // Send Confirmation Email (Async/Non-blocking)
-    if (customerEmail) {
-      try {
-        const { sendOrderConfirmationEmail } = await import('@/lib/nodemailer');
-        sendOrderConfirmationEmail({
+    // ── Background Tasks (Invoice, Email, Telegram, Google Sheets) ──
+    // MUST await in serverless environments, otherwise Vercel kills the process before they finish
+    const notificationPayload = {
+      orderId: order._id.toString(),
+      customerName,
+      customerEmail,
+      totalAmount,
+      items,
+      shippingAddress,
+      paymentMethod: paymentMethod || 'cod',
+      shippingCost: shippingCost || 0
+    };
+
+    await Promise.allSettled([
+      import('@/lib/invoice/generateInvoicePdf').then(({ generateInvoiceForOrder }) => generateInvoiceForOrder(order._id.toString())),
+      customerEmail ? import('@/lib/nodemailer').then(({ sendOrderConfirmationEmail }) => sendOrderConfirmationEmail(notificationPayload)) : Promise.resolve(),
+      import('@/lib/telegram').then(({ sendTelegramNotification }) => sendTelegramNotification(notificationPayload)),
+      import('@/lib/googleSheets').then(({ appendOrderToSheet }) =>
+        appendOrderToSheet({
           orderId: order._id.toString(),
           customerName,
           customerEmail,
-          items,
-          totalAmount,
-          shippingAddress,
+          phone: shippingAddress?.phone,
+          addressLine1: shippingAddress?.addressLine1,
+          city: shippingAddress?.city,
           paymentMethod: paymentMethod || 'cod',
-          shippingCost: shippingCost || 0
-        }).catch(err => console.error('Email background task error:', err));
-      } catch (emailErr) {
-        console.error('Failed to initiate email process:', emailErr);
-      }
-    }
-
-    // High Traffic Scaling: Telegram Admin Notification (Non-blocking)
-    try {
-      const { sendTelegramNotification } = await import('@/lib/telegram');
-      sendTelegramNotification({
-        orderId: order._id.toString(),
-        customerName,
-        customerEmail,
-        totalAmount,
-        items,
-        shippingAddress,
-        paymentMethod: paymentMethod || 'cod'
-      }).catch(err => console.error('Telegram notification background error:', err));
-    } catch (telegramErr) {
-      console.error('Failed to initiate Telegram notification:', telegramErr);
-    }
-
-    // Google Sheets: Auto-save customer order details (Non-blocking)
-    try {
-      const { appendOrderToSheet } = await import('@/lib/googleSheets');
-      appendOrderToSheet({
-        orderId: order._id.toString(),
-        customerName,
-        customerEmail,
-        phone: shippingAddress?.phone,
-        addressLine1: shippingAddress?.addressLine1,
-        city: shippingAddress?.city,
-        paymentMethod: paymentMethod || 'cod',
-        items: (items || []).map((i: any) => ({ title: i.title || '', quantity: i.quantity || 1, price: i.price || 0 })),
-        shippingCost: shippingCost || 0,
-        totalAmount,
-        fulfillmentStatus: 'unfulfilled',
-      }).catch(err => console.error('[GoogleSheets] background error:', err));
-    } catch (sheetsErr) {
-      console.error('[GoogleSheets] Failed to initiate:', sheetsErr);
-    }
+          items: (items || []).map((i: any) => ({ title: i.title || '', quantity: i.quantity || 1, price: i.price || 0 })),
+          shippingCost: shippingCost || 0,
+          totalAmount,
+          fulfillmentStatus: 'unfulfilled',
+        })
+      )
+    ]).catch(err => console.error('Background tasks error:', err));
 
     return NextResponse.json({ 
       success: true, 
