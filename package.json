@@ -61,5 +61,8 @@
   },
   "allowScripts": {
     "unrs-resolver": true
+  },
+  "overrides": {
+    "glob": "^13.0.0"
   }
 }
