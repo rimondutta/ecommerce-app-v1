@@ -138,7 +138,22 @@ export async function POST(req: Request) {
     await Promise.allSettled([
       import('@/lib/invoice/generateInvoicePdf').then(({ generateInvoiceForOrder }) => generateInvoiceForOrder(order._id.toString())),
       orderData.customerEmail ? import('@/lib/nodemailer').then(({ sendOrderConfirmationEmail }) => sendOrderConfirmationEmail(notificationPayload)) : Promise.resolve(),
-      import('@/lib/telegram').then(({ sendTelegramNotification }) => sendTelegramNotification(notificationPayload))
+      import('@/lib/telegram').then(({ sendTelegramNotification }) => sendTelegramNotification(notificationPayload)),
+      import('@/lib/googleSheets').then(({ appendOrderToSheet }) =>
+        appendOrderToSheet({
+          orderId: order._id.toString(),
+          customerName: orderData.customerName,
+          customerEmail: orderData.customerEmail,
+          phone: orderData.shippingAddress.phone,
+          addressLine1: orderData.shippingAddress.addressLine1,
+          city: orderData.shippingAddress.city,
+          paymentMethod: orderData.paymentMethod,
+          items: verifiedItems.map(i => ({ title: i.title, quantity: i.quantity, price: i.price })),
+          shippingCost: orderData.shippingCost,
+          totalAmount: verifiedTotal,
+          fulfillmentStatus: 'unfulfilled',
+        })
+      ),
     ]).catch(err => console.error('Background tasks error:', err));
 
     // Inventory Bulk Write (use verifiedItems which has correct product references)

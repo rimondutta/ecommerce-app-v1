@@ -133,6 +133,26 @@ export async function POST(req: Request) {
       console.error('Failed to initiate Telegram notification:', telegramErr);
     }
 
+    // Google Sheets: Auto-save customer order details (Non-blocking)
+    try {
+      const { appendOrderToSheet } = await import('@/lib/googleSheets');
+      appendOrderToSheet({
+        orderId: order._id.toString(),
+        customerName,
+        customerEmail,
+        phone: shippingAddress?.phone,
+        addressLine1: shippingAddress?.addressLine1,
+        city: shippingAddress?.city,
+        paymentMethod: paymentMethod || 'cod',
+        items: (items || []).map((i: any) => ({ title: i.title || '', quantity: i.quantity || 1, price: i.price || 0 })),
+        shippingCost: shippingCost || 0,
+        totalAmount,
+        fulfillmentStatus: 'unfulfilled',
+      }).catch(err => console.error('[GoogleSheets] background error:', err));
+    } catch (sheetsErr) {
+      console.error('[GoogleSheets] Failed to initiate:', sheetsErr);
+    }
+
     return NextResponse.json({ 
       success: true, 
       orderId: order._id,
