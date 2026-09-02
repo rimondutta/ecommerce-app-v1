@@ -69,6 +69,7 @@
     "unrs-resolver": true
   },
   "overrides": {
-    "glob": "^13.0.0"
+    "glob": "^13.0.0",
+    "node-domexception": "npm:domexception@^4.0.0"
   }
 }

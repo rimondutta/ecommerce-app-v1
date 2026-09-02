@@ -57,13 +57,13 @@ export default function Chatbot() {
       {/* Chat Bubble Button */}
       <AnimatePresence>
         {!isOpen && (
-          <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2">
-            {/* Left label */}
+          <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 flex items-center gap-2">
+            {/* Left label - hidden on mobile */}
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.3 }}
-              className="bg-white/20 backdrop-blur-lg border border-white/40 text-slate-800 text-sm font-semibold px-4 py-2 rounded-full shadow-[0_8px_32px_0_rgba(31,38,135,0.15)] whitespace-nowrap"
+              className="hidden sm:block bg-white/20 backdrop-blur-lg border border-white/40 text-slate-800 text-sm font-semibold px-4 py-2 rounded-full shadow-[0_8px_32px_0_rgba(31,38,135,0.15)] whitespace-nowrap"
             >
               Chat with AI 🤖
             </motion.div>
@@ -76,14 +76,22 @@ export default function Chatbot() {
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
               onClick={() => setIsOpen(true)}
-              className="w-28 h-28 rounded-full focus:outline-none flex items-center justify-center"
+              className="w-16 h-16 sm:w-28 sm:h-28 rounded-full focus:outline-none flex items-center justify-center"
               aria-label="Open chat"
             >
               <Lottie
                 src={aiAnimation}
                 loop
                 autoplay
+                style={{ width: 80, height: 80 }}
+                className="sm:hidden"
+              />
+              <Lottie
+                src={aiAnimation}
+                loop
+                autoplay
                 style={{ width: 140, height: 140 }}
+                className="hidden sm:block"
               />
             </motion.button>
           </div>
@@ -98,7 +106,7 @@ export default function Chatbot() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 50, scale: 0.9 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="fixed bottom-6 right-6 z-50 w-[450px] h-[600px] max-h-[85vh] flex flex-col bg-white rounded-[32px] shadow-2xl border border-slate-200 overflow-hidden"
+            className="fixed inset-0 sm:inset-auto sm:bottom-6 sm:right-6 z-50 sm:w-[450px] sm:h-[600px] sm:max-h-[85vh] flex flex-col bg-white sm:rounded-[32px] shadow-2xl border border-slate-200 overflow-hidden"
           >
             {/* Header */}
             <div className="flex items-center justify-between px-6 py-4 bg-white text-slate-700">
