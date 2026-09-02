@@ -1,3 +1,4 @@
+import React from "react";
 import connectToDatabase from "@/lib/db";
 import Product from "@/models/Product";
 import Category from "@/models/Category"; // Ensure Category schema is registered
@@ -25,5 +26,9 @@ export default async function ShopPage() {
 
   const serializedProducts = JSON.parse(JSON.stringify(products));
 
-  return <ShopClient initialProducts={serializedProducts} />;
+  return (
+    <React.Suspense fallback={<div>Loading products...</div>}>
+      <ShopClient initialProducts={serializedProducts} />
+    </React.Suspense>
+  );
 }

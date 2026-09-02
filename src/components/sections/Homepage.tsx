@@ -34,24 +34,6 @@ export default function Homepage({
   const [blogs, setBlogs] = useState<any[]>(initialBlogs);
   const reduced = useReducedMotion() ?? false;
 
-  useEffect(() => {
-    if (initialTrendingProducts.length === 0) {
-      fetch('/api/store/products?limit=4')
-        .then(r => r.json()).then(d => setTrendingProducts(d.products || []))
-        .catch(console.error);
-    }
-    if (initialCategories.length === 0) {
-      fetch('/api/store/categories')
-        .then(r => r.json()).then(d => { if (d.categories) setCategories(d.categories); })
-        .catch(console.error);
-    }
-    if (initialBlogs.length === 0) {
-      fetch('/api/blogs?limit=3') // Assuming such an endpoint exists or we rely on the server fetch
-        .then(r => r.json()).then(d => { if (d.blogs) setBlogs(d.blogs); })
-        .catch(console.error);
-    }
-  }, [initialTrendingProducts, initialCategories, initialBlogs]);
-
 
   // Hero entrance variants
   const heroVariants = {

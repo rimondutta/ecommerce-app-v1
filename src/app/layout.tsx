@@ -10,6 +10,7 @@ import NextAuthProvider from "@/components/providers/NextAuthProvider";
 import { ToastProvider } from "@/components/playshelf/Toast";
 import FacebookPixel from "@/components/FacebookPixel";
 import ExtensionHydrationFix from "@/components/ExtensionHydrationFix";
+import LenisProvider from "@/components/providers/LenisProvider";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -126,8 +127,10 @@ export default function RootLayout({
               <SearchProvider>
                 <ToastProvider>
                   <ExtensionHydrationFix />
-                  {children}
-                  <GlobalUI />
+                  <LenisProvider>
+                    {children}
+                    <GlobalUI />
+                  </LenisProvider>
                   <FacebookPixel />
                 </ToastProvider>
               </SearchProvider>
