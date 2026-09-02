@@ -39,7 +39,7 @@ export function trackViewContent(product: {
         content_type: 'product',
         content_name: product.title ?? '',
         content_category: product.category?.title ?? '',
-        value: product.price ?? 0,
+        value: Math.max(0.01, Number(product.price ?? 0)),
         currency: 'BDT',
       });
     });
@@ -59,7 +59,7 @@ export function trackAddToCart(
         content_ids: [product._id],
         content_type: 'product',
         content_name: product.title ?? '',
-        value: (product.price ?? 0) * quantity,
+        value: Math.max(0.01, Number((product.price ?? 0) * quantity)),
         currency: 'BDT',
         quantity,
       });
@@ -80,7 +80,7 @@ export function trackInitiateCheckout(
         content_ids: cartItems.map((i) => i.id),
         content_type: 'product',
         num_items: cartItems.reduce((sum, i) => sum + (i.quantity ?? 1), 0),
-        value: totalValue,
+        value: Math.max(0.01, Number(totalValue || 0)),
         currency: 'BDT',
       });
     });
@@ -98,15 +98,18 @@ export function trackPurchase(order: {
   total?: number;
 }) {
   try {
-    const orderId = order._id ?? order.orderId ?? '';
-    const value = order.totalAmount ?? order.total ?? 0;
-    const contentIds = order.items.map((i) => i.productId ?? i.id ?? '');
+    const orderId = String(order._id ?? order.orderId ?? '');
+    let value = Number(order.totalAmount ?? order.total ?? 0);
+    if (isNaN(value) || value <= 0) {
+      value = 0.01; // Meta Pixel requires a positive non-zero value if currency is provided
+    }
+    const contentIds = (order.items || []).map((i) => String(i.productId ?? i.id ?? ''));
 
     fireWhenReady(() => {
       window.fbq!('track', 'Purchase', {
         content_ids: contentIds,
         content_type: 'product',
-        value,
+        value: Number(value.toFixed(2)),
         currency: 'BDT',
         order_id: orderId,
       });
