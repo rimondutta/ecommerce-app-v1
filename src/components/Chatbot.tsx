@@ -76,14 +76,14 @@ export default function Chatbot() {
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
               onClick={() => setIsOpen(true)}
-              className="w-16 h-16 sm:w-28 sm:h-28 rounded-full focus:outline-none flex items-center justify-center"
+              className="w-28 h-28 sm:w-28 sm:h-28 rounded-full focus:outline-none flex items-center justify-center"
               aria-label="Open chat"
             >
               <Lottie
                 src={aiAnimation}
                 loop
                 autoplay
-                style={{ width: 80, height: 80 }}
+                style={{ width: 150, height: 150 }}
                 className="sm:hidden"
               />
               <Lottie
@@ -120,7 +120,7 @@ export default function Chatbot() {
                 <span className="font-semibold text-sm">New AI chat</span>
                 <ChevronDown size={16} className="text-slate-400" />
               </div>
-              
+
               <div className="flex items-center gap-3 text-slate-400">
                 <button
                   onClick={() => setIsOpen(false)}
@@ -131,7 +131,7 @@ export default function Chatbot() {
                 </button>
               </div>
             </div>
-            
+
             {/* Divider */}
             <div className="h-[1px] w-full bg-slate-100" />
 
@@ -243,7 +243,7 @@ export default function Chatbot() {
                     disabled={isLoading}
                   />
                 </div>
-                
+
                 <div className="flex items-center justify-between px-3 pb-2 pt-1">
                   {/* Left icons & badge */}
                   <div className="flex items-center gap-3 text-slate-400">
