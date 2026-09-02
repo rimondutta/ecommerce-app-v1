@@ -75,6 +75,25 @@ body {
   line-height: 1.6;
 }
 
+/* ═══════════════════════════════════════
+   GPU Compositing Hints
+   ═══════════════════════════════════════ */
+
+/* Images inside transformed containers should be promoted early */
+img, video {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* Keep transitions on their own compositor layer */
+.transition-transform,
+.transition-all,
+[class*="hover:-translate"],
+[class*="hover:scale"] {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
 /* Logo, Main Heading, Product Title, Price -> Poppins */
 h1, h2, h3, h4, h5, h6,
 .font-display,

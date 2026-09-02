@@ -1,7 +1,6 @@
 "use client";
 
-import React from "react";
-import { motion, useReducedMotion } from "framer-motion";
+import React, { useRef, useEffect } from "react";
 import { cn } from "@/lib/utils";
 
 interface AnimatedRevealProps {
@@ -12,8 +11,8 @@ interface AnimatedRevealProps {
 }
 
 /**
- * Reusable whileInView reveal wrapper using the catalog easing.
- * Respects prefers-reduced-motion: falls back to opacity-only crossfade.
+ * GSAP ScrollTrigger reveal wrapper — GPU-composited, zero Framer Motion overhead.
+ * Respects prefers-reduced-motion: falls back to an instant opacity reveal.
  */
 export default function AnimatedReveal({
   children,
@@ -21,33 +20,64 @@ export default function AnimatedReveal({
   delay = 0,
   direction = "up",
 }: AnimatedRevealProps) {
-  const reduced = useReducedMotion() ?? false;
+  const ref = useRef<HTMLDivElement>(null);
 
-  const hidden =
-    reduced
-      ? { opacity: 0 }
-      : direction === "up"
-      ? { opacity: 0, y: 32 }
-      : direction === "left"
-      ? { opacity: 0, x: 32 }
-      : { opacity: 0 };
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
 
-  const visible =
-    reduced ? { opacity: 1 } : { opacity: 1, y: 0, x: 0 };
+    // Respect user motion preference
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    let cleanup: (() => void) | undefined;
+
+    (async () => {
+      const { gsap, ScrollTrigger } = await import("@/lib/gsap");
+
+      if (reduced) {
+        gsap.set(el, { opacity: 0 });
+        gsap.to(el, { opacity: 1, duration: 0.15, delay });
+        return;
+      }
+
+      // Initial hidden state — use transform3d to hit the GPU compositor
+      const fromVars: gsap.TweenVars = {
+        opacity: 0,
+        willChange: "opacity, transform",
+        force3D: true,
+        ...(direction === "up" ? { y: 36 } : direction === "left" ? { x: 36 } : {}),
+      };
+      gsap.set(el, fromVars);
+
+      const tween = gsap.to(el, {
+        opacity: 1,
+        y: 0,
+        x: 0,
+        duration: 0.85,
+        delay,
+        ease: "power3.out",
+        clearProps: "willChange",
+        scrollTrigger: {
+          trigger: el,
+          start: "top 90%",
+          once: true,
+        },
+      });
+
+      cleanup = () => {
+        tween.kill();
+        ScrollTrigger.getAll()
+          .filter((st: any) => st.vars?.trigger === el)
+          .forEach((st: any) => st.kill());
+      };
+    })();
+
+    return () => cleanup?.();
+  }, [delay, direction]);
 
   return (
-    <motion.div
-      initial={hidden}
-      whileInView={visible}
-      viewport={{ once: true, margin: "-5%" }}
-      transition={{
-        duration: reduced ? 0.15 : 0.8,
-        delay: reduced ? 0 : delay,
-        ease: [0.22, 1, 0.36, 1],
-      }}
-      className={cn(className)}
-    >
+    <div ref={ref} className={cn(className)}>
       {children}
-    </motion.div>
+    </div>
   );
 }

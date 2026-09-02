@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { trackAddToCart } from "@/lib/fbPixel";
 import Link from "next/link";
 import Image from "next/image";
-import { motion, useReducedMotion } from "framer-motion";
+
 import { useCart } from "@/components/providers/CartProvider";
 import { useWishlist } from "@/store/wishlistStore";
 import { cn } from "@/lib/utils";
@@ -42,7 +42,6 @@ export default function ProductCardModern({ product, priority = false, index = 1
   const { toggleItem, isWishlisted } = useWishlist();
   const [isAdding, setIsAdding] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
-  const reduced = useReducedMotion() ?? false;
 
   const wishlisted = isWishlisted(product._id);
   const isOutOfStock = product.inventory !== undefined && product.inventory <= 0;
@@ -88,12 +87,10 @@ export default function ProductCardModern({ product, priority = false, index = 1
   const backImg = product.images?.[1];
 
   return (
-    <motion.div
-      className="relative group flex flex-col w-full cursor-pointer bg-white border border-gray-200 rounded-[20px] overflow-hidden"
-      onHoverStart={() => setIsHovered(true)}
-      onHoverEnd={() => setIsHovered(false)}
-      animate={reduced ? {} : { y: isHovered ? -6 : 0 }}
-      transition={{ type: "spring", stiffness: 400, damping: 28 }}
+    <div
+      className="relative group flex flex-col w-full cursor-pointer bg-white border border-gray-200 rounded-[20px] overflow-hidden transition-transform duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] hover:-translate-y-1.5 will-change-transform"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
       suppressHydrationWarning
     >
       {/* Image Container */}
@@ -201,6 +198,6 @@ export default function ProductCardModern({ product, priority = false, index = 1
           {isAdding ? "Adding..." : (isOutOfStock ? "Sold Out" : "Add to Cart")}
         </button>
       </div>
-    </motion.div>
+    </div>
   );
 }

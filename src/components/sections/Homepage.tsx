@@ -1,14 +1,13 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { motion, useReducedMotion } from "framer-motion";
 import ProductGridNike from "@/components/ui/product-grid-nike";
 import AnimatedReveal from "@/components/ui/AnimatedReveal";
 import dynamic from "next/dynamic";
 import AppDownloadSection from "./AppDownloadSection";
-import { ArrowRight, Truck, RotateCcw, Headphones, Star } from "lucide-react";
+import { ArrowRight, Truck, RotateCcw, Headphones } from "lucide-react";
 
 const DynamicInstagramSection = dynamic(() => import("./InstagramSection"), { ssr: false });
 
@@ -29,20 +28,36 @@ export default function Homepage({
   initialCategories?: Category[];
   initialBlogs?: any[];
 }) {
-  const [trendingProducts, setTrendingProducts] = useState<any[]>(initialTrendingProducts);
-  const [categories, setCategories] = useState<Category[]>(initialCategories);
-  const [blogs, setBlogs] = useState<any[]>(initialBlogs);
-  const reduced = useReducedMotion() ?? false;
+  const [trendingProducts] = useState<any[]>(initialTrendingProducts);
+  const [categories] = useState<Category[]>(initialCategories);
+  const [blogs] = useState<any[]>(initialBlogs);
+  const heroRef = useRef<HTMLDivElement>(null);
 
+  // GSAP hero entrance — force3D ensures GPU compositing, no layout thrash
+  useEffect(() => {
+    const ctx = (async () => {
+      const { gsap } = await import("@/lib/gsap");
+      const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const hero = heroRef.current;
+      if (!hero) return null;
 
-  // Hero entrance variants
-  const heroVariants = {
-    container: { hidden: {}, visible: { transition: { staggerChildren: reduced ? 0 : 0.12 } } },
-    item: {
-      hidden: reduced ? { opacity: 0 } : { opacity: 0, y: 24 },
-      visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.25, 1, 0.5, 1] as any } },
-    },
-  };
+      const items = hero.querySelectorAll<HTMLElement>("[data-hero-item]");
+      gsap.set(items, { opacity: 0, y: reduced ? 0 : 28, force3D: true });
+      const tl = gsap.timeline();
+      tl.to(items, {
+        opacity: 1,
+        y: 0,
+        duration: reduced ? 0.15 : 0.75,
+        stagger: reduced ? 0 : 0.1,
+        ease: "power3.out",
+        clearProps: "will-change",
+      });
+      return tl;
+    })();
+
+    return () => { ctx.then(tl => tl?.kill()); };
+  }, []);
+
 
   return (
     <div className="bg-white min-h-screen font-body" suppressHydrationWarning>
@@ -67,37 +82,32 @@ export default function Homepage({
         </div>
 
         <div className="relative z-10 w-full px-4 sm:px-8 lg:px-[5vw] pt-32 pb-12 md:pb-20">
-          <motion.div
-            variants={heroVariants.container}
-            initial="hidden"
-            animate="visible"
-            className="flex flex-col max-w-2xl"
-          >
-            <motion.div variants={heroVariants.item} className="mb-4">
+          <div ref={heroRef} className="flex flex-col max-w-2xl">
+            <div data-hero-item className="mb-4">
               <span className="inline-flex items-center gap-2 bg-transparent text-white/80 font-mono text-xs uppercase tracking-[0.2em] border border-white/20 px-4 py-2">
                 Curated Collection
               </span>
-            </motion.div>
+            </div>
 
-            <motion.h1
-              variants={heroVariants.item}
+            <h1
+              data-hero-item
               className="font-serif font-light text-[52px] sm:text-[64px] lg:text-[80px] xl:text-[96px] text-white leading-[1.05] tracking-tight mb-8"
             >
-              Toys They'll
+              Toys They&apos;ll
               <br />
               <span className="italic text-white/90">Actually</span>
               <br />
               Play With.
-            </motion.h1>
+            </h1>
 
-            <motion.p
-              variants={heroVariants.item}
+            <p
+              data-hero-item
               className="font-body font-light text-lg text-white/70 max-w-md mb-12 leading-relaxed"
             >
               Beautifully curated toys for curious kids. Safety-tested, parent-approved, endlessly fun.
-            </motion.p>
+            </p>
 
-            <motion.div variants={heroVariants.item} className="flex items-center gap-4 flex-wrap">
+            <div data-hero-item className="flex items-center gap-4 flex-wrap">
               <Link
                 href="/products"
                 className="inline-flex items-center justify-center bg-[#D5AEFD] text-black font-body font-medium text-sm uppercase tracking-widest px-8 py-4 hover:bg-[#D5AEFD]/90 transition-colors"
@@ -110,10 +120,10 @@ export default function Homepage({
               >
                 Browse by age
               </Link>
-            </motion.div>
+            </div>
 
             {/* Trust indicators */}
-            <motion.div variants={heroVariants.item} className="mt-16 flex items-center gap-8 flex-wrap">
+            <div data-hero-item className="mt-16 flex items-center gap-8 flex-wrap">
               {[
                 { label: "4.9 from 2,400+ parents" },
                 { label: "Free shipping over ৳1,500" },
@@ -123,8 +133,8 @@ export default function Homepage({
                   <span className="font-mono text-xs uppercase tracking-wider text-white">{item.label}</span>
                 </div>
               ))}
-            </motion.div>
-          </motion.div>
+            </div>
+          </div>
 
         </div>
       </section>

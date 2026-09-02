@@ -7,7 +7,9 @@ import { MessageCircle, X, Send, Bot, User, Loader2, Sparkles, Paperclip, Globe,
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Lottie } from 'lottie-react';
+import * as LottieLib from 'lottie-react';
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const Lottie = (LottieLib as any).Lottie as any;
 import aiAnimation from '../../public/lottie/ai.json';
 
 if (typeof console !== 'undefined') {

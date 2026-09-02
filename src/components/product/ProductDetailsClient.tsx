@@ -636,6 +636,46 @@ export default function ProductDetailsClient({ product: initialProduct, relatedP
                         </button>
                       </form>
                     )}
+                    {/* Existing Reviews */}
+                    {product.reviews && product.reviews.length > 0 ? (
+                      <div className="space-y-6">
+                        {product.reviews
+                          .filter((r: any) => r.status !== 'pending')
+                          .sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime())
+                          .map((review: any, i: number) => (
+                          <div key={i} className="bg-white p-6 rounded-2xl border border-joy-rule">
+                            <div className="flex justify-between items-start mb-3">
+                              <div>
+                                <h4 className="font-display font-bold text-lg text-joy-navy">{review.title}</h4>
+                                <div className="flex items-center gap-2 mt-1">
+                                  <div className="flex">
+                                    {[...Array(5)].map((_, idx) => (
+                                      <Star
+                                        key={idx}
+                                        size={14}
+                                        className={idx < review.rating ? "fill-joy-sun text-joy-sun" : "fill-joy-rule text-joy-rule"}
+                                      />
+                                    ))}
+                                  </div>
+                                  <span className="font-body text-xs text-joy-muted">
+                                    by {review.name} • {new Date(review.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                            <p className="font-body text-sm text-joy-navy leading-relaxed">
+                              {review.text}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      !isWritingReview && (
+                        <div className="bg-joy-mist p-8 rounded-2xl text-center">
+                          <p className="font-body text-joy-muted mb-4">No reviews yet. Be the first to share your experience!</p>
+                        </div>
+                      )
+                    )}
                   </div>
                 </div>
               </div>
