@@ -41,7 +41,6 @@ export default function ProductCardModern({ product, priority = false, index = 1
   const { addItem, openCart } = useCart();
   const { toggleItem, isWishlisted } = useWishlist();
   const [isAdding, setIsAdding] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
 
   const wishlisted = isWishlisted(product._id);
   const isOutOfStock = product.inventory !== undefined && product.inventory <= 0;
@@ -89,8 +88,6 @@ export default function ProductCardModern({ product, priority = false, index = 1
   return (
     <div
       className="relative group flex flex-col w-full cursor-pointer bg-white border border-gray-200 rounded-[20px] overflow-hidden transition-transform duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] hover:-translate-y-1.5 will-change-transform"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
       suppressHydrationWarning
     >
       {/* Image Container */}
@@ -137,7 +134,7 @@ export default function ProductCardModern({ product, priority = false, index = 1
               fill
               className={cn(
                 "object-cover transition-opacity duration-500",
-                isHovered && backImg ? "opacity-0" : "opacity-100"
+                backImg ? "group-hover:opacity-0 opacity-100" : "opacity-100"
               )}
               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
               priority={priority}
@@ -154,10 +151,7 @@ export default function ProductCardModern({ product, priority = false, index = 1
               src={backImg.url}
               alt={backImg.alt || product.title}
               fill
-              className={cn(
-                "object-cover transition-opacity duration-500",
-                isHovered ? "opacity-100" : "opacity-0"
-              )}
+              className="object-cover transition-opacity duration-500 opacity-0 group-hover:opacity-100"
               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
             />
           )}

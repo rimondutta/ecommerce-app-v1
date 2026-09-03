@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo, Suspense } from "react";
+import { useState, useMemo, Suspense, useTransition } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { X, ChevronDown } from "lucide-react";
@@ -50,48 +50,52 @@ function SidebarFilterItem({ label, selected, onClick }: { label: string; select
   );
 }
 
-function ShopContent({ initialProducts }: { initialProducts: any[] }) {
-  const [products] = useState<any[]>(initialProducts);
-  const searchParams = useSearchParams();
+function ShopGridPure({ 
+  initialProducts, 
+  categoryParam, 
+  ageParam, 
+  searchParam 
+}: { 
+  initialProducts: any[], 
+  categoryParam: string | null, 
+  ageParam: string | null, 
+  searchParam: string | null 
+}) {
   const router = useRouter();
   const reduced = useReducedMotion() ?? false;
+  const [isPending, startTransition] = useTransition();
 
-  const categoryParam = searchParams.get("category");
-  const ageParam = searchParams.get("age");
-  const searchParam = searchParams.get("search");
-
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(categoryParam);
-  const [selectedAge, setSelectedAge] = useState<string | null>(ageParam);
   const [sortBy, setSortBy] = useState("featured");
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
 
-  useEffect(() => {
-    setSelectedCategory(categoryParam);
-    setSelectedAge(ageParam);
-  }, [categoryParam, ageParam]);
-
-  // ─── ALL FILTERING / SORTING LOGIC UNTOUCHED ───
   const updateFilters = (key: string, value: string | null) => {
-    const params = new URLSearchParams(searchParams.toString());
-    if (value === null) params.delete(key);
-    else params.set(key, value);
-    router.push(`/products?${params.toString()}`, { scroll: false });
+    const currentParams = new URLSearchParams();
+    if (categoryParam) currentParams.set("category", categoryParam);
+    if (ageParam) currentParams.set("age", ageParam);
+    if (searchParam) currentParams.set("search", searchParam);
+    
+    if (value === null) currentParams.delete(key);
+    else currentParams.set(key, value);
+    
+    startTransition(() => {
+      router.push(`/products?${currentParams.toString()}`, { scroll: false });
+    });
   };
 
   const categories = useMemo(() => {
     const m = new Map<string, string>();
-    products.forEach((p: any) => {
+    initialProducts.forEach((p: any) => {
       if (p.category?.name && p.category?.slug) m.set(p.category.slug, p.category.name);
     });
     return Array.from(m.entries()).map(([slug, name]) => ({ slug, name }));
-  }, [products]);
+  }, [initialProducts]);
 
   const ageRanges = ["0-1", "1-3", "3-5", "5-8", "8+"];
 
   const filteredProducts = useMemo(() => {
-    let result = products.filter((p: any) => {
-      const catMatch = !selectedCategory || p.category?.slug === selectedCategory || p.category?.name === selectedCategory;
-      const ageMatch = !selectedAge || p.ageRange === selectedAge;
+    let result = initialProducts.filter((p: any) => {
+      const catMatch = !categoryParam || p.category?.slug === categoryParam || p.category?.name === categoryParam;
+      const ageMatch = !ageParam || p.ageRange === ageParam;
       const searchMatch = !searchParam || p.title.toLowerCase().includes(searchParam.toLowerCase());
       return catMatch && ageMatch && searchMatch;
     });
@@ -99,32 +103,29 @@ function ShopContent({ initialProducts }: { initialProducts: any[] }) {
     if (sortBy === "price-high") result.sort((a: any, b: any) => b.price - a.price);
     if (sortBy === "newest") result.sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
     return result;
-  }, [products, selectedCategory, selectedAge, sortBy, searchParam]);
+  }, [initialProducts, categoryParam, ageParam, sortBy, searchParam]);
 
-  const clearFilters = () => router.push("/products", { scroll: false });
+  const clearFilters = () => {
+    startTransition(() => {
+      router.push("/products", { scroll: false });
+    });
+  };
 
-  const activeFilterCount = [selectedCategory, selectedAge].filter(Boolean).length;
+  const activeFilterCount = [categoryParam, ageParam].filter(Boolean).length;
 
   return (
     <div suppressHydrationWarning className="flex-1 bg-joy-cream min-h-screen text-joy-navy font-body">
-
-      {/* ─── Top Utility Bar ─── */}
       <section className="relative bg-joy-cream pb-4 pt-32 lg:pt-36">
-
-        {/* Page title row */}
         <div className="px-4 sm:px-8 lg:px-[5vw] py-5 flex items-end justify-between border-b border-joy-rule">
           <h1 className="font-display font-bold text-4xl md:text-5xl text-joy-navy tracking-tight">
-            {selectedCategory || "All Toys"}
+            {categoryParam || "All Toys"}
           </h1>
           <span className="font-body text-sm text-joy-muted mb-1">
             {filteredProducts.length} products
           </span>
         </div>
 
-        {/* Filter + sort strip */}
         <div className="px-4 sm:px-8 lg:px-[5vw] py-4 flex items-center justify-between gap-4">
-
-          {/* Mobile: Filters button */}
           <button
             onClick={() => setIsMobileFiltersOpen(true)}
             className={cn(
@@ -138,24 +139,20 @@ function ShopContent({ initialProducts }: { initialProducts: any[] }) {
             )}
           </button>
 
-          {/* Desktop: inline category pills */}
           <div className="hidden lg:flex items-center gap-2 flex-wrap">
-            <FilterPill label="All" selected={!selectedCategory} onClick={() => updateFilters("category", null)} />
+            <FilterPill label="All" selected={!categoryParam} onClick={() => updateFilters("category", null)} />
             {categories.map((cat) => (
               <FilterPill
                 key={cat.slug}
                 label={cat.name}
-                selected={selectedCategory === cat.name || selectedCategory === cat.slug}
-                onClick={() => updateFilters("category", selectedCategory === cat.name ? null : cat.name)}
+                selected={categoryParam === cat.name || categoryParam === cat.slug}
+                onClick={() => updateFilters("category", categoryParam === cat.name ? null : cat.name)}
               />
             ))}
           </div>
 
-          {/* Spacer */}
-          {/* Desktop spacer */}
           <div className="flex-1 hidden lg:block" />
 
-          {/* Sort */}
           <div className="relative flex items-center gap-3 shrink-0">
             <span className="font-display font-medium text-sm text-joy-muted hidden sm:block">Sort by:</span>
             <div className="relative">
@@ -174,8 +171,7 @@ function ShopContent({ initialProducts }: { initialProducts: any[] }) {
             </div>
           </div>
 
-          {/* Active filter clear */}
-          {(selectedCategory || selectedAge) && (
+          {(categoryParam || ageParam) && (
             <button
               onClick={clearFilters}
               className="hidden lg:flex items-center gap-1 font-display font-semibold text-sm text-joy-coral hover:text-joy-coral/70 ml-2"
@@ -186,22 +182,19 @@ function ShopContent({ initialProducts }: { initialProducts: any[] }) {
         </div>
       </section>
 
-      <div className="px-4 sm:px-8 lg:px-[5vw] py-10 flex flex-col lg:flex-row gap-10">
-
-        {/* ─── Desktop Sidebar ─── */}
+      <div className={cn("px-4 sm:px-8 lg:px-[5vw] py-10 flex flex-col lg:flex-row gap-10", isPending && "opacity-70 pointer-events-none transition-opacity")}>
         <aside className="hidden lg:block w-56 shrink-0">
           <div className="sticky top-32 space-y-8 bg-white border border-joy-rule rounded-2xl p-6">
-
             <div className="space-y-3">
               <h4 className="font-display font-bold text-joy-navy text-sm uppercase tracking-wide">Category</h4>
               <div className="space-y-1">
-                <SidebarFilterItem label="All Products" selected={!selectedCategory} onClick={() => updateFilters("category", null)} />
+                <SidebarFilterItem label="All Products" selected={!categoryParam} onClick={() => updateFilters("category", null)} />
                 {categories.map((cat) => (
                   <SidebarFilterItem
                     key={cat.slug}
                     label={cat.name}
-                    selected={selectedCategory === cat.name || selectedCategory === cat.slug}
-                    onClick={() => updateFilters("category", selectedCategory === cat.name ? null : cat.name)}
+                    selected={categoryParam === cat.name || categoryParam === cat.slug}
+                    onClick={() => updateFilters("category", categoryParam === cat.name ? null : cat.name)}
                   />
                 ))}
               </div>
@@ -216,17 +209,15 @@ function ShopContent({ initialProducts }: { initialProducts: any[] }) {
                   <SidebarFilterItem
                     key={age}
                     label={`${age} Years`}
-                    selected={selectedAge === age}
-                    onClick={() => updateFilters("age", selectedAge === age ? null : age)}
+                    selected={ageParam === age}
+                    onClick={() => updateFilters("age", ageParam === age ? null : age)}
                   />
                 ))}
               </div>
             </div>
-
           </div>
         </aside>
 
-        {/* ─── Product Grid ─── */}
         <div className="flex-1">
           {filteredProducts.length > 0 ? (
             <div className="grid grid-cols-2 lg:grid-cols-3 gap-x-4 sm:gap-x-6 gap-y-8 sm:gap-y-12">
@@ -261,7 +252,6 @@ function ShopContent({ initialProducts }: { initialProducts: any[] }) {
         </div>
       </div>
 
-      {/* ─── Mobile Filter Drawer ─── */}
       <AnimatePresence>
         {isMobileFiltersOpen && (
           <>
@@ -285,7 +275,6 @@ function ShopContent({ initialProducts }: { initialProducts: any[] }) {
               </div>
 
               <div className="flex-1 overflow-y-auto px-6 py-6 space-y-8">
-                {/* Sort */}
                 <div className="space-y-4">
                   <h3 className="font-body text-sm font-medium text-ink-black">Sort by</h3>
                   <div className="flex flex-wrap gap-2">
@@ -305,23 +294,21 @@ function ShopContent({ initialProducts }: { initialProducts: any[] }) {
                   </div>
                 </div>
 
-                {/* Categories */}
                 <div className="space-y-4">
                   <h3 className="font-body text-sm font-medium text-ink-black">Category</h3>
                   <div className="flex flex-wrap gap-2">
-                    <FilterPill label="All" selected={!selectedCategory} onClick={() => updateFilters("category", null)} />
+                    <FilterPill label="All" selected={!categoryParam} onClick={() => updateFilters("category", null)} />
                     {categories.map((cat) => (
                       <FilterPill
                         key={cat.slug}
                         label={cat.name}
-                        selected={selectedCategory === cat.name}
-                        onClick={() => updateFilters("category", selectedCategory === cat.name ? null : cat.name)}
+                        selected={categoryParam === cat.name}
+                        onClick={() => updateFilters("category", categoryParam === cat.name ? null : cat.name)}
                       />
                     ))}
                   </div>
                 </div>
 
-                {/* Age */}
                 <div className="space-y-4">
                   <h3 className="font-body text-sm font-medium text-ink-black">Age Range</h3>
                   <div className="flex flex-wrap gap-2">
@@ -329,8 +316,8 @@ function ShopContent({ initialProducts }: { initialProducts: any[] }) {
                       <FilterPill
                         key={age}
                         label={`${age} yrs`}
-                        selected={selectedAge === age}
-                        onClick={() => updateFilters("age", selectedAge === age ? null : age)}
+                        selected={ageParam === age}
+                        onClick={() => updateFilters("age", ageParam === age ? null : age)}
                       />
                     ))}
                   </div>
@@ -344,7 +331,7 @@ function ShopContent({ initialProducts }: { initialProducts: any[] }) {
                 >
                   View {filteredProducts.length} {filteredProducts.length === 1 ? "Product" : "Products"}
                 </button>
-                {(selectedCategory || selectedAge) && (
+                {(categoryParam || ageParam) && (
                   <button
                     onClick={() => { clearFilters(); setIsMobileFiltersOpen(false); }}
                     className="w-full py-2 font-display font-semibold text-sm text-joy-coral hover:opacity-70 transition-opacity"
@@ -361,9 +348,31 @@ function ShopContent({ initialProducts }: { initialProducts: any[] }) {
   );
 }
 
+function ShopContent({ initialProducts }: { initialProducts: any[] }) {
+  const searchParams = useSearchParams();
+  
+  return (
+    <ShopGridPure 
+      initialProducts={initialProducts}
+      categoryParam={searchParams.get("category")}
+      ageParam={searchParams.get("age")}
+      searchParam={searchParams.get("search")}
+    />
+  );
+}
+
 export default function ShopClient({ initialProducts }: { initialProducts: any[] }) {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-transparent" />}>
+    <Suspense 
+      fallback={
+        <ShopGridPure 
+          initialProducts={initialProducts} 
+          categoryParam={null} 
+          ageParam={null} 
+          searchParam={null} 
+        />
+      }
+    >
       <ShopContent initialProducts={initialProducts} />
     </Suspense>
   );
