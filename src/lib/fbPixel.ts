@@ -1,8 +1,8 @@
 /**
  * Facebook/Meta Pixel event helper utilities.
  *
- * Each function is safe to call even before the pixel has loaded — a guard
- * clause checks for window.fbq and no-ops silently if it isn't available.
+ * Each function is safe to call even before the pixel has loaded — events are
+ * queued internally and flushed once the pixel is fully initialized.
  * All monetary values are in BDT (Bangladeshi Taka).
  *
  * NOTE: cookie/tracking consent — if you add a consent banner in the future,
@@ -12,16 +12,49 @@
 
 declare global {
   interface Window {
-    fbq?: (...args: any[]) => void;
+    fbq?: ((...args: any[]) => void) & {
+      callMethod?: (...args: any[]) => void;
+      queue?: any[];
+      loaded?: boolean;
+      version?: string;
+      push?: (...args: any[]) => void;
+    };
+    _fbq?: typeof window.fbq;
   }
 }
 
-function fireWhenReady(action: () => void, retries = 20) {
+/**
+ * Checks whether the Meta Pixel SDK has fully initialized.
+ * The inline bootstrap snippet sets window.fbq immediately, but the actual
+ * fbevents.js script loads asynchronously. Until it loads, `fbq.callMethod`
+ * is undefined and calling it crashes with "Cannot read properties of
+ * undefined (reading 'M_ID')".
+ *
+ * We consider the SDK "ready" only when fbq.callMethod is a function, which
+ * is set by the external fbevents.js script after it bootstraps.
+ */
+function isPixelReady(): boolean {
+  return (
+    typeof window !== 'undefined' &&
+    typeof window.fbq === 'function' &&
+    typeof window.fbq.callMethod === 'function'
+  );
+}
+
+/**
+ * Fires `action` as soon as the pixel SDK is fully initialized.
+ * Retries up to `retries` times with 300ms delay between each attempt.
+ */
+function fireWhenReady(action: () => void, retries = 30) {
   if (typeof window === 'undefined') return;
-  if (typeof window.fbq === 'function') {
-    action();
+  if (isPixelReady()) {
+    try {
+      action();
+    } catch {
+      // Pixel failures must never crash the page
+    }
   } else if (retries > 0) {
-    setTimeout(() => fireWhenReady(action, retries - 1), 250);
+    setTimeout(() => fireWhenReady(action, retries - 1), 300);
   }
 }
 
@@ -33,6 +66,7 @@ export function trackViewContent(product: {
   category?: { title?: string };
 }) {
   try {
+    if (!product?._id) return;
     fireWhenReady(() => {
       window.fbq!('track', 'ViewContent', {
         content_ids: [product._id],
@@ -54,6 +88,7 @@ export function trackAddToCart(
   quantity: number
 ) {
   try {
+    if (!product?._id) return;
     fireWhenReady(() => {
       window.fbq!('track', 'AddToCart', {
         content_ids: [product._id],
@@ -75,6 +110,7 @@ export function trackInitiateCheckout(
   totalValue: number
 ) {
   try {
+    if (!cartItems?.length) return;
     fireWhenReady(() => {
       window.fbq!('track', 'InitiateCheckout', {
         content_ids: cartItems.map((i) => i.id),

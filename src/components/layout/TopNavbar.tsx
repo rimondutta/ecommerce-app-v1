@@ -40,7 +40,7 @@ export default function TopNavbar() {
   ];
 
   return (
-    <nav className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-6xl bg-[#D5AEFD]/80 backdrop-blur-xl border border-white/20 rounded-full px-6 py-3 shadow-[0_8px_32px_rgba(0,0,0,0.15)] transition-all duration-300 hover:bg-[#D5AEFD]/95" suppressHydrationWarning>
+    <nav className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-6xl bg-[#D5AEFD]/85 backdrop-blur-md border border-white/20 rounded-full px-6 py-3 shadow-[0_8px_32px_rgba(0,0,0,0.15)] transition-colors duration-300 hover:bg-[#D5AEFD]/95" suppressHydrationWarning>
       <div className="flex items-center justify-between">
 
         {/* Left — Nav links */}

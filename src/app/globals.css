@@ -60,7 +60,8 @@
    ═══════════════════════════════════════ */
 
 html {
-  scroll-behavior: smooth;
+  /* Do NOT set scroll-behavior: smooth here — Lenis owns scroll smoothing.
+     Setting both causes double-smoothing jank on desktop. */
   background-color: #FEFAF3;
 }
 
@@ -85,13 +86,10 @@ img, video {
   -webkit-backface-visibility: hidden;
 }
 
-/* Keep transitions on their own compositor layer */
-.transition-transform,
-.transition-all,
-[class*="hover:-translate"],
-[class*="hover:scale"] {
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
+/* Only hint will-change on explicit interactive elements, not globally.
+   Broad will-change hints on hundreds of elements exhaust GPU memory. */
+.will-change-transform {
+  will-change: transform;
 }
 
 /* Logo, Main Heading, Product Title, Price -> Poppins */

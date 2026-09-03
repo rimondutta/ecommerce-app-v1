@@ -43,7 +43,6 @@ export default function AnimatedReveal({
       // Initial hidden state — use transform3d to hit the GPU compositor
       const fromVars: gsap.TweenVars = {
         opacity: 0,
-        willChange: "opacity, transform",
         force3D: true,
         ...(direction === "up" ? { y: 36 } : direction === "left" ? { x: 36 } : {}),
       };
@@ -53,10 +52,13 @@ export default function AnimatedReveal({
         opacity: 1,
         y: 0,
         x: 0,
-        duration: 0.85,
+        duration: 0.75,
         delay,
         ease: "power3.out",
-        clearProps: "willChange",
+        // willChange is applied automatically by GSAP during the tween and
+        // cleared afterwards via clearProps — no need to set it on init
+        // (pre-promoting many off-screen elements wastes GPU VRAM)
+        clearProps: "willChange,transform",
         scrollTrigger: {
           trigger: el,
           start: "top 90%",

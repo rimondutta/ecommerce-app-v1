@@ -10,28 +10,32 @@ export default function LenisProvider({
 }) {
   useEffect(() => {
     const initLenis = async () => {
-      const { gsap, ScrollTrigger } = await import("@/lib/gsap");
+      const { ScrollTrigger } = await import("@/lib/gsap");
 
       const lenis = new Lenis({
-        duration: 1.4,
-        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+        duration: 1.0,          // Reduced from 1.4 — less inertia = snappier feel
+        easing: (t) => 1 - Math.pow(1 - t, 3), // cubic ease-out — lighter than the pow2 exponential
         orientation: "vertical",
         gestureOrientation: "vertical",
         smoothWheel: true,
-        wheelMultiplier: 1,
+        wheelMultiplier: 0.9,   // Slightly reduced for control
         touchMultiplier: 2,
       });
 
-      // Sync Lenis scroll position with GSAP's ScrollTrigger
+      // Sync Lenis scroll position with GSAP ScrollTrigger using Lenis's own RAF
       lenis.on("scroll", ScrollTrigger.update);
 
-      gsap.ticker.add((time) => {
-        lenis.raf(time * 1000);
-      });
-      gsap.ticker.lagSmoothing(0);
+      // Use Lenis's built-in requestAnimationFrame instead of the GSAP ticker.
+      // This prevents the GSAP ticker from running lenis.raf() every frame
+      // even when the user isn't scrolling.
+      function raf(time: number) {
+        lenis.raf(time);
+        rafId = requestAnimationFrame(raf);
+      }
+      let rafId = requestAnimationFrame(raf);
 
       return () => {
-        gsap.ticker.remove(lenis.raf);
+        cancelAnimationFrame(rafId);
         lenis.destroy();
       };
     };
