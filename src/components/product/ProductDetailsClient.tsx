@@ -11,7 +11,7 @@ import { useToast } from "@/components/playshelf/Toast";
 import ProductGridNike from "@/components/ui/product-grid-nike";
 import { Star, Truck, RefreshCcw, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { trackViewContent, trackAddToCart } from "@/lib/fbPixel";
+import { trackViewContent, trackAddToCart, trackAddToWishlist } from "@/lib/fbPixel";
 
 // ─── Breadcrumb underline link ───
 function NavLink({ href, children }: { href: string; children: React.ReactNode }) {
@@ -47,6 +47,7 @@ export default function ProductDetailsClient({ product: initialProduct, relatedP
     toggleItem(product._id);
     if (!wishlisted) {
       showToast("Added to wishlist!", "success");
+      try { trackAddToWishlist(product); } catch { /* noop */ }
     } else {
       showToast("Removed from wishlist", "info");
     }

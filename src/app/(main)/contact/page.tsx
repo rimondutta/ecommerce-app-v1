@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Send, Mail, Phone, MapPin, Globe, CheckCircle, Loader2 } from "lucide-react";
+import { trackContact } from "@/lib/fbPixel";
 
 const contactInfo = [
   {
@@ -51,6 +52,7 @@ export default function ContactPage() {
     await new Promise((r) => setTimeout(r, 1400));
     setSubmitting(false);
     setSubmitted(true);
+    try { trackContact(); } catch { /* noop */ }
   };
 
   return (

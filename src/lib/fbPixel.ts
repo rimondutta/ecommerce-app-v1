@@ -145,3 +145,41 @@ export function trackPurchase(order: {
     // Pixel failures must never crash the page
   }
 }
+
+/** Search — fired when a customer performs a search. */
+export function trackSearch(searchString: string) {
+  try {
+    if (!searchString) return;
+    fireWhenReady(() => {
+      window.fbq!('track', 'Search', {
+        search_string: searchString,
+      });
+    });
+  } catch {}
+}
+
+/** AddToWishlist — fired when a customer adds a product to their wishlist. */
+export function trackAddToWishlist(product: { _id: string; title?: string; price?: number; category?: { title?: string } }) {
+  try {
+    if (!product?._id) return;
+    fireWhenReady(() => {
+      window.fbq!('track', 'AddToWishlist', {
+        content_ids: [product._id],
+        content_type: 'product',
+        content_name: product.title ?? '',
+        content_category: product.category?.title ?? '',
+        value: Math.max(0.01, Number(product.price ?? 0)),
+        currency: 'BDT',
+      });
+    });
+  } catch {}
+}
+
+/** Contact — fired when a customer submits a contact form. */
+export function trackContact() {
+  try {
+    fireWhenReady(() => {
+      window.fbq!('track', 'Contact');
+    });
+  } catch {}
+}

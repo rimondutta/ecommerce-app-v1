@@ -6,6 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Search, X, ArrowRight, PackageX } from "lucide-react";
 import Button from "@/components/ui/Button";
+import { trackSearch } from "@/lib/fbPixel";
 
 export interface SearchDrawerProps {
   isOpen: boolean;
@@ -35,8 +36,12 @@ export default function SearchDrawer({ isOpen, onClose }: SearchDrawerProps) {
     }
     const timer = setTimeout(() => {
       fetch(`/api/store/products?search=${encodeURIComponent(query)}`)
-        .then((r) => r.json())
-        .then((d) => setResults(d.products || []))
+        .then((d) => {
+          setResults(d.products || []);
+          if (d.products?.length > 0) {
+            try { trackSearch(query); } catch { /* noop */ }
+          }
+        })
         .catch(() => { });
     }, 300);
     return () => clearTimeout(timer);
