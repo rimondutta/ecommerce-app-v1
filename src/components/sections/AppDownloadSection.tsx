@@ -3,7 +3,6 @@
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { motion } from "framer-motion";
 import AnimatedReveal from "@/components/ui/AnimatedReveal";
 import { FaApple, FaGooglePlay, FaGithub } from "react-icons/fa";
 
@@ -88,21 +87,19 @@ export default function AppDownloadSection() {
 
           {/* App Mockup / Visual */}
           <div className="flex-1 relative w-full max-w-[400px] lg:max-w-none flex justify-center lg:justify-end">
-            <motion.div
-              initial={{ y: 20, opacity: 0 }}
-              whileInView={{ y: 0, opacity: 1 }}
-              transition={{ duration: 0.8, ease: "easeOut" }}
-              viewport={{ once: true, margin: "-100px" }}
-              className="relative w-full max-w-[300px] lg:max-w-[340px] aspect-[9/19] rounded-[3rem] overflow-hidden shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] bg-white border border-black/5"
-            >
-              <Image
-                src="/images/mobile-app-image.png"
-                alt="App Screenshot"
-                fill
-                sizes="(max-width: 768px) 300px, 340px"
-                className="object-contain"
-              />
-            </motion.div>
+            <AnimatedReveal direction="up" delay={0.2}>
+              <div
+                className="relative w-full max-w-[300px] lg:max-w-[340px] aspect-[9/19] rounded-[3rem] overflow-hidden shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] bg-white border border-black/5"
+              >
+                <Image
+                  src="/images/mobile-app-image.png"
+                  alt="App Screenshot"
+                  fill
+                  sizes="(max-width: 768px) 300px, 340px"
+                  className="object-contain"
+                />
+              </div>
+            </AnimatedReveal>
           </div>
 
         </div>
@@ -110,3 +107,4 @@ export default function AppDownloadSection() {
     </AnimatedReveal>
   );
 }
+

@@ -33,24 +33,24 @@ export default function Homepage({
   const [blogs] = useState<any[]>(initialBlogs);
   const heroRef = useRef<HTMLDivElement>(null);
 
-  // GSAP hero entrance — force3D ensures GPU compositing, no layout thrash
+  // GSAP hero entrance — enhances visibility, does NOT gate it
+  // Hero items are visible by default (no opacity:0); GSAP adds a subtle slide-up
   useEffect(() => {
     const ctx = (async () => {
       const { gsap } = await import("@/lib/gsap");
       const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       const hero = heroRef.current;
-      if (!hero) return null;
+      if (!hero || reduced) return null;
 
       const items = hero.querySelectorAll<HTMLElement>("[data-hero-item]");
-      gsap.set(items, { opacity: 0, y: reduced ? 0 : 28, force3D: true });
+      gsap.set(items, { y: 20, force3D: true });
       const tl = gsap.timeline();
       tl.to(items, {
-        opacity: 1,
         y: 0,
-        duration: reduced ? 0.15 : 0.75,
-        stagger: reduced ? 0 : 0.1,
+        duration: 0.65,
+        stagger: 0.08,
         ease: "power3.out",
-        clearProps: "will-change",
+        clearProps: "will-change,transform",
       });
       return tl;
     })();
@@ -74,7 +74,8 @@ export default function Homepage({
             muted
             loop
             playsInline
-            preload="auto"
+            preload="none"
+            poster="/images/hero-poster.jpg"
             className="absolute inset-0 w-full h-full object-cover object-center"
           >
             <source src="/video/hero-bg.mp4" type="video/mp4" />

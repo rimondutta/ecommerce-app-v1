@@ -43,6 +43,9 @@ const nextConfig: NextConfig = {
       'lucide-react',
       '@tabler/icons-react',
       'swiper',
+      'react-icons',
+      '@heroicons/react',
+      'gsap',
     ],
   },
 
