@@ -24,37 +24,28 @@ declare global {
 }
 
 /**
- * Checks whether the Meta Pixel SDK has fully initialized.
- * The inline bootstrap snippet sets window.fbq immediately, but the actual
- * fbevents.js script loads asynchronously. Until it loads, `fbq.callMethod`
- * is undefined and calling it crashes with "Cannot read properties of
- * undefined (reading 'M_ID')".
- *
- * We consider the SDK "ready" only when fbq.callMethod is a function, which
- * is set by the external fbevents.js script after it bootstraps.
+ * Fires `action` directly. 
+ * The Facebook Pixel inline snippet defines `window.fbq` immediately and queues 
+ * events natively until the fbevents.js script finishes loading.
  */
-function isPixelReady(): boolean {
-  return (
-    typeof window !== 'undefined' &&
-    typeof window.fbq === 'function' &&
-    typeof window.fbq.callMethod === 'function'
-  );
-}
-
-/**
- * Fires `action` as soon as the pixel SDK is fully initialized.
- * Retries up to `retries` times with 300ms delay between each attempt.
- */
-function fireWhenReady(action: () => void, retries = 30) {
+function fireWhenReady(action: () => void) {
   if (typeof window === 'undefined') return;
-  if (isPixelReady()) {
+  
+  if (typeof window.fbq === 'function') {
     try {
       action();
     } catch {
       // Pixel failures must never crash the page
     }
-  } else if (retries > 0) {
-    setTimeout(() => fireWhenReady(action, retries - 1), 300);
+  } else {
+    // If not injected yet, wait briefly and try once
+    setTimeout(() => {
+      if (typeof window.fbq === 'function') {
+        try {
+          action();
+        } catch {}
+      }
+    }, 500);
   }
 }
 
