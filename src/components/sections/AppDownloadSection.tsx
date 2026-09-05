@@ -87,7 +87,7 @@ export default function AppDownloadSection() {
 
           {/* App Mockup / Visual */}
           <div className="flex-1 relative w-full max-w-[400px] lg:max-w-none flex justify-center lg:justify-end">
-            <AnimatedReveal direction="up" delay={0.2}>
+            <AnimatedReveal direction="up" delay={0.2} className="w-full flex justify-center lg:justify-end">
               <div
                 className="relative w-full max-w-[300px] lg:max-w-[340px] aspect-[9/19] rounded-[3rem] overflow-hidden shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] bg-white border border-black/5"
               >

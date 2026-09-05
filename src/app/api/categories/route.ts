@@ -19,10 +19,14 @@ const CORS_HEADERS = {
 export async function GET() {
   try {
     await connectToDatabase();
-    const categories = await Category.find({ isActive: true })
-      .select('name slug description image')
-      .sort({ name: 1 })
-      .lean();
+    const { withCache } = await import('@/lib/cache');
+    const categories = await withCache('api:categories:list', 300, async () => {
+      return await Category.find({ isActive: true })
+        .select('name slug description image')
+        .sort({ name: 1 })
+        .limit(100)
+        .lean();
+    });
 
     return NextResponse.json(
       { success: true, data: categories },

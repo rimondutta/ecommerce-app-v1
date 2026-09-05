@@ -7,7 +7,7 @@ import Image from "next/image";
 
 import { useCart } from "@/components/providers/CartProvider";
 import { useWishlist } from "@/store/wishlistStore";
-import { cn } from "@/lib/utils";
+import { cn, getOptimizedCloudinaryUrl } from "@/lib/utils";
 import { Heart } from "lucide-react";
 
 interface Product {
@@ -82,8 +82,11 @@ export default function ProductCardModern({ product, priority = false, index = 1
     ? Math.round(((product.compareAtPrice - product.price) / product.compareAtPrice) * 100)
     : 0;
 
-  const frontImg = product.images?.[0];
-  const backImg = product.images?.[1];
+  const rawFront = product.images?.[0];
+  const rawBack  = product.images?.[1];
+  // Inject f_auto,q_auto into Cloudinary URLs — served as WebP/AVIF, ~40% smaller
+  const frontImg = rawFront ? { ...rawFront, url: getOptimizedCloudinaryUrl(rawFront.url, { width: 600 }) } : undefined;
+  const backImg  = rawBack  ? { ...rawBack,  url: getOptimizedCloudinaryUrl(rawBack.url,  { width: 600 }) } : undefined;
 
   return (
     <div

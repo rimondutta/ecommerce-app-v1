@@ -1,7 +1,16 @@
 {
   "functions": {
     "src/app/api/**/*.ts": {
-      "maxDuration": 10
+      "maxDuration": 15,
+      "memory": 1024
+    },
+    "src/app/invoice/**/*.ts": {
+      "maxDuration": 30,
+      "memory": 2048
+    },
+    "src/app/api/admin/**/*.ts": {
+      "maxDuration": 30,
+      "memory": 1024
     }
   }
 }

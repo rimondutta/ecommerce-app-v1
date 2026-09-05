@@ -48,13 +48,8 @@ export async function GET(req: NextRequest) {
     const filter: Record<string, any> = { isPublished: true };
 
     if (searchQuery) {
-      // Security: escape special regex chars to prevent ReDoS
-      const escaped = searchQuery.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      filter.$or = [
-        { title:       { $regex: escaped, $options: 'i' } },
-        { description: { $regex: escaped, $options: 'i' } },
-        { tags:        { $regex: escaped, $options: 'i' } },
-      ];
+      // Use MongoDB text index for high-performance searching instead of slow regex
+      filter.$text = { $search: searchQuery };
     }
 
     if (minPrice > 0) filter.price = { ...filter.price, $gte: minPrice };
@@ -68,68 +63,69 @@ export async function GET(req: NextRequest) {
     };
     const sortObj = sortMap[sort] ?? sortMap.newest;
 
-    // If filtering by category slug, resolve via aggregation (single DB round-trip)
-    if (categorySlug) {
-      const pipeline: any[] = [
-        {
+    // Generate a unique cache key based on query params
+    const cacheKey = `api:products:list:${categorySlug || 'all'}-${searchQuery || 'none'}-${sort}-${page}-${limit}-${minPrice}-${maxPrice}`;
+
+    // Wrap the entire data fetching block in Redis cache (60s TTL)
+    const { withCache } = await import('@/lib/cache');
+    const { products, total } = await withCache(cacheKey, 60, async () => {
+      // If filtering by category slug, resolve via aggregation (single DB round-trip)
+      if (categorySlug) {
+        const pipeline: any[] = [
+          {
+            $lookup: {
+              from: 'categories',
+              localField: 'category',
+              foreignField: '_id',
+              as: 'category',
+            },
+          },
+          { $unwind: { path: '$category', preserveNullAndEmptyArrays: true } },
+          {
+            $match: {
+              ...filter,
+              'category.slug': categorySlug,
+            },
+          },
+          { $sort: sortObj },
+        ];
+
+        // Count before pagination
+        const countPipeline = [...pipeline, { $count: 'total' }];
+        const [countResult] = await Product.aggregate(countPipeline);
+        const total = countResult?.total ?? 0;
+
+        // Apply pagination
+        pipeline.push({ $skip: skip }, { $limit: limit });
+        // Populate variation data
+        pipeline.push({
           $lookup: {
-            from: 'categories',
-            localField: 'category',
+            from: 'variationtypes',
+            localField: 'variationTypes',
             foreignField: '_id',
-            as: 'category',
+            as: 'variationTypes',
           },
-        },
-        { $unwind: { path: '$category', preserveNullAndEmptyArrays: true } },
-        {
-          $match: {
-            ...filter,
-            'category.slug': categorySlug,
-          },
-        },
-        { $sort: sortObj },
-      ];
+        });
 
-      // Count before pagination
-      const countPipeline = [...pipeline, { $count: 'total' }];
-      const [countResult] = await Product.aggregate(countPipeline);
-      const total = countResult?.total ?? 0;
+        const products = await Product.aggregate(pipeline);
+        return { products, total };
+      }
 
-      // Apply pagination
-      pipeline.push({ $skip: skip }, { $limit: limit });
-      // Populate variation data
-      pipeline.push({
-        $lookup: {
-          from: 'variationtypes',
-          localField: 'variationTypes',
-          foreignField: '_id',
-          as: 'variationTypes',
-        },
-      });
-
-      const products = await Product.aggregate(pipeline);
-
-      return NextResponse.json(
-        {
-          success: true,
-          data: products,
-          meta: { page, limit, total, totalPages: Math.ceil(total / limit) },
-        },
-        { headers: { ...CORS_HEADERS, 'Cache-Control': 'public, s-maxage=30, stale-while-revalidate=120' } }
-      );
-    }
-
-    // Standard query path (no category filter)
-    const [products, total] = await Promise.all([
-      Product.find(filter)
-        .populate('category', 'name slug image')
-        .populate('variationTypes')
-        .select('-__v')
-        .sort(sortObj)
-        .skip(skip)
-        .limit(limit)
-        .lean(),
-      Product.countDocuments(filter),
-    ]);
+      // Standard query path (no category filter)
+      const [fetchedProducts, fetchedTotal] = await Promise.all([
+        Product.find(filter)
+          .populate('category', 'name slug image')
+          .populate('variationTypes')
+          .select('-__v')
+          .sort(sortObj)
+          .skip(skip)
+          .limit(limit)
+          .lean(),
+        Product.countDocuments(filter),
+      ]);
+      
+      return { products: fetchedProducts, total: fetchedTotal };
+    });
 
     return NextResponse.json(
       {

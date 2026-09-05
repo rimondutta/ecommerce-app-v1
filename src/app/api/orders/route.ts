@@ -28,6 +28,7 @@ export async function GET(req: NextRequest) {
 
     const orders = await Order.find({ customerEmail: session.user.email })
       .sort({ createdAt: -1 })
+      .limit(100)
       .lean();
 
     // Map DB shape to the mobile app's Order type

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { Star, MessageSquare, Trash2, CheckCircle, XCircle } from "lucide-react"
+import { getOptimizedCloudinaryUrl } from "@/lib/utils"
 
 interface Review {
   _id: string
@@ -139,7 +140,7 @@ export default function ReviewsClient() {
                       <div className="flex items-center gap-3">
                         <div className="w-12 h-12 rounded border border-gray-200 bg-gray-100 overflow-hidden shrink-0">
                           {review.productId?.images?.[0]?.url ? (
-                            <img src={review.productId.images[0].url} alt={review.productId.title} className="w-full h-full object-cover" />
+                            <img src={getOptimizedCloudinaryUrl(review.productId.images[0].url, { width: 96 })} alt={review.productId.title} className="w-full h-full object-cover" />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center text-gray-400"><MessageSquare size={16} /></div>
                           )}
