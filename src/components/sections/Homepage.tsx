@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
+import { preload } from "react-dom";
 import Link from "next/link";
 import Image from "next/image";
 const DynamicProductGridNike = dynamic(() => import("@/components/ui/product-grid-nike"));
@@ -28,6 +29,7 @@ export default function Homepage({
   initialCategories?: Category[];
   initialBlogs?: any[];
 }) {
+  preload('/video/hero-bg.mp4', { as: 'video', fetchPriority: 'high' });
   const [trendingProducts] = useState<any[]>(initialTrendingProducts);
   const [categories] = useState<Category[]>(initialCategories);
   const [blogs] = useState<any[]>(initialBlogs);
@@ -67,16 +69,16 @@ export default function Homepage({
           ═══════════════════════════════════════════════ */}
       <section className="relative min-h-[92vh] flex items-center overflow-hidden">
         {/* Background Video */}
-        <div className="absolute inset-0 z-0">
+        <div className="absolute inset-0 z-0 bg-[#0a0a0a]">
           <div className="absolute inset-0 bg-black/40 z-10" /> {/* Dark overlay for readability */}
+          
           <video
             autoPlay
             muted
             loop
             playsInline
             preload="auto"
-            poster="/images/hero-poster.jpg"
-            className="absolute inset-0 w-full h-full object-cover object-center"
+            className="absolute inset-0 w-full h-full object-cover object-center z-0"
           >
             <source src="/video/hero-bg.mp4" type="video/mp4" />
           </video>
