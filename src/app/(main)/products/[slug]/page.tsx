@@ -6,11 +6,39 @@ import "@/models/VariationValue";
 import { notFound } from "next/navigation";
 import ProductDetailsClient from "@/components/product/ProductDetailsClient";
 import { Metadata } from "next";
+import { cache } from "react";
+import { getOrSetCached } from "@/lib/cache/redis-cache";
+import { KEYS } from "@/lib/cache/invalidation";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
+
+const getProductData = cache(async (slug: string) => {
+  await connectToDatabase();
+  const sanitizedSlug = typeof slug === 'string' ? slug : String(slug);
+
+  const populateConfig = [
+    { path: 'category' },
+    { path: 'variationTypes' },
+    { path: 'variants.combination.variationType' },
+    { path: 'variants.combination.variationValue' }
+  ];
+
+  return getOrSetCached(KEYS.productIsrSlug(sanitizedSlug), 60, async () => {
+    return await Promise.all([
+      Product.findOne({ slug: sanitizedSlug, isPublished: true })
+        .populate(populateConfig)
+        .select('-__v')
+        .lean(),
+      Product.find({ isPublished: true })
+        .select('title price compareAtPrice slug images category inventory rating reviewCount')
+        .limit(8)
+        .lean(),
+    ]);
+  });
+});
 
 /**
  * GENERATE DYNAMIC METADATA (SEO)
@@ -18,18 +46,17 @@ interface PageProps {
  */
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  await connectToDatabase();
-  const product = await Product.findOne({ slug, isPublished: true }).select('title description images');
-  
+  const [product] = await getProductData(slug);
+
   if (!product) return { title: "Product Not Found" };
 
   return {
-    title: `${product.title} - Toy Hourse`,
-    description: product.description,
+    title: `${(product as any).title} - Toy Hourse`,
+    description: (product as any).description,
     openGraph: {
-      title: product.title,
-      description: product.description,
-      images: [product.images?.[0]?.url || ""],
+      title: (product as any).title,
+      description: (product as any).description,
+      images: [(product as any).images?.[0]?.url || ""],
     },
   };
 }
@@ -60,31 +87,8 @@ export async function generateStaticParams() {
  */
 export default async function ProductDetailPage({ params }: PageProps) {
   const { slug } = await params;
-  await connectToDatabase();
 
-  const sanitizedSlug = typeof slug === 'string' ? slug : String(slug);
-
-  const populateConfig = [
-    { path: 'category' },
-    { path: 'variationTypes' },
-    { path: 'variants.combination.variationType' },
-    { path: 'variants.combination.variationValue' }
-  ];
-
-  const { withCache } = await import('@/lib/cache');
-
-  const [product, relatedProducts] = await withCache(`product:isr:${sanitizedSlug}`, 60, async () => {
-    return await Promise.all([
-      Product.findOne({ slug: sanitizedSlug, isPublished: true })
-        .populate(populateConfig)
-        .select('-__v')
-        .lean(),
-      Product.find({ isPublished: true })
-        .select('title price compareAtPrice slug images category inventory rating reviewCount')
-        .limit(8)
-        .lean(),
-    ]);
-  });
+  const [product, relatedProducts] = await getProductData(slug);
 
   if (!product) {
     notFound();
@@ -92,7 +96,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
 
   // Serialize MongoDB data (lean() gives us POJO, but we still need to handle ObjectIds)
   const serializedProduct = JSON.parse(JSON.stringify(product));
-  const serializedRelated = JSON.parse(JSON.stringify(relatedProducts?.filter((p: any) => p.slug !== sanitizedSlug) || []));
+  const serializedRelated = JSON.parse(JSON.stringify(relatedProducts?.filter((p: any) => p.slug !== slug) || []));
 
   return <ProductDetailsClient product={serializedProduct} relatedProducts={serializedRelated} />;
 }

@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { useWishlist } from "@/components/providers/WishlistProvider";
 import { PageLoader } from "@/components/ui/Loader";
 import ProductCardNike from "@/components/ui/product-card-nike";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { 
   LayoutDashboard, 
@@ -130,7 +130,7 @@ export default function AccountPage() {
           <AnimatePresence mode="wait">
             {/* ── OVERVIEW ── */}
             {activeTab === "overview" && (
-              <motion.div 
+              <m.div 
                 key="overview" 
                 initial={{ opacity: 0, y: 10 }} 
                 animate={{ opacity: 1, y: 0 }} 
@@ -187,12 +187,12 @@ export default function AccountPage() {
                     </div>
                   </div>
                 )}
-              </motion.div>
+              </m.div>
             )}
 
             {/* ── ORDERS ── */}
             {activeTab === "orders" && (
-              <motion.div 
+              <m.div 
                 key="orders" 
                 initial={{ opacity: 0, y: 10 }} 
                 animate={{ opacity: 1, y: 0 }} 
@@ -270,12 +270,12 @@ export default function AccountPage() {
                     ))}
                   </div>
                 )}
-              </motion.div>
+              </m.div>
             )}
 
             {/* ── WISHLIST ── */}
             {activeTab === "wishlist" && (
-              <motion.div 
+              <m.div 
                 key="wishlist" 
                 initial={{ opacity: 0, y: 10 }} 
                 animate={{ opacity: 1, y: 0 }} 
@@ -304,12 +304,12 @@ export default function AccountPage() {
                     ))}
                   </div>
                 )}
-              </motion.div>
+              </m.div>
             )}
 
             {/* ── SETTINGS ── */}
             {activeTab === "settings" && (
-              <motion.div 
+              <m.div 
                 key="settings" 
                 initial={{ opacity: 0, y: 10 }} 
                 animate={{ opacity: 1, y: 0 }} 
@@ -351,7 +351,7 @@ export default function AccountPage() {
 
                   </div>
                 </div>
-              </motion.div>
+              </m.div>
             )}
           </AnimatePresence>
         </main>

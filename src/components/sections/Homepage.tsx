@@ -3,10 +3,10 @@
 import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import ProductGridNike from "@/components/ui/product-grid-nike";
+const DynamicProductGridNike = dynamic(() => import("@/components/ui/product-grid-nike"));
 import AnimatedReveal from "@/components/ui/AnimatedReveal";
 import dynamic from "next/dynamic";
-import AppDownloadSection from "./AppDownloadSection";
+const DynamicAppDownloadSection = dynamic(() => import("./AppDownloadSection"));
 import { ArrowRight, Truck, RotateCcw, Headphones } from "lucide-react";
 
 const DynamicInstagramSection = dynamic(() => import("./InstagramSection"), { ssr: false });
@@ -74,7 +74,7 @@ export default function Homepage({
             muted
             loop
             playsInline
-            preload="none"
+            preload="auto"
             poster="/images/hero-poster.jpg"
             className="absolute inset-0 w-full h-full object-cover object-center"
           >
@@ -224,7 +224,7 @@ export default function Homepage({
           </Link>
         </AnimatedReveal>
 
-        <ProductGridNike
+        <DynamicProductGridNike
           title={undefined}
           viewAllLink="/products"
           products={trendingProducts}
@@ -330,7 +330,7 @@ export default function Homepage({
       {/* ═══════════════════════════════════════════════
           APP DOWNLOAD
           ═══════════════════════════════════════════════ */}
-      <AppDownloadSection />
+      <DynamicAppDownloadSection />
 
       {/* Instagram — lazy loaded */}
       <DynamicInstagramSection />

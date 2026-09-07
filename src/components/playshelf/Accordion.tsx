@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { Plus, Minus } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -25,18 +25,18 @@ export default function Accordion({ title, children, defaultOpen = false, classN
         <span className="font-display font-semibold text-lg text-ink group-hover:text-ink-light transition-colors">
           {title}
         </span>
-        <motion.div
+        <m.div
           animate={{ rotate: isOpen ? 45 : 0 }}
           transition={{ duration: 0.2 }}
           className="w-8 h-8 rounded-full bg-shelf-wood/50 flex items-center justify-center flex-shrink-0 ml-4"
         >
           <Plus size={16} className="text-ink" />
-        </motion.div>
+        </m.div>
       </button>
 
       <AnimatePresence initial={false}>
         {isOpen && (
-          <motion.div
+          <m.div
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
@@ -46,7 +46,7 @@ export default function Accordion({ title, children, defaultOpen = false, classN
             <div className="pb-6 text-ink-light leading-relaxed">
               {children}
             </div>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
     </div>

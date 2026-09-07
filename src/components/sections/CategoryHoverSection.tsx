@@ -3,7 +3,7 @@
 import { useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 
 interface Category {
   name: string;
@@ -53,13 +53,13 @@ export default function CategoryHoverSection({ categories }: { categories: Categ
         >
           {merged.map((item, idx) => (
             <Link key={idx} href={`/products?category=${item.slug}`}>
-              <motion.div
+              <m.div
                 onMouseEnter={() => setActiveIdx(idx)}
                 className="group relative flex items-center justify-between border-b border-[#111111]/10 px-6 lg:px-[5vw] py-8 md:py-10 cursor-pointer overflow-hidden"
                 whileHover="hover"
               >
                 {/* Animated background fill on hover */}
-                <motion.span
+                <m.span
                   className="absolute inset-0 bg-[#111111] origin-left z-0"
                   initial={{ scaleX: 0 }}
                   whileHover={{ scaleX: 1 }}
@@ -86,7 +86,7 @@ export default function CategoryHoverSection({ categories }: { categories: Categ
                     <span className="text-[#111111] group-hover:text-white transition-colors duration-300 text-sm">↗</span>
                   </div>
                 </div>
-              </motion.div>
+              </m.div>
             </Link>
           ))}
           <div className="border-b border-[#111111]/10" />
@@ -95,7 +95,7 @@ export default function CategoryHoverSection({ categories }: { categories: Categ
         {/* RIGHT: Always-visible image panel */}
         <div className="flex-1 relative min-h-[500px] overflow-hidden bg-[#F0F0EA] sticky top-0">
           {merged.map((item, idx) => (
-            <motion.div
+            <m.div
               key={idx}
               className="absolute inset-0"
               animate={{
@@ -121,7 +121,7 @@ export default function CategoryHoverSection({ categories }: { categories: Categ
 
               {/* Overlay with category info */}
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-              <motion.div
+              <m.div
                 className="absolute bottom-8 left-8 right-8"
                 animate={{ y: activeIdx === idx ? 0 : 12, opacity: activeIdx === idx ? 1 : 0 }}
                 transition={{ duration: 0.5, ease: [0.25, 1, 0.5, 1], delay: 0.1 }}
@@ -143,8 +143,8 @@ export default function CategoryHoverSection({ categories }: { categories: Categ
                 >
                   Shop {item.label} ↗
                 </Link>
-              </motion.div>
-            </motion.div>
+              </m.div>
+            </m.div>
           ))}
         </div>
       </div>

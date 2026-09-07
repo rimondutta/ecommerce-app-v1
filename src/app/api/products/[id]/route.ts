@@ -7,6 +7,7 @@ import { getBearerSession } from '@/lib/mobile-auth';
 import { touchProductsTimestamp } from '@/lib/lastUpdated';
 import { deleteImage } from '@/lib/cloudinary';
 import { NextRequest } from 'next/server';
+import { invalidateProduct } from '@/lib/cache/invalidation';
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
@@ -131,14 +132,11 @@ export async function PUT(
       runValidators: true,
     });
 
-    // Revalidate Next.js pages that show this product
-    const { revalidatePath } = require('next/cache');
-    revalidatePath('/');
-    revalidatePath('/products');
-    if (product?.slug) revalidatePath(`/products/${product.slug}`);
-
     // Bump last-updated so mobile polling detects this change
     await touchProductsTimestamp();
+
+    // Invalidate Redis caches + trigger Next.js ISR revalidate
+    await invalidateProduct(id, product?.slug);
 
     return NextResponse.json(
       { success: true, data: product },
@@ -205,6 +203,9 @@ export async function DELETE(
 
     // Bump last-updated so mobile polling detects this deletion
     await touchProductsTimestamp();
+
+    // Invalidate Redis caches + trigger Next.js ISR revalidate
+    await invalidateProduct(id, product.slug);
 
     return NextResponse.json(
       { success: true, data: { message: 'Product deleted' } },

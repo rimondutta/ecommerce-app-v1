@@ -6,7 +6,7 @@ import { useState, useRef, useEffect } from 'react';
 import { MessageCircle, X, Send, Bot, User, Loader2, Sparkles, Paperclip, Globe, Mic, MoreHorizontal, Edit, Maximize2, ChevronDown, ArrowUp, PanelRight } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import * as LottieLib from 'lottie-react';
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const Lottie = (LottieLib as any).Lottie as any;
@@ -61,17 +61,17 @@ export default function Chatbot() {
         {!isOpen && (
           <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 flex items-center gap-2">
             {/* Left label - hidden on mobile */}
-            <motion.div
+            <m.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.3 }}
               className="hidden sm:block bg-white/20 backdrop-blur-lg border border-white/40 text-slate-800 text-sm font-semibold px-4 py-2 rounded-full shadow-[0_8px_32px_0_rgba(31,38,135,0.15)] whitespace-nowrap"
             >
               Chat with AI 🤖
-            </motion.div>
+            </m.div>
 
             {/* Lottie button */}
-            <motion.button
+            <m.button
               initial={{ scale: 0, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0, opacity: 0 }}
@@ -95,7 +95,7 @@ export default function Chatbot() {
                 style={{ width: 140, height: 140 }}
                 className="hidden sm:block"
               />
-            </motion.button>
+            </m.button>
           </div>
         )}
       </AnimatePresence>
@@ -103,7 +103,7 @@ export default function Chatbot() {
       {/* Chat Window */}
       <AnimatePresence>
         {isOpen && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 50, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 50, scale: 0.9 }}
@@ -285,7 +285,7 @@ export default function Chatbot() {
                 </div>
               </form>
             </div>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
     </>

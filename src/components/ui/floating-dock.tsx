@@ -5,7 +5,7 @@ import { IconLayoutNavbarCollapse } from "@tabler/icons-react";
 import {
   AnimatePresence,
   MotionValue,
-  motion,
+  m,
   useMotionValue,
   useSpring,
   useTransform,
@@ -39,7 +39,7 @@ const FloatingDockDesktop = ({
 }) => {
   let mouseX = useMotionValue(Infinity);
   return (
-    <motion.div
+    <m.div
       onMouseMove={(e) => mouseX.set(e.pageX)}
       onMouseLeave={() => mouseX.set(Infinity)}
       className={cn(
@@ -50,7 +50,7 @@ const FloatingDockDesktop = ({
       {items.map((item) => (
         <IconContainer mouseX={mouseX} key={item.title} {...item} />
       ))}
-    </motion.div>
+    </m.div>
   );
 };
 
@@ -106,7 +106,7 @@ function IconContainer({
   const [hovered, setHovered] = useState(false);
 
   const content = (
-    <motion.div
+    <m.div
       ref={ref}
       style={{ width, height }}
       onMouseEnter={() => setHovered(true)}
@@ -115,23 +115,23 @@ function IconContainer({
     >
       <AnimatePresence>
         {hovered && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 10, x: "-50%" }}
             animate={{ opacity: 1, y: 0, x: "-50%" }}
             exit={{ opacity: 0, y: 2, x: "-50%" }}
             className="px-2 py-0.5 whitespace-pre rounded-md bg-neutral-900 border border-neutral-800 text-white absolute left-1/2 -top-10 -translate-x-1/2 w-fit text-xs"
           >
             {title}
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
-      <motion.div
+      <m.div
         style={{ width: widthIcon, height: heightIcon }}
         className="flex items-center justify-center"
       >
         {icon}
-      </motion.div>
-    </motion.div>
+      </m.div>
+    </m.div>
   );
 
   if (onClick) {

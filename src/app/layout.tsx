@@ -11,6 +11,7 @@ import { ToastProvider } from "@/components/playshelf/Toast";
 import FacebookPixel from "@/components/FacebookPixel";
 import ExtensionHydrationFix from "@/components/ExtensionHydrationFix";
 import LenisProvider from "@/components/providers/LenisProvider";
+import FramerMotionProvider from "@/components/providers/FramerMotionProvider";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -129,10 +130,12 @@ export default function RootLayout({
               <SearchProvider>
                 <ToastProvider>
                   <ExtensionHydrationFix />
-                  <LenisProvider>
-                    {children}
-                    <GlobalUI />
-                  </LenisProvider>
+                  <FramerMotionProvider>
+                    <LenisProvider>
+                      {children}
+                      <GlobalUI />
+                    </LenisProvider>
+                  </FramerMotionProvider>
                   <FacebookPixel />
                 </ToastProvider>
               </SearchProvider>

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useRef } from "react";
-import { motion, useInView, useScroll, useTransform, useSpring, type Variants } from "framer-motion";
+import { m, useInView, useScroll, useTransform, useSpring, type Variants } from "framer-motion";
 import Link from "next/link";
 
 const fadeUp: Variants = {
@@ -18,9 +18,9 @@ function RevealSection({ children, className = "" }: { children: React.ReactNode
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-80px" });
   return (
-    <motion.div ref={ref} variants={fadeUp} initial="hidden" animate={inView ? "visible" : "hidden"} className={className}>
+    <m.div ref={ref} variants={fadeUp} initial="hidden" animate={inView ? "visible" : "hidden"} className={className}>
       {children}
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -64,32 +64,32 @@ function ScrollCard() {
       className="relative flex items-center justify-center h-80 md:h-[420px] w-full"
     >
       {/* Back shapes — counter-rotate for parallax depth */}
-      <motion.div
+      <m.div
         style={{ rotate: bg1Rot }}
         className="absolute w-64 h-64 bg-[#D5AEFD]/30 rounded-[32px] top-8 left-10"
       />
-      <motion.div
+      <m.div
         style={{ rotate: bg2Rot }}
         className="absolute w-64 h-64 bg-[#043224]/10 rounded-[32px] top-12 left-14"
       />
 
       {/* Main card */}
-      <motion.div
+      <m.div
         style={{ rotate, y, scale }}
         className="relative z-10 bg-[#043224] rounded-[28px] p-8 w-64 shadow-2xl flex flex-col gap-4 cursor-pointer"
         whileHover={{ scale: 1.06, transition: { duration: 0.3 } }}
       >
-        <motion.span
+        <m.span
           style={{ rotate: useTransform(smoothProgress, [0, 1], [0, -20]) }}
           className="text-5xl inline-block"
         >
           🧸
-        </motion.span>
+        </m.span>
         <h3 className="font-body font-black text-2xl text-white">Joy in every box.</h3>
         <p className="font-body text-white/70 text-sm leading-relaxed">
           Carefully packaged, swiftly delivered, always delightful.
         </p>
-      </motion.div>
+      </m.div>
     </div>
   );
 }
@@ -102,42 +102,42 @@ export default function AboutClient() {
       <section className="relative w-full min-h-[80vh] flex items-center justify-center overflow-hidden bg-[#043224] px-4">
         <div className="absolute -top-20 -right-20 w-[420px] h-[420px] rounded-full bg-[#D5AEFD]/20 blur-3xl pointer-events-none" />
         <div className="absolute -bottom-24 -left-16 w-[320px] h-[320px] rounded-full bg-[#D5AEFD]/10 blur-2xl pointer-events-none" />
-        <motion.div
+        <m.div
           className="relative z-10 flex flex-col items-center text-center gap-6 max-w-3xl mx-auto pt-32 pb-24"
           variants={staggerContainer}
           initial="hidden"
           animate="visible"
         >
-          <motion.span variants={fadeUp} className="inline-block bg-[#D5AEFD]/20 border border-[#D5AEFD]/40 text-[#D5AEFD] font-body font-bold text-[12px] uppercase tracking-[0.25em] px-5 py-2 rounded-full">
+          <m.span variants={fadeUp} className="inline-block bg-[#D5AEFD]/20 border border-[#D5AEFD]/40 text-[#D5AEFD] font-body font-bold text-[12px] uppercase tracking-[0.25em] px-5 py-2 rounded-full">
             Our Story
-          </motion.span>
-          <motion.h1 variants={fadeUp} className="font-body font-black text-5xl sm:text-6xl lg:text-7xl text-white leading-[1.1] tracking-tight">
+          </m.span>
+          <m.h1 variants={fadeUp} className="font-body font-black text-5xl sm:text-6xl lg:text-7xl text-white leading-[1.1] tracking-tight">
             Where Play <span className="text-[#D5AEFD]">Meets</span> Purpose
-          </motion.h1>
-          <motion.p variants={fadeUp} className="font-body text-lg sm:text-xl text-white/70 max-w-xl leading-relaxed">
+          </m.h1>
+          <m.p variants={fadeUp} className="font-body text-lg sm:text-xl text-white/70 max-w-xl leading-relaxed">
             Toyhourse is Bangladesh&apos;s most loved toy store — built by parents, for parents — to fill every childhood with color, wonder, and laughter.
-          </motion.p>
-          <motion.div variants={fadeUp} className="flex flex-wrap gap-4 justify-center pt-2">
+          </m.p>
+          <m.div variants={fadeUp} className="flex flex-wrap gap-4 justify-center pt-2">
             <Link href="/products" className="inline-flex items-center gap-2 bg-[#D5AEFD] text-black font-body font-bold text-[15px] px-8 py-3.5 rounded-full hover:bg-[#D5AEFD]/90 transition-colors">
               Shop Now →
             </Link>
             <Link href="/contact" className="inline-flex items-center gap-2 bg-white/10 border border-white/20 text-white font-body font-bold text-[15px] px-8 py-3.5 rounded-full hover:bg-white/20 transition-colors">
               Contact Us
             </Link>
-          </motion.div>
-        </motion.div>
+          </m.div>
+        </m.div>
       </section>
 
       {/* Stats Bar */}
       <section className="bg-white border-y border-gray-100 py-10 px-4">
-        <motion.div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8" variants={staggerContainer} initial="hidden" whileInView="visible" viewport={{ once: true }}>
+        <m.div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8" variants={staggerContainer} initial="hidden" whileInView="visible" viewport={{ once: true }}>
           {stats.map((s) => (
-            <motion.div key={s.label} variants={fadeUp} className="flex flex-col items-center text-center gap-1">
+            <m.div key={s.label} variants={fadeUp} className="flex flex-col items-center text-center gap-1">
               <span className="font-body font-black text-4xl sm:text-5xl text-[#043224]">{s.number}</span>
               <span className="font-body text-sm text-gray-500 uppercase tracking-wider">{s.label}</span>
-            </motion.div>
+            </m.div>
           ))}
-        </motion.div>
+        </m.div>
       </section>
 
       {/* Mission */}
@@ -161,7 +161,7 @@ export default function AboutClient() {
 
       {/* ── 5 Scroll-Up Feature Cards ── */}
       <section className="max-w-6xl mx-auto px-4 sm:px-8 py-20">
-        <motion.div
+        <m.div
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5"
           variants={{
             hidden: {},
@@ -178,7 +178,7 @@ export default function AboutClient() {
             { emoji: "🔄", title: "Easy Returns", desc: "Not happy? Return within 7 days — no questions asked.", bg: "#A3E635", text: "#14532D" },
             { emoji: "💬", title: "24/7 Support", desc: "Our friendly team is always here to help you find the perfect toy.", bg: "#FF5533", text: "white" },
           ].map((card) => (
-            <motion.div
+            <m.div
               key={card.title}
               variants={{
                 hidden: { opacity: 0, y: 60 },
@@ -201,9 +201,9 @@ export default function AboutClient() {
               >
                 {card.desc}
               </p>
-            </motion.div>
+            </m.div>
           ))}
-        </motion.div>
+        </m.div>
       </section>
 
       {/* Values */}
@@ -214,15 +214,15 @@ export default function AboutClient() {
             <span className="inline-block text-[12px] font-bold uppercase tracking-[0.2em] text-[#043224] mb-3">What We Stand For</span>
             <h2 className="font-body font-black text-4xl sm:text-5xl text-[#1A1F3A] leading-tight">Our Core Values</h2>
           </RevealSection>
-          <motion.div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6" variants={staggerContainer} initial="hidden" whileInView="visible" viewport={{ once: true }}>
+          <m.div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6" variants={staggerContainer} initial="hidden" whileInView="visible" viewport={{ once: true }}>
             {values.map((v) => (
-              <motion.div key={v.title} variants={fadeUp} className="group bg-[#FEFAF3] border border-gray-100 rounded-[24px] p-8 hover:border-[#D5AEFD] hover:shadow-lg transition-all duration-300 flex flex-col gap-4">
+              <m.div key={v.title} variants={fadeUp} className="group bg-[#FEFAF3] border border-gray-100 rounded-[24px] p-8 hover:border-[#D5AEFD] hover:shadow-lg transition-all duration-300 flex flex-col gap-4">
                 <span className="text-4xl">{v.icon}</span>
                 <h3 className="font-body font-black text-xl text-[#1A1F3A] group-hover:text-[#043224] transition-colors">{v.title}</h3>
                 <p className="font-body text-gray-500 text-sm leading-relaxed">{v.desc}</p>
-              </motion.div>
+              </m.div>
             ))}
-          </motion.div>
+          </m.div>
         </div>
       </section>
 

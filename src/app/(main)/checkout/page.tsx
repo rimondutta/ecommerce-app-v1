@@ -9,7 +9,7 @@ import Link from "next/link";
 import { useToast } from "@/components/playshelf/Toast";
 import { cn } from "@/lib/utils";
 import { trackInitiateCheckout, trackPurchase } from "@/lib/fbPixel";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import {
   ShoppingBag,
   Package,
@@ -283,7 +283,7 @@ export default function CheckoutPage() {
           <div className="lg:col-span-7 order-2 lg:order-1">
             <AnimatePresence mode="wait">
               {step === 0 && (
-                <motion.div
+                <m.div
                   key="step0"
                   initial={{ opacity: 0, x: 16 }}
                   animate={{ opacity: 1, x: 0 }}
@@ -401,11 +401,11 @@ export default function CheckoutPage() {
                       </div>
                     </div>
                   )}
-                </motion.div>
+                </m.div>
               )}
 
               {step === 1 && (
-                <motion.div
+                <m.div
                   key="step1"
                   initial={{ opacity: 0, x: 16 }}
                   animate={{ opacity: 1, x: 0 }}
@@ -477,11 +477,11 @@ export default function CheckoutPage() {
                       className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3.5 text-sm text-black placeholder:text-gray-400 outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-100 transition-all resize-none"
                     />
                   </div>
-                </motion.div>
+                </m.div>
               )}
 
               {step === 2 && (
-                <motion.div
+                <m.div
                   key="step2"
                   initial={{ opacity: 0, x: 16 }}
                   animate={{ opacity: 1, x: 0 }}
@@ -554,7 +554,7 @@ export default function CheckoutPage() {
                       ))}
                     </div>
                   </div>
-                </motion.div>
+                </m.div>
               )}
             </AnimatePresence>
 

@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import connectToDatabase from '@/lib/db';
 import Category from '@/models/Category';
+import { invalidateCategory } from '@/lib/cache/invalidation';
 
 export async function GET(
   req: Request,
@@ -51,6 +52,9 @@ export async function PUT(
       return NextResponse.json({ error: 'Category not found' }, { status: 404 });
     }
 
+    // Invalidate Redis caches
+    await invalidateCategory(id, category.slug);
+
     return NextResponse.json({ category });
   } catch (error: any) {
     if (error.code === 11000) {
@@ -80,6 +84,9 @@ export async function DELETE(
     if (!category) {
       return NextResponse.json({ error: 'Category not found' }, { status: 404 });
     }
+
+    // Invalidate Redis caches
+    await invalidateCategory(id, category.slug);
 
     return NextResponse.json({ message: 'Category deleted' });
   } catch (error: any) {

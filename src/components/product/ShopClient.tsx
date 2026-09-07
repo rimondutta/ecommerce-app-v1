@@ -2,7 +2,7 @@
 
 import { useState, useMemo, Suspense, useTransition } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { m, AnimatePresence, useReducedMotion } from "framer-motion";
 import { X, ChevronDown } from "lucide-react";
 import ProductCardNike from "@/components/ui/product-card-nike";
 import { cn } from "@/lib/utils";
@@ -255,12 +255,12 @@ function ShopGridPure({
       <AnimatePresence>
         {isMobileFiltersOpen && (
           <>
-            <motion.div
+            <m.div
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               className="fixed inset-0 bg-ink-black/40 z-[1000]"
               onClick={() => setIsMobileFiltersOpen(false)}
             />
-            <motion.div
+            <m.div
               initial={reduced ? { opacity: 0 } : { y: "100%" }}
               animate={reduced ? { opacity: 1 } : { y: 0 }}
               exit={reduced ? { opacity: 0 } : { y: "100%" }}
@@ -340,7 +340,7 @@ function ShopGridPure({
                   </button>
                 )}
               </div>
-            </motion.div>
+            </m.div>
           </>
         )}
       </AnimatePresence>

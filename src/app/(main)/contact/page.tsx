@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { Send, Mail, Phone, MapPin, Globe, CheckCircle, Loader2 } from "lucide-react";
 import { trackContact } from "@/lib/fbPixel";
 
@@ -126,7 +126,7 @@ export default function ContactPage() {
 
               <AnimatePresence mode="wait">
                 {!submitted ? (
-                  <motion.form
+                  <m.form
                     key="form"
                     initial={{ opacity: 0, y: 12 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -211,9 +211,9 @@ export default function ContactPage() {
                         </>
                       )}
                     </button>
-                  </motion.form>
+                  </m.form>
                 ) : (
-                  <motion.div
+                  <m.div
                     key="success"
                     initial={{ opacity: 0, scale: 0.97 }}
                     animate={{ opacity: 1, scale: 1 }}
@@ -240,7 +240,7 @@ export default function ContactPage() {
                     >
                       Send another message
                     </button>
-                  </motion.div>
+                  </m.div>
                 )}
               </AnimatePresence>
             </div>

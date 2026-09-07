@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { m, AnimatePresence, useReducedMotion } from "framer-motion";
 import { useUIStore } from "@/store/uiStore";
 import { cn } from "@/lib/utils";
 
@@ -34,7 +34,7 @@ export default function MobileMenu() {
       {isMobileMenuOpen && (
         <>
           {/* Backdrop */}
-          <motion.div
+          <m.div
             key="backdrop"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -46,7 +46,7 @@ export default function MobileMenu() {
           />
 
           {/* Drawer — cinematic dark panel */}
-          <motion.div
+          <m.div
             key="drawer"
             initial={{ x: reduced ? 0 : "-100%" }}
             animate={{ x: 0 }}
@@ -75,14 +75,14 @@ export default function MobileMenu() {
             </div>
 
             {/* Index-numbered nav items */}
-            <motion.nav
+            <m.nav
               className="flex-1 overflow-y-auto px-6 py-8"
               variants={container}
               initial="hidden"
               animate="visible"
             >
               {navItems.map((link) => (
-                <motion.div key={link.num} variants={item}>
+                <m.div key={link.num} variants={item}>
                   <Link
                     href={link.href}
                     onClick={closeMobileMenu}
@@ -95,9 +95,9 @@ export default function MobileMenu() {
                       {link.label}
                     </span>
                   </Link>
-                </motion.div>
+                </m.div>
               ))}
-            </motion.nav>
+            </m.nav>
 
             {/* Footer strip */}
             <div className="px-6 py-4 border-t border-white/10">
@@ -105,7 +105,7 @@ export default function MobileMenu() {
                 © {new Date().getFullYear()} TOYHOURSE
               </p>
             </div>
-          </motion.div>
+          </m.div>
         </>
       )}
     </AnimatePresence>

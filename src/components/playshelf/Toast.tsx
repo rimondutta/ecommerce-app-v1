@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useCallback } from "react";
 import { cn } from "@/lib/utils";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { CheckCircle2, AlertCircle, Info } from "lucide-react";
 
 interface Toast {
@@ -55,7 +55,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
           {toasts.map((toast) => {
             const Icon = IconMap[toast.type || "success"];
             return (
-              <motion.div
+              <m.div
                 key={toast.id}
                 initial={{ opacity: 0, y: 20, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -70,7 +70,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
                 <span className="font-display font-medium text-base leading-tight">
                   {toast.message}
                 </span>
-              </motion.div>
+              </m.div>
             );
           })}
         </AnimatePresence>

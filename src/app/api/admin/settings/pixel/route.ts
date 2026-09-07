@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import connectToDatabase from '@/lib/db';
 import Settings from '@/models/Settings';
+import { invalidateSettings } from '@/lib/cache/invalidation';
 
 async function getSettings() {
   // Upsert the singleton doc
@@ -59,6 +60,8 @@ export async function PUT(req: Request) {
       },
       { upsert: true, new: true, setDefaultsOnInsert: true }
     );
+
+    await invalidateSettings();
 
     return NextResponse.json({ facebookPixel: settings.facebookPixel });
   } catch (error: any) {

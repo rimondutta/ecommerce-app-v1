@@ -4,7 +4,7 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { CheckCircle2, ArrowRight, Package, Truck, Calendar, ShoppingBag, Star } from "lucide-react";
 import { Suspense } from "react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import Button from "@/components/ui/Button";
 
 function SuccessContent() {
@@ -13,16 +13,16 @@ function SuccessContent() {
 
   return (
     <div className="max-w-5xl mx-auto px-8 py-24 lg:py-40 flex flex-col items-center text-center relative z-10">
-      <motion.div 
+      <m.div 
         initial={{ scale: 0.5, rotate: -20, opacity: 0 }}
         animate={{ scale: 1, rotate: 0, opacity: 1 }}
         transition={{ type: "spring", stiffness: 260, damping: 20 }}
         className="w-32 h-32 mb-10 bg-ink text-paper border-4 border-ink cartoon-shadow flex items-center justify-center rotate-[-5deg]"
       >
          <CheckCircle2 size={64} />
-      </motion.div>
+      </m.div>
 
-      <motion.div
+      <m.div
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 0.2 }}
@@ -34,9 +34,9 @@ function SuccessContent() {
         <p className="font-comic font-bold italic text-2xl text-secondary max-w-2xl mx-auto leading-tight">
             Your gear request <span className="text-ink">#{orderId?.slice(-8).toUpperCase() || "ALPHA-01"}</span> has been successfully logged. The extraction is underway.
         </p>
-      </motion.div>
+      </m.div>
 
-      <motion.div 
+      <m.div 
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 0.4 }}
@@ -57,9 +57,9 @@ function SuccessContent() {
               </div>
            </div>
          ))}
-      </motion.div>
+      </m.div>
 
-      <motion.div 
+      <m.div 
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 0.6 }}
@@ -78,7 +78,7 @@ function SuccessContent() {
          <Link href="/account">
             <Button variant="outline" size="lg">VIEW DOSSIER</Button>
          </Link>
-      </motion.div>
+      </m.div>
       
       {/* Decorative Stars */}
       <div className="absolute top-1/4 left-10 text-6xl text-ink/5 animate-float"><Star size={64} fill="currentColor" /></div>

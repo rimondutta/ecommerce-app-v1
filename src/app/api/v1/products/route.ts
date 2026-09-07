@@ -116,11 +116,7 @@ export async function GET(req: Request) {
       // General / search path
       const query: any = { isPublished: true };
       if (search) {
-        const escaped = search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        query.$or = [
-          { title: { $regex: escaped, $options: 'i' } },
-          { description: { $regex: escaped, $options: 'i' } },
-        ];
+        query.$text = { $search: search };
       }
 
       const [items, total] = await Promise.all([

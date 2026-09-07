@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { motion, useReducedMotion } from "framer-motion";
+import { m, useReducedMotion } from "framer-motion";
 import { useCart } from "@/components/providers/CartProvider";
 import { useWishlist } from "@/store/wishlistStore";
 import { useToast } from "@/components/playshelf/Toast";
