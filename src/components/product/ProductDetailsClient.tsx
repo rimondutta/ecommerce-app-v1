@@ -290,7 +290,7 @@ export default function ProductDetailsClient({ product: initialProduct, relatedP
 
             {/* Category label */}
             {product.category?.name && (
-              <span className="inline-flex items-center bg-joy-cobalt/10 text-joy-cobalt font-display font-semibold text-xs px-3 py-1.5 rounded-full mb-4">
+              <span className="inline-flex items-center text-joy-cobalt font-display font-semibold text-xs mb-4 tracking-widest uppercase">
                 {product.category.name}
               </span>
             )}
@@ -684,6 +684,20 @@ export default function ProductDetailsClient({ product: initialProduct, relatedP
           </div>
         </div>
       </section>
+
+      {/* ═══════════════════════════════════════
+          RELATED PRODUCTS
+          ═══════════════════════════════════════ */}
+      {relatedProducts && relatedProducts.length > 0 && (
+        <section className="px-4 sm:px-8 lg:px-[5vw] py-14 md:py-20 border-t border-joy-rule">
+          <div className="max-w-[1400px] mx-auto">
+            <h2 className="font-display font-bold text-3xl md:text-4xl text-joy-navy mb-10 text-center">
+              You May Also Like
+            </h2>
+            <ProductGridNike products={relatedProducts} title={undefined} />
+          </div>
+        </section>
+      )}
     </div>
   );
 }

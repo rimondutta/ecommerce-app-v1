@@ -108,7 +108,7 @@ function LoginForm() {
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
               <label className="block text-sm font-medium text-gray-900">Password</label>
-              <Link href="#" className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">
+              <Link href="/forgot-password" className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">
                 Forgot password?
               </Link>
             </div>

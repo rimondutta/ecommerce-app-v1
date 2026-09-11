@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useSession } from "next-auth/react";
 import { Star, Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 interface ReviewFormProps {
   slug: string;
@@ -11,6 +12,7 @@ interface ReviewFormProps {
 
 export default function ReviewForm({ slug, onSuccess }: ReviewFormProps) {
   const { data: session } = useSession();
+  const router = useRouter();
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
   const [comment, setComment] = useState("");
@@ -19,14 +21,19 @@ export default function ReviewForm({ slug, onSuccess }: ReviewFormProps) {
 
   if (!session) {
     return (
-      <div className="p-12 border border-white/5 text-center space-y-8 bg-[#0d0d0d] relative">
-        <div className="absolute top-0 left-0 bg-white text-black label-tiny px-2 py-0.5" style={{ fontSize: '7px' }}>AUTH_REQ</div>
-        <p className="label-tiny text-[#555] pt-4">IDENTITY VERIFICATION REQUIRED FOR SUBMISSION.</p>
+      <div className="p-8 text-center space-y-6">
+        <div className="w-16 h-16 bg-zinc-100 rounded-full flex items-center justify-center mx-auto mb-2">
+          <Star className="text-zinc-400" size={24} />
+        </div>
+        <div>
+          <h3 className="text-xl font-bold text-zinc-900 mb-2">Sign in to review</h3>
+          <p className="text-sm text-zinc-500">You must be logged in to share your feedback.</p>
+        </div>
         <button 
-          onClick={() => window.location.href = '/login'}
-          className="btn-pill-primary mx-auto"
+          onClick={() => router.push('/login')}
+          className="w-full py-4 bg-zinc-900 text-white rounded-xl font-bold text-sm hover:bg-zinc-800 transition-colors"
         >
-          SIGN IN
+          Sign In
         </button>
       </div>
     );
@@ -35,11 +42,11 @@ export default function ReviewForm({ slug, onSuccess }: ReviewFormProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (rating === 0) {
-      setError("RATING_REQUIRED_FOR_ENTRY.");
+      setError("Please select a rating.");
       return;
     }
     if (comment.length < 10) {
-      setError("COMMENT_LENGTH_INSUFFICIENT.");
+      setError("Please write a longer review (at least 10 characters).");
       return;
     }
 
@@ -72,18 +79,16 @@ export default function ReviewForm({ slug, onSuccess }: ReviewFormProps) {
   };
 
   return (
-    <div className="p-10 border border-white/5 bg-[#0d0d0d] relative">
-      <div className="absolute top-0 left-0 bg-white text-black label-tiny px-2 py-0.5" style={{ fontSize: '7px' }}>ENTRY_FORM / 001</div>
-      
-      <h3 className="font-serif text-4xl text-white tracking-tight mb-12 mt-6">
-        Share <span className="italic text-[#555]">Feedback.</span>
+    <div className="p-2 sm:p-4">
+      <h3 className="text-2xl font-bold text-zinc-900 mb-8">
+        Write a Review
       </h3>
 
-      <form onSubmit={handleSubmit} className="space-y-12">
+      <form onSubmit={handleSubmit} className="space-y-8">
         {/* Star Rating */}
-        <div className="space-y-6">
-          <label className="label-tiny text-[#333] block border-b border-white/5 pb-2">RATING_LEVEL: [{rating || hoverRating || '—'}]</label>
-          <div className="flex gap-6">
+        <div className="space-y-4">
+          <label className="text-sm font-semibold text-zinc-900 block">Rating</label>
+          <div className="flex gap-2">
             {[1, 2, 3, 4, 5].map((star) => (
               <button
                 key={star}
@@ -91,16 +96,16 @@ export default function ReviewForm({ slug, onSuccess }: ReviewFormProps) {
                 onMouseEnter={() => setHoverRating(star)}
                 onMouseLeave={() => setHoverRating(0)}
                 onClick={() => setRating(star)}
-                className="transition-transform active:scale-90"
+                className="transition-transform active:scale-90 p-1"
               >
                 <Star
-                  size={28}
-                  className={`transition-all duration-500 ${
+                  size={32}
+                  className={`transition-colors duration-200 ${
                     star <= (hoverRating || rating)
-                      ? "fill-white text-white"
-                      : "text-white/5 hover:text-white/20"
+                      ? "fill-amber-400 text-amber-400"
+                      : "text-zinc-200 fill-zinc-100 hover:text-zinc-300 hover:fill-zinc-200"
                   }`}
-                  strokeWidth={1}
+                  strokeWidth={1.5}
                 />
               </button>
             ))}
@@ -108,31 +113,31 @@ export default function ReviewForm({ slug, onSuccess }: ReviewFormProps) {
         </div>
 
         {/* Comment */}
-        <div className="space-y-6">
-          <label className="label-tiny text-[#333] block border-b border-white/5 pb-2">NARRATIVE_LOG</label>
+        <div className="space-y-4">
+          <label className="text-sm font-semibold text-zinc-900 block">Review</label>
           <textarea
             value={comment}
             onChange={(e) => setComment(e.target.value)}
-            placeholder="DOCUMENT YOUR EXPERIENCE..."
-            className="w-full h-48 bg-[#0a0a0a] border border-white/5 p-8 label-tiny text-white/60 focus:outline-none focus:border-white/20 transition-all placeholder:text-white/10"
+            placeholder="Tell us what you think about this product..."
+            className="w-full h-32 bg-zinc-50 border border-zinc-200 rounded-xl p-4 text-sm text-zinc-800 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:border-transparent transition-all placeholder:text-zinc-400 resize-none"
           />
         </div>
 
         {error && (
-          <p className="label-tiny text-red-500 bg-red-500/5 p-4 border border-red-500/20">
-            ERR: {error}
+          <p className="text-sm font-medium text-rose-600 bg-rose-50 p-3 rounded-lg border border-rose-100">
+            {error}
           </p>
         )}
 
         <button
           type="submit"
           disabled={isSubmitting}
-          className="btn-pill-primary w-full h-16 justify-center disabled:opacity-30"
+          className="w-full py-4 bg-zinc-900 text-white rounded-xl font-bold text-sm hover:bg-zinc-800 transition-colors disabled:opacity-50 flex items-center justify-center gap-2 shadow-md"
         >
           {isSubmitting ? (
-            <>PROCESSING... <Loader2 className="animate-spin ml-2" size={14} /></>
+            <>Submitting... <Loader2 className="animate-spin" size={16} /></>
           ) : (
-            <>COMMIT FEEDBACK</>
+            <>Submit Review</>
           )}
         </button>
       </form>

@@ -25,7 +25,7 @@ interface PixelConfig {
  * fire a new PageView on each navigation — but ONLY after the pixel script has
  * fully loaded (guarded by `pixelReady`) to avoid losing events.
  *
- * ⚠️  GDPR/PDPA Note: This implementation loads the pixel as soon as the page
+ *  GDPR/PDPA Note: This implementation loads the pixel as soon as the page
  * opens. If your target market requires explicit cookie consent (e.g., EU/EEA,
  * Thailand), integrate a consent management platform (CMP) and gate the
  * rendering of this component behind the user's consent signal.
@@ -45,18 +45,22 @@ export default function FacebookPixel() {
     fetch("/api/settings/pixel")
       .then((r) => r.json())
       .then((data: PixelConfig) => setConfig(data))
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   useEffect(() => {
     // Only track route changes if config is loaded and enabled
     if (!config || !config.enabled || !config.pixelId) return;
-    
+
     // Skip the first render because the inline script already tracks the initial PageView
     if (pathname === initialPathnameRef.current) return;
 
-    if (typeof window !== "undefined" && (window as any).fbq) {
-      (window as any).fbq("track", "PageView");
+    try {
+      if (typeof window !== "undefined" && (window as any).fbq) {
+        (window as any).fbq("track", "PageView");
+      }
+    } catch {
+      // Silently ignore — ad blockers may stub fbq and cause unexpected throws
     }
   }, [pathname, config]);
 
