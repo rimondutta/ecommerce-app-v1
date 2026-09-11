@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Poppins, DM_Sans, Manrope } from "next/font/google";
+import { Poppins, DM_Sans } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 import { CartProvider } from "@/components/providers/CartProvider";
@@ -29,12 +29,7 @@ const dmSans = DM_Sans({
   display: "swap",
 });
 
-const manrope = Manrope({
-  subsets: ["latin"],
-  weight: ["400", "600", "700"],
-  variable: "--font-manrope",
-  display: "swap",
-});
+
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXTAUTH_URL || 'https://toyhourse.com'),
@@ -59,10 +54,7 @@ export const metadata: Metadata = {
   },
 };
 
-export const links = [
-  { rel: "preconnect", href: "https://fonts.googleapis.com" },
-  { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-];
+
 
 export default function RootLayout({
   children,
@@ -74,7 +66,7 @@ export default function RootLayout({
       lang="en"
       suppressHydrationWarning
       data-scroll-behavior="smooth"
-      className={`${poppins.variable} ${dmSans.variable} ${manrope.variable}`}
+      className={`${poppins.variable} ${dmSans.variable}`}
     >
       <head>
         <link rel="preconnect" href="https://res.cloudinary.com" />
