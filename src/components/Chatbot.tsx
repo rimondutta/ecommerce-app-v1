@@ -91,7 +91,7 @@ export default function Chatbot() {
             <div className="flex items-center justify-between px-6 py-4 bg-white text-slate-700">
               <div className="flex items-center gap-2 cursor-pointer hover:bg-slate-50 px-2 py-1 rounded-lg transition-colors">
                 <AIIcon className="w-5 h-5" />
-                <span className="font-semibold text-sm">New AI chat</span>
+                <span className="font-semibold text-sm">Powered by Rimon Dutta</span>
                 <ChevronDown size={16} className="text-slate-400" />
               </div>
 
