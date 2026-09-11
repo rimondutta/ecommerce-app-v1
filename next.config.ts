@@ -11,6 +11,10 @@ const nextConfig: NextConfig = {
   // Enable gzip/brotli compression for all responses.
   compress: true,
 
+  // React strict mode — enables additional runtime checks and helps detect
+  // accidental side effects that would cause double renders.
+  reactStrictMode: true,
+
   // Allow development from 127.0.0.1 for HMR and Studio
   allowedDevOrigins: ["127.0.0.1", "localhost"],
 
@@ -98,6 +102,26 @@ const nextConfig: NextConfig = {
               "form-action 'self'",
             ].join('; '),
           },
+        ],
+      },
+      // Static video/font/image assets — cached for 1 year by the browser and CDN.
+      // Repeat visitors get these from disk cache instantly (0 network round trips).
+      {
+        source: "/video/:path*",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
+        ],
+      },
+      {
+        source: "/images/:path*",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
+        ],
+      },
+      {
+        source: "/fonts/:path*",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
         ],
       },
     ];

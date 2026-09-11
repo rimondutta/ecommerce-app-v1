@@ -3,22 +3,12 @@
 import { useChat } from '@ai-sdk/react';
 import { isTextUIPart } from 'ai';
 import { useState, useRef, useEffect } from 'react';
-import { MessageCircle, X, Send, Bot, User, Loader2, Sparkles, Paperclip, Globe, Mic, MoreHorizontal, Edit, Maximize2, ChevronDown, ArrowUp, PanelRight } from 'lucide-react';
+import { X, Loader2, Paperclip, Globe, Mic, MoreHorizontal, ChevronDown, ArrowUp } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { m, AnimatePresence } from 'framer-motion';
-import * as LottieLib from 'lottie-react';
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const Lottie = (LottieLib as any).Lottie as any;
-import aiAnimation from '../../public/lottie/ai.json';
 
-if (typeof console !== 'undefined') {
-  const originalWarn = console.warn;
-  console.warn = (...args) => {
-    if (typeof args[0] === 'string' && args[0].includes('[lottie-react] this animation starts by itself')) return;
-    originalWarn(...args);
-  };
-}
+import { AIIcon } from '@/components/ui/AIIcon';
 
 export default function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);
@@ -70,7 +60,7 @@ export default function Chatbot() {
               Chat with AI 🤖
             </m.div>
 
-            {/* Lottie button */}
+            {/* Chat button */}
             <m.button
               initial={{ scale: 0, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
@@ -78,23 +68,10 @@ export default function Chatbot() {
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
               onClick={() => setIsOpen(true)}
-              className="w-28 h-28 sm:w-28 sm:h-28 rounded-full focus:outline-none flex items-center justify-center"
+              className="w-16 h-16 sm:w-16 sm:h-16 rounded-full focus:outline-none flex items-center justify-center"
               aria-label="Open chat"
             >
-              <Lottie
-                src={aiAnimation}
-                loop
-                autoplay
-                style={{ width: 150, height: 150 }}
-                className="sm:hidden"
-              />
-              <Lottie
-                src={aiAnimation}
-                loop
-                autoplay
-                style={{ width: 140, height: 140 }}
-                className="hidden sm:block"
-              />
+              <AIIcon className="w-10 h-10" />
             </m.button>
           </div>
         )}
@@ -113,12 +90,7 @@ export default function Chatbot() {
             {/* Header */}
             <div className="flex items-center justify-between px-6 py-4 bg-white text-slate-700">
               <div className="flex items-center gap-2 cursor-pointer hover:bg-slate-50 px-2 py-1 rounded-lg transition-colors">
-                <Lottie
-                  src={aiAnimation}
-                  loop
-                  autoplay
-                  style={{ width: 18, height: 18 }}
-                />
+                <AIIcon className="w-5 h-5" />
                 <span className="font-semibold text-sm">New AI chat</span>
                 <ChevronDown size={16} className="text-slate-400" />
               </div>
@@ -141,12 +113,7 @@ export default function Chatbot() {
             <div className="flex-1 overflow-y-auto px-6 py-4 space-y-6 bg-white scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent">
               {messages.length === 0 && (
                 <div className="flex flex-col items-center justify-center h-full text-center space-y-3 opacity-60">
-                  <Lottie
-                    src={aiAnimation}
-                    loop
-                    autoplay
-                    style={{ width: 64, height: 64 }}
-                  />
+                  <AIIcon className="w-12 h-12" />
                   <p className="text-sm text-slate-500 max-w-[250px]">
                     Hi! Ask me anything about our toys, stock, or prices.
                   </p>
@@ -166,12 +133,7 @@ export default function Chatbot() {
                   >
                     {m.role !== 'user' && (
                       <div className="flex-shrink-0 mt-1 flex items-center justify-center w-6 h-6">
-                        <Lottie
-                          src={aiAnimation}
-                          loop
-                          autoplay
-                          style={{ width: 32, height: 32 }}
-                        />
+                        <AIIcon className="w-6 h-6" />
                       </div>
                     )}
 
@@ -210,12 +172,7 @@ export default function Chatbot() {
               {isLoading && messages.length > 0 && messages[messages.length - 1].role === 'user' && (
                 <div className="flex gap-3 justify-start w-full">
                   <div className="flex-shrink-0 mt-1 flex items-center justify-center w-6 h-6">
-                    <Lottie
-                      src={aiAnimation}
-                      loop
-                      autoplay
-                      style={{ width: 32, height: 32 }}
-                    />
+                    <AIIcon className="w-6 h-6" />
                   </div>
                   <div className="py-1 flex items-center gap-1 h-6">
                     <div className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
@@ -253,12 +210,7 @@ export default function Chatbot() {
                       <Paperclip size={18} />
                     </button>
                     <button type="button" className="p-1 hover:bg-slate-100 rounded-full transition-colors flex items-center justify-center">
-                      <Lottie
-                        src={aiAnimation}
-                        loop
-                        autoplay
-                        style={{ width: 18, height: 18 }}
-                      />
+                      <AIIcon className="w-5 h-5" />
                     </button>
                     <button type="button" className="p-1 hover:bg-slate-100 rounded-full transition-colors hidden sm:block">
                       <Globe size={16} />
