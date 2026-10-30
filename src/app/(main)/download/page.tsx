@@ -59,7 +59,7 @@ export default function DownloadPage() {
             <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-2">
               {/* Android */}
               <a
-                href="https://github.com/rimondutta/toyhourse-mobile-app/releases/download/v2.0.0/toyhourse-v2.0.0.apk"
+                href="https://github.com/rimondutta/toyhourse-mobile-app/releases/tag/v2.0.0"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="group flex items-center gap-4 bg-violet-600 hover:bg-violet-700 text-white px-7 py-4 rounded-2xl transition-all duration-300 w-full sm:w-auto justify-center shadow-[0_8px_30px_rgba(124,58,237,0.35)] hover:shadow-[0_12px_40px_rgba(124,58,237,0.55)] hover:-translate-y-0.5"
