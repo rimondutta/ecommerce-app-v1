@@ -59,7 +59,7 @@ export default function DownloadPage() {
             <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-2">
               {/* Android */}
               <a
-                href="https://github.com/rimondutta/toyhourse-mobile-app/releases/download/v1.0.0/toyhourse.apk"
+                href="https://github.com/rimondutta/toyhourse-mobile-app/releases/download/v2.0.0/toyhourse-v2.0.0.apk"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="group flex items-center gap-4 bg-violet-600 hover:bg-violet-700 text-white px-7 py-4 rounded-2xl transition-all duration-300 w-full sm:w-auto justify-center shadow-[0_8px_30px_rgba(124,58,237,0.35)] hover:shadow-[0_12px_40px_rgba(124,58,237,0.55)] hover:-translate-y-0.5"
@@ -101,7 +101,7 @@ export default function DownloadPage() {
 
             {/* Version info */}
             <p className="font-mono text-[11px] text-slate-600 font-semibold tracking-widest">
-              v1.0.0 &nbsp;·&nbsp; 45 MB &nbsp;·&nbsp; Android 8.0+
+              v2.0.0 &nbsp;·&nbsp; 103 MB &nbsp;·&nbsp; Android 8.0+
             </p>
 
             {/* Stars */}
