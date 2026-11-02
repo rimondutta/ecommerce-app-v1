@@ -3,7 +3,7 @@
 
 # TODO: Replace the placeholder below with the actual security contact email
 # before deploying this branch to production.
-Contact: mailto:[YOUR_SECURITY_EMAIL]
+Contact: mailto:info.rimondutta@gmail.com
 
 # This file expires 11 months from the security hardening date (2026-11-02).
 # Renew it before this date to avoid automated scanners flagging it as stale.
