@@ -1,0 +1,15 @@
+# Security contact information for Toy Hourse
+# This file follows RFC 9116 (https://www.rfc-editor.org/rfc/rfc9116)
+
+# TODO: Replace the placeholder below with the actual security contact email
+# before deploying this branch to production.
+Contact: mailto:[YOUR_SECURITY_EMAIL]
+
+# This file expires 11 months from the security hardening date (2026-11-02).
+# Renew it before this date to avoid automated scanners flagging it as stale.
+Expires: 2027-10-02T00:00:00Z
+
+Preferred-Languages: en
+
+Canonical: https://toyhourse.vercel.app/.well-known/security.txt
+
