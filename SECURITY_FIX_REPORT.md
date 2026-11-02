@@ -317,3 +317,4 @@ After deploying, check your browser DevTools Console on the home page for any `C
 | [`src/proxy.ts`](src/proxy.ts) | Added `PRIVATE_ROUTE_PREFIXES` cache-poisoning guard (`private, no-store` + `Vary: Cookie`); added nonce generation + `Content-Security-Policy-Report-Only` injection for HTML pages; excluded `/api` routes from CSP header; fixed import order |
 | [`src/app/robots.ts`](src/app/robots.ts) | Added `/checkout/`, `/wishlist/`, `/invoice/`, `/track-order` to `disallow`; added security comment explaining why `/admin` and `/api` are intentionally absent |
 | [`public/.well-known/security.txt`](public/.well-known/security.txt) | Created per RFC 9116 — **requires `[YOUR_SECURITY_EMAIL]` placeholder to be filled before deploy** |
+
