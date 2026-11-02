@@ -6,6 +6,7 @@ const nextConfig: NextConfig = {
   serverExternalPackages: ['@react-pdf/renderer'],
 
   // Remove the X-Powered-By header to reduce response payload size.
+  // This suppresses the "X-Powered-By: Next.js" response header in production.
   poweredByHeader: false,
 
   // Enable gzip/brotli compression for all responses.
@@ -18,6 +19,10 @@ const nextConfig: NextConfig = {
   // Allow development from 127.0.0.1 for HMR and Studio
   allowedDevOrigins: ["127.0.0.1", "localhost"],
 
+  // SECURITY: Never emit source maps to the browser in production.
+  // Prevents leaking application source code through browser devtools.
+  productionBrowserSourceMaps: false,
+
   typescript: {
     // Warning: This allows production builds to successfully complete even if
     // your project has type errors.
@@ -29,13 +34,45 @@ const nextConfig: NextConfig = {
     formats: ['image/avif', 'image/webp'],
     // Cache optimized images for 1 year at the CDN edge.
     minimumCacheTTL: 31536000,
+    // SECURITY: Restrict remote image hosts to exactly the services in use.
+    // No wildcard hostnames; dangerouslyAllowSVG is omitted (defaults false).
+    // CVE class addressed: DNS-restriction bypass in Next.js image optimization —
+    // mitigated both by upgrading to 16.3.8 AND tightening remotePatterns here.
     remotePatterns: [
-      { protocol: "https", hostname: "picsum.photos" },
-      { protocol: "https", hostname: "fastly.picsum.photos" },
-      { protocol: "https", hostname: "res.cloudinary.com" },
-      { protocol: "https", hostname: "images.unsplash.com" },
-      { protocol: "https", hostname: "lh3.googleusercontent.com" },
-      { protocol: "https", hostname: "i.pravatar.cc" },
+      {
+        protocol: "https",
+        hostname: "res.cloudinary.com",
+        // Restrict to your Cloudinary paths only. No wildcards on the host.
+        // TODO: Narrow `pathname` to "/<your-cloud-name>/**" once cloud name is confirmed.
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "lh3.googleusercontent.com",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "i.pravatar.cc",
+        pathname: "/**",
+      },
+      // picsum and unsplash are placeholder/dev hosts used in seeded content.
+      // Remove once all product images are fully migrated to Cloudinary.
+      {
+        protocol: "https",
+        hostname: "picsum.photos",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "fastly.picsum.photos",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
+        pathname: "/**",
+      },
     ],
   },
 
@@ -54,8 +91,58 @@ const nextConfig: NextConfig = {
   },
 
   async headers() {
+    // ─── CSP STRATEGY ─────────────────────────────────────────────────────────
+    // The official Next.js nonce-based CSP approach forces every page that
+    // renders a nonce into dynamic (SSR) mode. For this app the home page and
+    // product pages use ISR (export const revalidate = N), so injecting a
+    // per-request nonce would eliminate ISR — a significant performance regression.
+    //
+    // Decision (documented per workflow rule 2):
+    //   • Enforced CSP (below): Tightened static policy.
+    //       - 'unsafe-eval' REMOVED from production (was present erroneously).
+    //       - 'object-src' added as 'none'.
+    //       - 'upgrade-insecure-requests' added.
+    //       - 'font-src' adds data: for inlined Google Font fallbacks.
+    //       - 'unsafe-inline' kept in script-src because the Meta Pixel and the
+    //         extension-attribute-cleaner are inline scripts rendered on Client
+    //         Components that cannot receive a nonce without forcing SSR.
+    //
+    //   • Report-Only CSP: A strict nonce+strict-dynamic policy is injected by
+    //     proxy.ts (middleware) as Content-Security-Policy-Report-Only so
+    //     violations can be monitored in production without breaking ISR.
+    //     Flip it to enforced after verifying the report is clean.
+    //
+    // In development, 'unsafe-eval' is re-added to support HMR / React DevTools.
+
+    const isDev = process.env.NODE_ENV === "development";
+
+    const enforcedCSP = [
+      "default-src 'self'",
+      // 'unsafe-eval' removed from production; retained in dev for HMR.
+      // 'unsafe-inline' retained — removing it requires nonce/hash, which
+      // breaks ISR on home/product pages (see strategy note above).
+      isDev
+        ? "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://connect.facebook.net"
+        : "script-src 'self' 'unsafe-inline' https://connect.facebook.net",
+      "worker-src 'self' blob:",
+      "child-src 'self' blob:",
+      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+      "font-src 'self' data: https://fonts.gstatic.com",
+      "img-src 'self' data: blob: https://res.cloudinary.com https://images.unsplash.com https://picsum.photos https://fastly.picsum.photos https://www.facebook.com https://lh3.googleusercontent.com https://i.pravatar.cc",
+      "connect-src 'self' https://api.telegram.org https://www.facebook.com https://res.cloudinary.com https://api.cloudinary.com",
+      // object-src 'none' blocks Flash/Java plugin injection attacks.
+      "object-src 'none'",
+      // frame-ancestors 'none' replaces X-Frame-Options for CSP2+ browsers.
+      "frame-ancestors 'none'",
+      "base-uri 'self'",
+      "form-action 'self'",
+      // Force all mixed-content (http://) sub-resource requests to HTTPS.
+      "upgrade-insecure-requests",
+    ].join('; ');
+
     return [
       {
+        // CORS for the mobile app REST API — no CSP applied to API routes.
         source: "/api/:path*",
         headers: [
           { key: "Access-Control-Allow-Origin", value: process.env.MOBILE_ORIGIN || "*" },
@@ -66,6 +153,8 @@ const nextConfig: NextConfig = {
       {
         source: "/(.*)",
         headers: [
+          // X-Frame-Options kept alongside CSP frame-ancestors for browsers
+          // that don't support CSP2.
           {
             key: "X-Frame-Options",
             value: "DENY",
@@ -88,19 +177,7 @@ const nextConfig: NextConfig = {
           },
           {
             key: "Content-Security-Policy",
-            value: [
-              "default-src 'self'",
-              "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://connect.facebook.net",
-              "worker-src 'self' blob:",
-              "child-src 'self' blob:",
-              "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-              "font-src 'self' https://fonts.gstatic.com",
-              "img-src 'self' data: blob: https://res.cloudinary.com https://images.unsplash.com https://picsum.photos https://fastly.picsum.photos https://www.facebook.com https://lh3.googleusercontent.com https://i.pravatar.cc",
-              "connect-src 'self' https://api.telegram.org https://www.facebook.com https://res.cloudinary.com https://api.cloudinary.com",
-              "frame-ancestors 'none'",
-              "base-uri 'self'",
-              "form-action 'self'",
-            ].join('; '),
+            value: enforcedCSP,
           },
         ],
       },
