@@ -30,6 +30,8 @@ const PRIVATE_ROUTE_PREFIXES = [
   '/admin',
   '/api/admin',
   '/api/store/orders',
+  '/api/orders',
+  '/api/v1/orders',
   '/api/users',
   '/api/notifications',
   '/api/auth',
@@ -102,7 +104,7 @@ export default async function middleware(req: NextRequest, event: NextFetchEvent
   // across users.
   if (isPrivateRoute(pathname)) {
     // Run auth checks first for these protected routes
-    const authResult = await (authMiddleware as any)(req, event);
+    const authResult = await (authMiddleware as (req: NextRequest, event: NextFetchEvent) => Promise<NextResponse | Response | undefined>)(req, event);
 
     // If auth redirected, return that redirect
     if (authResult && authResult.status !== 200) {
@@ -110,10 +112,35 @@ export default async function middleware(req: NextRequest, event: NextFetchEvent
     }
 
     // Otherwise apply cache-poisoning protection headers
-    const response = NextResponse.next();
+    // For HTML pages, also inject the CSP Report-Only nonce header
+    const isApiRoute = pathname.startsWith('/api/');
+    let requestHeaders: Headers | undefined;
+    let reportOnlyCSP: string | undefined;
+
+    if (!isApiRoute) {
+      const nonce = generateNonce();
+      reportOnlyCSP = [
+        `script-src 'nonce-${nonce}' 'strict-dynamic' https://connect.facebook.net`,
+        "object-src 'none'",
+        "base-uri 'self'",
+        "frame-ancestors 'none'",
+        "form-action 'self'",
+        "upgrade-insecure-requests",
+      ].join('; ');
+
+      requestHeaders = new Headers(req.headers);
+      requestHeaders.set('x-nonce', nonce);
+    }
+
+    const response = NextResponse.next(
+      requestHeaders ? { request: { headers: requestHeaders } } : undefined
+    );
     response.headers.set('Cache-Control', 'private, no-store');
-    // Vary: Cookie ensures even a misconfigured proxy keys responses per-session
-    response.headers.set('Vary', 'Cookie');
+    // Vary: Cookie, Authorization ensures proxies and edge cache key responses per session/token
+    response.headers.set('Vary', 'Cookie, Authorization');
+    if (reportOnlyCSP) {
+      response.headers.set('Content-Security-Policy-Report-Only', reportOnlyCSP);
+    }
     return response;
   }
 
@@ -146,7 +173,7 @@ export default async function middleware(req: NextRequest, event: NextFetchEvent
   }
 
   // Pass to Auth Middleware for remaining routes (API routes)
-  return (authMiddleware as any)(req, event);
+  return (authMiddleware as (req: NextRequest, event: NextFetchEvent) => Promise<NextResponse | Response | undefined>)(req, event);
 }
 
 export const config = {

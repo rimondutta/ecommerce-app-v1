@@ -11,6 +11,10 @@ export const dynamic = "force-dynamic"
 export const metadata: Metadata = {
   title: "Admin Dashboard | Toy Hourse",
   description: "E-Commerce Management Dashboard",
+  robots: {
+    index: false,
+    follow: false,
+  },
 }
 
 export default async function AdminLayout({
@@ -20,7 +24,7 @@ export default async function AdminLayout({
 }) {
   const session = await getServerSession(authOptions)
 
-  if (!session || (session.user as any)?.role !== "admin") {
+  if (!session || (session.user as { role?: string })?.role !== "admin") {
     redirect("/admin/login")
   }
 

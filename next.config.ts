@@ -42,9 +42,10 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "res.cloudinary.com",
-        // Restrict to your Cloudinary paths only. No wildcards on the host.
-        // TODO: Narrow `pathname` to "/<your-cloud-name>/**" once cloud name is confirmed.
-        pathname: "/**",
+        // Restrict to your Cloudinary paths only. Uses specific cloud name when env var is present.
+        pathname: (process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || process.env.CLOUDINARY_CLOUD_NAME)
+          ? `/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || process.env.CLOUDINARY_CLOUD_NAME}/**`
+          : "/**",
       },
       {
         protocol: "https",
@@ -151,14 +152,16 @@ const nextConfig: NextConfig = {
         ],
       },
       {
+        // Prevent search engine indexing of admin panel routes
+        source: "/admin/:path*",
+        headers: [
+          { key: "X-Robots-Tag", value: "noindex, nofollow" },
+        ],
+      },
+      {
+        // Standard security headers applied across all routes
         source: "/(.*)",
         headers: [
-          // X-Frame-Options kept alongside CSP frame-ancestors for browsers
-          // that don't support CSP2.
-          {
-            key: "X-Frame-Options",
-            value: "DENY",
-          },
           {
             key: "X-Content-Type-Options",
             value: "nosniff",
@@ -174,6 +177,17 @@ const nextConfig: NextConfig = {
           {
             key: "Permissions-Policy",
             value: "camera=(), microphone=(), geolocation=()",
+          },
+        ],
+      },
+      {
+        // CSP and X-Frame-Options applied strictly to HTML page routes only (excluding /api routes).
+        // This ensures the Expo mobile app's REST API is never affected by browser CSP or frame rules.
+        source: "/((?!api/).*)",
+        headers: [
+          {
+            key: "X-Frame-Options",
+            value: "DENY",
           },
           {
             key: "Content-Security-Policy",
