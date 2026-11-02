@@ -42,10 +42,8 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "res.cloudinary.com",
-        // Restrict to your Cloudinary paths only. Uses specific cloud name when env var is present.
-        pathname: (process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || process.env.CLOUDINARY_CLOUD_NAME)
-          ? `/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || process.env.CLOUDINARY_CLOUD_NAME}/**`
-          : "/**",
+        // Restrict to your Cloudinary paths only. Uses specific cloud name "dciffpt3t".
+        pathname: `/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || process.env.CLOUDINARY_CLOUD_NAME || "dciffpt3t"}/**`,
       },
       {
         protocol: "https",

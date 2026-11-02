@@ -42,7 +42,7 @@ The assessment report cited CVE-2026-94483/44/43/85/84 and stated the minimum sa
 
 - All `remotePatterns` entries now include explicit `pathname: "/**"` so they cannot match arbitrary sub-domains.
 - `dangerouslyAllowSVG` is intentionally omitted (defaults `false`) — this directly mitigates GHSA-2464-fhr4-w9xw at the config layer even before the patch.
-- **TODO:** Narrow `res.cloudinary.com` pathname to `/<your-cloud-name>/**` once the cloud name is confirmed in the Vercel env vars.
+- Cloudinary pathname narrowed to `/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || process.env.CLOUDINARY_CLOUD_NAME || "dciffpt3t"}/**` (using confirmed production cloud name `dciffpt3t`).
 - Placeholder hosts (`picsum.photos`, `fastly.picsum.photos`, `images.unsplash.com`) are annotated for removal once seeded content migrates to Cloudinary.
 
 **b) Cache poisoning hardening (`src/proxy.ts`)**
@@ -221,7 +221,6 @@ The middleware `matcher` in `src/proxy.ts` explicitly excludes `.well-known` fro
 | Item | Reason Not Fixed |
 |------|-----------------|
 | `unsafe-inline` in `script-src` (enforced) | Removing requires nonce injection which breaks ISR on home/product pages. Report-Only policy with `strict-dynamic` is in place for monitoring. Promote to enforced after verifying violations are clean. |
-| Cloudinary `pathname` not narrowed to cloud name | Cloud name not available locally (no `.env` file). Owner must update `next.config.ts` `remotePatterns[0].pathname` from `"/**"` to `"/<cloud-name>/**"`. |
 | `picsum.photos` / `fastly.picsum.photos` / `images.unsplash.com` in `remotePatterns` | Used by seeded placeholder data. Remove once all product images are in Cloudinary. |
 | `[YOUR_SECURITY_EMAIL]` in `security.txt` | Must be filled in by the project owner before deploying. |
 | 29 remaining npm audit findings (moderate/high) | All are in `devDependencies` (eslint, typescript-eslint, glob) or unrelated runtime packages (`zod`, `nodemailer`, `googleapis`). None are in Next.js itself. Addressing them requires major-version upgrades of those tools (e.g., zod v4→stable, nodemailer). Left for a separate dependency-update sprint per workflow rule 4. |
