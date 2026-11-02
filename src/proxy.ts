@@ -42,17 +42,6 @@ function isPrivateRoute(pathname: string): boolean {
   return PRIVATE_ROUTE_PREFIXES.some((prefix) => pathname.startsWith(prefix));
 }
 
-// ─── Nonce generation for CSP Report-Only ────────────────────────────────────
-// A per-request cryptographic nonce that feeds the Report-Only CSP header.
-// The enforced CSP lives in next.config.ts headers() and is ISR-compatible
-// (no nonce, so static/ISR pages are not forced dynamic).
-// Once violation reports are clean in production, flip to enforced.
-function generateNonce(): string {
-  const array = new Uint8Array(16);
-  crypto.getRandomValues(array);
-  return Buffer.from(array).toString('base64');
-}
-
 const authMiddleware = withAuth({
   callbacks: {
     authorized: ({ req, token }) => {
@@ -112,73 +101,20 @@ export default async function middleware(req: NextRequest, event: NextFetchEvent
     }
 
     // Otherwise apply cache-poisoning protection headers
-    // For HTML pages, also inject the CSP Report-Only nonce header
-    const isApiRoute = pathname.startsWith('/api/');
-    let requestHeaders: Headers | undefined;
-    let reportOnlyCSP: string | undefined;
-
-    if (!isApiRoute) {
-      const nonce = generateNonce();
-      reportOnlyCSP = [
-        `script-src 'nonce-${nonce}' 'strict-dynamic' https://connect.facebook.net`,
-        "object-src 'none'",
-        "base-uri 'self'",
-        "frame-ancestors 'none'",
-        "form-action 'self'",
-        "upgrade-insecure-requests",
-      ].join('; ');
-
-      requestHeaders = new Headers(req.headers);
-      requestHeaders.set('x-nonce', nonce);
-    }
-
-    const response = NextResponse.next(
-      requestHeaders ? { request: { headers: requestHeaders } } : undefined
-    );
+    const response = NextResponse.next();
     response.headers.set('Cache-Control', 'private, no-store');
     // Vary: Cookie, Authorization ensures proxies and edge cache key responses per session/token
     response.headers.set('Vary', 'Cookie, Authorization');
-    if (reportOnlyCSP) {
-      response.headers.set('Content-Security-Policy-Report-Only', reportOnlyCSP);
-    }
     return response;
   }
 
-  // ── CSP Report-Only nonce injection (HTML pages only) ────────────────────────
-  // Injects a per-request nonce into a Report-Only CSP header for monitoring.
-  // DO NOT apply to /api routes — the mobile app must not receive CSP headers.
-  const isApiRoute = pathname.startsWith('/api/');
-  if (!isApiRoute) {
-    const nonce = generateNonce();
-    // strict-dynamic lets trusted scripts load further scripts dynamically
-    // without needing each chunk individually listed — required for next/script.
-    const reportOnlyCSP = [
-      `script-src 'nonce-${nonce}' 'strict-dynamic' https://connect.facebook.net`,
-      "object-src 'none'",
-      "base-uri 'self'",
-      "frame-ancestors 'none'",
-      "form-action 'self'",
-      "upgrade-insecure-requests",
-    ].join('; ');
-
-    // Forward the nonce to server components via a request header
-    const requestHeaders = new Headers(req.headers);
-    requestHeaders.set('x-nonce', nonce);
-
-    const response = NextResponse.next({
-      request: { headers: requestHeaders },
-    });
-    response.headers.set('Content-Security-Policy-Report-Only', reportOnlyCSP);
-    return response;
-  }
-
-  // Pass to Auth Middleware for remaining routes (API routes)
+  // Pass to Auth Middleware for remaining routes
   return (authMiddleware as (req: NextRequest, event: NextFetchEvent) => Promise<NextResponse | Response | undefined>)(req, event);
 }
 
 export const config = {
-  // Match both admin routes and ALL API routes, plus authenticated page routes.
-  // Exclude static assets and Next.js internals to avoid unnecessary overhead.
+  // Match admin routes, API routes, and private/authenticated routes for auth & cache-poisoning protection.
+  // Static pages and public ISR routes are excluded so they are served directly from the edge cache.
   matcher: [
     "/admin/:path*",
     "/api/:path*",
@@ -186,7 +122,5 @@ export const config = {
     "/checkout/:path*",
     "/wishlist/:path*",
     "/invoice/:path*",
-    // All other HTML pages (for CSP Report-Only nonce injection)
-    "/((?!_next/static|_next/image|favicon\\.ico|robots\\.txt|sitemap\\.xml|\\.well-known).*)",
   ],
 }
