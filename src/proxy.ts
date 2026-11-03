@@ -10,13 +10,34 @@ const redis = process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_RE
     })
   : null;
 
-const ratelimit = redis
+// General API limiter: 30 requests per 10 seconds
+const generalRatelimit = redis
   ? new Ratelimit({
       redis: redis,
       limiter: Ratelimit.slidingWindow(30, "10 s"),
       analytics: true,
+      prefix: "ratelimit:general",
     })
   : null;
+
+// Strict limiter for sensitive authentication endpoints (5 requests per 1 minute)
+const authRatelimit = redis
+  ? new Ratelimit({
+      redis: redis,
+      limiter: Ratelimit.slidingWindow(5, "1 m"),
+      analytics: true,
+      prefix: "ratelimit:auth",
+    })
+  : null;
+
+// Sensitive auth endpoints that must be strictly rate-limited against brute force
+const SENSITIVE_AUTH_PREFIXES = [
+  '/api/auth/mobile/login',
+  '/api/auth/register',
+  '/api/auth/forgot-password',
+  '/api/auth/verify-reset-otp',
+  '/api/auth/reset-password',
+];
 
 // ─── Routes whose responses must never be served from a shared cache ──────────
 // These paths carry user-specific content (cart, account, orders, admin panel,
@@ -63,31 +84,62 @@ const authMiddleware = withAuth({
   }
 });
 
+function getClientIp(req: NextRequest): string {
+  const forwarded = req.headers.get("x-forwarded-for");
+  if (forwarded) {
+    return forwarded.split(",")[0].trim();
+  }
+  return req.headers.get("x-real-ip") ?? "127.0.0.1";
+}
+
 export default async function middleware(req: NextRequest, event: NextFetchEvent) {
   const { pathname } = req.nextUrl;
+  const ip = getClientIp(req);
 
-  // ── Rate limiting on all /api/ routes EXCEPT NextAuth internals ─────────────
-  const isAuthRoute = pathname.startsWith('/api/auth/');
-  if (!isAuthRoute && pathname.startsWith('/api/') && ratelimit) {
-    const ip = req.headers.get("x-forwarded-for") ?? "127.0.0.1";
-    const { success, limit, reset, remaining } = await ratelimit.limit(ip);
-
+  // ── 1. Strict rate limiting on sensitive authentication routes ───────────────
+  const isSensitiveAuth = SENSITIVE_AUTH_PREFIXES.some((prefix) => pathname.startsWith(prefix));
+  if (isSensitiveAuth && authRatelimit) {
+    const { success, limit, reset, remaining } = await authRatelimit.limit(ip);
     if (!success) {
+      const retryAfter = Math.max(1, Math.ceil((reset - Date.now()) / 1000));
       return NextResponse.json(
-        { error: "Too many requests. Please try again later." },
+        { error: "Too many authentication attempts. Please try again later." },
         {
           status: 429,
           headers: {
+            'Retry-After': retryAfter.toString(),
             'X-RateLimit-Limit': limit.toString(),
             'X-RateLimit-Remaining': remaining.toString(),
-            'X-RateLimit-Reset': reset.toString()
-          }
+            'X-RateLimit-Reset': reset.toString(),
+          },
         }
       );
     }
   }
 
-  // ── Cache poisoning protection ───────────────────────────────────────────────
+  // ── 2. General rate limiting on other /api/ routes (excluding NextAuth internals) ──
+  const isNextAuthInternal = pathname.startsWith('/api/auth/') && !isSensitiveAuth;
+  if (!isNextAuthInternal && pathname.startsWith('/api/') && generalRatelimit) {
+    const { success, limit, reset, remaining } = await generalRatelimit.limit(ip);
+
+    if (!success) {
+      const retryAfter = Math.max(1, Math.ceil((reset - Date.now()) / 1000));
+      return NextResponse.json(
+        { error: "Too many requests. Please try again later." },
+        {
+          status: 429,
+          headers: {
+            'Retry-After': retryAfter.toString(),
+            'X-RateLimit-Limit': limit.toString(),
+            'X-RateLimit-Remaining': remaining.toString(),
+            'X-RateLimit-Reset': reset.toString(),
+          },
+        }
+      );
+    }
+  }
+
+  // ── 3. Cache poisoning protection ───────────────────────────────────────────
   // For private/authenticated routes, force Cache-Control: private, no-store so
   // the Vercel Edge Cache and any upstream CDN never stores or reuses responses
   // across users.
@@ -123,4 +175,4 @@ export const config = {
     "/wishlist/:path*",
     "/invoice/:path*",
   ],
-}
+};

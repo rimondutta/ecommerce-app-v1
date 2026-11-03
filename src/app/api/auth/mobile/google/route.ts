@@ -4,8 +4,7 @@ import User from "@/models/User";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { randomUUID } from "crypto";
-
-const JWT_SECRET = process.env.NEXTAUTH_SECRET || "fallback_secret_for_dev";
+import { getJwtSecret } from "@/lib/jwt-secret";
 
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
@@ -68,7 +67,7 @@ export async function POST(req: Request) {
       { upsert: true, new: true }
     );
 
-    // Issue our custom mobile JWT (same format as email/password login)
+    // Issue our custom mobile JWT using verified secret
     const token = jwt.sign(
       {
         id: user._id.toString(),
@@ -76,7 +75,7 @@ export async function POST(req: Request) {
         role: user.role,
         name: user.name,
       },
-      JWT_SECRET,
+      getJwtSecret(),
       { expiresIn: "30d" }
     );
 

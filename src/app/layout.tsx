@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Poppins, DM_Sans } from "next/font/google";
-import Script from "next/script";
 import "./globals.css";
 import { CartProvider } from "@/components/providers/CartProvider";
 import { WishlistProvider } from "@/components/providers/WishlistProvider";
@@ -29,8 +28,6 @@ const dmSans = DM_Sans({
   display: "swap",
 });
 
-
-
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXTAUTH_URL || 'https://toyhourse.com'),
   title: {
@@ -54,8 +51,6 @@ export const metadata: Metadata = {
   },
 };
 
-
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -71,46 +66,6 @@ export default function RootLayout({
       <head>
         <link rel="preconnect" href="https://res.cloudinary.com" />
         <link rel="dns-prefetch" href="https://connect.facebook.net" />
-        <Script
-          id="extension-attribute-cleaner"
-          strategy="lazyOnload"
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                if (typeof window === 'undefined') return;
-                var clean = function(node) {
-                  if (node && node.removeAttribute) {
-                    if (node.hasAttribute('bis_skin_checked')) node.removeAttribute('bis_skin_checked');
-                    if (node.hasAttribute('bis_status')) node.removeAttribute('bis_status');
-                  }
-                };
-                var observer = new MutationObserver(function(mutations) {
-                  for (var i = 0; i < mutations.length; i++) {
-                    var m = mutations[i];
-                    if (m.type === 'attributes') {
-                      clean(m.target);
-                    } else if (m.type === 'childList') {
-                      for (var j = 0; j < m.addedNodes.length; j++) {
-                        var node = m.addedNodes[j];
-                        clean(node);
-                        if (node.querySelectorAll) {
-                          var children = node.querySelectorAll('[bis_skin_checked],[bis_status]');
-                          for (var k = 0; k < children.length; k++) clean(children[k]);
-                        }
-                      }
-                    }
-                  }
-                });
-                observer.observe(document.documentElement, {
-                  attributes: true,
-                  subtree: true,
-                  childList: true,
-                  attributeFilter: ['bis_skin_checked', 'bis_status']
-                });
-              })();
-            `,
-          }}
-        />
       </head>
       <body
         suppressHydrationWarning

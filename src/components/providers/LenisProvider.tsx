@@ -8,18 +8,30 @@ export default function LenisProvider({
   children: React.ReactNode;
 }) {
   useEffect(() => {
-    // Defer smooth-scroll initialisation until after the page is interactive.
-    // Loading Lenis + GSAP eagerly during hydration blocks the main thread and
-    // delays Time to Interactive — dynamic import pushes this to a later task.
+    // 1. Accessibility & Device Feature Detection
+    // Do not intercept native scrolling on mobile touch screens or when user prefers reduced motion
+    const isFinePointer = window.matchMedia("(pointer: fine)").matches;
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    if (!isFinePointer || prefersReducedMotion) {
+      // Retain 100% native browser momentum scrolling for touch devices
+      return;
+    }
+
     let rafCallback: ((time: number) => void) | null = null;
     let lenisInstance: any = null;
     let gsapInstance: any = null;
+    let isCleanedUp = false;
 
     const init = async () => {
+      if (isCleanedUp) return;
+
       const [{ default: Lenis }, { gsap, ScrollTrigger }] = await Promise.all([
         import("lenis"),
         import("@/lib/gsap"),
       ]);
+
+      if (isCleanedUp) return;
 
       lenisInstance = new Lenis({
         duration: 1.1,
@@ -28,7 +40,7 @@ export default function LenisProvider({
         gestureOrientation: "vertical",
         smoothWheel: true,
         wheelMultiplier: 1,
-        touchMultiplier: 1.5,
+        touchMultiplier: 0, // Disable touch manipulation in Lenis entirely
       });
 
       gsapInstance = gsap;
@@ -36,25 +48,29 @@ export default function LenisProvider({
       // Keep ScrollTrigger in sync with Lenis scroll position
       lenisInstance.on("scroll", ScrollTrigger.update);
 
-      // Single RAF source: GSAP ticker drives Lenis (no autoRaf)
+      // Single RAF source: GSAP ticker drives Lenis
       rafCallback = (time: number) => {
-        lenisInstance.raf(time * 1000);
+        lenisInstance?.raf(time * 1000);
       };
       gsap.ticker.add(rafCallback);
       gsap.ticker.lagSmoothing(0);
     };
 
-    // Use requestIdleCallback to defer even further on capable browsers
+    // Defer initialization to avoid blocking initial hydration and paint
     if ("requestIdleCallback" in window) {
       (window as any).requestIdleCallback(init);
     } else {
-      // Fallback: defer by 200ms on Safari / older browsers
       setTimeout(init, 200);
     }
 
     return () => {
-      if (rafCallback && gsapInstance) gsapInstance.ticker.remove(rafCallback);
-      if (lenisInstance) lenisInstance.destroy();
+      isCleanedUp = true;
+      if (rafCallback && gsapInstance) {
+        gsapInstance.ticker.remove(rafCallback);
+      }
+      if (lenisInstance) {
+        lenisInstance.destroy();
+      }
     };
   }, []);
 

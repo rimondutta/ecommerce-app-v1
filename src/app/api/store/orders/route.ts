@@ -2,9 +2,10 @@ import { NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/db';
 import Order from '@/models/Order';
 import Product from '@/models/Product';
-
+import Coupon from '@/models/Coupon';
 import { isRateLimited } from '@/lib/ratelimit';
-
+import { calculateOrderPricing } from '@/lib/pricing';
+import crypto from 'crypto';
 
 export async function POST(req: Request) {
   try {
@@ -22,65 +23,114 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const { customerEmail, customerName, items, totalAmount, shippingAddress, paymentMethod, shippingCost, shippingZone, notes } = body;
+    const {
+      customerEmail,
+      customerName,
+      items,
+      shippingAddress,
+      paymentMethod,
+      shippingZone,
+      notes,
+      couponCode,
+    } = body;
 
-    if (!items || items.length === 0 || !totalAmount) {
-      return NextResponse.json({ error: 'Missing required order details' }, { status: 400 });
+    if (!items || !Array.isArray(items) || items.length === 0) {
+      return NextResponse.json(
+        { error: 'Missing required order details: items list is empty.' },
+        { status: 400 }
+      );
     }
 
     // Basic email format validation if email is provided
-    if (customerEmail) {
+    let normalizedEmail: string | undefined = undefined;
+    if (customerEmail && typeof customerEmail === 'string' && customerEmail.trim()) {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(customerEmail)) {
+      normalizedEmail = customerEmail.trim().toLowerCase();
+      if (!emailRegex.test(normalizedEmail)) {
         return NextResponse.json({ error: 'Invalid email address' }, { status: 400 });
       }
     }
 
     await connectToDatabase();
 
-    // Create the order
+    // ── Authoritative Server-Side Price & Inventory Verification ──
+    let pricing;
+    try {
+      pricing = await calculateOrderPricing({
+        items,
+        shippingZone,
+        couponCode,
+      });
+    } catch (pricingError: any) {
+      return NextResponse.json(
+        { error: pricingError.message || 'Product pricing verification failed.' },
+        { status: 400 }
+      );
+    }
+
+    // Generate cryptographically secure access token for guest invoice verification
+    const rawGuestAccessToken = crypto.randomBytes(32).toString('hex');
+    const guestAccessTokenHash = crypto.createHash('sha256').update(rawGuestAccessToken).digest('hex');
+
+    // Create the order using verified server calculations ONLY
     const orderData: any = {
       customerName: String(customerName || '').trim(),
-      items,
-      totalAmount,
-      shippingCost: shippingCost || 0,
-      shippingZone,
-      notes,
-      shippingAddress,
+      items: pricing.items,
+      subtotal: pricing.subtotal,
+      shippingCost: pricing.shippingCost,
+      discountAmount: pricing.discountAmount,
+      couponCode: pricing.couponCode,
+      totalAmount: pricing.totalAmount,
+      shippingZone: pricing.shippingZone,
+      notes: notes ? String(notes).trim().slice(0, 500) : undefined,
+      shippingAddress: {
+        name: String(shippingAddress?.name || customerName || '').trim(),
+        email: normalizedEmail,
+        phone: String(shippingAddress?.phone || '').trim(),
+        addressLine1: String(shippingAddress?.addressLine1 || '').trim(),
+        city: String(shippingAddress?.city || '').trim(),
+        postcode: String(shippingAddress?.postcode || '').trim(),
+        country: 'Bangladesh',
+      },
       paymentMethod: paymentMethod || 'cod',
       paymentStatus: 'pending',
       fulfillmentStatus: 'unfulfilled',
+      guestAccessToken: rawGuestAccessToken,
+      guestAccessTokenHash,
     };
-    if (customerEmail) {
-      orderData.customerEmail = String(customerEmail).toLowerCase().trim();
+
+    if (normalizedEmail) {
+      orderData.customerEmail = normalizedEmail;
     }
+
     const order = await Order.create(orderData);
 
+    // If a valid coupon was applied, increment its used count atomically
+    if (pricing.couponCode) {
+      await Coupon.updateOne(
+        { code: pricing.couponCode },
+        { $inc: { usedCount: 1 } }
+      ).catch((err: any) => console.error('Failed to increment coupon usedCount:', err));
+    }
 
-    // Performance: Replace N sequential inventory writes with a single bulkWrite.
-    // Before: for (item of items) { await findByIdAndUpdate() } — N serial DB round-trips.
-    // After: one bulkWrite — 1 DB round-trip regardless of cart size.
-    const inventoryOps = items
-      .filter((item: any) => item.productId)
-      .map((item: any) => {
-        if (item.variantId) {
-          // Decrement specific variant's stock
-          return {
-            updateOne: {
-              filter: { _id: item.productId, 'variants._id': item.variantId },
-              update: { $inc: { 'variants.$.stock': -item.quantity } },
-            },
-          };
-        } else {
-          // Decrement legacy product inventory
-          return {
-            updateOne: {
-              filter: { _id: item.productId },
-              update: { $inc: { inventory: -item.quantity } },
-            },
-          };
-        }
-      });
+    // ── Atomic Inventory Decrement ──
+    const inventoryOps = pricing.items.map((item) => {
+      if (item.variantId) {
+        return {
+          updateOne: {
+            filter: { _id: item.product, 'variants._id': item.variantId },
+            update: { $inc: { 'variants.$.stock': -item.quantity } },
+          },
+        };
+      } else {
+        return {
+          updateOne: {
+            filter: { _id: item.product },
+            update: { $inc: { inventory: -item.quantity } },
+          },
+        };
+      }
+    });
 
     if (inventoryOps.length > 0) {
       await Product.bulkWrite(inventoryOps).catch((err: any) =>
@@ -89,47 +139,63 @@ export async function POST(req: Request) {
     }
 
     // ── Background Tasks (Invoice, Email, Telegram, Google Sheets) ──
-    // MUST await in serverless environments, otherwise Vercel kills the process before they finish
     const notificationPayload = {
       orderId: order._id.toString(),
-      customerName,
-      customerEmail,
-      totalAmount,
-      items,
-      shippingAddress,
-      paymentMethod: paymentMethod || 'cod',
-      shippingCost: shippingCost || 0
+      customerName: order.customerName,
+      customerEmail: order.customerEmail,
+      totalAmount: pricing.totalAmount,
+      items: pricing.items.map((i) => ({
+        title: i.title,
+        price: i.price,
+        quantity: i.quantity,
+      })),
+      shippingAddress: order.shippingAddress,
+      paymentMethod: order.paymentMethod,
+      shippingCost: pricing.shippingCost,
     };
 
     await Promise.allSettled([
-      import('@/lib/invoice/generateInvoicePdf').then(({ generateInvoiceForOrder }) => generateInvoiceForOrder(order._id.toString())),
-      customerEmail ? import('@/lib/nodemailer').then(({ sendOrderConfirmationEmail }) => sendOrderConfirmationEmail(notificationPayload)) : Promise.resolve(),
-      import('@/lib/telegram').then(({ sendTelegramNotification }) => sendTelegramNotification(notificationPayload)),
+      import('@/lib/invoice/generateInvoicePdf').then(({ generateInvoiceForOrder }) =>
+        generateInvoiceForOrder(order._id.toString())
+      ),
+      normalizedEmail
+        ? import('@/lib/nodemailer').then(({ sendOrderConfirmationEmail }) =>
+            sendOrderConfirmationEmail(notificationPayload)
+          )
+        : Promise.resolve(),
+      import('@/lib/telegram').then(({ sendTelegramNotification }) =>
+        sendTelegramNotification(notificationPayload)
+      ),
       import('@/lib/googleSheets').then(({ appendOrderToSheet }) =>
         appendOrderToSheet({
           orderId: order._id.toString(),
-          customerName,
-          customerEmail,
-          phone: shippingAddress?.phone,
-          addressLine1: shippingAddress?.addressLine1,
-          city: shippingAddress?.city,
-          paymentMethod: paymentMethod || 'cod',
-          items: (items || []).map((i: any) => ({ title: i.title || '', quantity: i.quantity || 1, price: i.price || 0 })),
-          shippingCost: shippingCost || 0,
-          totalAmount,
+          customerName: order.customerName,
+          customerEmail: order.customerEmail,
+          phone: order.shippingAddress?.phone,
+          addressLine1: order.shippingAddress?.addressLine1,
+          city: order.shippingAddress?.city,
+          paymentMethod: order.paymentMethod,
+          items: pricing.items.map((i) => ({
+            title: i.title,
+            quantity: i.quantity,
+            price: i.price,
+          })),
+          shippingCost: pricing.shippingCost,
+          totalAmount: pricing.totalAmount,
           fulfillmentStatus: 'unfulfilled',
         })
-      )
-    ]).catch(err => console.error('Background tasks error:', err));
+      ),
+    ]).catch((err) => console.error('Background tasks error:', err));
 
-    return NextResponse.json({ 
-      success: true, 
+    return NextResponse.json({
+      success: true,
       orderId: order._id,
-      message: 'Order created successfully' 
+      guestAccessToken: rawGuestAccessToken,
+      totalAmount: pricing.totalAmount,
+      message: 'Order created successfully',
     });
   } catch (error: any) {
     console.error('Order Creation error:', error);
-    // Don't leak internal error details in production
     return NextResponse.json(
       { error: 'Failed to create order. Please try again.' },
       { status: 500 }
