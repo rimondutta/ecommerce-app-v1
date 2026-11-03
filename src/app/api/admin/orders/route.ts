@@ -16,11 +16,23 @@ export async function GET(req: Request) {
     const limit = Math.min(100, Math.max(1, parseInt(searchParams.get('limit') || '50')));
     const skip = (page - 1) * limit;
 
+    const filter: Record<string, any> = {};
+    const fulfillmentStatus = searchParams.get('fulfillmentStatus') || searchParams.get('status');
+    if (fulfillmentStatus) {
+      filter.fulfillmentStatus = fulfillmentStatus;
+    }
+    const paymentStatus = searchParams.get('paymentStatus');
+    if (paymentStatus) {
+      filter.paymentStatus = paymentStatus;
+    }
+
     await connectToDatabase();
 
+    // High performance: Uses OrderSchema.index({ createdAt: -1 })
+    // or OrderSchema.index({ fulfillmentStatus: 1, createdAt: -1 })
     const [orders, total] = await Promise.all([
-      Order.find({}).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
-      Order.countDocuments({}),
+      Order.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
+      Order.countDocuments(filter),
     ]);
 
     return NextResponse.json({

@@ -10,8 +10,7 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import connectToDatabase from '@/lib/db';
 import User from '@/models/User';
-
-const JWT_SECRET = process.env.NEXTAUTH_SECRET || 'fallback_secret_for_dev';
+import { getJwtSecret } from '@/lib/jwt-secret';
 
 const CORS = {
   'Access-Control-Allow-Origin': '*',
@@ -39,10 +38,10 @@ export async function POST(req: Request) {
       );
     }
 
-    // Verify JWT and check purpose
+    // Verify JWT and check purpose using verified secret
     let payload: any;
     try {
-      payload = jwt.verify(resetToken, JWT_SECRET);
+      payload = jwt.verify(resetToken, getJwtSecret());
     } catch {
       return NextResponse.json(
         { success: false, error: 'Reset link has expired or is invalid. Please request a new one.' },

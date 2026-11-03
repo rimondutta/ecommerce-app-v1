@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from "react";
 import { useCart } from "@/components/providers/CartProvider";
@@ -186,7 +186,7 @@ export default function CheckoutPage() {
         } catch { /* noop */ }
         clearCart();
         showToast("Order placed successfully! 🎉");
-        router.push(`/invoice/${data.orderId}`);
+        const invoiceUrl = data.guestAccessToken ? `/invoice/${data.orderId}?token=${encodeURIComponent(data.guestAccessToken)}` : `/invoice/${data.orderId}`; router.push(invoiceUrl);
       } else {
         showToast(data.message || "Order failed", "error");
       }

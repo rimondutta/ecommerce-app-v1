@@ -11,11 +11,15 @@ const OrderSchema = new mongoose.Schema(
         quantity: { type: Number, required: true },
         price: { type: Number, required: true },
         title: { type: String },
+        image: { type: String },
         variantOptions: { type: Map, of: String },
       },
     ],
-    totalAmount: { type: Number, required: true },
+    subtotal: { type: Number },
     shippingCost: { type: Number, default: 0 },
+    discountAmount: { type: Number, default: 0 },
+    couponCode: { type: String },
+    totalAmount: { type: Number, required: true },
     paymentStatus: {
       type: String,
       enum: ['pending', 'paid', 'failed'],
@@ -39,11 +43,24 @@ const OrderSchema = new mongoose.Schema(
       default: 'unfulfilled',
     },
     shippingAddress: {
+      name: String,
+      email: String,
       addressLine1: String,
       city: String,
       postcode: String,
       country: { type: String, default: 'Bangladesh' },
       phone: String,
+    },
+    // ── Guest Checkout Access Token (For secure invoice/tracking access without session) ──
+    guestAccessToken: {
+      type: String,
+      select: false,
+    },
+    guestAccessTokenHash: {
+      type: String,
+      select: false,
+      index: true,
+      sparse: true,
     },
     // ── Courier & Live Tracking System ──
     courier: {
@@ -87,7 +104,10 @@ const OrderSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// High Performance: Indexes for customer order history and queries
+// High Performance: Indexes for customer order history, admin queries and sorts
 OrderSchema.index({ customerEmail: 1, createdAt: -1 });
+OrderSchema.index({ createdAt: -1 });
+OrderSchema.index({ fulfillmentStatus: 1, createdAt: -1 });
+OrderSchema.index({ paymentStatus: 1, createdAt: -1 });
 
 export default mongoose.models.Order || mongoose.model('Order', OrderSchema);

@@ -3,9 +3,22 @@
 import { useState, useMemo, Suspense, useTransition } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { m, AnimatePresence, useReducedMotion } from "framer-motion";
-import { X, ChevronDown } from "lucide-react";
+import { X, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
 import ProductCardNike from "@/components/ui/product-card-nike";
 import { cn } from "@/lib/utils";
+
+export interface PaginationInfo {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+  hasMore: boolean;
+}
+
+export interface CategoryItem {
+  slug: string;
+  name: string;
+}
 
 function FilterPill({
   label,
@@ -52,16 +65,21 @@ function SidebarFilterItem({ label, selected, onClick }: { label: string; select
 
 function ShopGridPure({ 
   initialProducts, 
+  allCategories,
+  pagination,
   categoryParam, 
   ageParam, 
   searchParam 
 }: { 
-  initialProducts: any[], 
-  categoryParam: string | null, 
-  ageParam: string | null, 
-  searchParam: string | null 
+  initialProducts: any[];
+  allCategories?: CategoryItem[];
+  pagination?: PaginationInfo;
+  categoryParam: string | null;
+  ageParam: string | null;
+  searchParam: string | null;
 }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const reduced = useReducedMotion() ?? false;
   const [isPending, startTransition] = useTransition();
 
@@ -69,7 +87,10 @@ function ShopGridPure({
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
 
   const updateFilters = (key: string, value: string | null) => {
-    const currentParams = new URLSearchParams();
+    const currentParams = new URLSearchParams(searchParams?.toString() || "");
+    // Reset to page 1 on filter modification
+    currentParams.delete("page");
+
     if (categoryParam) currentParams.set("category", categoryParam);
     if (ageParam) currentParams.set("age", ageParam);
     if (searchParam) currentParams.set("search", searchParam);
@@ -82,13 +103,24 @@ function ShopGridPure({
     });
   };
 
+  const goToPage = (newPage: number) => {
+    const currentParams = new URLSearchParams(searchParams?.toString() || "");
+    currentParams.set("page", newPage.toString());
+    startTransition(() => {
+      router.push(`/products?${currentParams.toString()}`, { scroll: true });
+    });
+  };
+
   const categories = useMemo(() => {
+    if (allCategories && allCategories.length > 0) {
+      return allCategories;
+    }
     const m = new Map<string, string>();
     initialProducts.forEach((p: any) => {
       if (p.category?.name && p.category?.slug) m.set(p.category.slug, p.category.name);
     });
     return Array.from(m.entries()).map(([slug, name]) => ({ slug, name }));
-  }, [initialProducts]);
+  }, [allCategories, initialProducts]);
 
   const ageRanges = ["0-1", "1-3", "3-5", "5-8", "8+"];
 
@@ -112,6 +144,7 @@ function ShopGridPure({
   };
 
   const activeFilterCount = [categoryParam, ageParam].filter(Boolean).length;
+  const totalDisplayCount = pagination?.total ?? filteredProducts.length;
 
   return (
     <div suppressHydrationWarning className="flex-1 bg-joy-cream min-h-screen text-joy-navy font-body">
@@ -121,7 +154,7 @@ function ShopGridPure({
             {categoryParam || "All Toys"}
           </h1>
           <span className="font-body text-sm text-joy-muted mb-1">
-            {filteredProducts.length} products
+            {totalDisplayCount} products
           </span>
         </div>
 
@@ -220,16 +253,64 @@ function ShopGridPure({
 
         <div className="flex-1">
           {filteredProducts.length > 0 ? (
-            <div className="grid grid-cols-2 lg:grid-cols-3 gap-x-4 sm:gap-x-6 gap-y-8 sm:gap-y-12">
-              {filteredProducts.map((product: any, idx: number) => (
-                <ProductCardNike
-                  key={product._id}
-                  product={product}
-                  priority={idx < 4}
-                  index={idx + 1}
-                />
-              ))}
-            </div>
+            <>
+              <div className="grid grid-cols-2 lg:grid-cols-3 gap-x-4 sm:gap-x-6 gap-y-8 sm:gap-y-12">
+                {filteredProducts.map((product: any, idx: number) => (
+                  <ProductCardNike
+                    key={product._id}
+                    product={product}
+                    priority={idx < 4}
+                    index={idx + 1}
+                  />
+                ))}
+              </div>
+
+              {/* ── Pagination Controls ── */}
+              {pagination && pagination.totalPages > 1 && (
+                <div className="flex items-center justify-center gap-2 mt-12 pt-8 border-t border-joy-rule">
+                  <button
+                    onClick={() => goToPage(pagination.page - 1)}
+                    disabled={pagination.page <= 1}
+                    className="flex items-center gap-1 px-4 py-2 rounded-xl text-sm font-semibold font-display border border-joy-rule bg-white text-joy-navy hover:bg-joy-mist disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                  >
+                    <ChevronLeft size={16} />
+                    Prev
+                  </button>
+                  <div className="flex items-center gap-1">
+                    {Array.from({ length: pagination.totalPages }, (_, i) => i + 1)
+                      .filter((p) => p === 1 || p === pagination.totalPages || Math.abs(p - pagination.page) <= 1)
+                      .map((p, index, array) => {
+                        const prev = array[index - 1];
+                        const hasGap = prev && p - prev > 1;
+                        return (
+                          <div key={p} className="flex items-center gap-1">
+                            {hasGap && <span className="px-2 text-joy-muted">…</span>}
+                            <button
+                              onClick={() => goToPage(p)}
+                              className={cn(
+                                "w-10 h-10 rounded-xl text-sm font-semibold font-display transition-all flex items-center justify-center",
+                                p === pagination.page
+                                  ? "bg-joy-cobalt text-white shadow-[0_4px_12px_rgba(45,91,227,0.3)]"
+                                  : "bg-white text-joy-navy border border-joy-rule hover:bg-joy-mist"
+                              )}
+                            >
+                              {p}
+                            </button>
+                          </div>
+                        );
+                      })}
+                  </div>
+                  <button
+                    onClick={() => goToPage(pagination.page + 1)}
+                    disabled={pagination.page >= pagination.totalPages}
+                    className="flex items-center gap-1 px-4 py-2 rounded-xl text-sm font-semibold font-display border border-joy-rule bg-white text-joy-navy hover:bg-joy-mist disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                  >
+                    Next
+                    <ChevronRight size={16} />
+                  </button>
+                </div>
+              )}
+            </>
           ) : (
             <div className="flex flex-col items-center justify-center py-24 text-center gap-4">
               <div className="w-16 h-16 rounded-2xl bg-joy-mist flex items-center justify-center text-3xl">
@@ -329,7 +410,7 @@ function ShopGridPure({
                   className="w-full bg-joy-cobalt text-white font-display font-bold text-sm py-4 rounded-xl hover:bg-joy-cobalt/90 transition-colors shadow-[0_4px_16px_rgba(45,91,227,0.3)]"
                   onClick={() => setIsMobileFiltersOpen(false)}
                 >
-                  View {filteredProducts.length} {filteredProducts.length === 1 ? "Product" : "Products"}
+                  View {totalDisplayCount} {totalDisplayCount === 1 ? "Product" : "Products"}
                 </button>
                 {(categoryParam || ageParam) && (
                   <button
@@ -348,12 +429,22 @@ function ShopGridPure({
   );
 }
 
-function ShopContent({ initialProducts }: { initialProducts: any[] }) {
+function ShopContent({
+  initialProducts,
+  allCategories,
+  pagination,
+}: {
+  initialProducts: any[];
+  allCategories?: CategoryItem[];
+  pagination?: PaginationInfo;
+}) {
   const searchParams = useSearchParams();
   
   return (
     <ShopGridPure 
       initialProducts={initialProducts}
+      allCategories={allCategories}
+      pagination={pagination}
       categoryParam={searchParams.get("category")}
       ageParam={searchParams.get("age")}
       searchParam={searchParams.get("search")}
@@ -361,19 +452,33 @@ function ShopContent({ initialProducts }: { initialProducts: any[] }) {
   );
 }
 
-export default function ShopClient({ initialProducts }: { initialProducts: any[] }) {
+export default function ShopClient({
+  initialProducts,
+  allCategories,
+  pagination,
+}: {
+  initialProducts: any[];
+  allCategories?: CategoryItem[];
+  pagination?: PaginationInfo;
+}) {
   return (
     <Suspense 
       fallback={
         <ShopGridPure 
           initialProducts={initialProducts} 
+          allCategories={allCategories}
+          pagination={pagination}
           categoryParam={null} 
           ageParam={null} 
           searchParam={null} 
         />
       }
     >
-      <ShopContent initialProducts={initialProducts} />
+      <ShopContent
+        initialProducts={initialProducts}
+        allCategories={allCategories}
+        pagination={pagination}
+      />
     </Suspense>
   );
 }

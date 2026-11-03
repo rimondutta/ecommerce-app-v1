@@ -3,8 +3,7 @@ import connectToDatabase from "@/lib/db";
 import User from "@/models/User";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-
-const JWT_SECRET = process.env.NEXTAUTH_SECRET || "fallback_secret_for_dev";
+import { getJwtSecret } from "@/lib/jwt-secret";
 
 export async function POST(req: Request) {
   try {
@@ -34,7 +33,7 @@ export async function POST(req: Request) {
       );
     }
 
-    // Create JWT Token for mobile app
+    // Create JWT Token for mobile app using verified secret
     const token = jwt.sign(
       {
         id: user._id.toString(),
@@ -42,7 +41,7 @@ export async function POST(req: Request) {
         role: user.role,
         name: user.name,
       },
-      JWT_SECRET,
+      getJwtSecret(),
       { expiresIn: "30d" }
     );
 

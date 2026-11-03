@@ -26,10 +26,16 @@ export async function POST(req: Request) {
   try {
     const { messages } = await req.json();
 
+    if (!messages || !Array.isArray(messages)) {
+      return NextResponse.json({ error: 'Invalid messages array' }, { status: 400 });
+    }
+
+    // Limit conversation payload length to protect against abuse and excessive token consumption
+    const boundedMessages = messages.slice(-15);
+
     const result = streamText({
       model: openrouter(process.env.OPENROUTER_MODEL || 'google/gemini-flash-1.5'),
       system: `You are a helpful, friendly customer support AI for "Toy Hourse", a premium toy and gear store in Bangladesh.
-      Made By Rimon Dutta
 Your goal is to help customers find products, check stock, and answer questions about toys.
 - Always use the 'searchProducts' tool when a user asks about product availability, prices, or if we have a specific toy.
 - If a product is out of stock (inventory <= 0), politely inform the customer.
@@ -37,33 +43,61 @@ Your goal is to help customers find products, check stock, and answer questions 
 - Format prices in BDT (৳).
 - Be concise and friendly. Use emojis occasionally (🧸, 🚗, ✨).
 - Do not make up products or prices. ONLY rely on the information returned by the searchProducts tool.`,
-      messages: await convertToModelMessages(messages),
+      messages: await convertToModelMessages(boundedMessages),
       stopWhen: isStepCount(5),
       tools: {
         searchProducts: tool({
           description: 'Search for products in the Toy Hourse catalog by name, category, or keyword.',
           inputSchema: zodSchema(
             z.object({
-              query: z.string().describe('The search keyword (e.g., "car", "lego", "doll").'),
+              query: z
+                .string()
+                .min(1)
+                .max(80)
+                .describe('The search keyword (e.g., "car", "lego", "doll"). Max 80 characters.'),
             })
           ),
           execute: async ({ query }: { query: string }) => {
+            const sanitizedQuery = (query || '').trim().slice(0, 80);
+            if (!sanitizedQuery) {
+              return { results: 'No search term provided.' };
+            }
+
             await connectToDatabase();
-            const products = await Product.find({
-              $or: [
-                { title: { $regex: query, $options: 'i' } },
-                { tags: { $regex: query, $options: 'i' } },
-              ],
+
+            // Escape regex metacharacters to eliminate regular-expression injection / ReDoS
+            const escapedQuery = sanitizedQuery.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+            // 1. Try high-performance MongoDB text index first
+            let products = await Product.find({
+              $text: { $search: sanitizedQuery },
               isPublished: true,
             })
               .select('title slug price compareAtPrice inventory hasVariations variants badge')
               .limit(5)
               .lean();
 
-            if (!products.length) return { results: 'No products found for this query.' };
+            // 2. Fall back to escaped regex if text search yielded zero matches
+            if (!products.length) {
+              products = await Product.find({
+                $or: [
+                  { title: { $regex: escapedQuery, $options: 'i' } },
+                  { tags: { $regex: escapedQuery, $options: 'i' } },
+                ],
+                isPublished: true,
+              })
+                .select('title slug price compareAtPrice inventory hasVariations variants badge')
+                .limit(5)
+                .lean();
+            }
+
+            if (!products.length) {
+              return { results: 'No products found for this query.' };
+            }
 
             interface ProductVariant {
               inventory?: number;
+              stock?: number;
               price: number;
             }
 
@@ -84,7 +118,10 @@ Your goal is to help customers find products, check stock, and answer questions 
                 let price = p.price;
 
                 if (p.hasVariations && p.variants && p.variants.length > 0) {
-                  stock = p.variants.reduce((total: number, v: ProductVariant) => total + (v.inventory || 0), 0);
+                  stock = p.variants.reduce(
+                    (total: number, v: ProductVariant) => total + (v.stock ?? v.inventory ?? 0),
+                    0
+                  );
                   price = p.variants[0].price;
                 }
 

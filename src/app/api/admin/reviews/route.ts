@@ -4,6 +4,7 @@ import { authOptions } from '@/lib/auth';
 import connectToDatabase from '@/lib/db';
 import Product from '@/models/Product';
 import mongoose from 'mongoose';
+import { revalidatePath } from 'next/cache';
 
 export async function GET() {
   try {
@@ -64,14 +65,34 @@ export async function PATCH(req: Request) {
 
     await connectToDatabase();
     
-    // Update the specific review inside the product's reviews array
-    const result = await Product.updateOne(
-      { _id: productId, 'reviews._id': id },
-      { $set: { 'reviews.$.status': status } }
-    );
+    const product = await Product.findById(productId);
+    if (!product) {
+      return NextResponse.json({ error: 'Product not found' }, { status: 404 });
+    }
 
-    if (result.matchedCount === 0) {
-      return NextResponse.json({ error: 'Review or Product not found' }, { status: 404 });
+    const review = product.reviews.id ? product.reviews.id(id) : (product.reviews || []).find((r: any) => r._id?.toString() === id);
+    if (!review) {
+      return NextResponse.json({ error: 'Review not found' }, { status: 404 });
+    }
+
+    review.status = status;
+
+    // Recalculate rating from strictly published reviews only
+    const publishedReviews = (product.reviews || []).filter(
+      (r: any) => r.status === 'published'
+    );
+    const reviewCount = publishedReviews.length;
+    const totalRating = publishedReviews.reduce((sum: number, r: any) => sum + r.rating, 0);
+
+    product.rating = reviewCount > 0 ? Number((totalRating / reviewCount).toFixed(1)) : 0;
+    product.reviewCount = reviewCount;
+
+    await product.save();
+
+    revalidatePath('/');
+    revalidatePath('/products');
+    if (product.slug) {
+      revalidatePath(`/products/${product.slug}`);
     }
 
     return NextResponse.json({ success: true });
@@ -97,26 +118,35 @@ export async function DELETE(req: Request) {
 
     await connectToDatabase();
     
-    // Remove the review from the array
-    const product = await Product.findByIdAndUpdate(
-      productId,
-      { $pull: { reviews: { _id: id } } },
-      { new: true }
-    );
-
+    const product = await Product.findById(productId);
     if (!product) {
       return NextResponse.json({ error: 'Product not found' }, { status: 404 });
     }
 
-    // Recalculate average rating
-    if (product.reviews.length > 0) {
-      const totalRating = product.reviews.reduce((sum: number, review: any) => sum + review.rating, 0);
-      product.rating = Number((totalRating / product.reviews.length).toFixed(1));
+    // Pull the review
+    if (product.reviews.pull) {
+      product.reviews.pull({ _id: id });
     } else {
-      product.rating = 0;
+      product.reviews = product.reviews.filter((r: any) => r._id?.toString() !== id);
     }
-    product.reviewCount = product.reviews.length;
+
+    // Recalculate average rating using strictly published reviews
+    const publishedReviews = (product.reviews || []).filter(
+      (r: any) => r.status === 'published'
+    );
+    const reviewCount = publishedReviews.length;
+    const totalRating = publishedReviews.reduce((sum: number, r: any) => sum + r.rating, 0);
+
+    product.rating = reviewCount > 0 ? Number((totalRating / reviewCount).toFixed(1)) : 0;
+    product.reviewCount = reviewCount;
+
     await product.save();
+
+    revalidatePath('/');
+    revalidatePath('/products');
+    if (product.slug) {
+      revalidatePath(`/products/${product.slug}`);
+    }
 
     return NextResponse.json({ success: true });
   } catch (error: any) {

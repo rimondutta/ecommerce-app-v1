@@ -10,8 +10,8 @@ import { createHash } from 'crypto';
 import jwt from 'jsonwebtoken';
 import connectToDatabase from '@/lib/db';
 import User from '@/models/User';
+import { getJwtSecret } from '@/lib/jwt-secret';
 
-const JWT_SECRET = process.env.NEXTAUTH_SECRET || 'fallback_secret_for_dev';
 const MAX_ATTEMPTS = 5;
 
 const CORS = {
@@ -89,14 +89,14 @@ export async function POST(req: Request) {
     user.resetOtpAttempts = 0;
     await user.save();
 
-    // Issue a short-lived reset token scoped to password_reset only
+    // Issue a short-lived reset token scoped to password_reset only using verified secret
     const resetToken = jwt.sign(
       {
         id: user._id.toString(),
         email: user.email,
         purpose: 'password_reset',
       },
-      JWT_SECRET,
+      getJwtSecret(),
       { expiresIn: '10m' }
     );
 
