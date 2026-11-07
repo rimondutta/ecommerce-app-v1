@@ -74,7 +74,7 @@ export async function POST(req: NextRequest) {
 
     // Dynamic import to optimize serverless cold starts
     const Stripe = (await import('stripe')).default;
-    const stripe = new Stripe(stripeKey, { apiVersion: '2026-07-29.dahlia' });
+    const stripe = new Stripe(stripeKey, { apiVersion: '2026-10-28.endive' });
 
     const idempotencyKey = req.headers.get('idempotency-key') || undefined;
 
