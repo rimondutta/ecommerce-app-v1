@@ -6,10 +6,41 @@ import Product from '@/models/Product';
 import mongoose from 'mongoose';
 import { revalidatePath } from 'next/cache';
 
+interface ReviewItem {
+  _id?: { toString(): string } | string;
+  id?: string;
+  name: string;
+  rating: number;
+  text: string;
+  status?: string;
+  date: string | Date;
+}
+
+interface ProductWithReviews {
+  _id: { toString(): string };
+  title: string;
+  images?: Array<{ url?: string }>;
+  reviews: ReviewItem[];
+}
+
+interface FlattenedReview {
+  _id: string;
+  productId: {
+    _id: unknown;
+    title: string;
+    images?: Array<{ url?: string }>;
+  };
+  userName: string;
+  rating: number;
+  comment: string;
+  status: string;
+  createdAt: string | Date;
+}
+
 export async function GET() {
   try {
     const session = await getServerSession(authOptions);
-    if (!session || !['admin', 'manager'].includes((session.user as any).role)) {
+    if (!session || !['admin', 'manager'].includes(session.user.role)) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -18,14 +49,14 @@ export async function GET() {
     // Fetch all products that have reviews
     const products = await Product.find({ 'reviews.0': { $exists: true } })
       .select('title images reviews')
-      .lean();
+      .lean() as unknown as ProductWithReviews[];
 
     // Flatten reviews and add product context
-    const allReviews: any[] = [];
-    products.forEach((product: any) => {
-      product.reviews.forEach((review: any) => {
+    const allReviews: FlattenedReview[] = [];
+    products.forEach((product: ProductWithReviews) => {
+      product.reviews.forEach((review: ReviewItem) => {
         allReviews.push({
-          _id: review._id || review.id || new mongoose.Types.ObjectId().toString(),
+          _id: review._id?.toString() || review.id || new mongoose.Types.ObjectId().toString(),
           productId: {
             _id: product._id,
             title: product.title,
@@ -44,15 +75,15 @@ export async function GET() {
     allReviews.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
     return NextResponse.json({ reviews: allReviews });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    return NextResponse.json({ error: error instanceof Error ? (error as Error).message : String(error) }, { status: 500 });
   }
 }
 
 export async function PATCH(req: Request) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session || !['admin', 'manager'].includes((session.user as any).role)) {
+    if (!session || !['admin', 'manager'].includes(session.user.role)) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -70,7 +101,7 @@ export async function PATCH(req: Request) {
       return NextResponse.json({ error: 'Product not found' }, { status: 404 });
     }
 
-    const review = product.reviews.id ? product.reviews.id(id) : (product.reviews || []).find((r: any) => r._id?.toString() === id);
+    const review = product.reviews.id ? product.reviews.id(id) : (product.reviews || []).find((r: ReviewItem) => r._id?.toString() === id);
     if (!review) {
       return NextResponse.json({ error: 'Review not found' }, { status: 404 });
     }
@@ -79,10 +110,10 @@ export async function PATCH(req: Request) {
 
     // Recalculate rating from strictly published reviews only
     const publishedReviews = (product.reviews || []).filter(
-      (r: any) => r.status === 'published'
+      (r: ReviewItem) => r.status === 'published'
     );
     const reviewCount = publishedReviews.length;
-    const totalRating = publishedReviews.reduce((sum: number, r: any) => sum + r.rating, 0);
+    const totalRating = publishedReviews.reduce((sum: number, r: ReviewItem) => sum + r.rating, 0);
 
     product.rating = reviewCount > 0 ? Number((totalRating / reviewCount).toFixed(1)) : 0;
     product.reviewCount = reviewCount;
@@ -96,15 +127,15 @@ export async function PATCH(req: Request) {
     }
 
     return NextResponse.json({ success: true });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    return NextResponse.json({ error: error instanceof Error ? (error as Error).message : String(error) }, { status: 500 });
   }
 }
 
 export async function DELETE(req: Request) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session || !['admin', 'manager'].includes((session.user as any).role)) {
+    if (!session || !['admin', 'manager'].includes(session.user.role)) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -127,15 +158,15 @@ export async function DELETE(req: Request) {
     if (product.reviews.pull) {
       product.reviews.pull({ _id: id });
     } else {
-      product.reviews = product.reviews.filter((r: any) => r._id?.toString() !== id);
+      product.reviews = product.reviews.filter((r: ReviewItem) => r._id?.toString() !== id);
     }
 
     // Recalculate average rating using strictly published reviews
     const publishedReviews = (product.reviews || []).filter(
-      (r: any) => r.status === 'published'
+      (r: ReviewItem) => r.status === 'published'
     );
     const reviewCount = publishedReviews.length;
-    const totalRating = publishedReviews.reduce((sum: number, r: any) => sum + r.rating, 0);
+    const totalRating = publishedReviews.reduce((sum: number, r: ReviewItem) => sum + r.rating, 0);
 
     product.rating = reviewCount > 0 ? Number((totalRating / reviewCount).toFixed(1)) : 0;
     product.reviewCount = reviewCount;
@@ -149,7 +180,7 @@ export async function DELETE(req: Request) {
     }
 
     return NextResponse.json({ success: true });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    return NextResponse.json({ error: error instanceof Error ? (error as Error).message : String(error) }, { status: 500 });
   }
 }

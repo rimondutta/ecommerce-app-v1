@@ -7,7 +7,7 @@ import Coupon from "@/models/Coupon";
 // Auth helper — reusable guard for all handlers
 async function requireAdmin() {
   const session = await getServerSession(authOptions);
-  if (!session || !['admin', 'manager'].includes((session.user as any).role)) {
+  if (!session || !['admin', 'manager'].includes(session.user.role)) {
     return null;
   }
   return session;
@@ -22,8 +22,8 @@ export async function GET() {
     await connectToDatabase();
     const coupons = await Coupon.find().sort({ createdAt: -1 }).lean();
     return NextResponse.json(coupons);
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    return NextResponse.json({ error: error instanceof Error ? (error as Error).message : String(error) }, { status: 500 });
   }
 }
 
@@ -53,8 +53,8 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json(coupon, { status: 201 });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    return NextResponse.json({ error: error instanceof Error ? (error as Error).message : String(error) }, { status: 500 });
   }
 }
 
@@ -72,8 +72,8 @@ export async function DELETE(req: NextRequest) {
 
     await Coupon.findByIdAndDelete(id);
     return NextResponse.json({ success: true });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    return NextResponse.json({ error: error instanceof Error ? (error as Error).message : String(error) }, { status: 500 });
   }
 }
 
@@ -93,7 +93,7 @@ export async function PATCH(req: NextRequest) {
     if (!coupon) return NextResponse.json({ error: "Coupon not found" }, { status: 404 });
 
     return NextResponse.json(coupon);
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    return NextResponse.json({ error: error instanceof Error ? (error as Error).message : String(error) }, { status: 500 });
   }
 }

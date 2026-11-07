@@ -21,7 +21,7 @@
  * K: Total (BDT)  L: Status
  */
 
-import { google } from 'googleapis';
+import { sheets as googleSheets, auth } from '@googleapis/sheets';
 
 export interface OrderSheetPayload {
   orderId: string;
@@ -59,7 +59,7 @@ function getAuthClient() {
 
   const credentials = JSON.parse(raw);
 
-  return new google.auth.GoogleAuth({
+  return new auth.GoogleAuth({
     credentials,
     scopes: ['https://www.googleapis.com/auth/spreadsheets'],
   });
@@ -76,8 +76,8 @@ export async function appendOrderToSheet(payload: OrderSheetPayload): Promise<vo
     return;
   }
 
-  const auth = getAuthClient();
-  const sheets = google.sheets({ version: 'v4', auth });
+  const authClient = getAuthClient();
+  const sheets = googleSheets({ version: 'v4', auth: authClient });
 
   // Check if header row exists; if the sheet is empty, prepend it
   const metaRes = await sheets.spreadsheets.values.get({

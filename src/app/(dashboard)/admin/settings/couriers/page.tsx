@@ -51,19 +51,24 @@ export default function CourierSettingsPage() {
   const [expandedCode, setExpandedCode] = useState<string | null>(null)
 
   // ── Fetch ────────────────────────────────────────────────────────────────
-  const fetchCouriers = async () => {
-    try {
-      const res = await fetch("/api/admin/settings/couriers")
-      const data = await res.json()
-      if (res.ok) setCouriers(data.couriers ?? [])
-    } catch {
-      setError("Failed to load couriers")
-    } finally {
-      setLoading(false)
+  useEffect(() => {
+    let ignore = false;
+    async function load() {
+      try {
+        const res = await fetch("/api/admin/settings/couriers");
+        const data = await res.json();
+        if (!ignore && res.ok) setCouriers(data.couriers ?? []);
+      } catch {
+        if (!ignore) setError("Failed to load couriers");
+      } finally {
+        if (!ignore) setLoading(false);
+      }
     }
-  }
-
-  useEffect(() => { fetchCouriers() }, [])
+    load();
+    return () => {
+      ignore = true;
+    };
+  }, []);
 
   // ── Helpers ──────────────────────────────────────────────────────────────
   const notify = (msg: string, isErr = false) => {
@@ -348,7 +353,7 @@ export default function CourierSettingsPage() {
         <div className="text-center py-20 bg-white rounded-2xl border border-dashed border-gray-200">
           <Truck size={42} className="mx-auto text-gray-300 mb-4" />
           <p className="text-gray-500 font-medium">No courier services configured</p>
-          <p className="text-sm text-gray-400 mt-1">Click "Add Courier" to connect your first delivery partner.</p>
+          <p className="text-sm text-gray-400 mt-1">Click &quot;Add Courier&quot; to connect your first delivery partner.</p>
         </div>
       ) : (
         <div className="space-y-3">

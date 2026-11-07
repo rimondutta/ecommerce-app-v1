@@ -10,6 +10,11 @@ import { m, AnimatePresence } from 'framer-motion';
 
 import { AIIcon } from '@/components/ui/AIIcon';
 
+interface ChatToolInvocation {
+  toolCallId: string;
+  args: { query?: string };
+}
+
 export default function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState('');
@@ -120,12 +125,13 @@ export default function Chatbot() {
                 </div>
               )}
 
-              {messages.map((m: any) => {
+              {messages.map((m) => {
                 // Extract text from parts (AI SDK v7 UIMessage format)
+                const mAny = m as unknown as { content?: string; toolInvocations?: ChatToolInvocation[] };
                 const textContent: string =
                   m.parts
-                    ? m.parts.filter(isTextUIPart).map((p: any) => p.text).join('')
-                    : (m.content || '');
+                    ? m.parts.filter(isTextUIPart).map((p) => p.text).join('')
+                    : (mAny.content || '');
                 return (
                   <div
                     key={m.id}
@@ -138,9 +144,9 @@ export default function Chatbot() {
                     )}
 
                     {/* Handle tool calls visually */}
-                    {m.toolInvocations && m.toolInvocations.length > 0 ? (
+                    {mAny.toolInvocations && mAny.toolInvocations.length > 0 ? (
                       <div className="flex flex-col gap-2 w-full">
-                        {m.toolInvocations.map((tool: any) => (
+                        {mAny.toolInvocations.map((tool: ChatToolInvocation) => (
                           <div key={tool.toolCallId} className="bg-slate-200 text-slate-600 text-xs px-3 py-2 rounded-lg inline-flex items-center gap-2 animate-pulse">
                             <Loader2 size={12} className="animate-spin" />
                             Searching catalog for &quot;{tool.args.query}&quot;...

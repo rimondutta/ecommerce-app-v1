@@ -14,11 +14,11 @@ export async function GET() {
       return NextResponse.json({ pixelId: '', enabled: false });
     }
 
-    const { pixelId = '', enabled = false } = (settings as any).facebookPixel ?? {};
+    const { pixelId = '', enabled = false } = (settings as unknown as { facebookPixel?: { pixelId?: string; enabled?: boolean } }).facebookPixel ?? {};
 
     // NEVER expose testEventCode publicly
     return NextResponse.json({ pixelId, enabled });
-  } catch (error: any) {
+  } catch {
     // Fail gracefully — pixel failure must never break the storefront
     return NextResponse.json({ pixelId: '', enabled: false });
   }

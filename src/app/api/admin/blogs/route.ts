@@ -11,7 +11,7 @@ export async function GET() {
       .lean();
 
     return NextResponse.json(posts);
-  } catch (error: any) {
+  } catch {
     return NextResponse.json(
       { error: 'Failed to fetch blog posts' },
       { status: 500 }

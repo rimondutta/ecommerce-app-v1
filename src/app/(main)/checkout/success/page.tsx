@@ -2,7 +2,7 @@
 
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { CheckCircle2, ArrowRight, Package, Truck, Calendar, ShoppingBag, Star } from "lucide-react";
+import { CheckCircle2, Package, Truck, Calendar, Star } from "lucide-react";
 import { Suspense } from "react";
 import { m } from "framer-motion";
 import Button from "@/components/ui/Button";

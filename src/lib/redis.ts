@@ -26,5 +26,5 @@ export const redis: Redis | null = hasRedis
         }
         return fetch(input, init);
       },
-    } as any)
+    } as unknown as ConstructorParameters<typeof Redis>[0])
   : null;

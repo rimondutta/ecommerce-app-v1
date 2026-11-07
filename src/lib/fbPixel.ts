@@ -12,12 +12,12 @@
 
 declare global {
   interface Window {
-    fbq?: ((...args: any[]) => void) & {
-      callMethod?: (...args: any[]) => void;
-      queue?: any[];
+    fbq?: ((...args: unknown[]) => void) & {
+      callMethod?: (...args: unknown[]) => void;
+      queue?: unknown[];
       loaded?: boolean;
       version?: string;
-      push?: (...args: any[]) => void;
+      push?: (...args: unknown[]) => void;
     };
     _fbq?: typeof window.fbq;
   }
@@ -54,7 +54,7 @@ export function trackViewContent(product: {
   _id: string;
   title?: string;
   price?: number;
-  category?: { title?: string };
+  category?: { title?: string; name?: string } | string;
 }) {
   try {
     if (!product?._id) return;
@@ -63,7 +63,9 @@ export function trackViewContent(product: {
         content_ids: [product._id],
         content_type: 'product',
         content_name: product.title ?? '',
-        content_category: product.category?.title ?? '',
+        content_category: typeof product.category === 'string'
+          ? product.category
+          : (product.category?.name ?? product.category?.title ?? ''),
         value: Math.max(0.01, Number(product.price ?? 0)),
         currency: 'BDT',
       });
@@ -159,7 +161,7 @@ export function trackSearch(searchString: string) {
 }
 
 /** AddToWishlist — fired when a customer adds a product to their wishlist. */
-export function trackAddToWishlist(product: { _id: string; title?: string; price?: number; category?: { title?: string } }) {
+export function trackAddToWishlist(product: { _id: string; title?: string; price?: number; category?: { title?: string; name?: string } | string }) {
   try {
     if (!product?._id) return;
     fireWhenReady(() => {
@@ -167,7 +169,9 @@ export function trackAddToWishlist(product: { _id: string; title?: string; price
         content_ids: [product._id],
         content_type: 'product',
         content_name: product.title ?? '',
-        content_category: product.category?.title ?? '',
+        content_category: typeof product.category === 'string'
+          ? product.category
+          : (product.category?.name ?? product.category?.title ?? ''),
         value: Math.max(0.01, Number(product.price ?? 0)),
         currency: 'BDT',
       });

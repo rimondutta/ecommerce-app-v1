@@ -3,7 +3,6 @@
 import React, { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Image from "next/image";
-import Link from "next/link";
 import {
   FaSearch,
   FaBox,
@@ -74,7 +73,7 @@ function TrackOrderContent() {
 
   const [orderIdInput, setOrderIdInput] = useState(initialId);
   const [phoneInput, setPhoneInput] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(Boolean(initialId));
   const [error, setError] = useState<string | null>(null);
   const [orderData, setOrderData] = useState<OrderData | null>(null);
   const [copied, setCopied] = useState(false);
@@ -97,7 +96,7 @@ function TrackOrderContent() {
       } else {
         setOrderData(json.data);
       }
-    } catch (err: any) {
+    } catch {
       setError("Failed to fetch tracking details. Please try again.");
       setOrderData(null);
     } finally {
@@ -106,9 +105,39 @@ function TrackOrderContent() {
   };
 
   useEffect(() => {
-    if (initialId) {
-      fetchTracking(initialId);
+    if (!initialId) return;
+
+    let ignore = false;
+    async function fetchInitial() {
+      try {
+        const url = `/api/orders/track?orderId=${encodeURIComponent(initialId.trim())}`;
+        const res = await fetch(url);
+        const json = await res.json();
+
+        if (!ignore) {
+          if (!res.ok || !json.success) {
+            setError(json.error || "Order not found");
+            setOrderData(null);
+          } else {
+            setOrderData(json.data);
+          }
+        }
+      } catch {
+        if (!ignore) {
+          setError("Failed to fetch tracking details. Please try again.");
+          setOrderData(null);
+        }
+      } finally {
+        if (!ignore) {
+          setLoading(false);
+        }
+      }
     }
+
+    fetchInitial();
+    return () => {
+      ignore = true;
+    };
   }, [initialId]);
 
   const handleSubmit = (e: React.FormEvent) => {

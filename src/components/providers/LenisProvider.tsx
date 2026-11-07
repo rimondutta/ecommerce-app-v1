@@ -19,7 +19,9 @@ export default function LenisProvider({
     }
 
     let rafCallback: ((time: number) => void) | null = null;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let lenisInstance: any = null;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let gsapInstance: any = null;
     let isCleanedUp = false;
 
@@ -58,7 +60,7 @@ export default function LenisProvider({
 
     // Defer initialization to avoid blocking initial hydration and paint
     if ("requestIdleCallback" in window) {
-      (window as any).requestIdleCallback(init);
+      (window as unknown as { requestIdleCallback: (cb: () => void) => void }).requestIdleCallback(init);
     } else {
       setTimeout(init, 200);
     }

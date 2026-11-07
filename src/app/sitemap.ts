@@ -51,7 +51,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       .lean();
 
     // Dynamic product pages
-    const productPages: MetadataRoute.Sitemap = products.map((product: any) => ({
+    const productPages: MetadataRoute.Sitemap = products.map((product: { slug?: string; updatedAt?: string | Date }) => ({
       url: `${baseUrl}/products/${product.slug}`,
       lastModified: product.updatedAt || new Date(),
       changeFrequency: 'weekly' as const,
@@ -59,7 +59,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }));
 
     // Dynamic blog pages
-    const blogPages: MetadataRoute.Sitemap = blogs.map((blog: any) => ({
+    const blogPages: MetadataRoute.Sitemap = blogs.map((blog: { slug?: string; updatedAt?: string | Date }) => ({
       url: `${baseUrl}/blogs/${blog.slug}`,
       lastModified: blog.updatedAt || new Date(),
       changeFrequency: 'monthly' as const,
@@ -67,7 +67,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }));
 
     // Category filter pages - ensuring canonical-style URLs
-    const categoryPages: MetadataRoute.Sitemap = categories.map((cat: any) => ({
+    const categoryPages: MetadataRoute.Sitemap = categories.map((cat: { slug?: string; updatedAt?: string | Date }) => ({
       url: `${baseUrl}/products?category=${cat.slug}`,
       lastModified: cat.updatedAt || new Date(),
       changeFrequency: 'weekly' as const,

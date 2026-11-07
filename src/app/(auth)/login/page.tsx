@@ -34,7 +34,7 @@ function LoginForm() {
       } else {
         router.push(callbackUrl);
       }
-    } catch (err) {
+    } catch {
       setError("An unexpected error occurred. Please try again.");
     } finally {
       setLoading(false);
@@ -45,7 +45,7 @@ function LoginForm() {
     setGoogleLoading(true);
     try {
       await signIn("google", { callbackUrl });
-    } catch (err) {
+    } catch {
       setError("Google sign-in failed. Please try again.");
       setGoogleLoading(false);
     }
@@ -141,7 +141,7 @@ function LoginForm() {
 
         <div className="mt-8 text-center">
           <p className="text-sm text-gray-600">
-            Don't have an account?{" "}
+            Don&apos;t have an account?{" "}
             <Link href="/register" className="font-medium text-gray-900 hover:underline">
               Create account
             </Link>

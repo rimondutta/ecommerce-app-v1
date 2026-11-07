@@ -6,6 +6,15 @@ import Image from "next/image";
 import { Search, X, Loader2, ArrowRight } from "lucide-react";
 import { trackSearch } from "@/lib/fbPixel";
 
+interface SearchProduct {
+  _id: string;
+  title: string;
+  slug?: string;
+  price?: number;
+  images?: Array<{ url?: string }>;
+  image?: string;
+}
+
 interface SearchDrawerProps {
   isOpen: boolean;
   onClose: () => void;
@@ -13,7 +22,7 @@ interface SearchDrawerProps {
 
 export default function SearchDrawer({ isOpen, onClose }: SearchDrawerProps) {
   const [query, setQuery] = useState("");
-  const [results, setResults] = useState<any[]>([]);
+  const [results, setResults] = useState<SearchProduct[]>([]);
   const [loading, setLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -27,12 +36,10 @@ export default function SearchDrawer({ isOpen, onClose }: SearchDrawerProps) {
   // Fetch search results with debounce
   useEffect(() => {
     if (!query.trim()) {
-      setResults([]);
-      setLoading(false);
       return;
     }
-    setLoading(true);
     const timer = setTimeout(() => {
+      setLoading(true);
       fetch(`/api/store/products?search=${encodeURIComponent(query)}`)
         .then((res) => res.json())
         .then((d) => {
@@ -74,7 +81,14 @@ export default function SearchDrawer({ isOpen, onClose }: SearchDrawerProps) {
             type="text"
             placeholder="Search products..."
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            onChange={(e) => {
+              const val = e.target.value;
+              setQuery(val);
+              if (!val.trim()) {
+                setResults([]);
+                setLoading(false);
+              }
+            }}
             className="flex-1 bg-transparent border-none outline-none text-base placeholder:text-gray-400"
           />
           {loading && <Loader2 className="w-5 h-5 animate-spin text-gray-400" />}
@@ -94,7 +108,7 @@ export default function SearchDrawer({ isOpen, onClose }: SearchDrawerProps) {
             </div>
           ) : results.length === 0 && !loading ? (
             <div className="text-center py-12 text-gray-500 text-sm">
-              No products found for "{query}"
+              No products found for &quot;{query}&quot;
             </div>
           ) : (
             <div className="space-y-3">

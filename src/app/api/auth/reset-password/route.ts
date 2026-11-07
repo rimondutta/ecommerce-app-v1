@@ -39,9 +39,17 @@ export async function POST(req: Request) {
     }
 
     // Verify JWT and check purpose using verified secret
-    let payload: any;
+    type ResetJwtPayload = import('jsonwebtoken').JwtPayload & {
+      purpose?: string;
+      id?: string;
+    };
+
+    let payload: ResetJwtPayload | null = null;
     try {
-      payload = jwt.verify(resetToken, getJwtSecret());
+      const decoded = jwt.verify(resetToken, getJwtSecret());
+      if (typeof decoded === 'object' && decoded !== null) {
+        payload = decoded as ResetJwtPayload;
+      }
     } catch {
       return NextResponse.json(
         { success: false, error: 'Reset link has expired or is invalid. Please request a new one.' },
@@ -49,7 +57,7 @@ export async function POST(req: Request) {
       );
     }
 
-    if (payload.purpose !== 'password_reset') {
+    if (!payload || payload.purpose !== 'password_reset' || !payload.id) {
       return NextResponse.json(
         { success: false, error: 'Invalid token.' },
         { status: 401, headers: CORS }

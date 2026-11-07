@@ -37,7 +37,7 @@ export async function GET() {
         },
       }
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('[GET /api/categories]', error);
     return NextResponse.json(
       { success: false, error: 'Internal Server Error' },

@@ -52,10 +52,10 @@ export async function POST(
 
     // SECURITY: Recalculate average rating using strictly 'published' reviews only
     const publishedReviews = (product.reviews || []).filter(
-      (review: any) => review.status === 'published'
+      (review: { status?: string }) => review.status === 'published'
     );
     const reviewCount = publishedReviews.length;
-    const totalRating = publishedReviews.reduce((sum: number, review: any) => sum + review.rating, 0);
+    const totalRating = publishedReviews.reduce((sum: number, review: { rating: number }) => sum + review.rating, 0);
 
     product.rating = reviewCount > 0 ? Number((totalRating / reviewCount).toFixed(1)) : 0;
     product.reviewCount = reviewCount;
@@ -73,7 +73,7 @@ export async function POST(
       success: true,
       message: 'Review submitted successfully and is pending approval.',
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error submitting review:', error);
     return NextResponse.json({ error: 'Failed to submit review' }, { status: 500 });
   }

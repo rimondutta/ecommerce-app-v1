@@ -34,8 +34,8 @@ export async function GET(
       .limit(50);
 
     return NextResponse.json({ reviews });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    return NextResponse.json({ error: error instanceof Error ? (error as Error).message : String(error) }, { status: 500 });
   }
 }
 
@@ -72,7 +72,7 @@ export async function POST(
     // Check if user already reviewed this product
     const existingReview = await Review.findOne({ 
       productId: product._id, 
-      userId: (session.user as any).id 
+      userId: session.user.id 
     });
 
     if (existingReview) {
@@ -81,7 +81,7 @@ export async function POST(
 
     const review = await Review.create({
       productId: product._id,
-      userId: (session.user as any).id,
+      userId: session.user.id,
       userName: session.user.name || 'Anonymous',
       rating,
       comment,
@@ -89,7 +89,7 @@ export async function POST(
     });
 
     return NextResponse.json({ review }, { status: 201 });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    return NextResponse.json({ error: error instanceof Error ? (error as Error).message : String(error) }, { status: 500 });
   }
 }

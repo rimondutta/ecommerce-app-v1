@@ -22,7 +22,7 @@ export async function GET() {
       return NextResponse.json(defaults);
     }
 
-    const shipping = (settings as any).shipping ?? {};
+    const shipping = (settings as unknown as { shipping?: Record<string, unknown> }).shipping ?? {};
 
     return NextResponse.json({
       insideDhakaRate: shipping.insideDhakaRate ?? defaults.insideDhakaRate,

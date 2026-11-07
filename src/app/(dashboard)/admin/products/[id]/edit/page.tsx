@@ -6,14 +6,24 @@ import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
 import ProductForm from "@/components/admin/ProductForm"
 
+interface CategoryOption {
+  _id: string;
+  name: string;
+  slug?: string;
+}
+
+interface ProductData {
+  [key: string]: unknown;
+}
+
 export default function EditProductPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter()
   const { id } = use(params)
   
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
-  const [product, setProduct] = useState<any>(null)
-  const [categories, setCategories] = useState<any[]>([])
+  const [product, setProduct] = useState<ProductData | null>(null)
+  const [categories, setCategories] = useState<CategoryOption[]>([])
 
   useEffect(() => {
     const fetchData = async () => {
@@ -38,7 +48,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
     fetchData()
   }, [id])
 
-  const handleSubmit = async (formData: any) => {
+  const handleSubmit = async (formData: Record<string, unknown>) => {
     setSaving(true)
     try {
       const res = await fetch(`/api/admin/products/${id}`, {
@@ -54,7 +64,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
 
       router.push("/admin/products")
       router.refresh()
-    } catch (err: any) {
+    } catch (err: unknown) {
       setSaving(false)
       throw err
     }

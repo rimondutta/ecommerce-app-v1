@@ -4,6 +4,17 @@ import BlogPost from '@/models/BlogPost';
 import Image from 'next/image';
 import Link from 'next/link';
 
+interface BlogPostData {
+  _id: { toString(): string } | string;
+  title: string;
+  slug: string;
+  category?: string;
+  excerpt?: string;
+  publishedAt?: string | Date;
+  createdAt?: string | Date;
+  featuredImage?: { url: string; alt?: string };
+}
+
 async function getBlogs() {
   try {
     await dbConnect();
@@ -30,11 +41,11 @@ const BlogListingPage = async ({
   searchParams: Promise<{ category?: string }>;
 }) => {
   const { category: currentCategory = "All" } = await searchParams;
-  const posts: any = await getBlogs();
+  const posts = (await getBlogs()) as BlogPostData[];
   
   // Extract unique categories from posts and sort them alphabetically
   const uniqueCategories = Array.from(
-    new Set(posts.map((p: any) => p.category).filter(Boolean))
+    new Set(posts.map((p) => p.category).filter(Boolean))
   ).sort() as string[];
   
   const displayCategories = ["All", ...uniqueCategories];
@@ -42,7 +53,7 @@ const BlogListingPage = async ({
   // Filter posts based on selected category
   const filteredPosts = currentCategory === "All" 
     ? posts 
-    : posts.filter((p: any) => p.category === currentCategory);
+    : posts.filter((p) => p.category === currentCategory);
 
   return (
     <div className="w-full flex-1 bg-[#FAFAFA] min-h-screen pt-20">
@@ -57,7 +68,7 @@ const BlogListingPage = async ({
         </p>
         
         <div className="flex flex-wrap items-center justify-center gap-6 md:gap-10">
-          {displayCategories.map((cat, idx) => {
+          {displayCategories.map((cat) => {
             const isActive = currentCategory === cat;
             return (
               <Link
@@ -76,7 +87,7 @@ const BlogListingPage = async ({
 
       {/* ── Blog Post Grid ── */}
       <div className="px-4 sm:px-8 lg:px-[5vw] max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 gap-y-16 pb-32">
-        {filteredPosts.map((post: any) => (
+        {filteredPosts.map((post) => (
           <div key={post._id.toString()} className="group cursor-pointer flex flex-col gap-6">
             {/* Thumbnail */}
             <div className="w-full aspect-[3/4] relative overflow-hidden bg-zinc-200">
@@ -99,7 +110,7 @@ const BlogListingPage = async ({
                 <span>{post.category || "Editorial"}</span>
                 <span className="w-1 h-1 rounded-full bg-zinc-300" />
                 <span>
-                  {new Date(post.publishedAt || post.createdAt).toLocaleDateString('en-US', {
+                  {new Date(post.publishedAt || post.createdAt || 0).toLocaleDateString('en-US', {
                     month: 'short',
                     day: 'numeric',
                     year: 'numeric'

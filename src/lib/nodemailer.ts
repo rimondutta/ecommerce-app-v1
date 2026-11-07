@@ -170,7 +170,13 @@ export async function sendOrderConfirmationEmail(order: OrderData) {
   }
 }
 
-export async function sendOrderStatusUpdateEmail(order: any, statusType: 'payment' | 'fulfillment', newStatus: string) {
+export interface OrderStatusUpdate {
+  _id: { toString(): string };
+  customerName?: string;
+  customerEmail: string;
+}
+
+export async function sendOrderStatusUpdateEmail(order: OrderStatusUpdate, statusType: 'payment' | 'fulfillment', newStatus: string) {
   const statusLabels: Record<string, string> = {
     paid: 'Payment Received',
     processing: 'Order Confirmed & Processing',

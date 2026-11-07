@@ -2,23 +2,21 @@
 
 import React from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { useCart } from "@/components/providers/CartProvider";
 import { useSearch } from "@/components/providers/SearchProvider";
-import { cn } from "@/lib/utils";
 import { useUIStore } from "@/store/uiStore";
 
 export default function TopNavbar() {
   const { openCart, count: cartCount } = useCart();
   const { openSearch } = useSearch();
   const { openMobileMenu } = useUIStore();
-  const pathname = usePathname();
 
   // Prevent hydration mismatch by deferring the cart count render
-  const [mounted, setMounted] = React.useState(false);
-  React.useEffect(() => {
-    setMounted(true);
-  }, []);
+  const mounted = React.useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  );
 
   // Keyboard shortcut for desktop search (Cmd+K / Ctrl+K)
   React.useEffect(() => {

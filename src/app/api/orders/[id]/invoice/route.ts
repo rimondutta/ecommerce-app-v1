@@ -35,7 +35,7 @@ export async function GET(
 
     const order = await Order.findById(id)
       .select('+guestAccessToken +guestAccessTokenHash')
-      .lean() as any;
+      .lean();
 
     if (!order) {
       return NextResponse.json({ error: 'Order not found' }, { status: 404 });
@@ -43,7 +43,7 @@ export async function GET(
 
     // ── Authorization check ──
     const session = (await getBearerSession(req)) || (await getServerSession(authOptions));
-    const userRole = (session?.user as any)?.role;
+    const userRole = (session?.user)?.role;
     const isAdmin = userRole === 'admin' || userRole === 'manager';
 
     let isAuthorized = false;
@@ -89,14 +89,14 @@ export async function GET(
     // ── Generate the invoice PDF buffer on the fly ──
     const { buffer, filename } = await getInvoiceBufferForOrder(id);
 
-    return new NextResponse(buffer as any, {
+    return new NextResponse(new Uint8Array(buffer), {
       headers: {
         'Content-Type': 'application/pdf',
         'Content-Disposition': `attachment; filename="${filename}"`,
         'Cache-Control': 'private, no-store, must-revalidate',
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('[invoice] GET error:', error);
     return NextResponse.json(
       { error: 'Failed to retrieve invoice' },

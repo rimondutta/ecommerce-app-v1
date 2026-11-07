@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import Link from "next/link";
 import connectToDatabase from "@/lib/db";
 import Order from "@/models/Order";
 import PrintButton from "./PrintButton";
@@ -6,6 +7,50 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import crypto from "crypto";
 import mongoose from "mongoose";
+
+interface ShippingAddress {
+  fullName?: string;
+  phone?: string;
+  address?: string;
+  addressLine1?: string;
+  city?: string;
+  postcode?: string;
+  postalCode?: string;
+  country?: string;
+  district?: string;
+  thana?: string;
+}
+
+interface OrderItem {
+  title?: string;
+  quantity?: number;
+  price?: number;
+  image?: string;
+  color?: string;
+  size?: string;
+  variantOptions?: Record<string, string>;
+}
+
+interface OrderDoc {
+  _id: { toString(): string };
+  invoiceNumber?: string;
+  createdAt: string | Date;
+  totalAmount: number;
+  subtotal?: number;
+  shippingCost?: number;
+  discountAmount?: number;
+  couponCode?: string;
+  paymentMethod?: string;
+  paymentStatus?: string;
+  customerEmail?: string;
+  customerName?: string;
+  note?: string;
+  fulfillmentStatus?: string;
+  items: OrderItem[];
+  shippingAddress?: ShippingAddress;
+  guestAccessToken?: string;
+  guestAccessTokenHash?: string;
+}
 
 export default async function InvoicePage({
   params,
@@ -23,7 +68,7 @@ export default async function InvoicePage({
 
   await connectToDatabase();
 
-  let order: any;
+  let order: OrderDoc | null;
   try {
     order = await Order.findById(id)
       .select("+guestAccessToken +guestAccessTokenHash")
@@ -35,7 +80,7 @@ export default async function InvoicePage({
 
   // ── Strict Invoice Authorization ──
   const session = await getServerSession(authOptions);
-  const userRole = (session?.user as any)?.role;
+  const userRole = session?.user?.role;
   const isAdmin = userRole === "admin" || userRole === "manager";
 
   let isAuthorized = false;
@@ -85,8 +130,8 @@ export default async function InvoicePage({
   const subtotal =
     typeof order.subtotal === "number"
       ? order.subtotal
-      : order.totalAmount - ((order.shippingCost as number) || 0) + ((order.discountAmount as number) || 0);
-  const addr = order.shippingAddress as any;
+      : order.totalAmount - (order.shippingCost || 0) + (order.discountAmount || 0);
+  const addr = order.shippingAddress;
 
   const paymentLabel =
     order.paymentMethod === "cod"
@@ -214,7 +259,7 @@ export default async function InvoicePage({
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {(order.items as any[]).map((item: any, i: number) => {
+                {(order.items ?? []).map((item, i) => {
                   const variants = item.variantOptions
                     ? Object.values(item.variantOptions).join(" · ")
                     : [
@@ -236,10 +281,10 @@ export default async function InvoicePage({
                         {item.quantity}
                       </td>
                       <td className="py-5 px-4 text-right text-sm text-slate-600 font-mono">
-                        ৳{item.price.toLocaleString()}
+                        ৳{(item.price ?? 0).toLocaleString()}
                       </td>
                       <td className="py-5 px-4 text-right text-sm font-bold text-slate-900 font-mono">
-                        ৳{(item.price * item.quantity).toLocaleString()}
+                        ৳{((item.price ?? 0) * (item.quantity ?? 1)).toLocaleString()}
                       </td>
                     </tr>
                   );
@@ -293,18 +338,18 @@ export default async function InvoicePage({
                     ৳{subtotal.toLocaleString()}
                   </span>
                 </div>
-                {order.discountAmount > 0 && (
+                {(order.discountAmount ?? 0) > 0 && (
                   <div className="flex justify-between items-center text-sm text-emerald-600">
                     <span>Discount {order.couponCode ? `(${order.couponCode})` : ""}</span>
                     <span className="font-semibold font-mono">
-                      -৳{order.discountAmount.toLocaleString()}
+                      -৳{(order.discountAmount ?? 0).toLocaleString()}
                     </span>
                   </div>
                 )}
                 <div className="flex justify-between items-center text-sm">
                   <span className="text-slate-500">Shipping</span>
                   <span className="font-semibold text-slate-700 font-mono">
-                    ৳{((order.shippingCost as number) || 0).toLocaleString()}
+                    ৳{(order.shippingCost || 0).toLocaleString()}
                   </span>
                 </div>
                 <div className="pt-4 border-t-2 border-slate-900 flex justify-between items-center">
@@ -328,12 +373,12 @@ export default async function InvoicePage({
       </div>
 
       <div className="max-w-4xl mx-auto mt-8 text-center print:hidden">
-        <a
+        <Link
           href="/products"
           className="text-sm font-semibold text-slate-500 hover:text-slate-900 transition-colors"
         >
           ← Continue Shopping
-        </a>
+        </Link>
       </div>
     </div>
   );

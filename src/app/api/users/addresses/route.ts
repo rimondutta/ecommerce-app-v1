@@ -24,7 +24,7 @@ export async function GET(req: NextRequest) {
     }
 
     await connectToDatabase();
-    const user = await User.findById(session.user.id).select('addresses').lean() as any;
+    const user = (await User.findById(session.user.id).select('addresses').lean()) as { addresses?: unknown[] } | null;
     if (!user) {
       return NextResponse.json({ success: false, error: 'User not found' }, { status: 404, headers: CORS_HEADERS });
     }
@@ -33,7 +33,7 @@ export async function GET(req: NextRequest) {
       { success: true, data: user.addresses ?? [], addresses: user.addresses ?? [] },
       { headers: CORS_HEADERS }
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('[GET /api/users/addresses]', error);
     return NextResponse.json({ success: false, error: 'Internal Server Error' }, { status: 500, headers: CORS_HEADERS });
   }
@@ -67,17 +67,17 @@ export async function POST(req: NextRequest) {
       isDefault: isDefault ?? false,
     };
 
-    const user = await User.findByIdAndUpdate(
+    const user = (await User.findByIdAndUpdate(
       session.user.id,
       { $push: { addresses: newAddress } },
       { new: true }
-    ).select('addresses').lean() as any;
+    ).select('addresses').lean()) as { addresses?: unknown[] } | null;
 
     return NextResponse.json(
       { success: true, data: user?.addresses ?? [], addresses: user?.addresses ?? [] },
       { status: 201, headers: CORS_HEADERS }
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('[POST /api/users/addresses]', error);
     return NextResponse.json({ success: false, error: 'Internal Server Error' }, { status: 500, headers: CORS_HEADERS });
   }

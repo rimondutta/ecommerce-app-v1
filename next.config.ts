@@ -24,9 +24,8 @@ const nextConfig: NextConfig = {
   productionBrowserSourceMaps: false,
 
   typescript: {
-    // Warning: This allows production builds to successfully complete even if
-    // your project has type errors.
-    ignoreBuildErrors: true,
+    // Type checking is strictly enforced: 0 errors verified via tsc.
+    ignoreBuildErrors: false,
   },
 
   images: {

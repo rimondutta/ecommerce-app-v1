@@ -6,10 +6,66 @@ import Link from "next/link"
 import Image from "next/image"
 import { ArrowLeft, Package, CreditCard, Truck, User, MapPin, Mail, Phone, Calendar, Trash2, Download, RefreshCw, Link2, Save, Clock } from "lucide-react"
 
+interface OrderItem {
+  title: string;
+  image?: string;
+  color?: string;
+  size?: string;
+  price: number;
+  quantity: number;
+  variantOptions?: Record<string, string>;
+}
+
+interface TrackingEvent {
+  title?: string;
+  status?: string;
+  description?: string;
+  location?: string;
+  timestamp: string;
+}
+
+interface OrderDetail {
+  _id: string;
+  orderNumber?: string;
+  invoiceNumber?: string;
+  createdAt: string;
+  fulfillmentStatus: string;
+  paymentStatus: string;
+  paymentMethod?: string;
+  totalAmount: number;
+  subtotal?: number;
+  shippingCost?: number;
+  discount?: number;
+  customerName?: string;
+  customerEmail?: string;
+  phone?: string;
+  shippingAddress?: {
+    name?: string;
+    phone?: string;
+    addressLine1?: string;
+    addressLine2?: string;
+    city?: string;
+    postalCode?: string;
+    postcode?: string;
+    country?: string;
+  };
+  courier?: {
+    name?: string;
+    trackingId?: string;
+    trackingUrl?: string;
+  };
+  courierStatus?: string;
+  estimatedDeliveryDate?: string;
+  trackingTimeline?: TrackingEvent[];
+  items?: OrderItem[];
+  invoicePdfUrl?: string;
+  notes?: string;
+}
+
 export default function AdminOrderDetailsPage() {
   const params = useParams()
   const router = useRouter()
-  const [order, setOrder] = useState<any>(null)
+  const [order, setOrder] = useState<OrderDetail | null>(null)
   const [loading, setLoading] = useState(true)
   const [updating, setUpdating] = useState(false)
   const [regenerating, setRegenerating] = useState(false)
@@ -25,7 +81,18 @@ export default function AdminOrderDetailsPage() {
     try {
       const res = await fetch(`/api/admin/orders/${params.id}`)
       const data = await res.json()
-      if (data.order) setOrder(data.order)
+      if (data.order) {
+        setOrder(data.order)
+        setCourierForm(prev => ({
+          ...prev,
+          courierName: data.order.courier?.name || '',
+          trackingId: data.order.courier?.trackingId || '',
+          courierStatus: data.order.courierStatus || '',
+          estimatedDeliveryDate: data.order.estimatedDeliveryDate
+            ? new Date(data.order.estimatedDeliveryDate).toISOString().slice(0, 10)
+            : '',
+        }))
+      }
     } catch (err) {
       console.error(err)
     } finally {
@@ -34,30 +101,45 @@ export default function AdminOrderDetailsPage() {
   }
 
   useEffect(() => {
-    if (params.id) {
-      fetchOrder()
+    let ignore = false;
+    async function load() {
+      if (params.id) {
+        try {
+          const res = await fetch(`/api/admin/orders/${params.id}`);
+          const data = await res.json();
+          if (!ignore && data.order) {
+            setOrder(data.order);
+            setCourierForm(prev => ({
+              ...prev,
+              courierName: data.order.courier?.name || '',
+              trackingId: data.order.courier?.trackingId || '',
+              courierStatus: data.order.courierStatus || '',
+              estimatedDeliveryDate: data.order.estimatedDeliveryDate
+                ? new Date(data.order.estimatedDeliveryDate).toISOString().slice(0, 10)
+                : '',
+            }));
+          }
+        } catch (err) {
+          console.error(err);
+        } finally {
+          if (!ignore) setLoading(false);
+        }
+      }
+      try {
+        const r = await fetch('/api/admin/settings/couriers');
+        const d = await r.json();
+        if (!ignore) {
+          setConfiguredCouriers((d.couriers ?? []).filter((c: { enabled?: boolean }) => c.enabled));
+        }
+      } catch {
+        // ignore
+      }
     }
-    // Load configured couriers for picker
-    fetch('/api/admin/settings/couriers')
-      .then(r => r.json())
-      .then(d => setConfiguredCouriers((d.couriers ?? []).filter((c:any) => c.enabled)))
-      .catch(() => {})
-  }, [params.id])
-
-  // Sync courier form when order loads
-  useEffect(() => {
-    if (order) {
-      setCourierForm(prev => ({
-        ...prev,
-        courierName: order.courier?.name || '',
-        trackingId: order.courier?.trackingId || '',
-        courierStatus: order.courierStatus || '',
-        estimatedDeliveryDate: order.estimatedDeliveryDate
-          ? new Date(order.estimatedDeliveryDate).toISOString().slice(0,10)
-          : '',
-      }))
-    }
-  }, [order?._id])
+    load();
+    return () => {
+      ignore = true;
+    };
+  }, [params.id]);
 
   const updateStatus = async (type: 'fulfillment' | 'payment', status: string) => {
     setUpdating(true)
@@ -88,7 +170,7 @@ export default function AdminOrderDetailsPage() {
   const saveCourierInfo = async () => {
     setSavingCourier(true)
     try {
-      const payload: any = {}
+      const payload: Record<string, string> = {}
       if (courierForm.courierName)          payload.courierName          = courierForm.courierName
       if (courierForm.trackingId)           payload.trackingId           = courierForm.trackingId
       if (courierForm.courierStatus)        payload.courierStatus        = courierForm.courierStatus
@@ -420,11 +502,11 @@ export default function AdminOrderDetailsPage() {
             </div>
 
             {/* Timeline history */}
-            {order.trackingTimeline?.length > 0 && (
+            {(order.trackingTimeline?.length ?? 0) > 0 && (
               <div className="mt-2">
                 <p className="text-xs font-medium text-gray-500 mb-2 uppercase tracking-wider">Timeline History</p>
                 <div className="space-y-2">
-                  {[...order.trackingTimeline].reverse().map((t: any, i: number) => (
+                  {[...(order.trackingTimeline || [])].reverse().map((t: TrackingEvent, i: number) => (
                     <div key={i} className="flex items-start gap-3 text-xs">
                       <div className="w-2 h-2 rounded-full bg-indigo-400 mt-1.5 flex-shrink-0" />
                       <div>
@@ -447,7 +529,7 @@ export default function AdminOrderDetailsPage() {
               <h2 className="text-lg font-semibold text-gray-900">Items Ordered</h2>
             </div>
             <div className="divide-y divide-gray-100">
-              {order.items?.map((item: any, i: number) => (
+              {order.items?.map((item: OrderItem, i: number) => (
                 <div key={i} className="p-6 flex items-center gap-4">
                   <div className="w-16 h-16 bg-gray-50 rounded-lg border border-gray-200 relative overflow-hidden flex-shrink-0">
                     <Image src={item.image || "/placeholder.jpg"} alt={item.title} fill className="object-cover" sizes="64px" />

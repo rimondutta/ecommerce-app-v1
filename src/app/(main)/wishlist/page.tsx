@@ -8,7 +8,7 @@ import { Loader2, Heart } from "lucide-react";
 
 export default function WishlistPage() {
   const { items, count } = useWishlist();
-  const [products, setProducts] = useState<any[]>([]);
+  const [products, setProducts] = useState<React.ComponentProps<typeof ProductGridNike>['products']>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -70,7 +70,7 @@ export default function WishlistPage() {
               Your wishlist is empty
             </h2>
             <p className="text-gray-500 font-sans max-w-md mx-auto mb-8">
-              Looks like you haven't added any toys to your wishlist yet. Explore our collection and find something special!
+              Looks like you haven&apos;t added any toys to your wishlist yet. Explore our collection and find something special!
             </p>
             <Link
               href="/products"

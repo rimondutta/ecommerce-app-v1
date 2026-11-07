@@ -18,6 +18,16 @@ interface Product {
   badge?: string; ageRange?: string; rating?: number; reviewCount?: number;
 }
 interface Category { name: string; slug: string; image: string; }
+interface BlogPreview {
+  _id: string | { toString(): string };
+  title: string;
+  slug: string;
+  category?: string;
+  excerpt?: string;
+  publishedAt?: string | Date;
+  createdAt?: string | Date;
+  featuredImage?: { url?: string; alt?: string };
+}
 
 export default function Homepage({
   initialTrendingProducts = [],
@@ -26,11 +36,11 @@ export default function Homepage({
 }: {
   initialTrendingProducts?: Product[];
   initialCategories?: Category[];
-  initialBlogs?: any[];
+  initialBlogs?: BlogPreview[];
 }) {
-  const [trendingProducts] = useState<any[]>(initialTrendingProducts);
+  const [trendingProducts] = useState(initialTrendingProducts);
   const [categories] = useState<Category[]>(initialCategories);
-  const [blogs] = useState<any[]>(initialBlogs);
+  const [blogs] = useState<BlogPreview[]>(initialBlogs);
   const heroRef = useRef<HTMLDivElement>(null);
 
   // GSAP hero entrance — enhances visibility, does NOT gate it
@@ -280,7 +290,7 @@ export default function Homepage({
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {blogs.map((post) => (
-              <AnimatedReveal key={post._id} className="group cursor-pointer flex flex-col gap-5">
+              <AnimatedReveal key={String(post._id)} className="group cursor-pointer flex flex-col gap-5">
                 <div className="w-full aspect-[4/3] relative overflow-hidden bg-zinc-200">
                   <Link href={`/blogs/${post.slug}`} className="block w-full h-full">
                     {post.featuredImage?.url ? (
@@ -300,7 +310,7 @@ export default function Homepage({
                     <span>{post.category || 'Editorial'}</span>
                     <span className="w-1 h-1 rounded-full bg-zinc-300" />
                     <span>
-                      {new Date(post.publishedAt || post.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                      {new Date(post.publishedAt || post.createdAt || 0).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                     </span>
                   </div>
                   <Link href={`/blogs/${post.slug}`}>

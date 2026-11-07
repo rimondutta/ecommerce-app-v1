@@ -75,8 +75,8 @@ export const authOptions: NextAuthOptions = {
             { upsert: true, new: true }
           );
           // Attach DB fields so jwt callback can access them
-          (user as any).id = dbUser._id.toString();
-          (user as any).role = dbUser.role;
+          user.id = dbUser._id.toString();
+          user.role = dbUser.role;
           return true;
         } catch (error) {
           console.error('[NextAuth] Google signIn error:', error);
@@ -87,20 +87,20 @@ export const authOptions: NextAuthOptions = {
     },
     async jwt({ token, user }) {
       if (user) {
-        token.role = (user as any).role;
+        token.role = user.role;
         token.id = user.id;
-        if ((user as any).image) {
-          token.image = (user as any).image;
+        if (user.image) {
+          token.image = user.image;
         }
       }
       return token;
     },
     async session({ session, token }) {
       if (token) {
-        (session.user as any).id = token.id;
-        (session.user as any).role = token.role;
+        session.user.id = token.id ?? '';
+        session.user.role = token.role ?? 'customer';
         if (token.image) {
-          (session.user as any).image = token.image;
+          session.user.image = token.image;
         }
       }
       return session;

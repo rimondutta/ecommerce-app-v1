@@ -10,12 +10,6 @@ interface ShippingConfig {
   freeShippingZone: "all" | "inside_dhaka" | "outside_dhaka";
 }
 
-const ZONE_OPTIONS = [
-  { value: "all", label: "All zones (Inside & Outside Dhaka)" },
-  { value: "inside_dhaka", label: "Inside Dhaka only" },
-  { value: "outside_dhaka", label: "Outside Dhaka only" },
-];
-
 export default function ShippingSettingsPage() {
   const [config, setConfig] = useState<ShippingConfig>({
     insideDhakaRate: 120,
@@ -57,8 +51,8 @@ export default function ShippingSettingsPage() {
       if (!res.ok) throw new Error(data.error || "Save failed");
       if (data.shipping) setConfig(data.shipping);
       setStatus({ type: "success", message: "Shipping settings saved!" });
-    } catch (err: any) {
-      setStatus({ type: "error", message: err.message || "Failed to save." });
+    } catch (err: unknown) {
+      setStatus({ type: "error", message: err instanceof Error ? err.message : "Failed to save." });
     } finally {
       setSaving(false);
       setTimeout(() => setStatus(null), 4000);

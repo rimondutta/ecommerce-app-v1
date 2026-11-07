@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/db';
 import Product from '@/models/Product';
-import Category from '@/models/Category';
+import type { PipelineStage } from 'mongoose';
 
 // This handles fetching published products for the storefront - REBUILD TRIGGER
 export async function GET(req: Request) {
@@ -37,7 +37,7 @@ export async function GET(req: Request) {
 
       // ── Main path: filter by category slug and/or search ──
       if (categoryQuery && !searchQuery) {
-        const pipeline: any[] = [
+        const pipeline: PipelineStage[] = [
           {
             $lookup: {
               from: 'categories',
@@ -46,7 +46,7 @@ export async function GET(req: Request) {
               as: 'category',
             },
           },
-          { $unwind: { path: '$category', preserveNullAndEmpty: true } },
+          { $unwind: { path: '$category', preserveNullAndEmptyArrays: true } },
           {
             $match: {
               isPublished: true,
@@ -68,7 +68,7 @@ export async function GET(req: Request) {
       }
 
       // ── Search path ──
-      let query: any = { isPublished: true };
+      const query: Record<string, unknown> = { isPublished: true };
       if (searchQuery) {
         const escapedSearch = searchQuery.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
         query.$or = [
@@ -93,7 +93,7 @@ export async function GET(req: Request) {
         },
       }
     );
-  } catch (error: any) {
+  } catch {
     // Security: Don't leak raw error stack traces to the client in production
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }

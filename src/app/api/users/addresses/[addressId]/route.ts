@@ -28,7 +28,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ addr
 
     await connectToDatabase();
 
-    const updateFields: Record<string, any> = {};
+    const updateFields: Record<string, unknown> = {};
     for (const [key, val] of Object.entries(body)) {
       updateFields[`addresses.$.${key}`] = val;
     }
@@ -37,7 +37,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ addr
       { _id: session.user.id, 'addresses._id': addressId },
       { $set: updateFields },
       { new: true }
-    ).select('addresses').lean() as any;
+    ).select('addresses').lean();
 
     if (!user) {
       return NextResponse.json({ success: false, error: 'Address not found' }, { status: 404, headers: CORS_HEADERS });
@@ -47,7 +47,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ addr
       { success: true, data: user.addresses, addresses: user.addresses },
       { headers: CORS_HEADERS }
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('[PUT /api/users/addresses/[id]]', error);
     return NextResponse.json({ success: false, error: 'Internal Server Error' }, { status: 500, headers: CORS_HEADERS });
   }
@@ -67,7 +67,7 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ a
       session.user.id,
       { $pull: { addresses: { _id: addressId } } },
       { new: true }
-    ).select('addresses').lean() as any;
+    ).select('addresses').lean();
 
     if (!user) {
       return NextResponse.json({ success: false, error: 'User not found' }, { status: 404, headers: CORS_HEADERS });
@@ -77,7 +77,7 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ a
       { success: true, data: user.addresses, addresses: user.addresses },
       { headers: CORS_HEADERS }
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('[DELETE /api/users/addresses/[id]]', error);
     return NextResponse.json({ success: false, error: 'Internal Server Error' }, { status: 500, headers: CORS_HEADERS });
   }

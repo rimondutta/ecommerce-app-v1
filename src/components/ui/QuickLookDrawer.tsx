@@ -1,13 +1,13 @@
 "use client";
 
-import { Fragment, useState, useEffect } from "react";
+import { Fragment, useState } from "react";
 import { Dialog, DialogPanel, Transition, TransitionChild } from "@headlessui/react";
 import Image from "next/image";
 import { useQuickLook } from "@/store/quickLookStore";
 import { useCart } from "@/components/providers/CartProvider";
 import { useWishlist } from "@/components/providers/WishlistProvider";
 import Link from "next/link";
-import { X, ShoppingBag, Heart, ArrowRight, Star } from "lucide-react";
+import { X, Heart, ArrowRight } from "lucide-react";
 import Button from "@/components/ui/Button";
 import QuantityStepper from "@/components/playshelf/QuantityStepper";
 import Badge from "@/components/ui/Badge";
@@ -18,36 +18,39 @@ export default function QuickLookDrawer() {
   const { addItem, openCart } = useCart();
   const { toggleItem, isWishlisted } = useWishlist();
 
-  const [selectedColor, setSelectedColor] = useState<any>(null);
+  const [selectedColor, setSelectedColor] = useState<{ name: string; hex?: string; class?: string } | null>(null);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [prevProductKey, setPrevProductKey] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (isOpen) {
+  const currentKey = isOpen && product ? `${product._id || product.id}-${isOpen}` : null;
+  if (currentKey !== prevProductKey) {
+    setPrevProductKey(currentKey);
+    if (isOpen && product) {
       setActiveImageIndex(0);
-      setSelectedColor(product?.colors?.[0] || null);
-      setSelectedSize(product?.sizes?.[0] || null);
+      setSelectedColor(product.colors?.[0] || null);
+      setSelectedSize(product.sizes?.[0] || null);
       setQuantity(1);
     }
-  }, [isOpen, product]);
+  }
 
   if (!product) return null;
 
-  const images = product.images?.map((img: any) => {
-    const src = img.url || img.src || "";
+  const images = product.images?.map((img) => {
+    const src = typeof img === 'string' ? img : (img.url || img.src || "");
     return src.length > 5 ? src : "/placeholder.jpg";
   }) || ["/placeholder.jpg"];
 
   const colors = product.colors || [];
   const sizes = product.sizes || [];
-  const currentPrice = product.priceNum || product.price;
-  const wishlisted = isWishlisted(product._id || product.id);
+  const currentPrice = product.priceNum || product.price || 0;
+  const wishlisted = isWishlisted(String(product._id || product.id || ''));
 
   const handleAddToCart = () => {
     addItem({
-      id: product._id || product.id?.toString(),
-      slug: product.slug,
+      id: String(product._id || product.id || ''),
+      slug: product.slug || '',
       title: product.title,
       price: currentPrice,
       quantity,
@@ -137,10 +140,10 @@ export default function QuickLookDrawer() {
                   {/* Category & Wishlist */}
                   <div className="flex items-center justify-between">
                     <span className="font-bebas text-2xl tracking-widest text-secondary">
-                      // {product.category?.name || "COLLECTION"}
+                      {"// "}{product.category?.name || "COLLECTION"}
                     </span>
                     <button
-                      onClick={() => toggleItem(product._id || product.id)}
+                      onClick={() => toggleItem(String(product._id || product.id || ''))}
                       className={cn(
                         "p-3 border-3 border-ink rounded-full cartoon-shadow-sm transition-all active:shadow-none",
                         wishlisted ? "bg-ink text-paper" : "bg-white text-ink hover:bg-surface"
@@ -172,7 +175,7 @@ export default function QuickLookDrawer() {
                       <div className="space-y-3">
                         <span className="font-bebas text-xl tracking-widest text-secondary uppercase block">SELECT SCHEME:</span>
                         <div className="flex flex-wrap gap-4">
-                          {colors.map((c: any) => (
+                          {colors.map((c) => (
                             <button
                               key={c.name}
                               onClick={() => setSelectedColor(c)}

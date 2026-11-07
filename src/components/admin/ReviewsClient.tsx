@@ -1,4 +1,6 @@
-"use client"
+"use client";
+
+import Image from 'next/image';
 
 import { useState, useEffect } from "react"
 import { Star, MessageSquare, Trash2, CheckCircle, XCircle } from "lucide-react"
@@ -25,22 +27,30 @@ export default function ReviewsClient() {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    fetchReviews()
-  }, [])
-
-  const fetchReviews = async () => {
-    try {
-      setIsLoading(true)
-      const res = await fetch("/api/admin/reviews")
-      if (!res.ok) throw new Error("Failed to fetch reviews")
-      const data = await res.json()
-      setReviews(data.reviews || [])
-    } catch (err: any) {
-      setError(err.message)
-    } finally {
-      setIsLoading(false)
+    let ignore = false;
+    async function init() {
+      try {
+        const res = await fetch("/api/admin/reviews");
+        if (!res.ok) throw new Error("Failed to fetch reviews");
+        const data = await res.json();
+        if (!ignore) {
+          setReviews(data.reviews || []);
+        }
+      } catch (err: unknown) {
+        if (!ignore) {
+          setError(err instanceof Error ? err.message : "Failed to fetch reviews");
+        }
+      } finally {
+        if (!ignore) {
+          setIsLoading(false);
+        }
+      }
     }
-  }
+    init();
+    return () => {
+      ignore = true;
+    };
+  }, []);
 
   const handleUpdateStatus = async (id: string, productId: string, newStatus: 'pending' | 'published') => {
     try {
@@ -52,9 +62,7 @@ export default function ReviewsClient() {
       if (!res.ok) throw new Error("Failed to update review status")
       
       setReviews(reviews.map(r => r._id === id ? { ...r, status: newStatus } : r))
-    } catch (err: any) {
-      alert(err.message)
-    }
+    } catch (err: unknown) { alert(err instanceof Error ? err.message : "Error"); }
   }
 
   const handleDelete = async (id: string, productId: string) => {
@@ -67,9 +75,7 @@ export default function ReviewsClient() {
       if (!res.ok) throw new Error("Failed to delete review")
       
       setReviews(reviews.filter(r => r._id !== id))
-    } catch (err: any) {
-      alert(err.message)
-    }
+    } catch (err: unknown) { alert(err instanceof Error ? err.message : "Error"); }
   }
 
   const renderStars = (rating: number) => {
@@ -140,7 +146,7 @@ export default function ReviewsClient() {
                       <div className="flex items-center gap-3">
                         <div className="w-12 h-12 rounded border border-gray-200 bg-gray-100 overflow-hidden shrink-0">
                           {review.productId?.images?.[0]?.url ? (
-                            <img src={getOptimizedCloudinaryUrl(review.productId.images[0].url, { width: 96 })} alt={review.productId.title} className="w-full h-full object-cover" />
+                            <Image src={getOptimizedCloudinaryUrl(review.productId.images[0].url, { width: 96 })} alt={review.productId.title || "Product"} width={48} height={48} className="w-full h-full object-cover" />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center text-gray-400"><MessageSquare size={16} /></div>
                           )}

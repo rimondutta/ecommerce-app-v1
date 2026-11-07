@@ -1,6 +1,6 @@
 import connectToDatabase from "@/lib/db";
 import Product from "@/models/Product";
-import Category from "@/models/Category";
+import "@/models/Category";
 import "@/models/VariationType";
 import "@/models/VariationValue";
 import { notFound } from "next/navigation";
@@ -9,6 +9,15 @@ import { Metadata } from "next";
 import { cache } from "react";
 import { getOrSetCached } from "@/lib/cache/redis-cache";
 import { KEYS } from "@/lib/cache/invalidation";
+
+interface ProductLean {
+  _id: unknown;
+  title: string;
+  slug: string;
+  description?: string;
+  images?: Array<{ url?: string }>;
+  [key: string]: unknown;
+}
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -50,13 +59,15 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   if (!product) return { title: "Product Not Found" };
 
+  const prod = product as ProductLean;
+
   return {
-    title: `${(product as any).title} - Toy Hourse`,
-    description: (product as any).description,
+    title: `${prod.title} - Toy Hourse`,
+    description: prod.description,
     openGraph: {
-      title: (product as any).title,
-      description: (product as any).description,
-      images: [(product as any).images?.[0]?.url || ""],
+      title: prod.title,
+      description: prod.description,
+      images: [prod.images?.[0]?.url || ""],
     },
   };
 }
@@ -74,7 +85,7 @@ export async function generateStaticParams() {
     await connectToDatabase();
     // Pre-render the top 100 products for instant scaling during high traffic
     const products = await Product.find({ isPublished: true }).select('slug').limit(100).lean();
-    return products.map((p) => ({ slug: (p as any).slug }));
+    return products.map((p) => ({ slug: (p as { slug: string }).slug }));
   } catch (error) {
     console.error("Failed to generate static params at build time:", error);
     return [];
@@ -96,7 +107,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
 
   // Serialize MongoDB data (lean() gives us POJO, but we still need to handle ObjectIds)
   const serializedProduct = JSON.parse(JSON.stringify(product));
-  const serializedRelated = JSON.parse(JSON.stringify(relatedProducts?.filter((p: any) => p.slug !== slug) || []));
+  const serializedRelated = JSON.parse(JSON.stringify(relatedProducts?.filter((p: { slug?: string }) => p.slug !== slug) || []));
 
   return <ProductDetailsClient product={serializedProduct} relatedProducts={serializedRelated} />;
 }

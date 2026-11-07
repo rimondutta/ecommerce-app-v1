@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Users, Mail, ShoppingBag, Calendar, ArrowUpRight } from "lucide-react"
+import { Mail, ShoppingBag, Calendar } from "lucide-react"
 
 interface Customer {
   _id: string
@@ -19,22 +19,30 @@ export default function CustomersClient() {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    fetchCustomers()
-  }, [])
-
-  const fetchCustomers = async () => {
-    try {
-      setIsLoading(true)
-      const res = await fetch("/api/admin/customers")
-      if (!res.ok) throw new Error("Failed to fetch customers")
-      const data = await res.json()
-      setCustomers(data.customers || [])
-    } catch (err: any) {
-      setError(err.message)
-    } finally {
-      setIsLoading(false)
+    let ignore = false;
+    async function load() {
+      try {
+        const res = await fetch("/api/admin/customers");
+        if (!res.ok) throw new Error("Failed to fetch customers");
+        const data = await res.json();
+        if (!ignore) {
+          setCustomers(data.customers || []);
+        }
+      } catch (err: unknown) {
+        if (!ignore) {
+          setError(err instanceof Error ? err.message : "Failed to fetch customers");
+        }
+      } finally {
+        if (!ignore) {
+          setIsLoading(false);
+        }
+      }
     }
-  }
+    load();
+    return () => {
+      ignore = true;
+    };
+  }, []);
 
   if (isLoading) {
     return (

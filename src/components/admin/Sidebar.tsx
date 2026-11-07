@@ -1,12 +1,12 @@
 "use client"
 
 import Link from "next/link"
+import Image from "next/image"
 import { usePathname } from "next/navigation"
 import { signOut, useSession } from "next-auth/react"
 import { 
-  Home, ShoppingCart, Tag, Users, Inbox, BarChart2, 
-  Megaphone, Ticket, Settings, Store, Search, Bell,
-  LogOut, Plus, ChevronRight, UserPlus, Image as ImageIcon, Layers, Sliders, Truck, MessageSquare, FileText, Package
+  Home, ShoppingCart, Tag, Users, BarChart2, 
+  Ticket, Store, LogOut, Plus, UserPlus, Image as ImageIcon, Layers, Sliders, Truck, MessageSquare, FileText, Package
 } from "lucide-react"
 
 export default function Sidebar() {
@@ -41,7 +41,7 @@ export default function Sidebar() {
       {/* Logo Area */}
       <div className="p-4 border-b border-gray-200 flex items-center gap-3">
         <div className="w-8 h-8 rounded overflow-hidden">
-          <img src="/logo/toyhourse-logo.png" alt="Toy Hourse" className="w-full h-full object-contain" />
+          <Image src="/logo/toyhourse-logo.png" alt="Toy Hourse" width={32} height={32} className="w-full h-full object-contain" />
         </div>
         <div className="flex flex-col">
           <span className="text-base font-semibold text-gray-900 leading-tight">Toy Hourse</span>
@@ -94,8 +94,8 @@ export default function Sidebar() {
       {/* User Info */}
       <div className="p-4 border-t border-gray-200 bg-gray-50 flex items-center gap-3">
         <div className="w-9 h-9 rounded-full bg-gray-200 flex items-center justify-center text-sm font-medium text-gray-600 overflow-hidden shrink-0">
-          {(session?.user as any)?.image ? (
-            <img src={(session?.user as any).image} alt="Avatar" className="w-full h-full object-cover" />
+          {session?.user?.image ? (
+            <Image src={session.user.image} alt="Avatar" width={36} height={36} className="w-full h-full object-cover" />
           ) : (
             session?.user?.name?.charAt(0) || "A"
           )}

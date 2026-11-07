@@ -1,13 +1,25 @@
 import React from 'react';
 import dbConnect from '@/lib/db';
 import BlogPost from '@/models/BlogPost';
-import Product from '@/models/Product';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { FaFacebookF, FaPinterest } from "react-icons/fa";
-import { FaXTwitter, FaPlus } from "react-icons/fa6";
 import { GoChevronLeft, GoChevronRight } from "react-icons/go";
+
+
+interface BlogPostDoc {
+  _id: string;
+  title: string;
+  slug: string;
+  category?: string;
+  excerpt?: string;
+  content: string;
+  author?: { name?: string; avatar?: string };
+  featuredImage?: { url?: string; alt?: string };
+  tags?: string[];
+  publishedAt?: string | Date;
+  createdAt?: string | Date;
+}
 
 async function getBlogPost(slug: string) {
   try {
@@ -27,7 +39,7 @@ const SingleBlogPage = async ({
   params: Promise<{ slug: string }>
 }) => {
   const { slug } = await params;
-  const post: any = await getBlogPost(slug);
+  const post = await getBlogPost(slug) as BlogPostDoc | null;
 
   if (!post) {
     notFound();
@@ -42,7 +54,7 @@ const SingleBlogPage = async ({
           <span>{post.category || "Editorial"}</span>
           <span className="w-1 h-1 rounded-full bg-zinc-300" />
           <span>
-            {new Date(post.publishedAt || post.createdAt).toLocaleDateString('en-US', {
+            {new Date(post.publishedAt || post.createdAt || 0).toLocaleDateString('en-US', {
               month: 'short',
               day: 'numeric',
               year: 'numeric'

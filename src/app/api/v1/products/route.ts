@@ -77,7 +77,7 @@ export async function GET(req: Request) {
 
       // Category filter path — single aggregation round-trip
       if (category && !search) {
-        const pipeline: any[] = [
+        const pipeline: import('mongoose').PipelineStage[] = [
           {
             $lookup: {
               from: 'categories',
@@ -86,7 +86,7 @@ export async function GET(req: Request) {
               as: 'category',
             },
           },
-          { $unwind: { path: '$category', preserveNullAndEmpty: true } },
+          { $unwind: { path: '$category', preserveNullAndEmptyArrays: true } },
           { $match: { isPublished: true, 'category.slug': category } },
           { $sort: { createdAt: -1 } },
           {
@@ -114,7 +114,7 @@ export async function GET(req: Request) {
       }
 
       // General / search path
-      const query: any = { isPublished: true };
+      const query: Record<string, unknown> = { isPublished: true };
       if (search) {
         query.$text = { $search: search };
       }

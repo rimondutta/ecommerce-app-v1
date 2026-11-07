@@ -20,6 +20,10 @@ export interface CategoryItem {
   name: string;
 }
 
+export type ShopProduct = React.ComponentProps<typeof ProductCardNike>['product'] & {
+  createdAt?: string;
+};
+
 function FilterPill({
   label,
   selected,
@@ -71,7 +75,7 @@ function ShopGridPure({
   ageParam, 
   searchParam 
 }: { 
-  initialProducts: any[];
+  initialProducts: ShopProduct[];
   allCategories?: CategoryItem[];
   pagination?: PaginationInfo;
   categoryParam: string | null;
@@ -116,8 +120,9 @@ function ShopGridPure({
       return allCategories;
     }
     const m = new Map<string, string>();
-    initialProducts.forEach((p: any) => {
-      if (p.category?.name && p.category?.slug) m.set(p.category.slug, p.category.name);
+    initialProducts.forEach((p: ShopProduct) => {
+      const cat = typeof p.category === 'object' && p.category !== null ? p.category : null;
+      if (cat?.name && cat?.slug) m.set(cat.slug, cat.name);
     });
     return Array.from(m.entries()).map(([slug, name]) => ({ slug, name }));
   }, [allCategories, initialProducts]);
@@ -125,15 +130,16 @@ function ShopGridPure({
   const ageRanges = ["0-1", "1-3", "3-5", "5-8", "8+"];
 
   const filteredProducts = useMemo(() => {
-    let result = initialProducts.filter((p: any) => {
-      const catMatch = !categoryParam || p.category?.slug === categoryParam || p.category?.name === categoryParam;
+    const result = initialProducts.filter((p: ShopProduct) => {
+      const cat = typeof p.category === 'object' && p.category !== null ? p.category : null;
+      const catMatch = !categoryParam || cat?.slug === categoryParam || cat?.name === categoryParam;
       const ageMatch = !ageParam || p.ageRange === ageParam;
       const searchMatch = !searchParam || p.title.toLowerCase().includes(searchParam.toLowerCase());
       return catMatch && ageMatch && searchMatch;
     });
-    if (sortBy === "price-low") result.sort((a: any, b: any) => a.price - b.price);
-    if (sortBy === "price-high") result.sort((a: any, b: any) => b.price - a.price);
-    if (sortBy === "newest") result.sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    if (sortBy === "price-low") result.sort((a: ShopProduct, b: ShopProduct) => a.price - b.price);
+    if (sortBy === "price-high") result.sort((a: ShopProduct, b: ShopProduct) => b.price - a.price);
+    if (sortBy === "newest") result.sort((a: ShopProduct, b: ShopProduct) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
     return result;
   }, [initialProducts, categoryParam, ageParam, sortBy, searchParam]);
 
@@ -255,7 +261,7 @@ function ShopGridPure({
           {filteredProducts.length > 0 ? (
             <>
               <div className="grid grid-cols-2 lg:grid-cols-3 gap-x-4 sm:gap-x-6 gap-y-8 sm:gap-y-12">
-                {filteredProducts.map((product: any, idx: number) => (
+                {filteredProducts.map((product: ShopProduct, idx: number) => (
                   <ProductCardNike
                     key={product._id}
                     product={product}
@@ -320,7 +326,7 @@ function ShopGridPure({
                 Nothing here yet.
               </p>
               <p className="font-body text-joy-muted text-sm">
-                Try adjusting your filters to find what you're looking for.
+                Try adjusting your filters to find what you&apos;re looking for.
               </p>
               <button
                 onClick={clearFilters}
@@ -434,7 +440,7 @@ function ShopContent({
   allCategories,
   pagination,
 }: {
-  initialProducts: any[];
+  initialProducts: ShopProduct[];
   allCategories?: CategoryItem[];
   pagination?: PaginationInfo;
 }) {
@@ -457,7 +463,7 @@ export default function ShopClient({
   allCategories,
   pagination,
 }: {
-  initialProducts: any[];
+  initialProducts: ShopProduct[];
   allCategories?: CategoryItem[];
   pagination?: PaginationInfo;
 }) {

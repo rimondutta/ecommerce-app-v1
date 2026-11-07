@@ -69,8 +69,8 @@ export default function AnimatedReveal({
       cleanup = () => {
         tween.kill();
         ScrollTrigger.getAll()
-          .filter((st: any) => st.vars?.trigger === el)
-          .forEach((st: any) => st.kill());
+          .filter((st) => (st as { vars?: { trigger?: Element } }).vars?.trigger === el)
+          .forEach((st) => st.kill());
       };
     })();
 

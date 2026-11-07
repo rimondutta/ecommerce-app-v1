@@ -4,6 +4,36 @@ import Settings from '@/models/Settings';
 import Coupon from '@/models/Coupon';
 import mongoose from 'mongoose';
 
+interface VariantDoc {
+  _id?: { toString(): string };
+  price: number;
+  isActive?: boolean;
+  stock?: number;
+  combinationLabel?: string;
+  images?: string[];
+}
+
+interface ProductDoc {
+  _id: { toString(): string };
+  title: string;
+  price: number;
+  inventory?: number;
+  images?: Array<{ url?: string }>;
+  variants?: VariantDoc[];
+}
+
+interface ShippingSettingsDoc {
+  insideDhakaRate?: number;
+  outsideDhakaRate?: number;
+  freeShippingEnabled?: boolean;
+  freeShippingMinOrder?: number;
+  freeShippingZone?: string;
+}
+
+interface SettingsDoc {
+  shipping?: ShippingSettingsDoc;
+}
+
 export interface CheckoutInputItem {
   productId?: string;
   id?: string;
@@ -79,9 +109,9 @@ export async function calculateOrderPricing(
   const products = await Product.find({
     _id: { $in: productIds },
     isPublished: true,
-  }).lean() as any[];
+  }).lean() as ProductDoc[];
 
-  const productDbMap = new Map<string, any>();
+  const productDbMap = new Map<string, ProductDoc>();
   for (const p of products) {
     productDbMap.set(p._id.toString(), p);
   }
@@ -112,7 +142,7 @@ export async function calculateOrderPricing(
         }
         const variantIdStr = String(cartItem.variantId);
         const variant = (product.variants || []).find(
-          (v: any) => v._id?.toString() === variantIdStr
+          (v: VariantDoc) => v._id?.toString() === variantIdStr
         );
 
         if (!variant || variant.isActive === false) {
@@ -161,7 +191,7 @@ export async function calculateOrderPricing(
   const normalizedZone: 'inside_dhaka' | 'outside_dhaka' =
     rawShippingZone === 'outside_dhaka' ? 'outside_dhaka' : 'inside_dhaka';
 
-  const settings = await Settings.findOne({ key: 'global' }).lean() as any;
+  const settings = await Settings.findOne({ key: 'global' }).lean() as SettingsDoc | null;
   const shippingSettings = settings?.shipping ?? {};
 
   const insideDhakaRate = Number(shippingSettings.insideDhakaRate ?? 120);

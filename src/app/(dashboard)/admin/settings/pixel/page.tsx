@@ -62,8 +62,8 @@ export default function PixelSettingsPage() {
       if (!res.ok) throw new Error(data.error || "Save failed");
       if (data.facebookPixel) setConfig(data.facebookPixel);
       setStatus({ type: "success", message: "Pixel settings saved successfully!" });
-    } catch (err: any) {
-      setStatus({ type: "error", message: err.message || "Failed to save settings." });
+    } catch (err: unknown) {
+      setStatus({ type: "error", message: err instanceof Error ? err.message : "Failed to save settings." });
     } finally {
       setSaving(false);
       setTimeout(() => setStatus(null), 4000);
@@ -204,8 +204,8 @@ export default function PixelSettingsPage() {
 
             <button
               onClick={() => {
-                if (typeof window !== "undefined" && (window as any).fbq) {
-                  (window as any).fbq("trackCustom", "AdminTestEvent", {
+                if (typeof window !== "undefined" && (window).fbq) {
+                  (window).fbq("trackCustom", "AdminTestEvent", {
                     verified_at: new Date().toISOString(),
                   });
                   setStatus({ type: "success", message: "Test event sent! Check Meta Events Manager." });
