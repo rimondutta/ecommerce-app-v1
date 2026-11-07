@@ -8,7 +8,41 @@ import BlogPost from "@/models/BlogPost";
 // This allows 800k traffic to hit the Vercel Edge Cache, falling back to DB only once per minute.
 export const revalidate = 60;
 
+interface HomeProduct {
+  _id: string;
+  title: string;
+  slug: string;
+  price: number;
+  compareAtPrice?: number;
+  images: { url: string; alt?: string }[];
+  badge?: string;
+  ageRange?: string;
+  rating?: number;
+  reviewCount?: number;
+}
+
+interface HomeCategory {
+  name: string;
+  slug: string;
+  image: string;
+}
+
+interface HomeBlog {
+  _id: string | { toString(): string };
+  title: string;
+  slug: string;
+  category?: string;
+  excerpt?: string;
+  publishedAt?: string | Date;
+  createdAt?: string | Date;
+  featuredImage?: { url?: string; alt?: string };
+}
+
 export default async function Home() {
+  let trendingProducts: HomeProduct[] = [];
+  let categories: HomeCategory[] = [];
+  let latestBlogs: HomeBlog[] = [];
+
   try {
     await connectToDatabase();
 
@@ -31,13 +65,12 @@ export default async function Home() {
     });
 
     // Serialize MongoDB Data (object IDs to strings)
-    const trendingProducts = JSON.parse(JSON.stringify(dbProducts || []));
-    const categories = JSON.parse(JSON.stringify(dbCategories || []));
-    const latestBlogs = JSON.parse(JSON.stringify(dbBlogs || []));
-
-    return <Homepage initialTrendingProducts={trendingProducts} initialCategories={categories} initialBlogs={latestBlogs} />;
+    trendingProducts = JSON.parse(JSON.stringify(dbProducts || []));
+    categories = JSON.parse(JSON.stringify(dbCategories || []));
+    latestBlogs = JSON.parse(JSON.stringify(dbBlogs || []));
   } catch (error) {
     console.warn("Could not load initial homepage data (DB offline or build-time prerender):", error);
-    return <Homepage />;
   }
+
+  return <Homepage initialTrendingProducts={trendingProducts} initialCategories={categories} initialBlogs={latestBlogs} />;
 }

@@ -42,8 +42,9 @@ export async function withCache<T>(
   ttl: number,
   fn: () => Promise<T>
 ): Promise<T> {
-  if (!hasRedis || !redis) {
-    // No Redis — run fn() directly, no caching
+  const isBuildTime = process.env.NEXT_PHASE === 'phase-production-build';
+  if (!hasRedis || !redis || isBuildTime) {
+    // During build time or when Redis is absent, fetch directly from DB without triggering dynamic fetch bailout
     return fn();
   }
 
@@ -55,9 +56,8 @@ export async function withCache<T>(
       return cached;
     }
   } catch (err: unknown) {
-    if ((err as { digest?: string })?.digest === 'DYNAMIC_SERVER_USAGE') throw err;
-    // Redis read failure — fall through to live data
-    console.error(`[cache] GET ${cacheKey} failed:`, err);
+    // Redis read failure — fall through to live data gracefully
+    console.warn(`[cache] GET ${cacheKey} failed:`, err instanceof Error ? err.message : String(err));
   }
 
   // Cache miss — compute the real value
@@ -66,9 +66,8 @@ export async function withCache<T>(
   try {
     await redis.setex(cacheKey, ttl, JSON.stringify(value));
   } catch (err: unknown) {
-    if ((err as { digest?: string })?.digest === 'DYNAMIC_SERVER_USAGE') throw err;
     // Redis write failure — value is still returned, just not cached
-    console.error(`[cache] SETEX ${cacheKey} failed:`, err);
+    console.warn(`[cache] SETEX ${cacheKey} failed:`, err instanceof Error ? err.message : String(err));
   }
 
   return value;

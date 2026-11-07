@@ -19,12 +19,8 @@ export const redis: Redis | null = hasRedis
   ? new Redis({
       url: process.env.UPSTASH_REDIS_REST_URL!,
       token: process.env.UPSTASH_REDIS_REST_TOKEN!,
-      // Override the default fetch to avoid cache: 'no-store' which breaks Next.js ISR/Static Generation
-      fetch: (input: RequestInfo | URL, init?: RequestInit) => {
-        if (init && init.cache === 'no-store') {
-          delete init.cache;
-        }
-        return fetch(input, init);
-      },
-    } as unknown as ConstructorParameters<typeof Redis>[0])
+      // Next.js static prerender and ISR routes throw DynamicServerError when fetch uses 'no-store'.
+      // By setting cache: 'default', requests avoid triggering dynamic server bailout during static rendering.
+      cache: 'default',
+    })
   : null;
