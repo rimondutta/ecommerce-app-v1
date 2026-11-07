@@ -18,7 +18,7 @@
     "@types/nodemailer": "^7.0.0",
     "@types/three": "^0.184.0",
     "@upstash/ratelimit": "^2.0.8",
-    "@upstash/redis": "^1.38.0",
+    "@upstash/redis": "^1.41.0",
     "ai": "^7.0.89",
     "bcryptjs": "^3.0.3",
     "cloudinary": "^2.9.0",
