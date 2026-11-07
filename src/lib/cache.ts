@@ -57,7 +57,7 @@ export async function withCache<T>(
     }
   } catch (err: unknown) {
     // Redis read failure — fall through to live data gracefully
-    console.warn(`[cache] GET ${cacheKey} failed:`, err instanceof Error ? err.message : String(err));
+    console.warn('[cache] GET failed for key:', cacheKey, err instanceof Error ? err.message : String(err));
   }
 
   // Cache miss — compute the real value
@@ -67,7 +67,7 @@ export async function withCache<T>(
     await redis.setex(cacheKey, ttl, JSON.stringify(value));
   } catch (err: unknown) {
     // Redis write failure — value is still returned, just not cached
-    console.warn(`[cache] SETEX ${cacheKey} failed:`, err instanceof Error ? err.message : String(err));
+    console.warn('[cache] SETEX failed for key:', cacheKey, err instanceof Error ? err.message : String(err));
   }
 
   return value;

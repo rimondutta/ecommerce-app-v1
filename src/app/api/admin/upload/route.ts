@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import { uploadImage, deleteImage } from '@/lib/cloudinary';
+import { uploadImage, deleteImage, isCloudinaryUrl } from '@/lib/cloudinary';
 
 export async function POST(req: Request) {
   try {
@@ -48,7 +48,7 @@ export async function DELETE(req: Request) {
     }
 
     // Only allow deleting cloudinary images
-    if (!url.includes('cloudinary.com')) {
+    if (!isCloudinaryUrl(url)) {
       return NextResponse.json({ error: 'Only Cloudinary images can be deleted' }, { status: 400 });
     }
 

@@ -41,12 +41,19 @@ export async function POST(req: Request) {
       );
     }
 
-    // Basic email format validation if email is provided
+    // Basic email format validation if email is provided (linear non-backtracking check to prevent ReDoS)
     let normalizedEmail: string | undefined = undefined;
     if (customerEmail && typeof customerEmail === 'string' && customerEmail.trim()) {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       normalizedEmail = customerEmail.trim().toLowerCase();
-      if (!emailRegex.test(normalizedEmail)) {
+      const atIdx = normalizedEmail.indexOf('@');
+      const lastDotIdx = normalizedEmail.lastIndexOf('.');
+      if (
+        normalizedEmail.length > 254 ||
+        atIdx <= 0 ||
+        lastDotIdx <= atIdx + 1 ||
+        lastDotIdx >= normalizedEmail.length - 1 ||
+        normalizedEmail.includes(' ')
+      ) {
         return NextResponse.json({ error: 'Invalid email address' }, { status: 400 });
       }
     }

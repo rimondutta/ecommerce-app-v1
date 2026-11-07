@@ -12,6 +12,16 @@ const transporter = nodemailer.createTransport({
 
 const DEFAULT_FROM = process.env.EMAIL_FROM || process.env.EMAIL_USER;
 
+function escapeHtml(str: unknown): string {
+  if (str === null || str === undefined) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 interface OrderItem {
   title: string;
   quantity: number;
@@ -43,15 +53,18 @@ export async function sendOrderConfirmationEmail(order: OrderData) {
       (item) => `
     <tr>
       <td style="padding: 12px; border-bottom: 1px solid #eeeeee;">
-        <div style="font-weight: bold; color: #000000;">${item.title}</div>
-        <div style="font-size: 12px; color: #666666;">${item.variantOptions ? Object.entries(item.variantOptions).map(([k,v])=>`${k}: ${v}`).join(' | ') : [item.color && item.color !== 'Default' ? `Color: ${item.color}` : null, item.size && item.size !== 'Default' ? `Size: ${item.size}` : null].filter(Boolean).join(' | ')}</div>
+        <div style="font-weight: bold; color: #000000;">${escapeHtml(item.title)}</div>
+        <div style="font-size: 12px; color: #666666;">${item.variantOptions ? escapeHtml(Object.entries(item.variantOptions).map(([k,v])=>`${k}: ${v}`).join(' | ')) : [item.color && item.color !== 'Default' ? `Color: ${escapeHtml(item.color)}` : null, item.size && item.size !== 'Default' ? `Size: ${escapeHtml(item.size)}` : null].filter(Boolean).join(' | ')}</div>
       </td>
-      <td style="padding: 12px; border-bottom: 1px solid #eeeeee; text-align: center;">${item.quantity}</td>
+      <td style="padding: 12px; border-bottom: 1px solid #eeeeee; text-align: center;">${escapeHtml(item.quantity)}</td>
       <td style="padding: 12px; border-bottom: 1px solid #eeeeee; text-align: right;">৳${item.price.toLocaleString()}</td>
     </tr>
   `
     )
     .join('');
+
+  const safeCustomerName = escapeHtml(order.customerName) || 'Explorer';
+  const safeOrderId = escapeHtml(order.orderId.slice(-8).toUpperCase());
 
   const html = `
     <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #333333; line-height: 1.6;">
@@ -62,8 +75,8 @@ export async function sendOrderConfirmationEmail(order: OrderData) {
 
       <div style="padding: 40px 20px; background-color: #ffffff;">
         <h2 style="font-size: 20px; font-weight: bold; margin-bottom: 20px; text-align: center;">Thank You for Your Order!</h2>
-        <p>Hi ${order.customerName || 'Explorer'},</p>
-        <p>We've received your order <strong>#${order.orderId.slice(-8).toUpperCase()}</strong> and we're getting it ready for shipment.</p>
+        <p>Hi ${safeCustomerName},</p>
+        <p>We've received your order <strong>#${safeOrderId}</strong> and we're getting it ready for shipment.</p>
         
         <div style="margin: 40px 0;">
           <h3 style="font-size: 14px; text-transform: uppercase; border-bottom: 2px solid #000000; padding-bottom: 10px; margin-bottom: 20px;">Order Summary</h3>
@@ -100,10 +113,10 @@ export async function sendOrderConfirmationEmail(order: OrderData) {
         <div style="margin: 40px 0; padding: 20px; background-color: #f9f9f9; border-radius: 4px;">
           <h3 style="font-size: 14px; text-transform: uppercase; margin-bottom: 15px; font-weight: bold; color: #000000;">Shipping Destination</h3>
           <p style="margin: 0; font-size: 14px; color: #333333; line-height: 1.6;">
-            <strong>${order.customerName}</strong><br>
-            ${order.shippingAddress.addressLine1}<br>
-            ${order.shippingAddress.city}, ${order.shippingAddress.postcode}<br>
-            ${order.shippingAddress.country}
+            <strong>${escapeHtml(order.customerName)}</strong><br>
+            ${escapeHtml(order.shippingAddress.addressLine1)}<br>
+            ${escapeHtml(order.shippingAddress.city)}, ${escapeHtml(order.shippingAddress.postcode)}<br>
+            ${escapeHtml(order.shippingAddress.country)}
           </p>
         </div>
 
@@ -145,8 +158,8 @@ export async function sendOrderConfirmationEmail(order: OrderData) {
         <div style="padding: 30px 20px; background-color: #fff;">
           <p style="font-size: 16px; margin-top: 0;">You have received a new order on <strong>Toy Hourse</strong>.</p>
           <div style="background-color: #f9f9f9; padding: 15px; border-radius: 6px; margin: 20px 0;">
-            <p style="margin: 0 0 10px 0;"><strong>Order ID:</strong> #${order.orderId.slice(-8).toUpperCase()}</p>
-            <p style="margin: 0 0 10px 0;"><strong>Customer:</strong> ${order.customerName} (${order.customerEmail})</p>
+            <p style="margin: 0 0 10px 0;"><strong>Order ID:</strong> #${safeOrderId}</p>
+            <p style="margin: 0 0 10px 0;"><strong>Customer:</strong> ${escapeHtml(order.customerName)} (${escapeHtml(order.customerEmail)})</p>
             <p style="margin: 0;"><strong>Total Amount:</strong> ৳${order.totalAmount.toLocaleString()}</p>
           </div>
           <div style="text-align: center; margin-top: 30px;">
@@ -185,7 +198,10 @@ export async function sendOrderStatusUpdateEmail(order: OrderStatusUpdate, statu
     cancelled: 'Order Cancelled',
   };
 
-  const statusLabel = statusLabels[newStatus] || newStatus.charAt(0).toUpperCase() + newStatus.slice(1);
+  const rawStatusLabel = statusLabels[newStatus] || newStatus.charAt(0).toUpperCase() + newStatus.slice(1);
+  const statusLabel = escapeHtml(rawStatusLabel);
+  const safeCustomerName = escapeHtml(order.customerName) || 'Explorer';
+  const safeOrderId = escapeHtml(order._id.toString().slice(-8).toUpperCase());
 
   const html = `
     <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #333333; line-height: 1.6;">
@@ -196,8 +212,8 @@ export async function sendOrderStatusUpdateEmail(order: OrderStatusUpdate, statu
 
       <div style="padding: 40px 20px; background-color: #ffffff;">
         <h2 style="font-size: 20px; font-weight: bold; margin-bottom: 20px; text-align: center;">Your Order Status has been Updated</h2>
-        <p>Hi ${order.customerName || 'Explorer'},</p>
-        <p>The status of your order <strong>#${order._id.toString().slice(-8).toUpperCase()}</strong> has been updated to:</p>
+        <p>Hi ${safeCustomerName},</p>
+        <p>The status of your order <strong>#${safeOrderId}</strong> has been updated to:</p>
         
         <div style="margin: 30px 0; padding: 20px; background-color: #f9f9f9; border-left: 4px solid #000000; text-align: center;">
           <span style="font-size: 18px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;">${statusLabel}</span>
@@ -221,7 +237,7 @@ export async function sendOrderStatusUpdateEmail(order: OrderStatusUpdate, statu
     const info = await transporter.sendMail({
       from: DEFAULT_FROM,
       to: order.customerEmail,
-      subject: `Order Update: #${order._id.toString().slice(-8).toUpperCase()} is now ${statusLabel}`,
+      subject: `Order Update: #${safeOrderId} is now ${statusLabel}`,
       html: html,
     });
     console.log('Status update email sent:', info.messageId);
@@ -236,6 +252,9 @@ export async function sendPasswordResetOtpEmail(
   toName: string,
   otp: string
 ) {
+  const safeName = escapeHtml(toName) || 'there';
+  const safeOtp = escapeHtml(otp);
+
   const html = `
     <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #333333; line-height: 1.6;">
       <div style="padding: 40px 20px; text-align: center; background-color: #000000; color: #ffffff;">
@@ -245,12 +264,12 @@ export async function sendPasswordResetOtpEmail(
 
       <div style="padding: 40px 20px; background-color: #ffffff;">
         <h2 style="font-size: 20px; font-weight: bold; margin-bottom: 20px; text-align: center;">Reset Your Password</h2>
-        <p>Hi ${toName || 'there'},</p>
+        <p>Hi ${safeName},</p>
         <p>We received a request to reset the password for your Toy Hourse account. Use the code below to proceed:</p>
 
         <div style="margin: 36px 0; text-align: center;">
           <div style="display: inline-block; background-color: #f3f4f6; border-radius: 16px; padding: 24px 48px;">
-            <span style="font-size: 48px; font-weight: 800; letter-spacing: 12px; color: #1a1a1a; font-family: monospace;">${otp}</span>
+            <span style="font-size: 48px; font-weight: 800; letter-spacing: 12px; color: #1a1a1a; font-family: monospace;">${safeOtp}</span>
           </div>
           <p style="margin-top: 16px; font-size: 14px; color: #6b7280;">This code expires in <strong>10 minutes</strong>.</p>
         </div>

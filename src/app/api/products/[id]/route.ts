@@ -6,7 +6,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { getBearerSession } from '@/lib/mobile-auth';
 import { touchProductsTimestamp } from '@/lib/lastUpdated';
-import { deleteImage } from '@/lib/cloudinary';
+import { deleteImage, isCloudinaryUrl } from '@/lib/cloudinary';
 import { NextRequest } from 'next/server';
 import { invalidateProduct } from '@/lib/cache/invalidation';
 
@@ -118,7 +118,7 @@ export async function PUT(
     const existingUrls = existingProduct.images?.map((img: ProductImageItem) => img.url) || [];
     const newUrls = data.images?.map((img: ProductImageItem) => img.url) || [];
     const urlsToDelete = existingUrls.filter(
-      (url: string) => !newUrls.includes(url) && url.includes('cloudinary.com')
+      (url: string) => !newUrls.includes(url) && isCloudinaryUrl(url)
     );
     for (const url of urlsToDelete) {
       try {
@@ -190,7 +190,7 @@ export async function DELETE(
     // Delete Cloudinary images
     if (product.images && Array.isArray(product.images)) {
       for (const img of product.images) {
-        if (img.url && img.url.includes('cloudinary.com')) {
+        if (isCloudinaryUrl(img.url)) {
           try {
             await deleteImage(img.url);
           } catch (err) {

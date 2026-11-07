@@ -1,4 +1,7 @@
 import { v2 as cloudinary } from "cloudinary";
+import { isCloudinaryUrl } from "@/lib/utils";
+
+export { isCloudinaryUrl };
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_URL
@@ -35,7 +38,7 @@ export function getOptimizedCloudinaryUrl(
   url: string | null | undefined,
   opts: { width?: number } = {}
 ): string {
-  if (!url || !url.includes('res.cloudinary.com')) return url || '';
+  if (!isCloudinaryUrl(url)) return url || '';
 
   // Build the transformation string
   const transforms = ['f_auto', 'q_auto'];

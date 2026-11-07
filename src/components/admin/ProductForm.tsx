@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react"
 import Image from "next/image"
 import { Trash, Save, Loader2, AlertCircle, ChevronDown, ChevronUp } from "lucide-react"
+import { isCloudinaryUrl } from "@/lib/utils"
 
 // ─── Types ─────────────────────────────────────────────────────────────────
 
@@ -333,7 +334,7 @@ export default function ProductForm({ initialData, categories, onSubmit, loading
   const handleRemoveImage = async (index: number) => {
     const img = formData.images[index]
     if (!img) return
-    if (img.url.includes("cloudinary.com")) {
+    if (isCloudinaryUrl(img.url)) {
       setUploadingImage(true)
       try {
         await fetch("/api/admin/upload", {

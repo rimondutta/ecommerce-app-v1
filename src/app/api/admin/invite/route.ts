@@ -201,6 +201,16 @@ function generateTempPassword(): string {
   return password;
 }
 
+function escapeHtml(str: unknown): string {
+  if (str === null || str === undefined) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 async function sendInviteEmail(opts: {
   toEmail: string;
   toName: string;
@@ -219,6 +229,11 @@ async function sendInviteEmail(opts: {
   });
 
   const fromEmail = process.env.EMAIL_FROM || process.env.EMAIL_USER;
+  const safeName = escapeHtml(opts.toName);
+  const safeEmail = escapeHtml(opts.toEmail);
+  const safePassword = escapeHtml(opts.tempPassword);
+  const safeRole = opts.role === 'admin' ? 'Full Admin' : 'Manager';
+  const safeLoginUrl = escapeHtml(opts.loginUrl);
 
   const html = `
     <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #333333; line-height: 1.6;">
@@ -229,19 +244,19 @@ async function sendInviteEmail(opts: {
 
       <div style="padding: 40px 20px; background-color: #ffffff;">
         <h2 style="font-size: 20px; font-weight: bold; margin-bottom: 20px;">You've Been Invited!</h2>
-        <p>Hi ${opts.toName},</p>
-        <p>You've been invited to join the <strong>FlexWear</strong> admin dashboard as a <strong>${opts.role === 'admin' ? 'Full Admin' : 'Manager'}</strong>.</p>
+        <p>Hi ${safeName},</p>
+        <p>You've been invited to join the <strong>FlexWear</strong> admin dashboard as a <strong>${safeRole}</strong>.</p>
         
         <div style="margin: 30px 0; padding: 20px; background-color: #f9f9f9; border-left: 4px solid #000000;">
           <p style="margin: 0 0 10px; font-size: 14px; font-weight: bold;">Your Login Credentials:</p>
-          <p style="margin: 0; font-size: 14px;">Email: <strong>${opts.toEmail}</strong></p>
-          <p style="margin: 0; font-size: 14px;">Temporary Password: <strong>${opts.tempPassword}</strong></p>
+          <p style="margin: 0; font-size: 14px;">Email: <strong>${safeEmail}</strong></p>
+          <p style="margin: 0; font-size: 14px;">Temporary Password: <strong>${safePassword}</strong></p>
         </div>
 
         <p style="font-size: 13px; color: #666;">Please change your password after your first login for security.</p>
 
         <div style="text-align: center; margin-top: 40px;">
-          <a href="${opts.loginUrl}" style="display: inline-block; padding: 15px 30px; background-color: #000000; color: #ffffff; text-decoration: none; font-weight: bold; font-size: 12px; text-transform: uppercase; letter-spacing: 2px;">Go to Dashboard</a>
+          <a href="${safeLoginUrl}" style="display: inline-block; padding: 15px 30px; background-color: #000000; color: #ffffff; text-decoration: none; font-weight: bold; font-size: 12px; text-transform: uppercase; letter-spacing: 2px;">Go to Dashboard</a>
         </div>
       </div>
 
@@ -276,6 +291,10 @@ async function sendPasswordResetEmail(opts: {
   });
 
   const fromEmail = process.env.EMAIL_FROM || process.env.EMAIL_USER;
+  const safeName = escapeHtml(opts.toName);
+  const safeEmail = escapeHtml(opts.toEmail);
+  const safePassword = escapeHtml(opts.tempPassword);
+  const safeLoginUrl = escapeHtml(opts.loginUrl);
 
   const html = `
     <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #333333; line-height: 1.6;">
@@ -286,19 +305,19 @@ async function sendPasswordResetEmail(opts: {
 
       <div style="padding: 40px 20px; background-color: #ffffff;">
         <h2 style="font-size: 20px; font-weight: bold; margin-bottom: 20px;">Your Password Has Been Reset</h2>
-        <p>Hi ${opts.toName},</p>
+        <p>Hi ${safeName},</p>
         <p>An administrator has reset your password for the <strong>FlexWear</strong> dashboard. Please use the new credentials below to log in.</p>
         
         <div style="margin: 30px 0; padding: 20px; background-color: #f9f9f9; border-left: 4px solid #000000;">
           <p style="margin: 0 0 10px; font-size: 14px; font-weight: bold;">Your New Login Credentials:</p>
-          <p style="margin: 0; font-size: 14px;">Email: <strong>${opts.toEmail}</strong></p>
-          <p style="margin: 0; font-size: 14px;">New Password: <strong>${opts.tempPassword}</strong></p>
+          <p style="margin: 0; font-size: 14px;">Email: <strong>${safeEmail}</strong></p>
+          <p style="margin: 0; font-size: 14px;">New Password: <strong>${safePassword}</strong></p>
         </div>
 
         <p style="font-size: 13px; color: #666;">Please change your password after logging in for security.</p>
 
         <div style="text-align: center; margin-top: 40px;">
-          <a href="${opts.loginUrl}" style="display: inline-block; padding: 15px 30px; background-color: #000000; color: #ffffff; text-decoration: none; font-weight: bold; font-size: 12px; text-transform: uppercase; letter-spacing: 2px;">Go to Dashboard</a>
+          <a href="${safeLoginUrl}" style="display: inline-block; padding: 15px 30px; background-color: #000000; color: #ffffff; text-decoration: none; font-weight: bold; font-size: 12px; text-transform: uppercase; letter-spacing: 2px;">Go to Dashboard</a>
         </div>
       </div>
 

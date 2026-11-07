@@ -3,7 +3,7 @@ import connectToDatabase from '@/lib/db';
 import User from '@/models/User';
 import { getBearerSession } from '@/lib/mobile-auth';
 import { NextRequest } from 'next/server';
-import { uploadImage, deleteImage } from '@/lib/cloudinary';
+import { uploadImage, deleteImage, isCloudinaryUrl } from '@/lib/cloudinary';
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, error: 'User not found' }, { status: 404, headers: CORS_HEADERS });
     }
 
-    if (user.image && user.image.includes('cloudinary.com')) {
+    if (isCloudinaryUrl(user.image)) {
       try {
         await deleteImage(user.image);
       } catch (err) {
