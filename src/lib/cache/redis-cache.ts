@@ -50,8 +50,9 @@ function safeParse<T>(raw: unknown): T | null {
  * Returns null on cache miss or if Redis is unavailable.
  */
 export async function getCached<T>(key: string): Promise<T | null> {
-  if (!hasRedis || !redis) {
-    cacheLog('BYPASS', key, { reason: 'redis-unavailable' });
+  const isBuildTime = process.env.NEXT_PHASE === 'phase-production-build';
+  if (!hasRedis || !redis || isBuildTime) {
+    cacheLog('BYPASS', key, { reason: isBuildTime ? 'build-time' : 'redis-unavailable' });
     return null;
   }
   try {
@@ -63,8 +64,6 @@ export async function getCached<T>(key: string): Promise<T | null> {
     cacheLog('MISS', key);
     return null;
   } catch (err: unknown) {
-    // Never propagate DYNAMIC_SERVER_USAGE — re-throw it
-    if ((err as { digest?: string })?.digest === 'DYNAMIC_SERVER_USAGE') throw err;
     cacheLog('ERROR', key, undefined, err);
     return null;
   }
@@ -75,12 +74,12 @@ export async function getCached<T>(key: string): Promise<T | null> {
  * Silently no-ops on failure — never crashes the app.
  */
 export async function setCached<T>(key: string, value: T, ttlSeconds: number): Promise<void> {
-  if (!hasRedis || !redis) return;
+  const isBuildTime = process.env.NEXT_PHASE === 'phase-production-build';
+  if (!hasRedis || !redis || isBuildTime) return;
   try {
     await redis.setex(key, ttlSeconds, safeStringify(value));
     cacheLog('SET', key, { ttl: ttlSeconds });
   } catch (err: unknown) {
-    if ((err as { digest?: string })?.digest === 'DYNAMIC_SERVER_USAGE') throw err;
     cacheLog('ERROR', key, { op: 'SET' }, err);
   }
 }
@@ -89,12 +88,12 @@ export async function setCached<T>(key: string, value: T, ttlSeconds: number): P
  * Delete one or more exact Redis keys.
  */
 export async function deleteCached(...keys: string[]): Promise<void> {
-  if (!hasRedis || !redis || keys.length === 0) return;
+  const isBuildTime = process.env.NEXT_PHASE === 'phase-production-build';
+  if (!hasRedis || !redis || isBuildTime || keys.length === 0) return;
   try {
     await redis.del(...keys);
     for (const k of keys) cacheLog('DEL', k);
   } catch (err: unknown) {
-    if ((err as { digest?: string })?.digest === 'DYNAMIC_SERVER_USAGE') throw err;
     cacheLog('ERROR', keys.join(','), { op: 'DEL' }, err);
   }
 }
@@ -104,7 +103,8 @@ export async function deleteCached(...keys: string[]): Promise<void> {
  * Uses SCAN + DEL in batches to avoid blocking Redis.
  */
 export async function deleteCachedPattern(pattern: string): Promise<void> {
-  if (!hasRedis || !redis) return;
+  const isBuildTime = process.env.NEXT_PHASE === 'phase-production-build';
+  if (!hasRedis || !redis || isBuildTime) return;
   try {
     let cursor = 0;
     let deleted = 0;
@@ -121,7 +121,6 @@ export async function deleteCachedPattern(pattern: string): Promise<void> {
     } while (cursor !== 0);
     cacheLog('DEL', pattern, { count: deleted });
   } catch (err: unknown) {
-    if ((err as { digest?: string })?.digest === 'DYNAMIC_SERVER_USAGE') throw err;
     cacheLog('ERROR', pattern, { op: 'SCAN_DEL' }, err);
   }
 }
