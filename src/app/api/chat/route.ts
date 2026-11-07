@@ -34,7 +34,7 @@ export async function POST(req: Request) {
     const boundedMessages = messages.slice(-15);
 
     const result = streamText({
-      model: openrouter(process.env.OPENROUTER_MODEL || 'google/gemini-flash-1.5'),
+      model: openrouter(process.env.OPENROUTER_MODEL || 'google/gemini-flash-1.5') as unknown as Parameters<typeof streamText>[0]['model'],
       system: `You are a helpful, friendly customer support AI for "Toy Hourse", a premium toy and gear store in Bangladesh.
 Your goal is to help customers find products, check stock, and answer questions about toys.
 - Always use the 'searchProducts' tool when a user asks about product availability, prices, or if we have a specific toy.
