@@ -12,7 +12,7 @@ export default function EditCategoryPage({ params }: { params: Promise<{ id: str
   
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
-  const [category, setCategory] = useState<any>(null)
+  const [category, setCategory] = useState<Record<string, unknown> | null>(null)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -30,7 +30,7 @@ export default function EditCategoryPage({ params }: { params: Promise<{ id: str
     fetchData()
   }, [id])
 
-  const handleSubmit = async (formData: any) => {
+  const handleSubmit = async (formData: Record<string, unknown>) => {
     setSaving(true)
     try {
       const res = await fetch(`/api/admin/categories/${id}`, {
@@ -48,7 +48,7 @@ export default function EditCategoryPage({ params }: { params: Promise<{ id: str
 
       router.push("/admin/categories")
       router.refresh()
-    } catch (err: any) {
+    } catch (err: unknown) {
       setSaving(false)
       throw err
     }

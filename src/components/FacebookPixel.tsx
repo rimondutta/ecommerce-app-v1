@@ -56,8 +56,8 @@ export default function FacebookPixel() {
     if (pathname === initialPathnameRef.current) return;
 
     try {
-      if (typeof window !== "undefined" && (window as any).fbq) {
-        (window as any).fbq("track", "PageView");
+      if (typeof window !== "undefined" && window.fbq) {
+        window.fbq("track", "PageView");
       }
     } catch {
       // Silently ignore — ad blockers may stub fbq and cause unexpected throws
@@ -93,6 +93,7 @@ export default function FacebookPixel() {
         }}
       />
       <noscript>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           height="1"
           width="1"

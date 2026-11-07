@@ -14,6 +14,30 @@ const CORS_HEADERS = {
 // GET /api/orders — returns the signed-in user's order history
 // Auth: Bearer JWT (mobile) required
 // ─────────────────────────────────────────────────────────────
+
+interface MobileOrderLean {
+  _id: { toString(): string };
+  customerName?: string;
+  shippingAddress?: {
+    addressLine1?: string;
+    city?: string;
+    postcode?: string;
+    phone?: string;
+  };
+  paymentStatus?: string;
+  totalAmount?: number;
+  fulfillmentStatus?: string;
+  items?: Array<{
+    _id?: { toString(): string };
+    product?: { toString(): string };
+    title?: string;
+    price?: number;
+    quantity?: number;
+  }>;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
 export async function GET(req: NextRequest) {
   try {
     const session = await getBearerSession(req);
@@ -32,11 +56,11 @@ export async function GET(req: NextRequest) {
       .lean();
 
     // Map DB shape to the mobile app's Order type
-    const mapped = orders.map((order: any) => ({
+    const mapped = (orders as unknown as MobileOrderLean[]).map((order) => ({
       _id: order._id.toString(),
       user: session.user.id,
       clerkId: session.user.id,
-      orderItems: (order.items || []).map((item: any) => ({
+      orderItems: (order.items || []).map((item) => ({
         _id: item._id?.toString() ?? '',
         product: item.product?.toString() ?? '',
         name: item.title ?? '',
@@ -57,7 +81,7 @@ export async function GET(req: NextRequest) {
         status: order.paymentStatus ?? 'pending',
       },
       totalPrice: order.totalAmount ?? 0,
-      status: mapFulfillmentStatus(order.fulfillmentStatus),
+      status: mapFulfillmentStatus(order.fulfillmentStatus || 'pending'),
       hasReviewed: false,
       createdAt: order.createdAt?.toISOString() ?? '',
       updatedAt: order.updatedAt?.toISOString() ?? '',
@@ -67,7 +91,7 @@ export async function GET(req: NextRequest) {
       { success: true, data: mapped, orders: mapped },
       { headers: CORS_HEADERS }
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('[GET /api/orders]', error);
     return NextResponse.json(
       { success: false, error: 'Internal Server Error' },

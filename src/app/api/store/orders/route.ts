@@ -61,9 +61,9 @@ export async function POST(req: Request) {
         shippingZone,
         couponCode,
       });
-    } catch (pricingError: any) {
+    } catch (pricingError: unknown) {
       return NextResponse.json(
-        { error: pricingError.message || 'Product pricing verification failed.' },
+        { error: pricingError instanceof Error ? pricingError.message : 'Product pricing verification failed.' },
         { status: 400 }
       );
     }
@@ -73,7 +73,7 @@ export async function POST(req: Request) {
     const guestAccessTokenHash = crypto.createHash('sha256').update(rawGuestAccessToken).digest('hex');
 
     // Create the order using verified server calculations ONLY
-    const orderData: any = {
+    const orderData: Record<string, unknown> = {
       customerName: String(customerName || '').trim(),
       items: pricing.items,
       subtotal: pricing.subtotal,
@@ -110,7 +110,7 @@ export async function POST(req: Request) {
       await Coupon.updateOne(
         { code: pricing.couponCode },
         { $inc: { usedCount: 1 } }
-      ).catch((err: any) => console.error('Failed to increment coupon usedCount:', err));
+      ).catch((err: unknown) => console.error('Failed to increment coupon usedCount:', err));
     }
 
     // ── Atomic Inventory Decrement ──
@@ -133,7 +133,7 @@ export async function POST(req: Request) {
     });
 
     if (inventoryOps.length > 0) {
-      await Product.bulkWrite(inventoryOps).catch((err: any) =>
+      await Product.bulkWrite(inventoryOps).catch((err: unknown) =>
         console.error('Failed to update inventory via bulkWrite:', err)
       );
     }
@@ -194,7 +194,7 @@ export async function POST(req: Request) {
       totalAmount: pricing.totalAmount,
       message: 'Order created successfully',
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Order Creation error:', error);
     return NextResponse.json(
       { error: 'Failed to create order. Please try again.' },

@@ -59,10 +59,10 @@ export async function PATCH(req: NextRequest) {
       { success: true, message: 'Push token registered.' },
       { headers: CORS }
     );
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('[push-token]', err);
     return NextResponse.json(
-      { success: false, error: err.message || 'Internal server error.' },
+      { success: false, error: err instanceof Error ? err.message : 'Internal server error.' },
       { status: 500, headers: CORS }
     );
   }

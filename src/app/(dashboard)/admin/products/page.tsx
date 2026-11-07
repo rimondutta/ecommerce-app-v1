@@ -3,10 +3,22 @@
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { Search, Plus, Edit, Trash2, Filter, MoreHorizontal, ChevronRight } from "lucide-react"
+import { Search, Plus, Edit, Trash2, Filter } from "lucide-react"
+
+interface AdminProduct {
+  _id: string;
+  title: string;
+  price: number;
+  compareAtPrice?: number;
+  slug?: string;
+  images?: Array<{ url: string; alt?: string }>;
+  category?: { name?: string; slug?: string };
+  inventory?: number;
+  isPublished?: boolean;
+}
 
 export default function AdminProductsPage() {
-  const [products, setProducts] = useState<any[]>([])
+  const [products, setProducts] = useState<AdminProduct[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -154,10 +166,10 @@ export default function AdminProductsPage() {
                       </span>
                     </td>
                     <td className="px-5 py-4">
-                      <div className={`text-sm ${product.inventory <= 5 ? 'text-red-600 font-medium' : 'text-gray-900'}`}>
+                      <div className={`text-sm ${(product.inventory ?? 0) <= 5 ? 'text-red-600 font-medium' : 'text-gray-900'}`}>
                         {product.inventory || 0} in stock
                       </div>
-                      {product.inventory <= 5 && <div className="text-xs text-red-500 mt-0.5">Low stock</div>}
+                      {(product.inventory ?? 0) <= 5 && <div className="text-xs text-red-500 mt-0.5">Low stock</div>}
                     </td>
                     <td className="px-5 py-4 text-gray-600">
                       {product.category?.name || "Uncategorized"}

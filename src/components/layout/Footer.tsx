@@ -1,9 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import Link from "next/link";
-import { IconBrandFacebook, IconBrandX, IconBrandInstagram, IconBrandYoutube } from "@tabler/icons-react";
-import { ArrowRight } from "lucide-react";
 
 const companyLinks = [
   { label: "About Us", href: "/about" },
@@ -24,17 +22,6 @@ const helpLinks = [
 ];
 
 export default function Footer() {
-  const [email, setEmail] = useState("");
-  const [subscribed, setSubscribed] = useState(false);
-
-  const handleSubscribe = (e: React.FormEvent) => {
-    e.preventDefault();
-    setSubscribed(true);
-    setEmail("");
-  };
-
-  const scrollToTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
-
   return (
     <footer className="bg-gradient-to-b from-[#ECDDFE] to-[#DABCFD] text-black pt-20 pb-0 overflow-hidden min-h-[60vh] flex flex-col justify-between mt-20 relative" suppressHydrationWarning>
 

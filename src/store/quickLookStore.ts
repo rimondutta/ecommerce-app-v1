@@ -1,10 +1,31 @@
 "use client";
 import { create } from "zustand";
 
+export interface QuickLookColor {
+  name: string;
+  hex?: string;
+  class?: string;
+}
+
+export interface QuickLookProduct {
+  _id?: string;
+  id?: string | number;
+  slug?: string;
+  title: string;
+  price?: number;
+  priceNum?: number;
+  oldPrice?: number;
+  badge?: string;
+  images?: Array<{ url?: string; src?: string } | string>;
+  colors?: Array<QuickLookColor>;
+  sizes?: string[];
+  category?: { name?: string; title?: string };
+}
+
 interface QuickLookState {
   isOpen: boolean;
-  product: any | null;
-  openQuickLook: (product: any) => void;
+  product: QuickLookProduct | null;
+  openQuickLook: (product: QuickLookProduct) => void;
   closeQuickLook: () => void;
 }
 

@@ -3,6 +3,46 @@ import dbConnect from '@/lib/db';
 import Order from '@/models/Order';
 import { getCourierTrackingUrl, getTrackingSteps } from '@/lib/courier';
 
+
+interface TrackProduct {
+  _id?: { toString(): string } | string;
+  title?: string;
+  image?: string;
+  images?: Array<string | { url: string }>;
+}
+
+interface TrackOrderItem {
+  product?: string | TrackProduct;
+  title?: string;
+  quantity?: number;
+  price?: number;
+}
+
+interface TrackOrderDoc {
+  _id: { toString(): string };
+  invoiceNumber?: string;
+  customerName?: string;
+  customerEmail?: string;
+  shippingAddress?: { phone?: string; [key: string]: unknown };
+  totalAmount?: number;
+  shippingCost?: number;
+  paymentStatus?: string;
+  paymentMethod?: string;
+  fulfillmentStatus?: string;
+  courierStatus?: string;
+  courier?: {
+    name?: string;
+    code?: string;
+    trackingId?: string | null;
+    trackingUrl?: string | null;
+  };
+  estimatedDeliveryDate?: string | Date | null;
+  trackingTimeline?: unknown[];
+  items?: TrackOrderItem[];
+  createdAt: string | Date;
+  updatedAt: string | Date;
+}
+
 export async function GET(req: Request) {
   try {
     await dbConnect();
@@ -20,7 +60,7 @@ export async function GET(req: Request) {
     const cleanId = orderId.trim();
 
     // Query by Mongo _id, invoiceNumber, or string matching
-    const query: any = {
+    const query: { $or: Array<Record<string, unknown>> } = {
       $or: [
         { invoiceNumber: cleanId },
         { invoiceNumber: cleanId.toUpperCase() },
@@ -32,13 +72,13 @@ export async function GET(req: Request) {
       query.$or.push({ _id: cleanId });
     }
 
-    let order = await Order.findOne(query).populate('items.product').lean();
+    let order = (await Order.findOne(query).populate('items.product').lean()) as TrackOrderDoc | null;
 
     // Fallback: search last 6 characters of ObjectId or invoice if needed
     if (!order) {
-      const allOrders = await Order.find({}).sort({ createdAt: -1 }).limit(100).populate('items.product').lean();
+      const allOrders = (await Order.find({}).sort({ createdAt: -1 }).limit(100).populate('items.product').lean()) as TrackOrderDoc[];
       order = allOrders.find(
-        (o: any) =>
+        (o: TrackOrderDoc) =>
           o._id.toString().endsWith(cleanId) ||
           (o.invoiceNumber && o.invoiceNumber.toLowerCase().includes(cleanId.toLowerCase()))
       ) || null;
@@ -72,7 +112,7 @@ export async function GET(req: Request) {
 
     // Visual 5-step status calculation
     const steps = getTrackingSteps(
-      order.fulfillmentStatus,
+      order.fulfillmentStatus || 'unfulfilled',
       order.courierStatus,
       order.createdAt,
       order.updatedAt
@@ -101,21 +141,26 @@ export async function GET(req: Request) {
         estimatedDeliveryDate: order.estimatedDeliveryDate || null,
         steps,
         timeline: order.trackingTimeline || [],
-        items: (order.items || []).map((item: any) => ({
-          productId: item.product?._id || item.product,
-          title: item.title || item.product?.title || 'Toy Product',
-          quantity: item.quantity,
-          price: item.price,
-          image: item.product?.images?.[0] || item.product?.image || null,
-        })),
+        items: (order.items || []).map((item: TrackOrderItem) => {
+          const prod = typeof item.product === 'object' && item.product !== null ? item.product : null;
+          const firstImg = prod?.images?.[0];
+          const imgUrl = typeof firstImg === 'string' ? firstImg : firstImg?.url || prod?.image || null;
+          return {
+            productId: typeof prod?._id === 'object' ? prod._id.toString() : prod?._id || (typeof item.product === 'string' ? item.product : null),
+            title: item.title || prod?.title || 'Toy Product',
+            quantity: item.quantity,
+            price: item.price,
+            image: imgUrl,
+          };
+        }),
         createdAt: order.createdAt,
         updatedAt: order.updatedAt,
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error tracking order:', error);
     return NextResponse.json(
-      { success: false, error: error.message || 'Internal server error' },
+      { success: false, error: error instanceof Error ? (error as Error).message : String(error) || 'Internal server error' },
       { status: 500 }
     );
   }

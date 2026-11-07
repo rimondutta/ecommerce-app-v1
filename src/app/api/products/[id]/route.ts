@@ -1,3 +1,4 @@
+interface ProductImageItem { url?: string; alt?: string; [key: string]: unknown; }
 import { NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/db';
 import Product from '@/models/Product';
@@ -65,7 +66,7 @@ export async function GET(
         },
       }
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('[GET /api/products/[id]]', error);
     return NextResponse.json(
       { success: false, error: 'Internal Server Error' },
@@ -86,7 +87,7 @@ export async function PUT(
       (await getBearerSession(req)) ??
       (await getServerSession(authOptions));
 
-    if (!session || !['admin', 'manager'].includes((session.user as any).role)) {
+    if (!session || !['admin', 'manager'].includes(session.user.role)) {
       return NextResponse.json(
         { success: false, error: 'Unauthorized' },
         { status: 401, headers: CORS_HEADERS }
@@ -99,7 +100,7 @@ export async function PUT(
     // Sanitize image URLs
     if (data.images && Array.isArray(data.images)) {
       data.images = data.images.filter(
-        (img: any) => img.url && (img.url.startsWith('http') || img.url.startsWith('/'))
+        (img: ProductImageItem) => Boolean(img?.url && (img.url.startsWith('http') || img.url.startsWith('/')))
       );
     }
 
@@ -114,8 +115,8 @@ export async function PUT(
     }
 
     // Delete Cloudinary images that were removed in this update
-    const existingUrls = existingProduct.images?.map((img: any) => img.url) || [];
-    const newUrls = data.images?.map((img: any) => img.url) || [];
+    const existingUrls = existingProduct.images?.map((img: ProductImageItem) => img.url) || [];
+    const newUrls = data.images?.map((img: ProductImageItem) => img.url) || [];
     const urlsToDelete = existingUrls.filter(
       (url: string) => !newUrls.includes(url) && url.includes('cloudinary.com')
     );
@@ -142,15 +143,15 @@ export async function PUT(
       { success: true, data: product },
       { headers: CORS_HEADERS }
     );
-  } catch (error: any) {
-    if (error.code === 11000) {
+  } catch (error: unknown) {
+    if ((error as { code?: number })?.code === 11000) {
       return NextResponse.json(
         { success: false, error: 'Product with this slug already exists' },
         { status: 400, headers: CORS_HEADERS }
       );
     }
     return NextResponse.json(
-      { success: false, error: error.message },
+      { success: false, error: error instanceof Error ? (error as Error).message : String(error) },
       { status: 500, headers: CORS_HEADERS }
     );
   }
@@ -168,7 +169,7 @@ export async function DELETE(
       (await getBearerSession(req)) ??
       (await getServerSession(authOptions));
 
-    if (!session || !['admin', 'manager'].includes((session.user as any).role)) {
+    if (!session || !['admin', 'manager'].includes(session.user.role)) {
       return NextResponse.json(
         { success: false, error: 'Unauthorized' },
         { status: 401, headers: CORS_HEADERS }
@@ -211,9 +212,9 @@ export async function DELETE(
       { success: true, data: { message: 'Product deleted' } },
       { headers: CORS_HEADERS }
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
     return NextResponse.json(
-      { success: false, error: error.message },
+      { success: false, error: error instanceof Error ? (error as Error).message : String(error) },
       { status: 500, headers: CORS_HEADERS }
     );
   }

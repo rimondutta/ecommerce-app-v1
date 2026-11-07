@@ -2,9 +2,8 @@
 
 import React from "react";
 import Link from "next/link";
-import { m, AnimatePresence, useReducedMotion } from "framer-motion";
+import { m, AnimatePresence, useReducedMotion, type Variants } from "framer-motion";
 import { useUIStore } from "@/store/uiStore";
-import { cn } from "@/lib/utils";
 
 const navItems = [
   { num: "01", label: "SHOP", href: "/products" },
@@ -20,11 +19,11 @@ export default function MobileMenu() {
   const { isMobileMenuOpen, closeMobileMenu } = useUIStore();
   const reduced = useReducedMotion() ?? false;
 
-  const container: any = {
+  const container: Variants = {
     hidden: {},
     visible: { transition: { staggerChildren: reduced ? 0 : 0.07, delayChildren: 0.1 } },
   };
-  const item: any = {
+  const item: Variants = {
     hidden: reduced ? { opacity: 0 } : { opacity: 0, x: -24 },
     visible: { opacity: 1, x: 0, transition: { ease: [0.25, 1, 0.5, 1], duration: 0.55 } },
   };
@@ -51,7 +50,7 @@ export default function MobileMenu() {
             initial={{ x: reduced ? 0 : "-100%" }}
             animate={{ x: 0 }}
             exit={{ x: reduced ? 0 : "-100%", opacity: reduced ? 0 : 1 }}
-            transition={{ ease: [0.25, 1, 0.5, 1] as any, duration: reduced ? 0.15 : 0.6 }}
+            transition={{ ease: [0.25, 1, 0.5, 1] as [number, number, number, number], duration: reduced ? 0.15 : 0.6 }}
             className="fixed inset-y-0 left-0 w-[85vw] max-w-sm z-[1001] bg-[#0D0D14]/95 backdrop-blur-2xl flex flex-col overflow-hidden border-r border-violet-500/10"
           >
             {/* Header */}

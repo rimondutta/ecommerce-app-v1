@@ -5,7 +5,6 @@ import { Dialog, DialogPanel, Transition, TransitionChild } from "@headlessui/re
 import Image from "next/image";
 import { useCart } from "@/components/providers/CartProvider";
 import Link from "next/link";
-import QuantityStepper from "./QuantityStepper";
 
 const FREE_SHIPPING_THRESHOLD = 2000;
 

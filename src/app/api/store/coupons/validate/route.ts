@@ -44,7 +44,7 @@ export async function POST(req: Request) {
       discountValue: coupon.discountValue,
       discountAmount,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Coupon validation error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

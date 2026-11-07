@@ -2,8 +2,8 @@
 
 import React, { useState } from "react"
 import { Megaphone, Image as ImageIcon } from "lucide-react"
+import Image from "next/image"
 import { useToast } from "@/components/playshelf/Toast"
-import { useRouter } from "next/navigation"
 
 export default function BlogUploadPage() {
   const [title, setTitle] = useState("");
@@ -15,7 +15,6 @@ export default function BlogUploadPage() {
   const [preview, setPreview] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const { showToast } = useToast();
-  const router = useRouter();
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -79,8 +78,8 @@ export default function BlogUploadPage() {
       setFile(null);
       setPreview("");
       // router.push('/admin/blog'); // Redirect if list page exists
-    } catch (err: any) {
-      showToast(err.message || "An error occurred", "error");
+    } catch (err: unknown) {
+      showToast(err instanceof Error ? err.message : "An error occurred", "error");
     } finally {
       setLoading(false);
     }
@@ -135,7 +134,7 @@ export default function BlogUploadPage() {
                 required
               />
               {preview ? (
-                <img src={preview} alt="Preview" className="absolute inset-0 w-full h-full object-cover z-0 opacity-50" />
+                <Image src={preview} alt="Preview" fill unoptimized className="absolute inset-0 w-full h-full object-cover z-0 opacity-50" />
               ) : null}
               <div className="z-10 flex flex-col items-center bg-white/80 p-4 rounded-xl shadow-sm pointer-events-none">
                 <ImageIcon size={32} className="mb-3 text-gray-800" />

@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/db';
 import Product from '@/models/Product';
-import VariationType from '@/models/VariationType';
-import VariationValue from '@/models/VariationValue';
+import '@/models/VariationType';
+import '@/models/VariationValue';
 
 export async function GET(
   req: Request,
@@ -51,7 +51,7 @@ export async function GET(
         },
       }
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('API Error:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }

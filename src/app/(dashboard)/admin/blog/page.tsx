@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { useToast } from "@/components/playshelf/Toast";
 import { Megaphone, Plus, Trash2, Eye, EyeOff, ExternalLink } from "lucide-react";
@@ -35,11 +36,32 @@ export default function AdminBlogListPage() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [showToast]);
 
   useEffect(() => {
-    fetchBlogs();
-  }, [fetchBlogs]);
+    let ignore = false;
+    async function load() {
+      try {
+        const res = await fetch("/api/admin/blogs");
+        const data = await res.json();
+        if (!ignore) {
+          setBlogs(data);
+        }
+      } catch {
+        if (!ignore) {
+          showToast("Failed to load blog posts", "error");
+        }
+      } finally {
+        if (!ignore) {
+          setLoading(false);
+        }
+      }
+    }
+    load();
+    return () => {
+      ignore = true;
+    };
+  }, [showToast]);
 
   const handleTogglePublish = async (blog: Blog) => {
     setActionLoading(blog._id);
@@ -130,11 +152,7 @@ export default function AdminBlogListPage() {
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
                       {blog.featuredImage?.url && (
-                        <img
-                          src={blog.featuredImage.url}
-                          alt={blog.title}
-                          className="w-10 h-10 object-cover rounded-md flex-shrink-0 bg-gray-100"
-                        />
+                        <Image src={blog.featuredImage.url} alt={blog.title} width={40} height={40} className="w-10 h-10 object-cover rounded-md flex-shrink-0 bg-gray-100" />
                       )}
                       <div className="min-w-0">
                         <p className="font-medium text-gray-900 truncate max-w-[200px]">{blog.title}</p>

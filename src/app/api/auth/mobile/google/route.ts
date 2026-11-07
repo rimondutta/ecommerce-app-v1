@@ -95,7 +95,7 @@ export async function POST(req: Request) {
       },
       { headers: CORS_HEADERS }
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Mobile Google login error:", error);
     return NextResponse.json(
       { success: false, error: "Internal server error" },

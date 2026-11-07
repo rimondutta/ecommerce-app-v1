@@ -31,7 +31,7 @@ export async function PUT(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const allowedUpdates: Record<string, any> = {};
+    const allowedUpdates: Record<string, string> = {};
 
     if (body.name && typeof body.name === 'string') {
       allowedUpdates.name = body.name.trim();
@@ -52,7 +52,7 @@ export async function PUT(req: NextRequest) {
       session.user.id,
       { $set: allowedUpdates },
       { new: true, select: '-password' }
-    ).lean();
+    ).lean() as { _id: { toString(): string }; name?: string; email: string; role: string; image?: string | null } | null;
 
     if (!user) {
       return NextResponse.json(
@@ -65,16 +65,16 @@ export async function PUT(req: NextRequest) {
       {
         success: true,
         data: {
-          id: (user as any)._id.toString(),
-          name: (user as any).name,
-          email: (user as any).email,
-          role: (user as any).role,
-          image: (user as any).image ?? null,
+          id: user._id.toString(),
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          image: user.image ?? null,
         },
       },
       { headers: CORS_HEADERS }
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('[PUT /api/auth/mobile/update-profile]', error);
     return NextResponse.json(
       { success: false, error: 'Internal Server Error' },

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getBearerSession } from '@/lib/mobile-auth';
+import { } from '@/lib/mobile-auth';
 import { NextRequest } from 'next/server';
 import { calculateOrderPricing } from '@/lib/pricing';
 
@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Normalize item format for authoritative pricing verification
-    const normalizedItems = sourceItems.map((item: any) => ({
+    const normalizedItems = sourceItems.map((item: { productId?: string; product?: { _id?: string; id?: string }; id?: string; variantId?: string; variant?: { _id?: string }; quantity?: number | string; variantOptions?: Record<string, string> }) => ({
       productId: item.productId || item.product?._id || item.product?.id || item.id,
       variantId: item.variantId || item.variant?._id,
       quantity: Number(item.quantity) || 1,
@@ -45,9 +45,9 @@ export async function POST(req: NextRequest) {
         shippingZone,
         couponCode,
       });
-    } catch (pricingError: any) {
+    } catch (pricingError: unknown) {
       return NextResponse.json(
-        { success: false, error: pricingError.message || 'Pricing verification failed' },
+        { success: false, error: pricingError instanceof Error ? pricingError.message : 'Pricing verification failed' },
         { status: 400, headers: CORS_HEADERS }
       );
     }
@@ -103,10 +103,10 @@ export async function POST(req: NextRequest) {
       },
       { headers: CORS_HEADERS }
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('[POST /api/payment/create-intent]', error);
     return NextResponse.json(
-      { success: false, error: error.message ?? 'Payment initialization failed' },
+      { success: false, error: error instanceof Error ? (error as Error).message : String(error) ?? 'Payment initialization failed' },
       { status: 500, headers: CORS_HEADERS }
     );
   }

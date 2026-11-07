@@ -37,8 +37,9 @@ export default function ForgotPasswordPage() {
       setTimeout(() => {
         router.push(`/reset-password?email=${encodeURIComponent(email)}`);
       }, 2000);
-    } catch (err: any) {
-      setError(err.message || "An unexpected error occurred. Please try again.");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "An unexpected error occurred. Please try again.";
+      setError(message);
     } finally {
       setLoading(false);
     }
@@ -57,7 +58,7 @@ export default function ForgotPasswordPage() {
           <div className="text-center mb-6">
             <h1 className="text-2xl font-semibold text-gray-900 mb-2">Forgot Password</h1>
             <p className="text-sm text-gray-500">
-              Enter your email and we'll send you a 6-digit code to reset your password.
+              Enter your email and we&apos;ll send you a 6-digit code to reset your password.
             </p>
           </div>
 

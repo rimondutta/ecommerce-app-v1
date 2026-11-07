@@ -61,7 +61,26 @@ export default function VariationsPage() {
     setLoading(false);
   }, []);
 
-  useEffect(() => { loadTypes(); }, [loadTypes]);
+  useEffect(() => {
+    let ignore = false;
+    async function init() {
+      try {
+        const res = await fetch("/api/admin/variation-types");
+        const data = await res.json();
+        if (!ignore && data.variationTypes) {
+          setTypes(data.variationTypes);
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        if (!ignore) setLoading(false);
+      }
+    }
+    init();
+    return () => {
+      ignore = true;
+    };
+  }, []);
 
   const loadValues = async (typeId: string) => {
     if (typeValues[typeId]) return; // already loaded
@@ -115,7 +134,7 @@ export default function VariationsPage() {
   const handleAddValue = async (typeId: string, displayType: DisplayType) => {
     if (!addValueText.trim()) { setAddValueError("Value is required"); return; }
     setAddValueLoading(true); setAddValueError("");
-    const body: any = { value: addValueText.trim() };
+    const body: { value: string; colorHex?: string } = { value: addValueText.trim() };
     if (displayType === "swatch") body.colorHex = addValueHex;
     const res = await fetch(`/api/admin/variation-types/${typeId}/values`, {
       method: "POST",

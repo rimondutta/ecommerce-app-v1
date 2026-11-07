@@ -94,7 +94,7 @@ ${escapeHtml(order.shippingAddress.addressLine1)}, ${escapeHtml(order.shippingAd
       })
     );
     console.log('Telegram admin notification(s) sent successfully.');
-  } catch (error: any) {
-    console.warn('Telegram notification skipped (Network issue):', error.message || 'Unknown error');
+  } catch (error: unknown) {
+    console.warn('Telegram notification skipped (Network issue):', error instanceof Error ? (error as Error).message : 'Unknown error');
   }
 }

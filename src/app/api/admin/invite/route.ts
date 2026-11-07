@@ -10,7 +10,7 @@ import nodemailer from 'nodemailer';
 export async function GET() {
   try {
     const session = await getServerSession(authOptions);
-    if (!session || (session.user as any).role !== 'admin') {
+    if (!session || session.user.role !== 'admin') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -22,8 +22,8 @@ export async function GET() {
       .lean();
 
     return NextResponse.json({ admins });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    return NextResponse.json({ error: error instanceof Error ? (error as Error).message : String(error) }, { status: 500 });
   }
 }
 
@@ -31,7 +31,7 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session || (session.user as any).role !== 'admin') {
+    if (!session || session.user.role !== 'admin') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -99,9 +99,9 @@ export async function POST(req: NextRequest) {
       },
       tempPassword: !emailSent ? tempPassword : undefined,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Invite admin error:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: error instanceof Error ? (error as Error).message : String(error) }, { status: 500 });
   }
 }
 
@@ -109,7 +109,7 @@ export async function POST(req: NextRequest) {
 export async function PATCH(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session || (session.user as any).role !== 'admin') {
+    if (!session || session.user.role !== 'admin') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -154,9 +154,9 @@ export async function PATCH(req: NextRequest) {
         : `Password reset but email could not be sent.`,
       tempPassword: !emailSent ? tempPassword : undefined,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Password reset error:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: error instanceof Error ? (error as Error).message : String(error) }, { status: 500 });
   }
 }
 
@@ -164,7 +164,7 @@ export async function PATCH(req: NextRequest) {
 export async function DELETE(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session || (session.user as any).role !== 'admin') {
+    if (!session || session.user.role !== 'admin') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -176,7 +176,7 @@ export async function DELETE(req: NextRequest) {
     }
 
     // Prevent self-deletion
-    if (userId === (session.user as any).id) {
+    if (userId === session.user.id) {
       return NextResponse.json(
         { error: 'You cannot remove yourself' },
         { status: 400 }
@@ -187,8 +187,8 @@ export async function DELETE(req: NextRequest) {
     await User.findByIdAndDelete(userId);
 
     return NextResponse.json({ success: true, message: 'Admin removed' });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    return NextResponse.json({ error: error instanceof Error ? (error as Error).message : String(error) }, { status: 500 });
   }
 }
 

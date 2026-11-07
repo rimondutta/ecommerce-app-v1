@@ -3,6 +3,7 @@
 import { useSession, signOut } from "next-auth/react";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useWishlist } from "@/components/providers/WishlistProvider";
 import { PageLoader } from "@/components/ui/Loader";
@@ -24,44 +25,82 @@ import {
 } from "lucide-react";
 
 
+interface AccountOrderItem {
+  title?: string;
+  image?: string;
+  price?: number;
+  quantity?: number;
+}
+
+interface AccountOrder {
+  _id: string;
+  orderNumber?: string;
+  invoiceNumber?: string;
+  createdAt: string;
+  fulfillmentStatus?: string;
+  paymentStatus?: string;
+  totalAmount?: number;
+  items?: AccountOrderItem[];
+}
+
+type WishlistProduct = React.ComponentProps<typeof ProductCardNike>['product'];
+
 export default function AccountPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const [orders, setOrders] = useState<any[]>([]);
+  const [orders, setOrders] = useState<AccountOrder[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("overview");
 
   const { items: wishlistIds, count: wishlistCount } = useWishlist();
-  const [wishlistProducts, setWishlistProducts] = useState<any[]>([]);
+  const [wishlistProducts, setWishlistProducts] = useState<WishlistProduct[]>([]);
   const [wishlistLoading, setWishlistLoading] = useState(false);
 
   useEffect(() => {
-    if (status === "unauthenticated") router.push("/login?callbackUrl=/account");
-    if (status === "authenticated") fetchOrders();
-  }, [status]);
+    if (status === "unauthenticated") {
+      router.push("/login?callbackUrl=/account");
+      return;
+    }
+    if (status !== "authenticated") return;
+
+    let ignore = false;
+    async function loadOrders() {
+      try {
+        const res = await fetch("/api/store/orders/user");
+        const data = await res.json();
+        if (!ignore && data.success) setOrders(data.orders);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        if (!ignore) setLoading(false);
+      }
+    }
+    loadOrders();
+    return () => {
+      ignore = true;
+    };
+  }, [status, router]);
 
   useEffect(() => {
-    if (activeTab === "wishlist" && wishlistIds.length > 0) fetchWishlistProducts();
+    if (activeTab !== "wishlist" || wishlistIds.length === 0) return;
+
+    let ignore = false;
+    async function loadWishlist() {
+      try {
+        const res = await fetch(`/api/store/products?ids=${wishlistIds.join(",")}`);
+        const data = await res.json();
+        if (!ignore && data.products) setWishlistProducts(data.products);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        if (!ignore) setWishlistLoading(false);
+      }
+    }
+    loadWishlist();
+    return () => {
+      ignore = true;
+    };
   }, [activeTab, wishlistIds]);
-
-  const fetchWishlistProducts = async () => {
-    setWishlistLoading(true);
-    try {
-      const res = await fetch(`/api/store/products?ids=${wishlistIds.join(",")}`);
-      const data = await res.json();
-      if (data.products) setWishlistProducts(data.products);
-    } catch (err) { console.error(err); }
-    finally { setWishlistLoading(false); }
-  };
-
-  const fetchOrders = async () => {
-    try {
-      const res = await fetch("/api/store/orders/user");
-      const data = await res.json();
-      if (data.success) setOrders(data.orders);
-    } catch (err) { console.error(err); }
-    finally { setLoading(false); }
-  };
 
   if (status === "loading") return <PageLoader />;
   if (!session) return null;
@@ -174,7 +213,7 @@ export default function AccountPage() {
                        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                         {[
                           ["Order ID", `#${orders[0]._id.slice(-8).toUpperCase()}`],
-                          ["Status", orders[0].paymentStatus?.charAt(0).toUpperCase() + orders[0].paymentStatus?.slice(1) || "Pending"],
+                          ["Status", orders[0].paymentStatus ? (orders[0].paymentStatus.charAt(0).toUpperCase() + orders[0].paymentStatus.slice(1)) : "Pending"],
                           ["Total", `Tk. ${orders[0].totalAmount?.toLocaleString()}`],
                           ["Items", `${orders[0].items?.length || 0}`],
                         ].map(([label, value]) => (
@@ -227,7 +266,7 @@ export default function AccountPage() {
                                "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium",
                                order.paymentStatus === "paid" ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800"
                              )}>
-                               {order.paymentStatus?.charAt(0).toUpperCase() + order.paymentStatus?.slice(1)}
+                               {order.paymentStatus ? (order.paymentStatus.charAt(0).toUpperCase() + order.paymentStatus.slice(1)) : "Pending"}
                              </span>
                            </div>
                         </div>
@@ -235,12 +274,12 @@ export default function AccountPage() {
                         <div className="flex flex-col md:items-end gap-3">
                            <span className="font-semibold text-gray-900">Tk. {order.totalAmount?.toLocaleString()}</span>
                            <div className="flex -space-x-2 overflow-hidden">
-                             {order.items?.slice(0, 4).map((item: any, i: number) => (
-                               <img key={i} src={item.image || "/placeholder.jpg"} alt="" className="inline-block h-8 w-8 rounded-full ring-2 ring-white object-cover bg-gray-100" />
+                             {order.items?.slice(0, 4).map((item: AccountOrderItem, i: number) => (
+                               <Image key={i} src={item.image || "/placeholder.jpg"} alt={item.title || "Product"} width={32} height={32} className="inline-block h-8 w-8 rounded-full ring-2 ring-white object-cover bg-gray-100" />
                              ))}
-                             {order.items?.length > 4 && (
+                             {(order.items?.length ?? 0) > 4 && (
                                <div className="inline-flex items-center justify-center h-8 w-8 rounded-full ring-2 ring-white bg-gray-100 text-xs font-medium text-gray-600">
-                                 +{order.items.length - 4}
+                                 +{(order.items?.length ?? 0) - 4}
                                </div>
                              )}
                            </div>

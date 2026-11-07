@@ -29,7 +29,7 @@ export async function getProductsTimestamp(): Promise<number> {
   try {
     await connectToDatabase();
     const doc = await Counter.findById(COUNTER_ID).lean();
-    return (doc as any)?.seq ?? 0;
+    return (doc as { seq?: number } | null)?.seq ?? 0;
   } catch (err) {
     console.error('[lastUpdated] Failed to read products timestamp:', err);
     return 0;

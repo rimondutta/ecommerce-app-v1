@@ -17,7 +17,7 @@ async function getSettings() {
 export async function GET() {
   try {
     const session = await getServerSession(authOptions);
-    if (!session || !['admin', 'manager'].includes((session.user as any).role)) {
+    if (!session || !['admin', 'manager'].includes(session.user.role)) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -25,15 +25,15 @@ export async function GET() {
     const settings = await getSettings();
 
     return NextResponse.json({ facebookPixel: settings.facebookPixel });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    return NextResponse.json({ error: error instanceof Error ? (error as Error).message : String(error) }, { status: 500 });
   }
 }
 
 export async function PUT(req: Request) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session || !['admin', 'manager'].includes((session.user as any).role)) {
+    if (!session || !['admin', 'manager'].includes(session.user.role)) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -64,7 +64,7 @@ export async function PUT(req: Request) {
     await invalidateSettings();
 
     return NextResponse.json({ facebookPixel: settings.facebookPixel });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    return NextResponse.json({ error: error instanceof Error ? (error as Error).message : String(error) }, { status: 500 });
   }
 }

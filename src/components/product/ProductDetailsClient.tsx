@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { m, useReducedMotion } from "framer-motion";
 import { useCart } from "@/components/providers/CartProvider";
 import { useWishlist } from "@/store/wishlistStore";
 import { useToast } from "@/components/playshelf/Toast";
@@ -12,6 +11,70 @@ import ProductGridNike from "@/components/ui/product-grid-nike";
 import { Star, Truck, RefreshCcw, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { trackViewContent, trackAddToCart, trackAddToWishlist } from "@/lib/fbPixel";
+
+interface VariationValue {
+  _id: string;
+  value: string;
+  colorHex?: string;
+}
+
+interface VariationType {
+  _id: string;
+  name: string;
+  displayType?: string;
+  values?: VariationValue[];
+}
+
+interface VariantCombination {
+  variationType: { _id: string; name?: string };
+  variationValue: { _id: string; value?: string; colorHex?: string };
+}
+
+interface ProductVariant {
+  _id: string;
+  price: number;
+  comparePrice?: number;
+  combinationLabel?: string;
+  stock: number;
+  isActive: boolean;
+  combination: VariantCombination[];
+  images?: Array<string | { url: string; alt?: string }>;
+}
+
+interface ProductImage {
+  url: string;
+  alt?: string;
+}
+
+interface ProductReview {
+  _id?: string;
+  title?: string;
+  name?: string;
+  rating: number;
+  text?: string;
+  date: string | Date;
+  status?: string;
+}
+
+export interface DetailedProduct {
+  _id: string;
+  title: string;
+  slug: string;
+  price: number;
+  compareAtPrice?: number;
+  description?: string;
+  longDescription?: string;
+  ageRange?: string;
+  images?: ProductImage[];
+  category?: { _id?: string; name?: string; slug?: string };
+  inventory?: number;
+  rating?: number;
+  reviewCount?: number;
+  reviews?: ProductReview[];
+  hasVariations?: boolean;
+  variationTypes?: VariationType[];
+  variants?: ProductVariant[];
+}
 
 // ─── Breadcrumb underline link ───
 function NavLink({ href, children }: { href: string; children: React.ReactNode }) {
@@ -23,12 +86,11 @@ function NavLink({ href, children }: { href: string; children: React.ReactNode }
   );
 }
 
-export default function ProductDetailsClient({ product: initialProduct, relatedProducts }: { product: any; relatedProducts?: any[] }) {
+export default function ProductDetailsClient({ product: initialProduct, relatedProducts }: { product: DetailedProduct; relatedProducts?: DetailedProduct[] }) {
   const router = useRouter();
   const { addItem, openCart } = useCart();
   const { showToast } = useToast();
   const { toggleItem, isWishlisted } = useWishlist();
-  const reduced = useReducedMotion() ?? false;
 
   const product = initialProduct;
   const wishlisted = isWishlisted(product._id);
@@ -58,36 +120,31 @@ export default function ProductDetailsClient({ product: initialProduct, relatedP
   const [activeTab, setActiveTab] = useState("description");
 
   // Variations State
-  const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({});
+  const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>(() => {
+    if (product.hasVariations && product.variants && product.variants.length > 0) {
+      const firstActiveVariant = product.variants.find((v: ProductVariant) => v.isActive && v.stock > 0) || product.variants.find((v: ProductVariant) => v.isActive) || product.variants[0];
+      if (firstActiveVariant) {
+        const defaults: Record<string, string> = {};
+        firstActiveVariant.combination?.forEach((c: VariantCombination) => {
+          if (c.variationType?._id && c.variationValue?._id) {
+            defaults[c.variationType._id] = c.variationValue._id;
+          }
+        });
+        return defaults;
+      }
+    }
+    return {};
+  });
 
   // Find matching variant based on selected options
-  const matchingVariant = product.hasVariations && product.variants?.length > 0
-    ? product.variants.find((v: any) =>
+  const matchingVariant = product.hasVariations && product.variants && product.variants.length > 0
+    ? product.variants.find((v: ProductVariant) =>
       v.isActive &&
-      v.combination.every((c: any) =>
+      v.combination.every((c: VariantCombination) =>
         selectedOptions[c.variationType._id] === c.variationValue._id
       )
     )
     : null;
-
-  // Initialize default options
-  useEffect(() => {
-    if (product.hasVariations && product.variants?.length > 0 && Object.keys(selectedOptions).length === 0) {
-      const firstActiveVariant = product.variants.find((v: any) => v.isActive && v.stock > 0) || product.variants.find((v: any) => v.isActive) || product.variants[0];
-      if (firstActiveVariant) {
-        const defaults: Record<string, string> = {};
-        firstActiveVariant.combination.forEach((c: any) => {
-          defaults[c.variationType._id] = c.variationValue._id;
-        });
-        setSelectedOptions(defaults);
-
-        // If variant has its own images, set active image to 0 to show it
-        if (firstActiveVariant.images && firstActiveVariant.images.length > 0) {
-          setActiveImage(0);
-        }
-      }
-    }
-  }, [product.hasVariations, product.variants, selectedOptions]);
 
   const [isWritingReview, setIsWritingReview] = useState(false);
   const [reviewForm, setReviewForm] = useState({ rating: 5, title: "", text: "", name: "" });
@@ -115,13 +172,15 @@ export default function ProductDetailsClient({ product: initialProduct, relatedP
   };
 
   const handleAddToCart = () => {
+    const firstImage = matchingVariant?.images?.[0];
+    const imageUrl = typeof firstImage === 'string' ? firstImage : firstImage?.url || product.images?.[0]?.url || "/placeholder.jpg";
     addItem({
       id: product._id,
       slug: product.slug,
       title: matchingVariant?.combinationLabel ? `${product.title} - ${matchingVariant.combinationLabel}` : product.title,
       price: matchingVariant ? matchingVariant.price : product.price,
       quantity,
-      image: matchingVariant?.images?.[0] || product.images?.[0]?.url || "/placeholder.jpg",
+      image: imageUrl,
       variantId: matchingVariant?._id
     });
     try { trackAddToCart(product, quantity); } catch { /* noop */ }
@@ -130,13 +189,15 @@ export default function ProductDetailsClient({ product: initialProduct, relatedP
   };
 
   const handleBuyNow = () => {
+    const firstImage = matchingVariant?.images?.[0];
+    const imageUrl = typeof firstImage === 'string' ? firstImage : firstImage?.url || product.images?.[0]?.url || "/placeholder.jpg";
     addItem({
       id: product._id,
       slug: product.slug,
       title: matchingVariant?.combinationLabel ? `${product.title} - ${matchingVariant.combinationLabel}` : product.title,
       price: matchingVariant ? matchingVariant.price : product.price,
       quantity,
-      image: matchingVariant?.images?.[0] || product.images?.[0]?.url || "/placeholder.jpg",
+      image: imageUrl,
       variantId: matchingVariant?._id
     });
     try { trackAddToCart(product, quantity); } catch { /* noop */ }
@@ -149,20 +210,24 @@ export default function ProductDetailsClient({ product: initialProduct, relatedP
   // Determine final price and static discount based on database fields
   const currentPrice = matchingVariant ? matchingVariant.price : product.price;
   const currentComparePrice = matchingVariant?.comparePrice || product.compareAtPrice;
-  const currentInventory = matchingVariant ? matchingVariant.stock : product.inventory;
+  const currentInventory = (matchingVariant ? matchingVariant.stock : product.inventory) ?? 0;
 
   // Use actual discount logic (strictly derived from standard database prices)
   const hasDiscount = Boolean(currentComparePrice && currentComparePrice > currentPrice);
 
-  const discountPercentage = hasDiscount
+  const discountPercentage = hasDiscount && currentComparePrice
     ? Math.round(((currentComparePrice - currentPrice) / currentComparePrice) * 100)
     : 0;
 
   const effectiveComparePrice = currentComparePrice;
 
   // Determine current image gallery (variant images override product images if they exist)
-  const currentGallery = matchingVariant?.images?.length > 0
-    ? matchingVariant.images.map((url: string) => ({ url, alt: product.title }))
+  const currentGallery = matchingVariant?.images && matchingVariant.images.length > 0
+    ? matchingVariant.images.map((img) =>
+        typeof img === 'string'
+          ? { url: img, alt: product.title }
+          : { url: img.url, alt: img.alt || product.title }
+      )
     : product.images || [];
 
   const totalImages = currentGallery.length || 0;
@@ -170,14 +235,14 @@ export default function ProductDetailsClient({ product: initialProduct, relatedP
   const nextImage = () => setActiveImage(activeImage === totalImages - 1 ? 0 : activeImage + 1);
 
   // Group variation values for rendering UI
-  const variationGroups = product.hasVariations ? product.variationTypes?.map((vt: any) => {
+  const variationGroups = product.hasVariations ? product.variationTypes?.map((vt: VariationType) => {
     // Find all unique values for this type across all active variants
-    const uniqueValues = new Map();
-    product.variants?.forEach((v: any) => {
+    const uniqueValues = new Map<string, VariationValue>();
+    product.variants?.forEach((v: ProductVariant) => {
       if (!v.isActive) return;
-      const c = v.combination.find((combo: any) => combo.variationType._id === vt._id);
+      const c = v.combination.find((combo: VariantCombination) => combo.variationType._id === vt._id);
       if (c && !uniqueValues.has(c.variationValue._id)) {
-        uniqueValues.set(c.variationValue._id, c.variationValue);
+        uniqueValues.set(c.variationValue._id, c.variationValue as VariationValue);
       }
     });
     return { ...vt, values: Array.from(uniqueValues.values()) };
@@ -208,7 +273,7 @@ export default function ProductDetailsClient({ product: initialProduct, relatedP
             {/* Desktop thumbnails — rounded */}
             {currentGallery.length > 1 && (
               <div className="hidden md:flex flex-col gap-2 w-[72px] shrink-0">
-                {currentGallery.map((img: any, idx: number) => (
+                {currentGallery.map((img: ProductImage, idx: number) => (
                   <button
                     key={idx}
                     onClick={() => setActiveImage(idx)}
@@ -269,7 +334,7 @@ export default function ProductDetailsClient({ product: initialProduct, relatedP
             {/* Mobile thumbnails — rounded */}
             {currentGallery.length > 1 && (
               <div className="flex md:hidden gap-2 overflow-x-auto no-scrollbar pb-2">
-                {currentGallery.map((img: any, idx: number) => (
+                {currentGallery.map((img: ProductImage, idx: number) => (
                   <button
                     key={idx}
                     onClick={() => setActiveImage(idx)}
@@ -301,7 +366,7 @@ export default function ProductDetailsClient({ product: initialProduct, relatedP
             </h1>
 
             {/* Star rating */}
-            {product.reviewCount > 0 && (
+            {(product.reviewCount ?? 0) > 0 && (
               <div className="flex items-center gap-2 mb-5">
                 <div className="flex items-center gap-0.5">
                   {[...Array(5)].map((_, i) => (
@@ -334,15 +399,15 @@ export default function ProductDetailsClient({ product: initialProduct, relatedP
             {/* Variations */}
             {product.hasVariations && variationGroups && variationGroups.length > 0 && (
               <div className="flex flex-col gap-5 mb-6">
-                {variationGroups.map((vt: any) => (
+                {variationGroups.map((vt: VariationType & { values: VariationValue[] }) => (
                   <div key={vt._id}>
                     <p className="font-display font-semibold text-xs text-joy-muted uppercase tracking-wide mb-3">
                       {vt.name}: <span className="text-joy-navy font-bold normal-case ml-1">
-                        {vt.values.find((val: any) => val._id === selectedOptions[vt._id])?.value}
+                        {vt.values.find((val: VariationValue) => val._id === selectedOptions[vt._id])?.value}
                       </span>
                     </p>
                     <div className="flex flex-wrap gap-2">
-                      {vt.values.map((val: any) => {
+                      {vt.values.map((val: VariationValue) => {
                         const isSelected = selectedOptions[vt._id] === val._id;
 
                         // If it's a color swatch
@@ -641,9 +706,9 @@ export default function ProductDetailsClient({ product: initialProduct, relatedP
                     {product.reviews && product.reviews.length > 0 ? (
                       <div className="space-y-6">
                         {product.reviews
-                          .filter((r: any) => r.status !== 'pending')
-                          .sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime())
-                          .map((review: any, i: number) => (
+                          .filter((r: ProductReview) => r.status !== 'pending')
+                          .sort((a: ProductReview, b: ProductReview) => new Date(b.date).getTime() - new Date(a.date).getTime())
+                          .map((review: ProductReview, i: number) => (
                           <div key={i} className="bg-white p-6 rounded-2xl border border-joy-rule">
                             <div className="flex justify-between items-start mb-3">
                               <div>
@@ -694,7 +759,7 @@ export default function ProductDetailsClient({ product: initialProduct, relatedP
             <h2 className="font-display font-bold text-3xl md:text-4xl text-joy-navy mb-10 text-center">
               You May Also Like
             </h2>
-            <ProductGridNike products={relatedProducts} title={undefined} />
+            <ProductGridNike products={relatedProducts.map(p => ({ ...p, images: p.images ?? [] }))} title={undefined} />
           </div>
         </section>
       )}

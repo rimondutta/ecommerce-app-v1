@@ -21,7 +21,7 @@ export async function POST(
   try {
     // ── Admin auth guard ──
     const session = await getServerSession(authOptions);
-    if (!session || !['admin', 'manager'].includes((session.user as any).role)) {
+    if (!session || !['admin', 'manager'].includes(session.user.role)) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -41,7 +41,7 @@ export async function POST(
     const invoiceUrl = await generateInvoiceForOrder(id);
 
     return NextResponse.json({ success: true, invoiceUrl });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('[invoice] regenerate error:', error);
     return NextResponse.json(
       { error: 'Failed to regenerate invoice' },

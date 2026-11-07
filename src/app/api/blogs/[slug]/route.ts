@@ -25,7 +25,7 @@ export async function GET(
     }
 
     return NextResponse.json(post);
-  } catch (error: any) {
+  } catch {
     return NextResponse.json(
       { error: 'Failed to fetch blog post' },
       { status: 500 }
@@ -62,8 +62,8 @@ export async function PATCH(
     }
 
     return NextResponse.json(post);
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    return NextResponse.json({ error: error instanceof Error ? (error as Error).message : String(error) }, { status: 500 });
   }
 }
 
@@ -87,7 +87,7 @@ export async function DELETE(
     }
 
     return NextResponse.json({ success: true });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    return NextResponse.json({ error: error instanceof Error ? (error as Error).message : String(error) }, { status: 500 });
   }
 }

@@ -1,4 +1,4 @@
-﻿/**
+/**
  * lib/cache/redis-cache.ts
  *
  * Typed, reusable Redis CRUD helpers built on top of lib/redis.ts.
@@ -31,12 +31,13 @@ function safeStringify(value: unknown): string {
   return JSON.stringify(value);
 }
 
-function safeParse<T>(raw: string | null): T | null {
+function safeParse<T>(raw: unknown): T | null {
   if (raw === null || raw === undefined) return null;
   try {
     // Upstash auto-deserializes JSON for us in most cases; handle both
     if (typeof raw === 'object') return raw as T;
-    return JSON.parse(raw) as T;
+    if (typeof raw === 'string') return JSON.parse(raw) as T;
+    return raw as T;
   } catch {
     return null;
   }
@@ -57,13 +58,13 @@ export async function getCached<T>(key: string): Promise<T | null> {
     const raw = await redis.get<T>(key);
     if (raw !== null && raw !== undefined) {
       cacheLog('HIT', key);
-      return safeParse<T>(raw as any) ?? (raw as T);
+      return safeParse<T>(raw) ?? (raw as T);
     }
     cacheLog('MISS', key);
     return null;
-  } catch (err: any) {
+  } catch (err: unknown) {
     // Never propagate DYNAMIC_SERVER_USAGE — re-throw it
-    if (err?.digest === 'DYNAMIC_SERVER_USAGE') throw err;
+    if ((err as { digest?: string })?.digest === 'DYNAMIC_SERVER_USAGE') throw err;
     cacheLog('ERROR', key, undefined, err);
     return null;
   }
@@ -78,8 +79,8 @@ export async function setCached<T>(key: string, value: T, ttlSeconds: number): P
   try {
     await redis.setex(key, ttlSeconds, safeStringify(value));
     cacheLog('SET', key, { ttl: ttlSeconds });
-  } catch (err: any) {
-    if (err?.digest === 'DYNAMIC_SERVER_USAGE') throw err;
+  } catch (err: unknown) {
+    if ((err as { digest?: string })?.digest === 'DYNAMIC_SERVER_USAGE') throw err;
     cacheLog('ERROR', key, { op: 'SET' }, err);
   }
 }
@@ -92,8 +93,8 @@ export async function deleteCached(...keys: string[]): Promise<void> {
   try {
     await redis.del(...keys);
     for (const k of keys) cacheLog('DEL', k);
-  } catch (err: any) {
-    if (err?.digest === 'DYNAMIC_SERVER_USAGE') throw err;
+  } catch (err: unknown) {
+    if ((err as { digest?: string })?.digest === 'DYNAMIC_SERVER_USAGE') throw err;
     cacheLog('ERROR', keys.join(','), { op: 'DEL' }, err);
   }
 }
@@ -119,8 +120,8 @@ export async function deleteCachedPattern(pattern: string): Promise<void> {
       }
     } while (cursor !== 0);
     cacheLog('DEL', pattern, { count: deleted });
-  } catch (err: any) {
-    if (err?.digest === 'DYNAMIC_SERVER_USAGE') throw err;
+  } catch (err: unknown) {
+    if ((err as { digest?: string })?.digest === 'DYNAMIC_SERVER_USAGE') throw err;
     cacheLog('ERROR', pattern, { op: 'SCAN_DEL' }, err);
   }
 }

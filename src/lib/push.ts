@@ -12,14 +12,20 @@ import connectToDatabase from '@/lib/db';
 import User from '@/models/User';
 import Notification from '@/models/Notification';
 
-// ── Status → content map ──────────────────────────────────────
+// ── Types ───────────────────────────────────────────────────────
 
-type OrderStatus =
-  | 'unfulfilled'
-  | 'processing'
-  | 'shipped'
-  | 'delivered'
-  | 'cancelled';
+interface PushOrder {
+  _id?: { toString(): string };
+  customerEmail: string;
+}
+
+interface PushUser {
+  _id: unknown;
+  expoPushTokens?: string[];
+  pushToken?: string;
+}
+
+// ── Status → content map ──────────────────────────────────────
 
 const STATUS_CONTENT: Record<
   string,
@@ -60,7 +66,7 @@ const STATUS_CONTENT: Record<
 // ── Main helper ───────────────────────────────────────────────
 
 export async function sendOrderStatusNotification(
-  order: any,
+  order: PushOrder,
   newStatus: string
 ): Promise<void> {
   try {
@@ -74,7 +80,7 @@ export async function sendOrderStatusNotification(
     const body = content.body(orderNum);
 
     // Find the customer
-    const user = await User.findOne({ email: order.customerEmail }).lean() as any;
+    const user = await User.findOne({ email: order.customerEmail }).lean() as PushUser | null;
     if (!user) return;
 
     // 1. Save Notification record in DB (always, even if push fails)
@@ -144,7 +150,7 @@ export async function sendOrderStatusNotification(
         {
           $pull: { expoPushTokens: { $in: deadTokens } },
           // Also clear legacy field if it's dead
-          ...(deadTokens.includes(user.pushToken) ? { $unset: { pushToken: '' } } : {}),
+          ...(user.pushToken && deadTokens.includes(user.pushToken) ? { $unset: { pushToken: '' } } : {}),
         }
       );
       console.log(`[push] Removed ${deadTokens.length} dead token(s) for user ${user._id}`);

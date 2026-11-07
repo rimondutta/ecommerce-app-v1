@@ -6,7 +6,7 @@ import { uploadImage, deleteImage } from '@/lib/cloudinary';
 export async function POST(req: Request) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session || !['admin', 'manager'].includes((session.user as any).role)) {
+    if (!session || !['admin', 'manager'].includes(session.user.role)) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -28,16 +28,16 @@ export async function POST(req: Request) {
     const secureUrl = await uploadImage(dataUri, "products");
 
     return NextResponse.json({ url: secureUrl }, { status: 200 });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Cloudinary upload route error:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: error instanceof Error ? (error as Error).message : String(error) }, { status: 500 });
   }
 }
 
 export async function DELETE(req: Request) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session || !['admin', 'manager'].includes((session.user as any).role)) {
+    if (!session || !['admin', 'manager'].includes(session.user.role)) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -55,8 +55,8 @@ export async function DELETE(req: Request) {
     await deleteImage(url);
 
     return NextResponse.json({ success: true, message: 'Image deleted from Cloudinary' });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Cloudinary delete route error:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: error instanceof Error ? (error as Error).message : String(error) }, { status: 500 });
   }
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, Suspense, useEffect } from "react";
+import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Loader2, ArrowLeft, CheckCircle } from "lucide-react";
@@ -15,8 +15,16 @@ function ResetPasswordForm() {
   
   // Step 1 State
   const [email, setEmail] = useState(initialEmail);
+  const [prevInitialEmail, setPrevInitialEmail] = useState(initialEmail);
   const [otp, setOtp] = useState("");
   const [resetToken, setResetToken] = useState("");
+  
+  if (initialEmail !== prevInitialEmail) {
+    setPrevInitialEmail(initialEmail);
+    if (initialEmail) {
+      setEmail(initialEmail);
+    }
+  }
   
   // Step 2 State
   const [newPassword, setNewPassword] = useState("");
@@ -24,10 +32,6 @@ function ResetPasswordForm() {
   
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    if (initialEmail) setEmail(initialEmail);
-  }, [initialEmail]);
 
   const handleVerifyOtp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,8 +53,9 @@ function ResetPasswordForm() {
 
       setResetToken(data.resetToken);
       setStep(2); // Move to password reset step
-    } catch (err: any) {
-      setError(err.message || "An unexpected error occurred. Please try again.");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "An unexpected error occurred. Please try again.";
+      setError(message);
     } finally {
       setLoading(false);
     }
@@ -81,8 +86,9 @@ function ResetPasswordForm() {
 
       setStep(3); // Success
       setTimeout(() => router.push("/login"), 3000);
-    } catch (err: any) {
-      setError(err.message || "An unexpected error occurred. Please try again.");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "An unexpected error occurred. Please try again.";
+      setError(message);
     } finally {
       setLoading(false);
     }

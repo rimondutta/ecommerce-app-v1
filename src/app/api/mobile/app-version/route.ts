@@ -66,7 +66,7 @@ export async function GET() {
         'Cache-Control': 'public, max-age=300, stale-while-revalidate=60',
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('[app-version] Failed to read version config:', error);
     // Never block users — return a safe fallback
     return NextResponse.json(

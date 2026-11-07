@@ -8,7 +8,7 @@ import Settings from '@/models/Settings';
 export async function GET() {
   try {
     const session = await getServerSession(authOptions);
-    if (!session || (session.user as any).role !== 'admin') {
+    if (!session || session.user.role !== 'admin') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -20,8 +20,8 @@ export async function GET() {
     );
 
     return NextResponse.json({ couriers: settings.couriers ?? [] });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    return NextResponse.json({ error: error instanceof Error ? (error as Error).message : String(error) }, { status: 500 });
   }
 }
 
@@ -29,7 +29,7 @@ export async function GET() {
 export async function POST(req: Request) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session || (session.user as any).role !== 'admin') {
+    if (!session || session.user.role !== 'admin') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -59,8 +59,8 @@ export async function POST(req: Request) {
     );
 
     return NextResponse.json({ couriers: settings.couriers });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    return NextResponse.json({ error: error instanceof Error ? (error as Error).message : String(error) }, { status: 500 });
   }
 }
 
@@ -68,7 +68,7 @@ export async function POST(req: Request) {
 export async function PUT(req: Request) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session || (session.user as any).role !== 'admin') {
+    if (!session || session.user.role !== 'admin') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -81,7 +81,7 @@ export async function PUT(req: Request) {
 
     await connectToDatabase();
 
-    const update: Record<string, any> = {};
+    const update: Record<string, string | boolean> = {};
     if (name !== undefined)                update['couriers.$.name']                = name;
     if (apiKey !== undefined)              update['couriers.$.apiKey']              = apiKey;
     if (apiSecret !== undefined)           update['couriers.$.apiSecret']           = apiSecret;
@@ -101,8 +101,8 @@ export async function PUT(req: Request) {
     }
 
     return NextResponse.json({ couriers: settings.couriers });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    return NextResponse.json({ error: error instanceof Error ? (error as Error).message : String(error) }, { status: 500 });
   }
 }
 
@@ -110,7 +110,7 @@ export async function PUT(req: Request) {
 export async function DELETE(req: Request) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session || (session.user as any).role !== 'admin') {
+    if (!session || session.user.role !== 'admin') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -130,7 +130,7 @@ export async function DELETE(req: Request) {
     );
 
     return NextResponse.json({ couriers: settings?.couriers ?? [] });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    return NextResponse.json({ error: error instanceof Error ? (error as Error).message : String(error) }, { status: 500 });
   }
 }

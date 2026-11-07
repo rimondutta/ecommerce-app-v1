@@ -8,7 +8,7 @@ import { touchProductsTimestamp } from '@/lib/lastUpdated';
 export async function GET(req: Request) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session || !['admin', 'manager'].includes((session.user as any).role)) {
+    if (!session || !['admin', 'manager'].includes(session.user.role)) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -33,15 +33,15 @@ export async function GET(req: Request) {
         totalPages: Math.ceil(total / limit),
       },
     });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    return NextResponse.json({ error: error instanceof Error ? (error as Error).message : String(error) }, { status: 500 });
   }
 }
 
 export async function POST(req: Request) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session || !['admin', 'manager'].includes((session.user as any).role)) {
+    if (!session || !['admin', 'manager'].includes(session.user.role)) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -49,7 +49,7 @@ export async function POST(req: Request) {
 
     // Sanitize image URLs to prevent next/image crash
     if (data.images && Array.isArray(data.images)) {
-      data.images = data.images.filter((img: any) => img.url && (img.url.startsWith('http') || img.url.startsWith('/')));
+      data.images = data.images.filter((img: { url?: string }) => Boolean(img?.url && (img.url.startsWith('http') || img.url.startsWith('/'))));
     }
 
     await connectToDatabase();
@@ -63,13 +63,13 @@ export async function POST(req: Request) {
     await invalidateCache('products:*', 'product:*');
 
     return NextResponse.json({ product }, { status: 201 });
-  } catch (error: any) {
-    if (error.code === 11000) {
+  } catch (error: unknown) {
+    if ((error as { code?: number })?.code === 11000) {
       return NextResponse.json(
         { error: 'Product with this slug already exists' },
         { status: 400 }
       );
     }
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: error instanceof Error ? (error as Error).message : String(error) }, { status: 500 });
   }
 }

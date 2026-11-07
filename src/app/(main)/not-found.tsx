@@ -20,7 +20,7 @@ export default function NotFound() {
         <div className="space-y-6">
           <h2 className="font-bangers text-5xl md:text-6xl text-ink uppercase tracking-tight">COORDINATES LOST</h2>
           <p className="font-comic font-bold italic text-2xl text-secondary max-w-lg mx-auto leading-tight">
-            The transmission you're looking for has been intercepted or never existed in the archives.
+            The transmission you&apos;re looking for has been intercepted or never existed in the archives.
           </p>
         </div>
 

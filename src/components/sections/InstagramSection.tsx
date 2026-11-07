@@ -1,22 +1,6 @@
 "use client";
 
 import React from "react";
-import Image from "next/image";
-
-const TILES = [
-  "/images/instagram/insta1.jpg",
-  "/images/instagram/insta2.jpg",
-  "/images/instagram/insta3.jpg",
-  "/images/instagram/insta4.jpg",
-  "/images/instagram/insta5.jpg",
-  "/images/instagram/insta6.jpg",
-  "/images/instagram/insta7.jpg",
-  "/images/instagram/insta8.jpg",
-  "/images/instagram/insta9.jpg",
-  "/images/instagram/insta10.jpg",
-  "/images/instagram/insta11.jpg",
-  "/images/instagram/insta12.jpg",
-];
 
 export default function InstagramSection() {
   return (

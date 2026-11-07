@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect } from "react";
 import { useCart } from "@/components/providers/CartProvider";
@@ -67,6 +67,18 @@ export default function CheckoutPage() {
   });
   const [shippingConfigLoaded, setShippingConfigLoaded] = useState(false);
 
+  const [form, setForm] = useState({
+    name: session?.user?.name || "",
+    email: session?.user?.email || "",
+    phone: "",
+    address: "",
+    city: "",
+    zip: "",
+    paymentMethod: "cod",
+    shippingZone: "inside_dhaka",
+    notes: "",
+  });
+
   useEffect(() => {
     fetch("/api/settings/shipping")
       .then((r) => r.json())
@@ -89,18 +101,6 @@ export default function CheckoutPage() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  const [form, setForm] = useState({
-    name: session?.user?.name || "",
-    email: session?.user?.email || "",
-    phone: "",
-    address: "",
-    city: "",
-    zip: "",
-    paymentMethod: "cod",
-    shippingZone: "inside_dhaka",
-    notes: "",
-  });
 
   const updateField = (field: string, value: string) =>
     setForm((prev) => ({ ...prev, [field]: value }));

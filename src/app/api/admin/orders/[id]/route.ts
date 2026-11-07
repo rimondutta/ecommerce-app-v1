@@ -11,13 +11,17 @@ export async function GET(
 ) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session || !['admin', 'manager'].includes((session.user as any).role)) {
+    if (!session || !['admin', 'manager'].includes(session.user.role)) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     await connectToDatabase();
     const { id } = await params;
-    const order = await Order.findById(id).lean() as any;
+    const order = await Order.findById(id).lean() as {
+      _id: unknown;
+      items?: Array<{ product?: unknown; image?: string; [key: string]: unknown }>;
+      [key: string]: unknown;
+    } | null;
     
     if (!order) {
       return NextResponse.json({ error: 'Order not found' }, { status: 404 });
@@ -26,30 +30,30 @@ export async function GET(
     // Enrich each order item with its product's first image
     if (order.items?.length) {
       const productIds = order.items
-        .map((item: any) => item.product)
+        .map((item) => item.product)
         .filter(Boolean);
 
       if (productIds.length) {
         const products = await Product.find(
           { _id: { $in: productIds } },
           { images: 1 }
-        ).lean() as any[];
+        ).lean() as Array<{ _id: { toString(): string }; images?: Array<{ url?: string }> }>;
 
         const productMap: Record<string, string> = {};
         for (const p of products) {
           productMap[p._id.toString()] = p.images?.[0]?.url || '';
         }
 
-        order.items = order.items.map((item: any) => ({
+        order.items = order.items.map((item) => ({
           ...item,
-          image: item.image || productMap[item.product?.toString()] || '',
+          image: item.image || productMap[String(item.product ?? '')] || '',
         }));
       }
     }
 
     return NextResponse.json({ order });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    return NextResponse.json({ error: error instanceof Error ? (error as Error).message : String(error) }, { status: 500 });
   }
 }
 
@@ -59,7 +63,7 @@ export async function PUT(
 ) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session || !['admin', 'manager'].includes((session.user as any).role)) {
+    if (!session || !['admin', 'manager'].includes(session.user.role)) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -74,7 +78,7 @@ export async function PUT(
       return NextResponse.json({ error: 'Order not found' }, { status: 404 });
     }
 
-    const updatePayload: any = {
+    const updatePayload: Record<string, unknown> = {
       fulfillmentStatus: data.fulfillmentStatus || oldOrder.fulfillmentStatus,
       paymentStatus: data.paymentStatus || oldOrder.paymentStatus,
     };
@@ -145,8 +149,8 @@ export async function PUT(
     }
 
     return NextResponse.json({ order });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    return NextResponse.json({ error: error instanceof Error ? (error as Error).message : String(error) }, { status: 500 });
   }
 }
 
@@ -156,7 +160,7 @@ export async function DELETE(
 ) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session || !['admin', 'manager'].includes((session.user as any).role)) {
+    if (!session || !['admin', 'manager'].includes(session.user.role)) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -169,7 +173,7 @@ export async function DELETE(
     }
 
     return NextResponse.json({ success: true, message: 'Order deleted successfully' });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    return NextResponse.json({ error: error instanceof Error ? (error as Error).message : String(error) }, { status: 500 });
   }
 }

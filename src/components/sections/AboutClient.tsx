@@ -38,12 +38,6 @@ const stats = [
   { number: "4.9★", label: "Average Rating" },
 ];
 
-const team = [
-  { name: "Rimon Dutta", role: "Founder & CEO", emoji: "👨‍💼", quote: "Every child deserves to play, dream, and grow." },
-  { name: "Priya Rahman", role: "Head of Curation", emoji: "👩‍🎨", quote: "A great toy is one that grows with the child." },
-  { name: "Arif Hossain", role: "Operations Lead", emoji: "👨‍🔧", quote: "Reliability is our promise to every parent." },
-];
-
 // ─── Scroll-Interactive Card ──────────────────────────────────────────────────
 function ScrollCard() {
   const ref = useRef<HTMLDivElement>(null);

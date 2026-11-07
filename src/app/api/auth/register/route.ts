@@ -60,7 +60,7 @@ export async function POST(request: Request) {
       },
       { status: 201, headers: CORS_HEADERS }
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Registration Error:', error);
     return NextResponse.json(
       { success: false, error: 'Internal Server Error' },

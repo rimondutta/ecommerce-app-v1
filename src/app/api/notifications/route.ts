@@ -7,7 +7,6 @@
 import { NextResponse, NextRequest } from 'next/server';
 import connectToDatabase from '@/lib/db';
 import Notification from '@/models/Notification';
-import User from '@/models/User';
 import { getBearerSession } from '@/lib/mobile-auth';
 
 const CORS = {
@@ -45,7 +44,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json(
       {
         success: true,
-        data: notifications.map((n: any) => ({
+        data: notifications.map((n: { _id: { toString(): string }; title?: string; body?: string; type?: string; read?: boolean; order?: { toString(): string }; createdAt?: Date }) => ({
           _id: n._id.toString(),
           title: n.title,
           body: n.body,

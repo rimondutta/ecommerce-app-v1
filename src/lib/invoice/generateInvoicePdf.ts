@@ -67,16 +67,28 @@ export async function generateInvoiceForOrder(orderId: string): Promise<string> 
     customer: {
       name: (order.customerName as string) || 'Customer',
       email: order.customerEmail as string | undefined,
-      phone: (order.shippingAddress as any)?.phone,
+      phone: (order.shippingAddress as { phone?: string } | null)?.phone,
     },
-    shippingAddress: order.shippingAddress as any,
-    items: (order.items as any[]).map((item) => ({
-      title: (item.title as string) || 'Product',
-      quantity: item.quantity as number,
-      price: item.price as number,
-      color: item.color as string | undefined,
-      size: item.size as string | undefined,
-      variantOptions: item.variantOptions as Record<string, string> | undefined,
+    shippingAddress: order.shippingAddress as {
+      addressLine1?: string;
+      city?: string;
+      postcode?: string;
+      country?: string;
+    } | undefined,
+    items: (order.items as Array<{
+      title?: string;
+      quantity: number;
+      price: number;
+      color?: string;
+      size?: string;
+      variantOptions?: Record<string, string>;
+    }>).map((item) => ({
+      title: item.title || 'Product',
+      quantity: item.quantity,
+      price: item.price,
+      color: item.color,
+      size: item.size,
+      variantOptions: item.variantOptions,
     })),
     subtotal,
     shippingCost,
@@ -86,11 +98,12 @@ export async function generateInvoiceForOrder(orderId: string): Promise<string> 
 
   // ── Render PDF to buffer ──
   const pdfBuffer = await renderToBuffer(
-    React.createElement(InvoiceDocument, props) as any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    React.createElement(InvoiceDocument, props as any) as any
   );
 
   // ── Upload to Cloudinary ──
-  const uploadResult = await new Promise<any>((resolve, reject) => {
+  const uploadResult = await new Promise<{ secure_url: string }>((resolve, reject) => {
     cloudinary.uploader
       .upload_stream(
         {
@@ -100,7 +113,7 @@ export async function generateInvoiceForOrder(orderId: string): Promise<string> 
           format: 'pdf',
           overwrite: true,
         },
-        (err, result) => (err ? reject(err) : resolve(result))
+        (err, result) => (err || !result ? reject(err || new Error('Upload failed')) : resolve(result as { secure_url: string }))
       )
       .end(pdfBuffer);
   });
@@ -157,16 +170,28 @@ export async function getInvoiceBufferForOrder(orderId: string): Promise<{ buffe
     customer: {
       name: (order.customerName as string) || 'Customer',
       email: order.customerEmail as string | undefined,
-      phone: (order.shippingAddress as any)?.phone,
+      phone: (order.shippingAddress as { phone?: string } | null)?.phone,
     },
-    shippingAddress: order.shippingAddress as any,
-    items: (order.items as any[]).map((item) => ({
-      title: (item.title as string) || 'Product',
-      quantity: item.quantity as number,
-      price: item.price as number,
-      color: item.color as string | undefined,
-      size: item.size as string | undefined,
-      variantOptions: item.variantOptions as Record<string, string> | undefined,
+    shippingAddress: order.shippingAddress as {
+      addressLine1?: string;
+      city?: string;
+      postcode?: string;
+      country?: string;
+    } | undefined,
+    items: (order.items as Array<{
+      title?: string;
+      quantity: number;
+      price: number;
+      color?: string;
+      size?: string;
+      variantOptions?: Record<string, string>;
+    }>).map((item) => ({
+      title: item.title || 'Product',
+      quantity: item.quantity,
+      price: item.price,
+      color: item.color,
+      size: item.size,
+      variantOptions: item.variantOptions,
     })),
     subtotal,
     shippingCost,
@@ -175,7 +200,8 @@ export async function getInvoiceBufferForOrder(orderId: string): Promise<{ buffe
   };
 
   const pdfBuffer = await renderToBuffer(
-    React.createElement(InvoiceDocument, props) as any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    React.createElement(InvoiceDocument, props as any) as any
   );
 
   return { buffer: Buffer.from(pdfBuffer), filename: `Invoice-${invoiceNumber}.pdf` };

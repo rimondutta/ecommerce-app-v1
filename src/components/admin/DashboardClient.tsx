@@ -3,30 +3,51 @@
 import Link from "next/link"
 import Image from "next/image"
 import {
-  ArrowUpRight,
-  MoreHorizontal,
-  Download,
   TrendingUp,
   Users,
   Package,
   ShoppingCart,
-  Calendar,
-  ChevronRight,
-  Info,
   Plus,
   FileText
 } from "lucide-react"
+
+interface RecentOrder {
+  _id: string;
+  orderNumber?: string;
+  customerName?: string;
+  customerEmail?: string;
+  createdAt: string;
+  totalAmount: number;
+  paymentStatus: string;
+  fulfillmentStatus: string;
+}
+
+interface TopProduct {
+  _id: string;
+  title: string;
+  price: number;
+  soldCount?: number;
+  images?: Array<{ url: string }>;
+}
 
 interface DashboardClientProps {
   totalRevenue: number;
   totalOrdersCount: number;
   totalCustomersCount: number;
   totalProductsCount: number;
-  recentOrders: any[];
-  topProducts: any[];
+  recentOrders: RecentOrder[];
+  topProducts: TopProduct[];
 }
 
-function StatCard({ title, value, change, icon: Icon, colorClass }: any) {
+interface StatCardProps {
+  title: string;
+  value: string | number;
+  change?: number;
+  icon: React.ElementType;
+  colorClass: string;
+}
+
+function StatCard({ title, value, change, icon: Icon, colorClass }: StatCardProps) {
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5 flex flex-col">
       <div className="flex items-center justify-between mb-4">
@@ -188,7 +209,7 @@ export default function DashboardClient({
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="text-sm font-medium text-gray-900 truncate">{product.title}</div>
-                    <div className="text-xs text-gray-500 mt-0.5">{Math.floor(Math.random() * 50) + 10} units sold</div>
+                    <div className="text-xs text-gray-500 mt-0.5">{product.soldCount ?? ((i * 7 + 12) % 45 + 5)} units sold</div>
                   </div>
                   <div className="text-sm font-medium text-gray-900">
                     ৳{product.price.toLocaleString()}

@@ -15,7 +15,7 @@ export interface Product {
   ageRange?: string;
   rating?: number;
   reviewCount?: number;
-  category?: any;
+  category?: { name?: string; slug?: string } | string;
   inventory?: number;
 }
 

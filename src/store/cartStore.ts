@@ -44,7 +44,7 @@ const areItemsEqual = (i1: CartItem, i2: Partial<CartItem>) => {
 
 export const useCartStore = create<CartState>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       items: [],
       isOpen: false,
 

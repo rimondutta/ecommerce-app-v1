@@ -30,7 +30,7 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
 
   // Fetch paginated products and all categories in parallel with Redis caching
   const { products, totalCount, categories } = await withCache(cacheKey, 60, async () => {
-    const filter: Record<string, any> = { isPublished: true };
+    const filter: Record<string, unknown> = { isPublished: true };
 
     if (params.age) {
       filter.ageRange = params.age;
@@ -46,7 +46,7 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
         $or: [{ slug: params.category }, { name: params.category }],
       })
         .select('_id')
-        .lean() as any;
+        .lean() as { _id: unknown } | null;
 
       if (cat) {
         filter.category = cat._id;

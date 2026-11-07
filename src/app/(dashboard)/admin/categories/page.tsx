@@ -3,10 +3,19 @@
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { Search, Plus, Edit, Trash2, Filter } from "lucide-react"
+import { Search, Plus, Edit, Trash2 } from "lucide-react"
+
+interface AdminCategory {
+  _id: string;
+  name: string;
+  slug?: string;
+  image?: string;
+  isActive?: boolean;
+  productCount?: number;
+}
 
 export default function AdminCategoriesPage() {
-  const [categories, setCategories] = useState<any[]>([])
+  const [categories, setCategories] = useState<AdminCategory[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -101,9 +110,11 @@ export default function AdminCategoriesPage() {
                     <td className="px-5 py-3 align-middle">
                       <div className="w-12 h-12 rounded-md bg-gray-100 overflow-hidden border border-gray-200 flex items-center justify-center shrink-0">
                         {category.image ? (
-                          <img 
+                          <Image 
                             src={category.image} 
                             alt={category.name} 
+                            width={48}
+                            height={48}
                             className="w-full h-full object-cover"
                           />
                         ) : (

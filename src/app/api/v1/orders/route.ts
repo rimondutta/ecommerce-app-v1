@@ -1,4 +1,17 @@
 import { NextResponse } from 'next/server';
+
+interface VariantLean {
+  _id?: { toString(): string };
+  price?: number;
+  stock?: number;
+}
+
+interface ProductLeanDoc {
+  _id: { toString(): string };
+  price: number;
+  variants?: VariantLean[];
+  inventory?: number;
+}
 import { z } from 'zod';
 import connectToDatabase from '@/lib/db';
 import Order from '@/models/Order';
@@ -63,7 +76,7 @@ export async function POST(req: Request) {
     const productIds = [...new Set(orderData.items.map(i => i.productId))];
     const dbProducts = await Product.find({ _id: { $in: productIds } })
       .select('_id price variants')
-      .lean() as any[];
+      .lean() as ProductLeanDoc[];
 
     const productMap = new Map(dbProducts.map(p => [p._id.toString(), p]));
 
@@ -75,7 +88,7 @@ export async function POST(req: Request) {
       // If a variantId was sent, use the variant's price instead
       if (item.variantId && dbProduct.variants?.length) {
         const variant = dbProduct.variants.find(
-          (v: any) => v._id?.toString() === item.variantId
+          (v: VariantLean) => v._id?.toString() === item.variantId
         );
         if (variant?.price) serverPrice = variant.price;
       }
@@ -176,7 +189,7 @@ export async function POST(req: Request) {
     });
 
     if (inventoryOps.length > 0) {
-      await Product.bulkWrite(inventoryOps).catch((err: any) =>
+      await Product.bulkWrite(inventoryOps).catch((err: unknown) =>
         console.error('Failed to update inventory via bulkWrite:', err)
       );
     }
@@ -185,7 +198,7 @@ export async function POST(req: Request) {
       data: { orderId: order._id, message: 'Order created successfully' },
       error: null
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('Order Creation error:', err);
     return NextResponse.json(
       { data: null, error: 'Failed to create order. Please try again.' },

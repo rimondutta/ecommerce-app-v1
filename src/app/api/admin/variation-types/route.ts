@@ -9,7 +9,7 @@ import VariationValue from '@/models/VariationValue';
 export async function GET() {
   try {
     const session = await getServerSession(authOptions);
-    if (!session || !['admin', 'manager'].includes((session.user as any).role)) {
+    if (!session || !['admin', 'manager'].includes(session.user.role)) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -24,14 +24,14 @@ export async function GET() {
 
     const countMap = Object.fromEntries(counts.map((c) => [c._id.toString(), c.count]));
 
-    const result = types.map((t: any) => ({
+    const result = types.map((t: { _id: { toString(): string }; [key: string]: unknown }) => ({
       ...t,
       valueCount: countMap[t._id.toString()] || 0,
     }));
 
     return NextResponse.json({ variationTypes: result });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    return NextResponse.json({ error: error instanceof Error ? (error as Error).message : String(error) }, { status: 500 });
   }
 }
 
@@ -39,7 +39,7 @@ export async function GET() {
 export async function POST(req: Request) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session || !['admin', 'manager'].includes((session.user as any).role)) {
+    if (!session || !['admin', 'manager'].includes(session.user.role)) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -60,10 +60,10 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json({ variationType }, { status: 201 });
-  } catch (error: any) {
-    if (error.code === 11000) {
+  } catch (error: unknown) {
+    if ((error as { code?: number })?.code === 11000) {
       return NextResponse.json({ error: 'A variation type with this name already exists' }, { status: 400 });
     }
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: error instanceof Error ? (error as Error).message : String(error) }, { status: 500 });
   }
 }

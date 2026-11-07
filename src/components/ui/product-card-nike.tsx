@@ -21,9 +21,9 @@ interface Product {
   ageRange?: string;
   rating?: number;
   reviewCount?: number;
-  colors?: any[];
-  sizes?: any[];
-  category?: any;
+  colors?: unknown[];
+  sizes?: unknown[];
+  category?: { name?: string; slug?: string } | string;
   inventory?: number;
 }
 
@@ -37,7 +37,7 @@ function formatPrice(n: number): string {
   return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
-export default function ProductCardModern({ product, priority = false, index = 1 }: Props) {
+export default function ProductCardModern({ product, priority = false }: Props) {
   const { addItem, openCart } = useCart();
   const { toggleItem, isWishlisted } = useWishlist();
   const [isAdding, setIsAdding] = useState(false);

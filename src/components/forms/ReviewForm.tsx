@@ -71,8 +71,8 @@ export default function ReviewForm({ slug, onSuccess }: ReviewFormProps) {
       setRating(0);
       setComment("");
       onSuccess();
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Submission failed");
     } finally {
       setIsSubmitting(false);
     }

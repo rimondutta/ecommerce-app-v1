@@ -6,10 +6,16 @@ import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
 import ProductForm from "@/components/admin/ProductForm"
 
+interface CategoryOption {
+  _id: string;
+  name: string;
+  slug?: string;
+}
+
 export default function NewProductPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
-  const [categories, setCategories] = useState<any[]>([])
+  const [categories, setCategories] = useState<CategoryOption[]>([])
 
   useEffect(() => {
     fetch("/api/admin/categories")
@@ -20,7 +26,7 @@ export default function NewProductPage() {
       .catch(console.error)
   }, [])
 
-  const handleSubmit = async (formData: any) => {
+  const handleSubmit = async (formData: Record<string, unknown>) => {
     setLoading(true)
     try {
       const res = await fetch("/api/admin/products", {
@@ -36,7 +42,7 @@ export default function NewProductPage() {
 
       router.push("/admin/products")
       router.refresh()
-    } catch (err: any) {
+    } catch (err: unknown) {
       setLoading(false)
       throw err
     }

@@ -45,15 +45,19 @@ export async function GET(req: NextRequest) {
     await connectToDatabase();
 
     // Build the base filter
-    const filter: Record<string, any> = { isPublished: true };
+    const filter: Record<string, unknown> = { isPublished: true };
 
     if (searchQuery) {
       // Use MongoDB text index for high-performance searching instead of slow regex
       filter.$text = { $search: searchQuery };
     }
 
-    if (minPrice > 0) filter.price = { ...filter.price, $gte: minPrice };
-    if (maxPrice > 0) filter.price = { ...filter.price, $lte: maxPrice };
+    const priceFilter: { $gte?: number; $lte?: number } = {};
+    if (minPrice > 0) priceFilter.$gte = minPrice;
+    if (maxPrice > 0) priceFilter.$lte = maxPrice;
+    if (Object.keys(priceFilter).length > 0) {
+      filter.price = priceFilter;
+    }
 
     // Sort mapping
     const sortMap: Record<string, Record<string, 1 | -1>> = {
@@ -71,7 +75,7 @@ export async function GET(req: NextRequest) {
     const { products, total } = await withCache(cacheKey, 60, async () => {
       // If filtering by category slug, resolve via aggregation (single DB round-trip)
       if (categorySlug) {
-        const pipeline: any[] = [
+        const pipeline: import("mongoose").PipelineStage[] = [
           {
             $lookup: {
               from: 'categories',
@@ -135,7 +139,7 @@ export async function GET(req: NextRequest) {
       },
       { headers: { ...CORS_HEADERS, 'Cache-Control': 'public, s-maxage=30, stale-while-revalidate=120' } }
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('[GET /api/products]', error);
     return NextResponse.json(
       { success: false, error: 'Internal Server Error' },
@@ -155,7 +159,7 @@ export async function POST(req: NextRequest) {
       (await getBearerSession(req)) ??
       (await getServerSession(authOptions));
 
-    if (!session || !['admin', 'manager'].includes((session.user as any).role)) {
+    if (!session || !['admin', 'manager'].includes(session.user.role)) {
       return NextResponse.json(
         { success: false, error: 'Unauthorized' },
         { status: 401, headers: CORS_HEADERS }
@@ -167,7 +171,7 @@ export async function POST(req: NextRequest) {
     // Sanitize image URLs
     if (data.images && Array.isArray(data.images)) {
       data.images = data.images.filter(
-        (img: any) => img.url && (img.url.startsWith('http') || img.url.startsWith('/'))
+        (img: { url?: string }) => Boolean(img?.url && (img.url.startsWith('http') || img.url.startsWith('/')))
       );
     }
 
@@ -181,15 +185,15 @@ export async function POST(req: NextRequest) {
       { success: true, data: product },
       { status: 201, headers: CORS_HEADERS }
     );
-  } catch (error: any) {
-    if (error.code === 11000) {
+  } catch (error: unknown) {
+    if ((error as { code?: number })?.code === 11000) {
       return NextResponse.json(
         { success: false, error: 'Product with this slug already exists' },
         { status: 400, headers: CORS_HEADERS }
       );
     }
     return NextResponse.json(
-      { success: false, error: error.message },
+      { success: false, error: error instanceof Error ? (error as Error).message : String(error) },
       { status: 500, headers: CORS_HEADERS }
     );
   }

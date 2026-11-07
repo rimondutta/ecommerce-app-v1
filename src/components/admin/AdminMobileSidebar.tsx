@@ -2,7 +2,8 @@
 
 import { Fragment } from "react"
 import { Dialog, DialogPanel, Transition, TransitionChild } from "@headlessui/react"
-import { X, Home, ShoppingCart, Tag, Users, Ticket, UserPlus, Image as ImageIcon, Settings, LogOut, Store, Layers, MessageSquare, Sliders, Megaphone, BarChart2, Truck, FileText, Plus } from "lucide-react"
+import { X, Home, ShoppingCart, Tag, Users, Ticket, UserPlus, Image as ImageIcon, LogOut, Layers, MessageSquare, Sliders, BarChart2, Truck, FileText, Plus } from "lucide-react"
+import Image from "next/image"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { signOut, useSession } from "next-auth/react"
@@ -67,7 +68,7 @@ export default function AdminMobileSidebar({ isOpen, onClose }: AdminMobileSideb
             <div className="p-4 border-b border-gray-200 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded overflow-hidden">
-                  <img src="/logo/toyhourse-logo.png" alt="Toy Hourse" className="w-full h-full object-contain" />
+                  <Image src="/logo/toyhourse-logo.png" alt="Toy Hourse" width={32} height={32} className="w-full h-full object-contain" />
                 </div>
                 <span className="text-base font-semibold text-gray-900 leading-none">Toy Hourse</span>
               </div>
@@ -104,8 +105,8 @@ export default function AdminMobileSidebar({ isOpen, onClose }: AdminMobileSideb
             <div className="p-4 border-t border-gray-200 bg-gray-50 flex flex-col gap-4">
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-full bg-gray-200 flex items-center justify-center text-sm font-medium text-gray-600 overflow-hidden shrink-0">
-                  {(session?.user as any)?.image ? (
-                    <img src={(session?.user as any).image} alt="Avatar" className="w-full h-full object-cover" />
+                  {session?.user?.image ? (
+                    <Image src={session.user.image || "/placeholder.jpg"} alt="Avatar" width={36} height={36} className="w-full h-full object-cover" />
                   ) : (
                     session?.user?.name?.charAt(0) || "A"
                   )}

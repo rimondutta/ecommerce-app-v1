@@ -4,7 +4,7 @@ import { useEffect } from "react";
 
 if (typeof window !== "undefined") {
   const originalConsoleError = console.error;
-  console.error = function (...args: any[]) {
+  console.error = function (...args: unknown[]) {
     const errorString = args
       .map((a) => {
         if (typeof a === "string") return a;

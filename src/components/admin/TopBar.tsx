@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react"
+import Image from "next/image"
 import { useSession } from "next-auth/react"
 import { Search, Bell, HelpCircle, Menu } from "lucide-react"
 import AdminMobileSidebar from "./AdminMobileSidebar"
@@ -53,8 +54,8 @@ export default function TopBar() {
               <span className="text-xs text-gray-500">Store Manager</span>
             </div>
             <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-sm font-medium text-gray-600 overflow-hidden shrink-0">
-              {(session?.user as any)?.image ? (
-                <img src={(session?.user as any).image} alt="Avatar" className="w-full h-full object-cover" />
+              {session?.user?.image ? (
+                <Image src={session.user.image || "/placeholder.jpg"} alt="Avatar" width={32} height={32} className="w-full h-full object-cover" />
               ) : (
                 session?.user?.name?.charAt(0) || "A"
               )}

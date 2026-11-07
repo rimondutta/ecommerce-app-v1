@@ -1,11 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import { Copy, Trash, Check, ExternalLink } from 'lucide-react';
+import { Copy, Check, ExternalLink } from 'lucide-react';
 import Image from 'next/image';
 
 interface MediaClientProps {
-  initialImages: any[];
+  initialImages: Array<{ public_id: string; secure_url: string; [key: string]: unknown }>;
   deleteMedia: (publicId: string) => Promise<{ success: boolean }>;
 }
 

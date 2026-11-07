@@ -32,7 +32,13 @@ export async function GET(req: NextRequest) {
 
   try {
     await connectToDatabase();
-    const user = await User.findById(session.user.id).select('-password').lean();
+    const user = await User.findById(session.user.id).select('-password').lean() as {
+      _id: { toString(): string };
+      name?: string;
+      email: string;
+      role: string;
+      image?: string | null;
+    } | null;
 
     if (!user) {
       return NextResponse.json(
@@ -45,16 +51,16 @@ export async function GET(req: NextRequest) {
       {
         success: true,
         data: {
-          id: (user as any)._id.toString(),
-          name: (user as any).name,
-          email: (user as any).email,
-          role: (user as any).role,
-          image: (user as any).image ?? null,
+          id: user._id.toString(),
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          image: user.image ?? null,
         },
       },
       { headers: CORS_HEADERS }
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('[GET /api/auth/mobile/me]', error);
     return NextResponse.json(
       { success: false, error: 'Internal Server Error' },

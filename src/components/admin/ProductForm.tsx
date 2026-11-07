@@ -1,14 +1,72 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
+import Image from "next/image"
 import { Trash, Save, Loader2, AlertCircle, ChevronDown, ChevronUp } from "lucide-react"
 
 // ─── Types ─────────────────────────────────────────────────────────────────
 
+interface VariationTypeItem {
+  _id: string
+  name: string
+  slug?: string
+  description?: string
+  displayType?: string
+}
+
+interface VariationValueItem {
+  _id: string
+  variationType?: string
+  value: string
+  slug?: string
+  colorHex?: string
+}
+
+interface CategoryOption {
+  _id: string
+  name: string
+  slug?: string
+}
+
+interface ProductVariantData {
+  _id?: string
+  combination: Array<{
+    variationType: string | { _id: string; name: string }
+    variationValue: string | { _id: string; value: string }
+  }>
+  combinationLabel?: string
+  sku: string
+  price: number
+  comparePrice?: number | null
+  stock: number
+  isActive: boolean
+  images?: Array<{ url: string; alt: string }>
+}
+
+interface ProductInitialData {
+  _id?: string
+  title?: string
+  slug?: string
+  price?: number
+  compareAtPrice?: number
+  category?: CategoryOption | string
+  description?: string
+  longDescription?: string
+  inventory?: number
+  isPublished?: boolean
+  ageRange?: string
+  images?: Array<{ url: string; alt: string }>
+  tags?: string[];
+  attributes?: Array<{ name: string; value: string }>
+  hasVariations?: boolean
+  variationTypes?: Array<string | VariationTypeItem>
+  variants?: ProductVariantData[]
+}
+
 interface ProductFormProps {
-  initialData?: any
-  categories: any[]
-  onSubmit: (data: any) => Promise<void>
+  initialData?: ProductInitialData
+  categories: CategoryOption[]
+  onSubmit: (data: Record<string, unknown>) => Promise<void>
   loading: boolean
 }
 
@@ -40,45 +98,109 @@ function cartesian<T>(arrays: T[][]): T[][] {
 export default function ProductForm({ initialData, categories, onSubmit, loading }: ProductFormProps) {
 
   // ── Form data ──
-  const [formData, setFormData] = useState({
-    title: "",
-    slug: "",
-    price: "",
-    compareAtPrice: "",
-    category: "",
-    description: "",
-    longDescription: "",
-    inventory: 0,
-    isPublished: true,
-    ageRange: "",
-    images: [] as { url: string; alt: string }[],
-  })
-  const [tags, setTags] = useState("")
-  const [attributes, setAttributes] = useState<{ name: string; value: string }[]>([])
+  const [formData, setFormData] = useState(() => ({
+    title: initialData?.title || "",
+    slug: initialData?.slug || "",
+    price: initialData?.price?.toString() || "",
+    compareAtPrice: initialData?.compareAtPrice?.toString() || "",
+    category: (typeof initialData?.category === 'object' ? initialData.category?._id : initialData?.category) || "",
+    description: initialData?.description || "",
+    longDescription: initialData?.longDescription || "",
+    inventory: initialData?.inventory || 0,
+    isPublished: initialData?.isPublished !== undefined ? initialData.isPublished : true,
+    ageRange: initialData?.ageRange || "",
+    images: (initialData?.images || []) as { url: string; alt: string }[],
+  }))
+  const [tags, setTags] = useState(() => (initialData?.tags ? initialData.tags.join(", ") : ""))
+  const [attributes, setAttributes] = useState<{ name: string; value: string }[]>(() => initialData?.attributes || [])
   const [uploadingImage, setUploadingImage] = useState(false)
   const [error, setError] = useState("")
 
   // ── Variation system ──
-  const [hasVariations, setHasVariations] = useState(false)
-  const [typesLoading, setTypesLoading] = useState(false)
-  const [availableTypes, setAvailableTypes] = useState<any[]>([])
-  const [selectedTypeIds, setSelectedTypeIds] = useState<string[]>([])
+  const [hasVariations, setHasVariations] = useState(() => Boolean(initialData?.hasVariations))
+  const [typesLoading, setTypesLoading] = useState(true)
+  const [availableTypes, setAvailableTypes] = useState<VariationTypeItem[]>([])
+  const [selectedTypeIds, setSelectedTypeIds] = useState<string[]>(() => {
+    return (initialData?.variationTypes || [])
+      .map(t => (typeof t === 'string' ? t : t?._id?.toString()))
+      .filter(Boolean) as string[]
+  })
   // typeValues[typeId] = VariationValue[] | undefined (undefined = not yet fetched)
-  const [typeValues, setTypeValues] = useState<Record<string, any[]>>({})
+  const [typeValues, setTypeValues] = useState<Record<string, VariationValueItem[]>>({})
   const [valuesLoading, setValuesLoading] = useState<Record<string, boolean>>({})
   // selectedValues[typeId] = array of selected VariationValue._id strings
-  const [selectedValues, setSelectedValues] = useState<Record<string, string[]>>({})
-  const [variantRows, setVariantRows] = useState<VariantRow[]>([])
+  const [selectedValues, setSelectedValues] = useState<Record<string, string[]>>(() => {
+    const selVals: Record<string, string[]> = {}
+    if (initialData?.variants) {
+      initialData.variants.forEach(v => {
+        (v.combination || []).forEach(c => {
+          const tId = (typeof c.variationType === 'string' ? c.variationType : c.variationType?._id)?.toString()
+          const vId = (typeof c.variationValue === 'string' ? c.variationValue : c.variationValue?._id)?.toString()
+          if (tId && vId) {
+            if (!selVals[tId]) selVals[tId] = []
+            if (!selVals[tId].includes(vId)) selVals[tId].push(vId)
+          }
+        })
+      })
+    }
+    return selVals
+  })
+  const [variantRows, setVariantRows] = useState<VariantRow[]>(() => {
+    if (initialData?.variants && initialData.variants.length > 0) {
+      return initialData.variants.map(v => {
+        const combo: CombinationItem[] = (v.combination || [])
+          .map(c => {
+            const tId = (typeof c.variationType === 'string' ? c.variationType : c.variationType?._id)?.toString()
+            const vId = (typeof c.variationValue === 'string' ? c.variationValue : c.variationValue?._id)?.toString()
+            return { variationType: tId || '', variationValue: vId || '' }
+          })
+          .filter(c => c.variationType && c.variationValue)
+
+        return {
+          combination: combo,
+          combinationLabel: v.combinationLabel || '',
+          sku: v.sku || '',
+          price: v.price ?? 0,
+          comparePrice: v.comparePrice ?? '',
+          stock: v.stock ?? 0,
+          isActive: v.isActive !== false,
+        }
+      })
+    }
+    return []
+  })
   const [expandedVariant, setExpandedVariant] = useState<number | null>(null)
+
+  // ── Sync if initialData is loaded/changed asynchronously ──
+  const [prevInitialId, setPrevInitialId] = useState(() => initialData?._id)
+  if (initialData && initialData._id !== prevInitialId) {
+    setPrevInitialId(initialData._id)
+    setFormData({
+      title: initialData.title || "",
+      slug: initialData.slug || "",
+      price: initialData.price?.toString() || "",
+      compareAtPrice: initialData.compareAtPrice?.toString() || "",
+      category: (typeof initialData.category === 'object' ? initialData.category?._id : initialData.category) || "",
+      description: initialData.description || "",
+      longDescription: initialData.longDescription || "",
+      inventory: initialData.inventory || 0,
+      isPublished: initialData.isPublished !== undefined ? initialData.isPublished : true,
+      ageRange: initialData.ageRange || "",
+      images: (initialData.images || []) as { url: string; alt: string }[],
+    })
+    if (initialData.tags) setTags(initialData.tags.join(", "))
+    if (initialData.attributes) setAttributes(initialData.attributes)
+  }
 
   // ── Fetch all available variation types once ──
   useEffect(() => {
-    setTypesLoading(true)
+    let ignore = false
     fetch('/api/admin/variation-types')
       .then(res => res.json())
-      .then(data => { if (data.variationTypes) setAvailableTypes(data.variationTypes) })
+      .then(data => { if (!ignore && data.variationTypes) setAvailableTypes(data.variationTypes) })
       .catch(() => { /* silent — user will see empty state */ })
-      .finally(() => setTypesLoading(false))
+      .finally(() => { if (!ignore) setTypesLoading(false) })
+    return () => { ignore = true }
   }, [])
 
   // ── Fetch values for newly selected types (once per type) ──
@@ -98,137 +220,66 @@ export default function ProductForm({ initialData, categories, onSubmit, loading
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedTypeIds])
 
-  // ── Load initial data (edit mode) ──
-  useEffect(() => {
-    if (!initialData) return
+  // ── Regenerate variant rows via cartesian product during render ──
+  const [prevVariationKey, setPrevVariationKey] = useState(() => {
+    return `${hasVariations}-${selectedTypeIds.join(",")}-${JSON.stringify(selectedValues)}-${formData.title}-${formData.price}`
+  })
+  const variationKey = `${hasVariations}-${selectedTypeIds.join(",")}-${JSON.stringify(selectedValues)}-${Object.keys(typeValues).length}-${formData.title}-${formData.price}`
 
-    setFormData({
-      title: initialData.title || "",
-      slug: initialData.slug || "",
-      price: initialData.price?.toString() || "",
-      compareAtPrice: initialData.compareAtPrice?.toString() || "",
-      category: initialData.category?._id || initialData.category || "",
-      description: initialData.description || "",
-      longDescription: initialData.longDescription || "",
-      inventory: initialData.inventory || 0,
-      isPublished: initialData.isPublished !== undefined ? initialData.isPublished : true,
-      ageRange: initialData.ageRange || "",
-      images: initialData.images || [],
-    })
-    if (initialData.tags) setTags(initialData.tags.join(", "))
-    if (initialData.attributes) setAttributes(initialData.attributes)
-
-    if (initialData.hasVariations) {
-      setHasVariations(true)
-
-      // Handle both populated objects and raw string ObjectIds
-      const typeIds: string[] = (initialData.variationTypes || [])
-        .map((t: any) => (typeof t === 'string' ? t : t?._id?.toString()))
-        .filter(Boolean)
-      setSelectedTypeIds(typeIds)
-
-      if (initialData.variants?.length > 0) {
-        // Rebuild selectedValues from existing variant combinations
-        const selVals: Record<string, string[]> = {}
-        typeIds.forEach(tId => { selVals[tId] = [] })
-
-        const rows: VariantRow[] = initialData.variants.map((v: any) => {
-          const combo: CombinationItem[] = (v.combination || [])
-            .map((c: any) => {
-              // Handles both: plain ObjectId string OR populated {_id, name, ...} object
-              const tId = (typeof c.variationType === 'string'
-                ? c.variationType
-                : c.variationType?._id)?.toString()
-              const vId = (typeof c.variationValue === 'string'
-                ? c.variationValue
-                : c.variationValue?._id)?.toString()
-
-              // Accumulate unique values per type for the checkboxes
-              if (tId && vId) {
-                if (!selVals[tId]) selVals[tId] = []
-                if (!selVals[tId].includes(vId)) selVals[tId].push(vId)
-              }
-              return { variationType: tId || '', variationValue: vId || '' }
-            })
-            .filter((c: CombinationItem) => c.variationType && c.variationValue)
-
-          return {
-            combination: combo,
-            combinationLabel: v.combinationLabel || '',
-            sku: v.sku || '',
-            price: v.price ?? 0,
-            comparePrice: v.comparePrice ?? '',
-            stock: v.stock ?? 0,
-            isActive: v.isActive !== false,
-          }
-        })
-
-        setSelectedValues(selVals)
-        setVariantRows(rows)
-      }
-    }
-  }, [initialData])
-
-  // ── Regenerate variant rows via cartesian product ──
-  useEffect(() => {
+  if (variationKey !== prevVariationKey) {
+    setPrevVariationKey(variationKey)
     if (!hasVariations || selectedTypeIds.length === 0) {
-      setVariantRows([])
-      return
-    }
-
-    // Only include types that are fully resolved: type object found + values loaded + at least one value selected
-    const validTypes = selectedTypeIds.filter(tId =>
-      availableTypes.some(t => t._id === tId) &&
-      Array.isArray(typeValues[tId]) &&
-      (selectedValues[tId]?.length ?? 0) > 0
-    )
-
-    if (validTypes.length === 0) {
-      setVariantRows([])
-      return
-    }
-
-    // Build the per-type arrays of {typeObj, valueObj} for cartesian product
-    const valueArrays = validTypes.map(tId => {
-      const typeObj = availableTypes.find(t => t._id === tId)!
-      const selIds = selectedValues[tId]
-      return (typeValues[tId] || [])
-        .filter((v: any) => selIds.includes(v._id))
-        .map((v: any) => ({ typeObj, valueObj: v }))
-    })
-
-    // Guard: drop empty arrays before computing cartesian (prevents [[], ...] giving [])
-    const nonEmpty = valueArrays.filter(arr => arr.length > 0)
-    if (nonEmpty.length === 0) { setVariantRows([]); return }
-
-    const combos = cartesian(nonEmpty)
-
-    const prefix = (formData.title || "PRD").substring(0, 3).toUpperCase()
-    const basePrice = Number(formData.price) || 0
-
-    setVariantRows(prevRows => combos.map(combo => {
-      const label = combo.map(c => c.valueObj.value).join(" / ")
-      const existing = prevRows.find(r => r.combinationLabel === label)
-
-      // Safe SKU: fall back to first 4 chars of value string if slug missing
-      const skuParts = combo.map(c =>
-        ((c.valueObj.slug as string | undefined) || c.valueObj.value || 'X').substring(0, 4).toUpperCase()
+      if (variantRows.length > 0) setVariantRows([])
+    } else {
+      const validTypes = selectedTypeIds.filter(tId =>
+        availableTypes.some(t => t._id === tId) &&
+        Array.isArray(typeValues[tId]) &&
+        (selectedValues[tId]?.length ?? 0) > 0
       )
 
-      return {
-        combination: combo.map(c => ({
-          variationType: c.typeObj._id as string,
-          variationValue: c.valueObj._id as string,
-        })),
-        combinationLabel: label,
-        sku: existing?.sku || [prefix, ...skuParts].join("-"),
-        price: existing?.price ?? basePrice,
-        comparePrice: existing?.comparePrice ?? "",
-        stock: existing?.stock ?? 0,
-        isActive: existing?.isActive ?? true,
+      if (validTypes.length === 0) {
+        if (variantRows.length > 0) setVariantRows([])
+      } else {
+        const valueArrays = validTypes.map(tId => {
+          const typeObj = availableTypes.find(t => t._id === tId)!
+          const selIds = selectedValues[tId]
+          return (typeValues[tId] || [])
+            .filter((v: VariationValueItem) => selIds.includes(v._id))
+            .map((v: VariationValueItem) => ({ typeObj, valueObj: v }))
+        })
+
+        const nonEmpty = valueArrays.filter(arr => arr.length > 0)
+        if (nonEmpty.length === 0) {
+          if (variantRows.length > 0) setVariantRows([])
+        } else {
+          const combos = cartesian(nonEmpty)
+          const prefix = (formData.title || "PRD").substring(0, 3).toUpperCase()
+          const basePrice = Number(formData.price) || 0
+
+          setVariantRows(prevRows => combos.map(combo => {
+            const label = combo.map(c => c.valueObj.value).join(" / ")
+            const existing = prevRows.find(r => r.combinationLabel === label)
+            const skuParts = combo.map(c =>
+              ((c.valueObj.slug as string | undefined) || c.valueObj.value || 'X').substring(0, 4).toUpperCase()
+            )
+
+            return {
+              combination: combo.map(c => ({
+                variationType: c.typeObj._id,
+                variationValue: c.valueObj._id,
+              })),
+              combinationLabel: label,
+              sku: existing?.sku || [prefix, ...skuParts].join("-"),
+              price: existing?.price ?? basePrice,
+              comparePrice: existing?.comparePrice ?? "",
+              stock: existing?.stock ?? 0,
+              isActive: existing?.isActive ?? true,
+            }
+          }))
+        }
       }
-    }))
-  }, [selectedValues, selectedTypeIds, availableTypes, typeValues, hasVariations, formData.title, formData.price])
+    }
+  }
 
   // ── Toggle helpers ──
   const toggleType = useCallback((typeId: string) => {
@@ -249,7 +300,7 @@ export default function ProductForm({ initialData, categories, onSubmit, loading
     })
   }, [])
 
-  const updateVariantRow = useCallback((idx: number, field: keyof VariantRow, value: any) => {
+  const updateVariantRow = useCallback((idx: number, field: keyof VariantRow, value: string | number | boolean) => {
     setVariantRows(prev => prev.map((row, i) => i === idx ? { ...row, [field]: value } : row))
   }, [])
 
@@ -272,8 +323,8 @@ export default function ProductForm({ initialData, categories, onSubmit, loading
         newUrls.push({ url: data.url, alt: formData.title })
       }
       setFormData(prev => ({ ...prev, images: newUrls }))
-    } catch (err: any) {
-      setError(err.message || "Failed to upload images")
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Failed to upload images")
     } finally {
       setUploadingImage(false)
     }
@@ -309,7 +360,7 @@ export default function ProductForm({ initialData, categories, onSubmit, loading
       return
     }
 
-    const submissionData: any = {
+    const submissionData: Record<string, unknown> = {
       ...formData,
       price: Number(formData.price),
       compareAtPrice: formData.compareAtPrice !== "" ? Number(formData.compareAtPrice) : null,
@@ -339,8 +390,8 @@ export default function ProductForm({ initialData, categories, onSubmit, loading
 
     try {
       await onSubmit(submissionData)
-    } catch (err: any) {
-      setError(err.message || "Something went wrong")
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Something went wrong")
     }
   }
 
@@ -408,7 +459,7 @@ export default function ProductForm({ initialData, categories, onSubmit, loading
             <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
               {formData.images.map((img, idx) => (
                 <div key={idx} className="relative aspect-square rounded-lg overflow-hidden border border-gray-200 group">
-                  <img src={img.url} alt={img.alt || ""} className="w-full h-full object-cover" />
+                  <Image src={img.url} alt={img.alt || "Product image"} fill sizes="100px" className="object-cover" />
                   <button
                     type="button"
                     onClick={() => handleRemoveImage(idx)}
@@ -596,7 +647,7 @@ export default function ProductForm({ initialData, categories, onSubmit, loading
                               </p>
                             ) : (
                               <div className="flex flex-wrap gap-2">
-                                {values.map((val: any) => {
+                                {values.map((val: VariationValueItem) => {
                                   const isSelected = (selectedValues[typeId] || []).includes(val._id)
                                   return (
                                     <button

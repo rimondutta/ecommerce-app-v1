@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
     await user.save();
 
     return NextResponse.json({ success: true, imageUrl: secureUrl }, { headers: CORS_HEADERS });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('[POST /api/users/profile/image]', error);
     return NextResponse.json({ success: false, error: 'Internal Server Error' }, { status: 500, headers: CORS_HEADERS });
   }

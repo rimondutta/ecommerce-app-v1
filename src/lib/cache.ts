@@ -54,8 +54,8 @@ export async function withCache<T>(
     if (cached !== null && cached !== undefined) {
       return cached;
     }
-  } catch (err: any) {
-    if (err?.digest === 'DYNAMIC_SERVER_USAGE') throw err;
+  } catch (err: unknown) {
+    if ((err as { digest?: string })?.digest === 'DYNAMIC_SERVER_USAGE') throw err;
     // Redis read failure — fall through to live data
     console.error(`[cache] GET ${cacheKey} failed:`, err);
   }
@@ -65,8 +65,8 @@ export async function withCache<T>(
 
   try {
     await redis.setex(cacheKey, ttl, JSON.stringify(value));
-  } catch (err: any) {
-    if (err?.digest === 'DYNAMIC_SERVER_USAGE') throw err;
+  } catch (err: unknown) {
+    if ((err as { digest?: string })?.digest === 'DYNAMIC_SERVER_USAGE') throw err;
     // Redis write failure — value is still returned, just not cached
     console.error(`[cache] SETEX ${cacheKey} failed:`, err);
   }

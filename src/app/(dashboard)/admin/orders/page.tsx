@@ -4,8 +4,20 @@ import { useEffect, useState } from "react"
 import Link from "next/link"
 import { Search, Filter, Eye, Trash2, Download } from "lucide-react"
 
+interface AdminOrderListItem {
+  _id: string;
+  invoiceNumber?: string;
+  customerName?: string;
+  customerEmail?: string;
+  shippingAddress?: { phone?: string };
+  totalAmount?: number;
+  fulfillmentStatus?: string;
+  paymentStatus?: string;
+  createdAt: string | Date;
+}
+
 export default function AdminOrdersPage() {
-  const [orders, setOrders] = useState<any[]>([])
+  const [orders, setOrders] = useState<AdminOrderListItem[]>([])
   const [loading, setLoading] = useState(true)
 
   const fetchOrders = () => {

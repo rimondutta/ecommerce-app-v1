@@ -75,7 +75,7 @@ export function getValidatedMaxPoolSize(): number {
  */
 export function sanitizeErrorMessage(error: unknown): string {
   let message =
-    error instanceof Error ? error.message : String(error);
+    error instanceof Error ? (error as Error).message : String(error);
 
   const configuredUri = process.env.MONGODB_URI;
 

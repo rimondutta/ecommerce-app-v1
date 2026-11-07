@@ -5,7 +5,7 @@ import MediaClient from './MediaClient';
 export const dynamic = 'force-dynamic';
 
 export default async function MediaPage() {
-  let images: any[] = [];
+  let images: Array<{ public_id: string; secure_url: string; [key: string]: unknown }> = [];
   try {
     const result = await cloudinary.api.resources({
       type: 'upload',

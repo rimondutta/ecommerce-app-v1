@@ -1,13 +1,24 @@
-"use client"
+"use client";
+
+import Image from 'next/image';
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { Plus, Trash, Save, Loader2, ArrowLeft } from "lucide-react"
+import { Plus, Trash, Save, Loader2 } from "lucide-react"
+
+interface CategoryFormData {
+  name: string;
+  slug: string;
+  description: string;
+  image: string;
+  isActive: boolean;
+  [key: string]: unknown;
+}
 
 interface CategoryFormProps {
-  initialData?: any
-  onSubmit: (data: any) => Promise<void>
-  loading?: boolean
+  initialData?: Partial<CategoryFormData> | null;
+  onSubmit: (data: CategoryFormData) => Promise<void>;
+  loading?: boolean;
 }
 
 export default function CategoryForm({ initialData, onSubmit, loading = false }: CategoryFormProps) {
@@ -42,8 +53,8 @@ export default function CategoryForm({ initialData, onSubmit, loading = false }:
 
       const result = await res.json()
       setFormData(prev => ({ ...prev, image: result.url }))
-    } catch (err: any) {
-      setError(err.message || "Failed to upload image")
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Failed to upload image")
     } finally {
       setUploadingImage(false)
     }
@@ -66,8 +77,8 @@ export default function CategoryForm({ initialData, onSubmit, loading = false }:
 
     try {
       await onSubmit(formData)
-    } catch (err: any) {
-      setError(err.message || "Something went wrong")
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Something went wrong")
     }
   }
 
@@ -122,11 +133,7 @@ export default function CategoryForm({ initialData, onSubmit, loading = false }:
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
               {formData.image && (
                 <div className="relative aspect-square rounded-lg border border-gray-200 overflow-hidden group bg-gray-50">
-                  <img 
-                    src={formData.image} 
-                    alt="Category image" 
-                    className="w-full h-full object-cover"
-                  />
+                  <Image src={formData.image} alt="Category image" width={200} height={200} className="w-full h-full object-cover" />
                   <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                     <button
                       type="button"

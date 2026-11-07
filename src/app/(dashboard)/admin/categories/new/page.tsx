@@ -10,7 +10,7 @@ export default function AddCategoryPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
 
-  const handleSubmit = async (formData: any) => {
+  const handleSubmit = async (formData: { name: string; slug: string; description: string; image: string; isActive: boolean }) => {
     setLoading(true)
     try {
       const res = await fetch("/api/admin/categories", {
@@ -28,7 +28,7 @@ export default function AddCategoryPage() {
 
       router.push("/admin/categories")
       router.refresh()
-    } catch (err: any) {
+    } catch (err: unknown) {
       setLoading(false)
       throw err
     }
