@@ -19,7 +19,7 @@ export default function AdminLogin() {
     setIsLoading(true)
     
     const res = await signIn("credentials", {
-      email,
+      email: email.trim().toLowerCase(),
       password,
       redirect: false,
     })
@@ -28,8 +28,7 @@ export default function AdminLogin() {
       setError("Invalid email or password")
       setIsLoading(false)
     } else {
-      router.push("/admin")
-      router.refresh()
+      window.location.href = "/admin"
     }
   }
 

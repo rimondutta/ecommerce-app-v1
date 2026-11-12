@@ -13,7 +13,15 @@ export default async function MediaPage() {
       resource_type: 'image',
       direction: 'desc',
     });
-    images = result.resources;
+    // Exclude PDF invoices and documents — media library is strictly for store visual media (products, banners, etc.)
+    images = (result.resources || []).filter((item: { format?: string; public_id?: string; secure_url?: string }) => {
+      const pubId = item.public_id || '';
+      const url = item.secure_url || '';
+      const fmt = (item.format || '').toLowerCase();
+      const isInvoice = pubId.startsWith('invoices/') || url.includes('/invoices/');
+      const isPdf = fmt === 'pdf' || url.toLowerCase().endsWith('.pdf');
+      return !isInvoice && !isPdf;
+    });
   } catch (error) {
     console.error('Error fetching media from Cloudinary:', error);
   }
@@ -21,7 +29,10 @@ export default async function MediaPage() {
   async function deleteMedia(publicId: string) {
     'use server';
     try {
-      await cloudinary.uploader.destroy(publicId);
+      let res = await cloudinary.uploader.destroy(publicId, { resource_type: 'image' });
+      if (res?.result === 'not found') {
+        res = await cloudinary.uploader.destroy(publicId, { resource_type: 'raw' });
+      }
       revalidatePath('/admin/media');
       return { success: true };
     } catch (error) {

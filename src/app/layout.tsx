@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Poppins, DM_Sans } from "next/font/google";
+import { Poppins, DM_Sans, Hind_Siliguri } from "next/font/google";
 import "./globals.css";
 import { CartProvider } from "@/components/providers/CartProvider";
 import { WishlistProvider } from "@/components/providers/WishlistProvider";
@@ -25,6 +25,13 @@ const dmSans = DM_Sans({
   weight: ["400", "500", "600", "700"],
   style: ["normal"],
   variable: "--font-dm-sans",
+  display: "swap",
+});
+
+const hindSiliguri = Hind_Siliguri({
+  subsets: ["bengali", "latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-bengali",
   display: "swap",
 });
 
@@ -61,7 +68,7 @@ export default function RootLayout({
       lang="en"
       suppressHydrationWarning
       data-scroll-behavior="smooth"
-      className={`${poppins.variable} ${dmSans.variable}`}
+      className={`${poppins.variable} ${dmSans.variable} ${hindSiliguri.variable}`}
     >
       <head>
         <link rel="preconnect" href="https://res.cloudinary.com" />

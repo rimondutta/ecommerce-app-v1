@@ -2,8 +2,9 @@
 
 import { useState, useEffect, useCallback } from "react"
 import Image from "next/image"
-import { Trash, Save, Loader2, AlertCircle, ChevronDown, ChevronUp } from "lucide-react"
+import { Trash, Save, Loader2, AlertCircle, ChevronDown, ChevronUp, Image as ImageIcon, Camera, Upload, X } from "lucide-react"
 import { isCloudinaryUrl } from "@/lib/utils"
+import RichDescriptionEditor from "@/components/admin/RichDescriptionEditor"
 
 // ─── Types ─────────────────────────────────────────────────────────────────
 
@@ -84,6 +85,7 @@ interface VariantRow {
   comparePrice: number | string
   stock: number | string
   isActive: boolean
+  image?: string
 }
 
 // ─── Generic typed cartesian product ──────────────────────────────────────
@@ -157,6 +159,9 @@ export default function ProductForm({ initialData, categories, onSubmit, loading
           })
           .filter(c => c.variationType && c.variationValue)
 
+        const firstImg = v.images?.[0]
+        const imgUrl = typeof firstImg === 'string' ? firstImg : (firstImg as { url?: string })?.url || ''
+
         return {
           combination: combo,
           combinationLabel: v.combinationLabel || '',
@@ -165,12 +170,42 @@ export default function ProductForm({ initialData, categories, onSubmit, loading
           comparePrice: v.comparePrice ?? '',
           stock: v.stock ?? 0,
           isActive: v.isActive !== false,
+          image: imgUrl,
         }
       })
     }
     return []
   })
   const [expandedVariant, setExpandedVariant] = useState<number | null>(null)
+  const [pickingImageForVariant, setPickingImageForVariant] = useState<number | null>(null)
+  const [uploadingVariantImage, setUploadingVariantImage] = useState(false)
+
+  const handleVariantDirectUpload = async (variantIdx: number, e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setUploadingVariantImage(true)
+    try {
+      const fd = new FormData()
+      fd.append("file", file)
+      const res = await fetch("/api/admin/upload", { method: "POST", body: fd })
+      if (!res.ok) {
+        const d = await res.json()
+        throw new Error(d.error || "Failed to upload image")
+      }
+      const data = await res.json()
+      const newImgUrl = data.url
+      setFormData(prev => ({
+        ...prev,
+        images: [...prev.images, { url: newImgUrl, alt: `${formData.title} - ${variantRows[variantIdx]?.combinationLabel || ''}` }]
+      }))
+      updateVariantRow(variantIdx, "image", newImgUrl)
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Failed to upload image")
+    } finally {
+      setUploadingVariantImage(false)
+      e.target.value = ""
+    }
+  }
 
   // ── Sync if initialData is loaded/changed asynchronously ──
   const [prevInitialId, setPrevInitialId] = useState(() => initialData?._id)
@@ -264,6 +299,18 @@ export default function ProductForm({ initialData, categories, onSubmit, loading
               ((c.valueObj.slug as string | undefined) || c.valueObj.value || 'X').substring(0, 4).toUpperCase()
             )
 
+            // Auto-detect image from uploaded product images by matching color name
+            let assignedImage = existing?.image || ''
+            if (!assignedImage && formData.images.length > 0) {
+              const labelLower = label.toLowerCase()
+              const matched = formData.images.find(img => {
+                const alt = (img.alt || '').toLowerCase()
+                const url = (img.url || '').toLowerCase()
+                return alt.includes(labelLower) || url.includes(labelLower)
+              })
+              if (matched) assignedImage = matched.url
+            }
+
             return {
               combination: combo.map(c => ({
                 variationType: c.typeObj._id,
@@ -275,6 +322,7 @@ export default function ProductForm({ initialData, categories, onSubmit, loading
               comparePrice: existing?.comparePrice ?? "",
               stock: existing?.stock ?? 0,
               isActive: existing?.isActive ?? true,
+              image: assignedImage,
             }
           }))
         }
@@ -383,6 +431,7 @@ export default function ProductForm({ initialData, categories, onSubmit, loading
           : null,
         stock: Number(row.stock),
         isActive: row.isActive,
+        images: row.image ? [row.image] : [],
       }))
     } else {
       submissionData.variationTypes = []
@@ -433,25 +482,22 @@ export default function ProductForm({ initialData, categories, onSubmit, loading
               />
             </div>
 
-            <div className="space-y-1.5">
-              <label className="block text-sm font-medium text-gray-900">Description</label>
-              <textarea
-                rows={4}
-                value={formData.description}
-                onChange={e => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                className="w-full bg-white text-gray-900 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-gray-500 focus:ring-1 focus:ring-gray-500 outline-none transition-shadow"
-              />
-            </div>
+            <RichDescriptionEditor
+              label="Description"
+              rows={4}
+              value={formData.description}
+              onChange={val => setFormData(prev => ({ ...prev, description: val }))}
+              placeholder="Add product overview, highlights, or short description..."
+              helperText="Tip: Highlight text and click Heading or Link, or use Ctrl+B, Ctrl+I, Ctrl+K."
+            />
 
-            <div className="space-y-1.5">
-              <label className="block text-sm font-medium text-gray-900">Long Description</label>
-              <textarea
-                rows={8}
-                value={formData.longDescription}
-                onChange={e => setFormData(prev => ({ ...prev, longDescription: e.target.value }))}
-                className="w-full bg-white text-gray-900 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-gray-500 focus:ring-1 focus:ring-gray-500 outline-none transition-shadow"
-              />
-            </div>
+            <RichDescriptionEditor
+              label="Long Description"
+              rows={8}
+              value={formData.longDescription}
+              onChange={val => setFormData(prev => ({ ...prev, longDescription: val }))}
+              placeholder="Full product details, specifications, usage instructions, or features..."
+            />
           </div>
 
           {/* Media */}
@@ -687,11 +733,12 @@ export default function ProductForm({ initialData, categories, onSubmit, loading
                       Step 3 — Configure each variant ({variantRows.length} variants)
                     </p>
 
-                    <div className="border border-gray-200 rounded-xl overflow-hidden">
+                    <div className="border border-gray-200 rounded-xl overflow-hidden overflow-x-auto">
+                      <div className="min-w-[660px]">
                       {/* Header */}
                       <div
                         className="grid bg-gray-50 border-b border-gray-200 px-4 py-2.5 text-xs font-semibold text-gray-500 uppercase tracking-wider"
-                        style={{ gridTemplateColumns: "1fr 100px 110px 80px 120px 36px" }}
+                        style={{ gridTemplateColumns: "minmax(180px, 1.5fr) 100px 100px 80px 120px 36px" }}
                       >
                         <div>Variant</div>
                         <div>Price (৳)</div>
@@ -707,11 +754,36 @@ export default function ProductForm({ initialData, categories, onSubmit, loading
                             {/* Summary row */}
                             <div
                               className={`grid items-center px-4 py-2.5 gap-2 cursor-pointer hover:bg-gray-50 transition-colors ${!row.isActive ? "opacity-50" : ""} ${expandedVariant === i ? "bg-gray-50" : "bg-white"}`}
-                              style={{ gridTemplateColumns: "1fr 100px 110px 80px 120px 36px" }}
+                              style={{ gridTemplateColumns: "minmax(180px, 1.5fr) 100px 100px 80px 120px 36px" }}
                               onClick={() => setExpandedVariant(expandedVariant === i ? null : i)}
                             >
-                              <div className="flex items-center gap-2 min-w-0">
-                                <span className="text-sm font-medium text-gray-900 truncate">{row.combinationLabel}</span>
+                              <div className="flex items-center gap-2.5 min-w-0">
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    setPickingImageForVariant(i)
+                                  }}
+                                  className="group/img relative w-8 h-8 rounded-lg border-2 border-dashed border-gray-300 hover:border-blue-500 overflow-hidden shrink-0 bg-gray-50 flex items-center justify-center transition-all hover:bg-blue-50/50"
+                                  title={row.image ? "Click to change variant photo" : "Click to add photo for this variant"}
+                                >
+                                  {row.image && row.image.trim() !== "" ? (
+                                    <>
+                                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                                      <img src={row.image} alt={row.combinationLabel} className="absolute inset-0 w-full h-full object-cover" />
+                                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/img:opacity-100 flex items-center justify-center transition-opacity">
+                                        <Camera size={13} className="text-white" />
+                                      </div>
+                                    </>
+                                  ) : (
+                                    <div className="flex flex-col items-center justify-center text-gray-400 group-hover/img:text-blue-600 transition-colors">
+                                      <Camera size={13} />
+                                    </div>
+                                  )}
+                                </button>
+                                <span className="text-sm font-semibold text-gray-900 truncate" title={row.combinationLabel}>
+                                  {row.combinationLabel || "Variant"}
+                                </span>
                                 {!row.isActive && (
                                   <span className="text-[10px] bg-gray-200 text-gray-500 px-1.5 py-0.5 rounded font-bold uppercase tracking-wide shrink-0">Off</span>
                                 )}
@@ -776,10 +848,55 @@ export default function ProductForm({ initialData, categories, onSubmit, loading
                                     <Trash size={14} /> Delete variant
                                   </button>
                                 </div>
+
+                                {/* Variant Image Selector */}
+                                <div className="mt-3 pt-3 border-t border-gray-200">
+                                  <div className="flex items-center justify-between mb-2">
+                                    <span className="text-xs font-semibold text-gray-700">Variant Image (auto-switched when customer selects this color):</span>
+                                    {row.image && (
+                                      <button
+                                        type="button"
+                                        onClick={() => updateVariantRow(i, "image", "")}
+                                        className="text-xs text-red-500 hover:text-red-700 underline"
+                                      >
+                                        Remove image
+                                      </button>
+                                    )}
+                                  </div>
+                                  {formData.images.length === 0 ? (
+                                    <p className="text-xs text-gray-400">Add media in the Media section above to select an image for this variant.</p>
+                                  ) : (
+                                    <div className="flex flex-wrap gap-2 items-center">
+                                      {formData.images.map((img, imgIdx) => {
+                                        const isSelected = row.image === img.url
+                                        return (
+                                          <button
+                                            key={imgIdx}
+                                            type="button"
+                                            onClick={() => updateVariantRow(i, "image", isSelected ? "" : img.url)}
+                                            className={`relative w-12 h-12 rounded-lg overflow-hidden border-2 transition-all ${
+                                              isSelected ? "border-gray-900 ring-2 ring-gray-900/20 scale-105" : "border-gray-200 opacity-60 hover:opacity-100"
+                                            }`}
+                                            title="Click to select this image for this variant"
+                                          >
+                                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                                            <img src={img.url} alt={img.alt || "Option"} className="w-full h-full object-cover" />
+                                            {isSelected && (
+                                              <div className="absolute inset-0 bg-black/40 flex items-center justify-center text-white font-bold text-xs">
+                                                ✓
+                                              </div>
+                                            )}
+                                          </button>
+                                        )
+                                      })}
+                                    </div>
+                                  )}
+                                </div>
                               </div>
                             )}
                           </div>
                         ))}
+                      </div>
                       </div>
                     </div>
                   </div>
@@ -902,6 +1019,120 @@ export default function ProductForm({ initialData, categories, onSubmit, loading
 
         </div>
       </div>
+
+      {/* ── Modal: Select or Upload Variant Photo ── */}
+      {pickingImageForVariant !== null && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+          <div className="bg-white rounded-2xl shadow-2xl border border-gray-200 w-full max-w-lg overflow-hidden flex flex-col max-h-[85vh] animate-in fade-in duration-150">
+            {/* Modal Header */}
+            <div className="px-5 py-4 border-b border-gray-200 flex items-center justify-between">
+              <div>
+                <h3 className="text-base font-semibold text-gray-900">
+                  Select Photo for &ldquo;{variantRows[pickingImageForVariant]?.combinationLabel}&rdquo;
+                </h3>
+                <p className="text-xs text-gray-500 mt-0.5">
+                  This photo will automatically show when a customer chooses this variant
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setPickingImageForVariant(null)}
+                className="p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-5 overflow-y-auto space-y-4 flex-1">
+              {/* Upload direct button */}
+              <label className="flex items-center justify-center gap-2 w-full py-3 px-4 border-2 border-dashed border-gray-300 hover:border-blue-500 rounded-xl cursor-pointer hover:bg-blue-50/50 transition-colors">
+                {uploadingVariantImage ? (
+                  <div className="flex items-center gap-2 text-sm text-blue-600 font-medium">
+                    <Loader2 size={16} className="animate-spin" /> Uploading image...
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2 text-sm text-gray-700 font-medium">
+                    <Upload size={16} className="text-blue-600" />
+                    <span>Upload new photo from computer</span>
+                  </div>
+                )}
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  disabled={uploadingVariantImage}
+                  onChange={(e) => handleVariantDirectUpload(pickingImageForVariant, e)}
+                />
+              </label>
+
+              {/* Existing product media */}
+              <div>
+                <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2.5">
+                  Or choose from product media ({formData.images.length})
+                </h4>
+                {formData.images.length === 0 ? (
+                  <div className="text-center py-6 text-sm text-gray-400 border border-gray-100 rounded-xl bg-gray-50">
+                    No photos uploaded to this product yet. Click the button above to upload one!
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-4 sm:grid-cols-5 gap-2.5">
+                    {formData.images.map((img, imgIdx) => {
+                      const isSelected = variantRows[pickingImageForVariant]?.image === img.url;
+                      return (
+                        <button
+                          key={imgIdx}
+                          type="button"
+                          onClick={() => {
+                            updateVariantRow(pickingImageForVariant, "image", isSelected ? "" : img.url);
+                          }}
+                          className={`relative aspect-square rounded-xl overflow-hidden border-2 transition-all ${
+                            isSelected
+                              ? "border-blue-600 ring-4 ring-blue-500/20 scale-102"
+                              : "border-gray-200 hover:border-gray-400 opacity-75 hover:opacity-100"
+                          }`}
+                        >
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img src={img.url} alt={img.alt || "Option"} className="w-full h-full object-cover" />
+                          {isSelected && (
+                            <div className="absolute inset-0 bg-blue-600/30 flex items-center justify-center">
+                              <span className="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-bold shadow-md">
+                                ✓
+                              </span>
+                            </div>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="px-5 py-3.5 bg-gray-50 border-t border-gray-200 flex items-center justify-between">
+              {variantRows[pickingImageForVariant]?.image ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    updateVariantRow(pickingImageForVariant, "image", "");
+                  }}
+                  className="text-xs font-medium text-red-600 hover:text-red-800 transition-colors"
+                >
+                  Remove Photo
+                </button>
+              ) : <div />}
+              <button
+                type="button"
+                onClick={() => setPickingImageForVariant(null)}
+                className="px-4 py-2 text-sm font-semibold text-white bg-gray-900 hover:bg-gray-800 rounded-lg transition-colors shadow-xs"
+              >
+                Done
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </form>
   )
 }

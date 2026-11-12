@@ -25,9 +25,14 @@ export const authOptions: NextAuthOptions = {
 
         await connectToDatabase();
 
-        const user = await User.findOne({ email: credentials.email }).select(
-          '+password'
-        );
+        const cleanEmail = credentials.email.trim();
+        const user = await User.findOne({
+          $or: [
+            { email: cleanEmail.toLowerCase() },
+            { email: cleanEmail },
+            { email: { $regex: new RegExp(`^${cleanEmail.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i') } },
+          ],
+        }).select('+password');
 
         if (!user) {
           throw new Error('Invalid credentials');

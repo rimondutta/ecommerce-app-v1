@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Copy, Check, ExternalLink } from 'lucide-react';
+import { Copy, Check, ExternalLink, FileText } from 'lucide-react';
 import Image from 'next/image';
 
 interface MediaClientProps {
@@ -35,54 +35,71 @@ export default function MediaClient({ initialImages, deleteMedia }: MediaClientP
 
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
-      {images.map((img) => (
-        <div key={img.public_id} className="group relative aspect-square border-2 border-black bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all">
-          <div className="absolute inset-0 p-2">
-             <div className="relative w-full h-full border-2 border-transparent group-hover:border-black transition-colors">
-                <Image 
-                    src={img.secure_url} 
+      {images.map((img) => {
+        const isPdf = img.public_id?.endsWith('.pdf') || (typeof img.secure_url === 'string' && img.secure_url.toLowerCase().endsWith('.pdf'));
+        const thumbnailSrc = typeof img.secure_url === 'string' && img.secure_url.includes('/image/upload/')
+          ? img.secure_url.replace('/image/upload/', '/image/upload/w_360,c_limit,q_auto,f_auto/')
+          : img.secure_url;
+
+        return (
+          <div key={img.public_id} className="group relative aspect-square border-2 border-black bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all">
+            <div className="absolute inset-0 p-2">
+              <div className="relative w-full h-full border-2 border-transparent group-hover:border-black transition-colors flex items-center justify-center bg-gray-50/50">
+                {isPdf ? (
+                  <div className="flex flex-col items-center justify-center p-2 text-center">
+                    <FileText size={36} className="text-red-500 mb-1" />
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-gray-600 line-clamp-2">
+                      PDF Document
+                    </span>
+                  </div>
+                ) : (
+                  <Image 
+                    src={thumbnailSrc} 
                     alt={img.public_id} 
                     fill 
+                    unoptimized
                     className="object-contain p-1"
                     sizes="(max-width: 768px) 50vw, 25vw"
-                />
-             </div>
-          </div>
-          
-          <div className="absolute inset-0 bg-white/90 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-3 p-4">
-            <div className="flex gap-2">
-              <a 
-                href={img.secure_url} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="w-10 h-10 border-2 border-black bg-white hover:bg-black hover:text-white flex items-center justify-center transition-colors shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
-                title="Open Original"
-              >
-                <ExternalLink size={18} />
-              </a>
+                  />
+                )}
+              </div>
+            </div>
+            
+            <div className="absolute inset-0 bg-white/90 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-3 p-4">
+              <div className="flex gap-2">
+                <a 
+                  href={img.secure_url} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 border-2 border-black bg-white hover:bg-black hover:text-white flex items-center justify-center transition-colors shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
+                  title="Open Original"
+                >
+                  <ExternalLink size={18} />
+                </a>
+                <button 
+                  onClick={() => handleCopy(img.secure_url, img.public_id)}
+                  className="w-10 h-10 border-2 border-black bg-white hover:bg-black hover:text-white flex items-center justify-center transition-colors shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
+                  title="Copy URL"
+                >
+                  {copiedId === img.public_id ? <Check size={18} className="text-green-600" /> : <Copy size={18} />}
+                </button>
+              </div>
+              
               <button 
-                onClick={() => handleCopy(img.secure_url, img.public_id)}
-                className="w-10 h-10 border-2 border-black bg-white hover:bg-black hover:text-white flex items-center justify-center transition-colors shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
-                title="Copy URL"
+                onClick={() => handleDelete(img.public_id)}
+                disabled={deletingId === img.public_id}
+                className="w-full py-2 bg-red-500 text-white text-[10px] font-black uppercase tracking-widest border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:bg-red-600 transition-colors disabled:bg-gray-400 active:translate-x-[2px] active:translate-y-[2px] active:shadow-none mt-2"
               >
-                {copiedId === img.public_id ? <Check size={18} className="text-green-600" /> : <Copy size={18} />}
+                {deletingId === img.public_id ? "Deleting..." : "Delete"}
               </button>
             </div>
             
-            <button 
-              onClick={() => handleDelete(img.public_id)}
-              disabled={deletingId === img.public_id}
-              className="w-full py-2 bg-red-500 text-white text-[10px] font-black uppercase tracking-widest border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:bg-red-600 transition-colors disabled:bg-gray-400 active:translate-x-[2px] active:translate-y-[2px] active:shadow-none mt-2"
-            >
-              {deletingId === img.public_id ? "Deleting..." : "Delete"}
-            </button>
+            <div className="absolute -bottom-2 -left-2 bg-black text-white text-[8px] font-bold px-2 py-0.5 uppercase tracking-tighter max-w-[90%] truncate border border-black shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] group-hover:hidden transition-all">
+              {img.public_id.split('/').pop()}
+            </div>
           </div>
-          
-          <div className="absolute -bottom-2 -left-2 bg-black text-white text-[8px] font-bold px-2 py-0.5 uppercase tracking-tighter max-w-[90%] truncate border border-black shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] group-hover:hidden transition-all">
-            {img.public_id.split('/').pop()}
-          </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }

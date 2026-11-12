@@ -1,6 +1,10 @@
+import path from "path";
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  turbopack: {
+    root: path.resolve(__dirname),
+  },
   // Prevent Next.js from bundling @react-pdf/renderer with webpack.
   // It relies on Node.js built-ins and must run as a server external.
   serverExternalPackages: ['@react-pdf/renderer'],

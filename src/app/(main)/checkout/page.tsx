@@ -21,6 +21,9 @@ import {
   Truck,
   Loader2,
   Sparkles,
+  Tag,
+  X,
+  AlertCircle,
 } from "lucide-react";
 
 const STEPS = [
@@ -78,6 +81,57 @@ export default function CheckoutPage() {
     shippingZone: "inside_dhaka",
     notes: "",
   });
+
+  // ── Coupon State ──
+  const [couponInput, setCouponInput] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState<{
+    code: string;
+    discountType: "percentage" | "fixed";
+    discountValue: number;
+    discountAmount: number;
+  } | null>(null);
+  const [couponLoading, setCouponLoading] = useState(false);
+  const [couponError, setCouponError] = useState("");
+
+  const handleApplyCoupon = async () => {
+    const cleanCode = couponInput.trim().toUpperCase();
+    if (!cleanCode) return;
+    setCouponLoading(true);
+    setCouponError("");
+    try {
+      const res = await fetch("/api/store/coupons/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: cleanCode, orderTotal: total }),
+      });
+      const data = await res.json();
+      if (res.ok && data.valid) {
+        setAppliedCoupon({
+          code: cleanCode,
+          discountType: data.discountType,
+          discountValue: data.discountValue,
+          discountAmount: data.discountAmount,
+        });
+        showToast(`🎉 Coupon "${cleanCode}" applied! Saved ৳${Math.round(data.discountAmount).toLocaleString()}`);
+        setCouponInput("");
+      } else {
+        const msg = data.message || "Invalid or expired coupon code";
+        setCouponError(msg);
+        showToast(msg, "error");
+      }
+    } catch {
+      setCouponError("Could not validate coupon");
+      showToast("Could not validate coupon", "error");
+    } finally {
+      setCouponLoading(false);
+    }
+  };
+
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponError("");
+    showToast("Coupon removed");
+  };
 
   useEffect(() => {
     fetch("/api/settings/shipping")
@@ -138,7 +192,8 @@ export default function CheckoutPage() {
       ? shippingConfig.freeShippingMinOrder - total
       : 0;
 
-  const grandTotal = total + shippingCost;
+  const discountAmount = appliedCoupon?.discountAmount ?? 0;
+  const grandTotal = Math.max(0, total + shippingCost - discountAmount);
 
   const handleSubmit = async () => {
     if (isSubmitting) return;
@@ -171,6 +226,8 @@ export default function CheckoutPage() {
           paymentMethod: form.paymentMethod,
           shippingZone: form.shippingZone,
           notes: form.notes,
+          couponCode: appliedCoupon?.code || undefined,
+          discountAmount: discountAmount,
           totalAmount: total,
           shippingCost: shippingCost,
         }),
@@ -687,6 +744,87 @@ export default function CheckoutPage() {
                 </div>
               )}
 
+              {/* ── Coupon Code Box ── */}
+              <div className="pt-1">
+                {appliedCoupon ? (
+                  <div className="flex items-center justify-between p-3 bg-green-50/80 border border-green-200 rounded-xl animate-fade-in">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-8 h-8 rounded-lg bg-green-100 text-green-700 flex items-center justify-center shrink-0">
+                        <Tag size={16} />
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-mono font-bold text-xs text-green-900 tracking-wider">
+                            {appliedCoupon.code}
+                          </span>
+                          <span className="text-[10px] bg-green-200 text-green-900 px-1.5 py-0.5 rounded font-bold">
+                            {appliedCoupon.discountType === "percentage"
+                              ? `${appliedCoupon.discountValue}% OFF`
+                              : `৳${appliedCoupon.discountValue} FLAT`}
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-green-700 font-medium mt-0.5">
+                          Saved ৳{Math.round(appliedCoupon.discountAmount).toLocaleString()}
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleRemoveCoupon}
+                      className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
+                      title="Remove coupon"
+                    >
+                      <X size={15} />
+                    </button>
+                  </div>
+                ) : (
+                  <div className="space-y-1.5">
+                    <div className="flex gap-2">
+                      <div className="relative flex-1">
+                        <Tag size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                        <input
+                          type="text"
+                          value={couponInput}
+                          onChange={(e) => {
+                            setCouponInput(e.target.value.toUpperCase());
+                            setCouponError("");
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                              e.preventDefault();
+                              handleApplyCoupon();
+                            }
+                          }}
+                          placeholder="Coupon code (e.g. SAVE10)"
+                          className="w-full pl-8 pr-3 py-2 text-xs font-mono font-semibold uppercase bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-400 tracking-wider"
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleApplyCoupon}
+                        disabled={couponLoading || !couponInput.trim()}
+                        className="px-3.5 py-2 text-xs font-semibold rounded-xl bg-gray-900 hover:bg-black text-white disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer shrink-0"
+                      >
+                        {couponLoading ? (
+                          <span className="flex items-center gap-1">
+                            <Loader2 size={12} className="animate-spin" />
+                            Applying
+                          </span>
+                        ) : (
+                          "Apply"
+                        )}
+                      </button>
+                    </div>
+                    {couponError && (
+                      <p className="text-[11px] text-red-500 font-medium px-1 flex items-center gap-1">
+                        <AlertCircle size={12} />
+                        {couponError}
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
+
               {/* Divider */}
               <div className="h-px bg-gray-100" />
 
@@ -698,6 +836,17 @@ export default function CheckoutPage() {
                     ৳{Math.round(total).toLocaleString()}
                   </span>
                 </div>
+
+                {discountAmount > 0 && (
+                  <div className="flex justify-between text-sm text-green-600 font-medium">
+                    <span className="flex items-center gap-1">
+                      <Tag size={12} />
+                      Discount ({appliedCoupon?.code})
+                    </span>
+                    <span className="font-semibold">-৳{Math.round(discountAmount).toLocaleString()}</span>
+                  </div>
+                )}
+
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-500 font-medium">
                     Shipping

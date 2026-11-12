@@ -3,11 +3,11 @@
 import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-const DynamicProductGridNike = dynamic(() => import("@/components/ui/product-grid-nike"));
+const DynamicProductGridRimon = dynamic(() => import("@/components/ui/product-grid-rimon"));
 import AnimatedReveal from "@/components/ui/AnimatedReveal";
 import dynamic from "next/dynamic";
 const DynamicAppDownloadSection = dynamic(() => import("./AppDownloadSection"));
-import { ArrowRight, Truck, RotateCcw, Headphones } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
 const DynamicInstagramSection = dynamic(() => import("./InstagramSection"), { ssr: false });
 
@@ -237,7 +237,7 @@ export default function Homepage({
           </Link>
         </AnimatedReveal>
 
-        <DynamicProductGridNike
+        <DynamicProductGridRimon
           title={undefined}
           viewAllLink="/products"
           products={trendingProducts}
@@ -245,28 +245,6 @@ export default function Homepage({
         />
       </section>
 
-      {/* ═══════════════════════════════════════════════
-          TRUST STRIP
-          ═══════════════════════════════════════════════ */}
-      <AnimatedReveal>
-        <section className="mx-4 sm:mx-8 lg:mx-[5vw] my-8 border-t border-b border-black/10 py-16">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-12 text-center max-w-5xl mx-auto">
-            {[
-              { Icon: Truck, title: "Free Delivery", desc: "On all orders over ৳1,500" },
-              { Icon: Headphones, title: "24/7 Support", desc: "Friendly help, always available" },
-              { Icon: RotateCcw, title: "30-Day Returns", desc: "No questions asked" },
-            ].map(({ Icon, title, desc }) => (
-              <div key={title} className="flex flex-col items-center gap-4">
-                <div className="text-black mb-2 opacity-80">
-                  <Icon size={28} strokeWidth={1} />
-                </div>
-                <h4 className="font-serif font-light text-xl tracking-wide text-black">{title}</h4>
-                <p className="font-body font-light text-zinc-500 text-sm">{desc}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-      </AnimatedReveal>
 
       {/* ═══════════════════════════════════════════════
           LATEST EDITORIALS (BLOG)

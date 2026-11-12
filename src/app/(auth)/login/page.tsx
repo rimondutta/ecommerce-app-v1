@@ -25,14 +25,14 @@ function LoginForm() {
     try {
       const res = await signIn("credentials", {
         redirect: false,
-        email,
+        email: email.trim().toLowerCase(),
         password,
       });
 
       if (res?.error) {
         setError("Invalid email or password");
       } else {
-        router.push(callbackUrl);
+        window.location.href = callbackUrl;
       }
     } catch {
       setError("An unexpected error occurred. Please try again.");

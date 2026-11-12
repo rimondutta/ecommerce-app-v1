@@ -39,6 +39,7 @@
   --font-body:    var(--font-dm-sans), 'DM Sans', var(--font-manrope), 'Manrope', sans-serif;
   --font-sans:    var(--font-dm-sans), 'DM Sans', var(--font-manrope), 'Manrope', sans-serif;
   --font-mono:    var(--font-dm-sans), 'DM Sans', sans-serif;
+  --font-bengali: var(--font-bengali), 'Hind Siliguri', 'Noto Sans Bengali', sans-serif;
 
   /* ─── Radii — rounded but not bubbly ─── */
   --radius-none: 0px;

@@ -2,7 +2,7 @@
 
 import { Fragment } from "react"
 import { Dialog, DialogPanel, Transition, TransitionChild } from "@headlessui/react"
-import { X, Home, ShoppingCart, Tag, Users, Ticket, UserPlus, Image as ImageIcon, LogOut, Layers, MessageSquare, Sliders, BarChart2, Truck, FileText, Plus } from "lucide-react"
+import { X, Home, ShoppingCart, Tag, Users, Ticket, UserPlus, Image as ImageIcon, LogOut, Layers, MessageSquare, Sliders, BarChart2, Truck, FileText, Plus, Package, Sparkles } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
@@ -32,6 +32,8 @@ export default function AdminMobileSidebar({ isOpen, onClose }: AdminMobileSideb
     { name: "Add User", href: "/admin/users/add", icon: UserPlus },
     { name: "Pixel Settings", href: "/admin/settings/pixel", icon: BarChart2 },
     { name: "Shipping Settings", href: "/admin/settings/shipping", icon: Truck },
+    { name: "Courier APIs", href: "/admin/settings/couriers", icon: Package },
+    { name: "AI সেটিংস", href: "/admin/settings/ai", icon: Sparkles },
   ]
 
   const isActive = (href: string) => {

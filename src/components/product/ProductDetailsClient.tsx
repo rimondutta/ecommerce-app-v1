@@ -1,16 +1,20 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { useCart } from "@/components/providers/CartProvider";
 import { useWishlist } from "@/store/wishlistStore";
 import { useToast } from "@/components/playshelf/Toast";
-import ProductGridNike from "@/components/ui/product-grid-nike";
+import ProductGridRimon from "@/components/ui/product-grid-rimon";
 import { Star, Truck, RefreshCcw, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { trackViewContent, trackAddToCart, trackAddToWishlist } from "@/lib/fbPixel";
+import OrderWithAIButton from "@/components/ai/OrderWithAIButton";
+import AISuggestions from "@/components/ai/AISuggestions";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 interface VariationValue {
   _id: string;
@@ -221,14 +225,138 @@ export default function ProductDetailsClient({ product: initialProduct, relatedP
 
   const effectiveComparePrice = currentComparePrice;
 
-  // Determine current image gallery (variant images override product images if they exist)
-  const currentGallery = matchingVariant?.images && matchingVariant.images.length > 0
-    ? matchingVariant.images.map((img) =>
-        typeof img === 'string'
-          ? { url: img, alt: product.title }
-          : { url: img.url, alt: img.alt || product.title }
+  // Color synonyms mapping for bilingual Bangla and English matching
+  const COLOR_KEYWORDS: Record<string, string[]> = useMemo(() => ({
+    red: ['red', 'crimson', 'maroon', 'লাল'],
+    blue: ['blue', 'navy', 'cyan', 'নীল', 'আকাশি', 'আসমানি'],
+    green: ['green', 'emerald', 'সবুজ'],
+    yellow: ['yellow', 'amber', 'হলুদ'],
+    pink: ['pink', 'rose', 'গোলাপি', 'গোলাপী'],
+    black: ['black', 'dark', 'কালো'],
+    white: ['white', 'light', 'সাদা'],
+    orange: ['orange', 'কমলা'],
+    purple: ['purple', 'violet', 'বেগুনি', 'বেগুনী'],
+    brown: ['brown', 'বাদামি', 'বাদামী'],
+    gray: ['gray', 'grey', 'silver', 'ধূসর'],
+  }), []);
+
+  // Helper to find matching image index for a color/option name in gallery
+  const findColorImageIndex = useCallback((valName: string, gallery: Array<{ url: string; alt?: string }>): number => {
+    if (!valName || !gallery.length) return -1;
+    const raw = valName.toLowerCase().trim();
+
+    let searchTerms = [raw];
+    for (const [key, list] of Object.entries(COLOR_KEYWORDS)) {
+      if (list.some(term => raw.includes(term))) {
+        searchTerms = Array.from(new Set([raw, key, ...list]));
+        break;
+      }
+    }
+
+    // 1. Check alt text
+    for (let i = 0; i < gallery.length; i++) {
+      const alt = (gallery[i].alt || '').toLowerCase();
+      if (searchTerms.some(term => alt.includes(term))) {
+        return i;
+      }
+    }
+
+    // 2. Check image URL / filename
+    for (let i = 0; i < gallery.length; i++) {
+      let url = (gallery[i].url || '').toLowerCase();
+      try { url = decodeURIComponent(url); } catch {}
+      if (searchTerms.some(term => url.includes(term))) {
+        return i;
+      }
+    }
+
+    return -1;
+  }, [COLOR_KEYWORDS]);
+
+  // Determine current image gallery:
+  // If matchingVariant has specific images, ensure those images are at the front, followed by remaining product images
+  const currentGallery = useMemo(() => {
+    const allImages = (product.images || []).map((img) => ({
+      url: img.url,
+      alt: img.alt || product.title,
+    }));
+
+    if (!matchingVariant?.images || matchingVariant.images.length === 0) {
+      return allImages;
+    }
+
+    const variantImages = matchingVariant.images.map((img) => ({
+      url: typeof img === 'string' ? img : img.url,
+      alt: typeof img === 'string' ? product.title : img.alt || product.title,
+    }));
+
+    // Put variant images first, then remaining product images without duplicate URLs
+    const existingUrls = new Set(variantImages.map((img) => img.url));
+    const remaining = allImages.filter((img) => !existingUrls.has(img.url));
+
+    return [...variantImages, ...remaining];
+  }, [product.images, product.title, matchingVariant]);
+
+  // Handle option select with automatic image switching
+  const handleOptionSelect = (vtId: string, valId: string, valName: string) => {
+    const nextOptions = { ...selectedOptions, [vtId]: valId };
+    setSelectedOptions(nextOptions);
+
+    // Look for matching variant
+    const nextVariant = product.variants?.find((v: ProductVariant) =>
+      v.isActive &&
+      v.combination.every((c: VariantCombination) =>
+        (c.variationType._id === vtId ? valId : nextOptions[c.variationType._id]) === c.variationValue._id
       )
-    : product.images || [];
+    );
+
+    // If matching variant has an explicit image, switch to it
+    if (nextVariant?.images && nextVariant.images.length > 0) {
+      const vImg = nextVariant.images[0];
+      const targetUrl = typeof vImg === 'string' ? vImg : vImg?.url;
+      if (targetUrl) {
+        const found = currentGallery.findIndex(g => g.url === targetUrl);
+        if (found !== -1) {
+          setActiveImage(found);
+          return;
+        }
+      }
+      setActiveImage(0);
+      return;
+    }
+
+    // Fallback: search gallery by color name / keyword
+    const matchIdx = findColorImageIndex(valName, currentGallery);
+    if (matchIdx !== -1) {
+      setActiveImage(matchIdx);
+    }
+  };
+
+  // Automatically sync image when variant or options change
+  useEffect(() => {
+    if (!currentGallery || currentGallery.length === 0) return;
+
+    if (matchingVariant?.images && matchingVariant.images.length > 0) {
+      setActiveImage(0);
+      return;
+    }
+
+    // Check all currently selected values
+    const selectedVals: string[] = [];
+    Object.entries(selectedOptions).forEach(([vtId, valId]) => {
+      const vt = product.variationTypes?.find(t => t._id === vtId);
+      const val = vt?.values?.find(v => v._id === valId);
+      if (val?.value) selectedVals.push(val.value);
+    });
+
+    for (const valName of selectedVals) {
+      const idx = findColorImageIndex(valName, currentGallery);
+      if (idx !== -1) {
+        setActiveImage(idx);
+        break;
+      }
+    }
+  }, [selectedOptions, matchingVariant, currentGallery, findColorImageIndex]);
 
   const totalImages = currentGallery.length || 0;
   const prevImage = () => setActiveImage(activeImage === 0 ? totalImages - 1 : activeImage - 1);
@@ -294,6 +422,7 @@ export default function ProductDetailsClient({ product: initialProduct, relatedP
             <div className="relative flex-1 aspect-square md:aspect-[4/5] bg-joy-mist rounded-3xl overflow-hidden">
               {currentGallery[activeImage] && (
                 <Image
+                  key={currentGallery[activeImage].url}
                   src={currentGallery[activeImage].url}
                   alt={currentGallery[activeImage].alt || product.title}
                   fill
@@ -415,7 +544,7 @@ export default function ProductDetailsClient({ product: initialProduct, relatedP
                           return (
                             <button
                               key={val._id}
-                              onClick={() => setSelectedOptions(p => ({ ...p, [vt._id]: val._id }))}
+                              onClick={() => handleOptionSelect(vt._id, val._id, val.value)}
                               className={cn(
                                 "w-10 h-10 rounded-full border-2 transition-all duration-200",
                                 isSelected ? "border-joy-cobalt scale-110" : "border-transparent hover:scale-105 shadow-sm"
@@ -430,7 +559,7 @@ export default function ProductDetailsClient({ product: initialProduct, relatedP
                         return (
                           <button
                             key={val._id}
-                            onClick={() => setSelectedOptions(p => ({ ...p, [vt._id]: val._id }))}
+                            onClick={() => handleOptionSelect(vt._id, val._id, val.value)}
                             className={cn(
                               "px-4 py-2 font-display font-semibold text-sm rounded-xl border transition-all duration-200",
                               isSelected
@@ -457,7 +586,31 @@ export default function ProductDetailsClient({ product: initialProduct, relatedP
 
             {/* Description */}
             <div className="bg-joy-mist rounded-2xl p-5 mb-6">
-              <p className="font-body text-sm text-joy-navy leading-relaxed">{product.description}</p>
+              <div className="font-body text-sm text-joy-navy leading-relaxed prose prose-sm max-w-none">
+                <ReactMarkdown
+                  remarkPlugins={[remarkGfm]}
+                  components={{
+                    h1: ({ children }) => <h1 className="text-xl font-bold font-display text-joy-navy mt-3 mb-2">{children}</h1>,
+                    h2: ({ children }) => <h2 className="text-lg font-bold font-display text-joy-navy mt-2.5 mb-1.5">{children}</h2>,
+                    h3: ({ children }) => <h3 className="text-base font-bold font-display text-joy-navy mt-2 mb-1">{children}</h3>,
+                    h4: ({ children }) => <h4 className="text-sm font-bold font-display text-joy-navy mt-2 mb-1">{children}</h4>,
+                    h5: ({ children }) => <h5 className="text-xs font-bold font-display text-joy-navy uppercase tracking-wider mt-2 mb-1">{children}</h5>,
+                    h6: ({ children }) => <h6 className="text-xs font-semibold font-display text-joy-muted uppercase tracking-wider mt-1.5 mb-0.5">{children}</h6>,
+                    p: ({ children }) => <p className="mb-2 last:mb-0 leading-relaxed">{children}</p>,
+                    blockquote: ({ children }) => <blockquote className="border-l-2 border-joy-cobalt/40 pl-3 italic text-joy-muted my-2">{children}</blockquote>,
+                    code: ({ children }) => <code className="bg-joy-white px-1.5 py-0.5 rounded text-xs font-mono text-joy-cobalt">{children}</code>,
+                    a: ({ href, children }) => (
+                      <a href={href} target="_blank" rel="noopener noreferrer" className="text-joy-cobalt hover:underline font-semibold">
+                        {children}
+                      </a>
+                    ),
+                    ul: ({ children }) => <ul className="list-disc pl-5 space-y-1 mb-2">{children}</ul>,
+                    ol: ({ children }) => <ol className="list-decimal pl-5 space-y-1 mb-2">{children}</ol>,
+                  }}
+                >
+                  {product.description || ""}
+                </ReactMarkdown>
+              </div>
             </div>
 
             {/* Quantity + Add to Cart */}
@@ -496,6 +649,21 @@ export default function ProductDetailsClient({ product: initialProduct, relatedP
             >
               Buy Now
             </button>
+
+            {/* AI Order Button */}
+            <div className="mb-3">
+              <OrderWithAIButton
+                product={{
+                  _id: product._id,
+                  title: product.title,
+                  price: currentPrice,
+                  inventory: currentInventory,
+                  images: product.images,
+                  hasVariations: product.hasVariations,
+                }}
+                disabled={currentInventory <= 0}
+              />
+            </div>
 
             {/* WhatsApp */}
             <a
@@ -584,7 +752,26 @@ export default function ProductDetailsClient({ product: initialProduct, relatedP
               <div>
                 <div className="mb-8">
                   <h3 className="font-display font-bold text-2xl text-joy-navy mb-4">{product.title}</h3>
-                  <p className="font-body text-sm text-joy-navy leading-relaxed">{product.description}</p>
+                  <div className="font-body text-sm text-joy-navy leading-relaxed prose prose-sm max-w-none">
+                    <ReactMarkdown
+                      remarkPlugins={[remarkGfm]}
+                      components={{
+                        h1: ({ children }) => <h1 className="text-xl font-bold font-display text-joy-navy mt-4 mb-2">{children}</h1>,
+                        h2: ({ children }) => <h2 className="text-lg font-bold font-display text-joy-navy mt-3 mb-2">{children}</h2>,
+                        h3: ({ children }) => <h3 className="text-base font-bold font-display text-joy-navy mt-2 mb-1">{children}</h3>,
+                        p: ({ children }) => <p className="mb-2 last:mb-0 leading-relaxed">{children}</p>,
+                        a: ({ href, children }) => (
+                          <a href={href} target="_blank" rel="noopener noreferrer" className="text-joy-cobalt hover:underline font-semibold">
+                            {children}
+                          </a>
+                        ),
+                        ul: ({ children }) => <ul className="list-disc pl-5 space-y-1 mb-2">{children}</ul>,
+                        ol: ({ children }) => <ol className="list-decimal pl-5 space-y-1 mb-2">{children}</ol>,
+                      }}
+                    >
+                      {product.description || ""}
+                    </ReactMarkdown>
+                  </div>
                 </div>
                 <div className="grid md:grid-cols-2 gap-8 mb-8">
                   <div>
@@ -599,9 +786,31 @@ export default function ProductDetailsClient({ product: initialProduct, relatedP
                   </div>
                   <div>
                     <h4 className="font-display font-bold text-sm text-joy-navy mb-3">Product Details</h4>
-                    <p className="font-body text-sm text-joy-navy leading-relaxed">
-                      {product.longDescription || "Experience the perfect blend of fun and learning. Made from premium, child-safe materials, it stands up to enthusiastic play and looks beautiful in any playroom."}
-                    </p>
+                    <div className="font-body text-sm text-joy-navy leading-relaxed prose prose-sm max-w-none">
+                      <ReactMarkdown
+                        remarkPlugins={[remarkGfm]}
+                        components={{
+                          h1: ({ children }) => <h1 className="text-xl font-bold font-display text-joy-navy mt-4 mb-2">{children}</h1>,
+                          h2: ({ children }) => <h2 className="text-lg font-bold font-display text-joy-navy mt-3 mb-2">{children}</h2>,
+                          h3: ({ children }) => <h3 className="text-base font-bold font-display text-joy-navy mt-2 mb-1">{children}</h3>,
+                          h4: ({ children }) => <h4 className="text-sm font-bold font-display text-joy-navy mt-2 mb-1">{children}</h4>,
+                          h5: ({ children }) => <h5 className="text-xs font-bold font-display text-joy-navy uppercase tracking-wider mt-2 mb-1">{children}</h5>,
+                          h6: ({ children }) => <h6 className="text-xs font-semibold font-display text-joy-muted uppercase tracking-wider mt-1.5 mb-0.5">{children}</h6>,
+                          p: ({ children }) => <p className="mb-2 last:mb-0 leading-relaxed">{children}</p>,
+                          blockquote: ({ children }) => <blockquote className="border-l-2 border-joy-cobalt/40 pl-3 italic text-joy-muted my-2">{children}</blockquote>,
+                          code: ({ children }) => <code className="bg-joy-mist px-1.5 py-0.5 rounded text-xs font-mono text-joy-cobalt">{children}</code>,
+                          a: ({ href, children }) => (
+                            <a href={href} target="_blank" rel="noopener noreferrer" className="text-joy-cobalt hover:underline font-semibold">
+                              {children}
+                            </a>
+                          ),
+                          ul: ({ children }) => <ul className="list-disc pl-5 space-y-1 mb-2">{children}</ul>,
+                          ol: ({ children }) => <ol className="list-decimal pl-5 space-y-1 mb-2">{children}</ol>,
+                        }}
+                      >
+                        {product.longDescription || "Experience the perfect blend of fun and learning. Made from premium, child-safe materials, it stands up to enthusiastic play and looks beautiful in any playroom."}
+                      </ReactMarkdown>
+                    </div>
                   </div>
                 </div>
                 <div className="bg-joy-mist rounded-2xl p-6 mt-4">
@@ -751,6 +960,15 @@ export default function ProductDetailsClient({ product: initialProduct, relatedP
       </section>
 
       {/* ═══════════════════════════════════════
+          AI PRODUCT SUGGESTIONS
+          ═══════════════════════════════════════ */}
+      <section className="px-4 sm:px-8 lg:px-[5vw] border-t border-joy-rule">
+        <div className="max-w-[1400px] mx-auto">
+          <AISuggestions productId={product._id} />
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════
           RELATED PRODUCTS
           ═══════════════════════════════════════ */}
       {relatedProducts && relatedProducts.length > 0 && (
@@ -759,7 +977,7 @@ export default function ProductDetailsClient({ product: initialProduct, relatedP
             <h2 className="font-display font-bold text-3xl md:text-4xl text-joy-navy mb-10 text-center">
               You May Also Like
             </h2>
-            <ProductGridNike products={relatedProducts.map(p => ({ ...p, images: p.images ?? [] }))} title={undefined} />
+            <ProductGridRimon products={relatedProducts.map(p => ({ ...p, images: p.images ?? [] }))} title={undefined} />
           </div>
         </section>
       )}

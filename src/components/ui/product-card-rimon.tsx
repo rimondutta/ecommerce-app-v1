@@ -8,7 +8,7 @@ import Image from "next/image";
 import { useCart } from "@/components/providers/CartProvider";
 import { useWishlist } from "@/store/wishlistStore";
 import { cn, getOptimizedCloudinaryUrl } from "@/lib/utils";
-import { Heart } from "lucide-react";
+import { Heart, Star } from "lucide-react";
 
 interface Product {
   _id: string;
@@ -21,6 +21,7 @@ interface Product {
   ageRange?: string;
   rating?: number;
   reviewCount?: number;
+  reviews?: Array<{ rating?: number; status?: string }>;
   colors?: unknown[];
   sizes?: unknown[];
   category?: { name?: string; slug?: string } | string;
@@ -81,6 +82,17 @@ export default function ProductCardModern({ product, priority = false }: Props) 
   const discountPercentage = hasDiscount && product.compareAtPrice
     ? Math.round(((product.compareAtPrice - product.price) / product.compareAtPrice) * 100)
     : 0;
+
+  // Reviews & Rating calculation
+  const reviewsCount = typeof product.reviewCount === "number" && product.reviewCount > 0
+    ? product.reviewCount
+    : Array.isArray(product.reviews)
+    ? product.reviews.length
+    : 0;
+
+  const ratingValue = typeof product.rating === "number" && product.rating > 0
+    ? product.rating
+    : 5.0;
 
   const rawFront = product.images?.[0];
   const rawBack  = product.images?.[1];
@@ -164,9 +176,37 @@ export default function ProductCardModern({ product, priority = false }: Props) 
       {/* Product Details & Price */}
       <div className="flex flex-col p-4 sm:p-5 flex-1" suppressHydrationWarning>
         <Link href={`/products/${product.slug}`} className="no-underline mb-1">
-          <h3 className="font-body text-[16px] font-bold text-gray-900 leading-tight line-clamp-2">
+          <h3 className="font-body text-[16px] font-bold text-gray-900 leading-tight line-clamp-2 hover:text-[#043224] transition-colors">
             {product.title}
           </h3>
+        </Link>
+
+        {/* Rating & Reviews */}
+        <Link
+          href={`/products/${product.slug}#reviews`}
+          className="flex items-center gap-1.5 mt-1.5 mb-2 no-underline group/rating w-fit"
+          aria-label={`${ratingValue.toFixed(1)} out of 5 stars based on ${reviewsCount} reviews`}
+        >
+          <div className="flex items-center gap-0.5 text-[#FFB800]">
+            {[1, 2, 3, 4, 5].map((star) => (
+              <Star
+                key={star}
+                size={13}
+                className={cn(
+                  "transition-colors",
+                  star <= Math.round(ratingValue)
+                    ? "fill-[#FFB800] text-[#FFB800]"
+                    : "fill-gray-200 text-gray-200"
+                )}
+              />
+            ))}
+          </div>
+          <span className="font-body font-bold text-xs text-gray-800 leading-none">
+            {ratingValue.toFixed(1)}
+          </span>
+          <span className="font-body text-[11px] text-gray-400 leading-none group-hover/rating:text-gray-600 transition-colors">
+            ({reviewsCount})
+          </span>
         </Link>
 
         {/* Price Section */}

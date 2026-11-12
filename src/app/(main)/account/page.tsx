@@ -7,7 +7,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useWishlist } from "@/components/providers/WishlistProvider";
 import { PageLoader } from "@/components/ui/Loader";
-import ProductCardNike from "@/components/ui/product-card-nike";
+import ProductCardRimon from "@/components/ui/product-card-rimon";
 import { m, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { 
@@ -43,7 +43,7 @@ interface AccountOrder {
   items?: AccountOrderItem[];
 }
 
-type WishlistProduct = React.ComponentProps<typeof ProductCardNike>['product'];
+type WishlistProduct = React.ComponentProps<typeof ProductCardRimon>['product'];
 
 export default function AccountPage() {
   const { data: session, status } = useSession();
@@ -338,7 +338,7 @@ export default function AccountPage() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
                     {wishlistProducts.map((product) => (
                       <div key={product._id} className="h-[400px]">
-                        <ProductCardNike product={product} />
+                        <ProductCardRimon product={product} />
                       </div>
                     ))}
                   </div>

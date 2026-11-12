@@ -81,6 +81,11 @@ export const revalidate = 60;
 export const dynamicParams = true;
 
 export async function generateStaticParams() {
+  // In development, skip pre-rendering to eliminate slow dev startup/request times
+  if (process.env.NODE_ENV === 'development') {
+    return [];
+  }
+
   try {
     await connectToDatabase();
     // Pre-render the top 100 products for instant scaling during high traffic

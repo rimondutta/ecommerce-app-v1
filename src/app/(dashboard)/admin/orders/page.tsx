@@ -6,6 +6,7 @@ import { Search, Filter, Eye, Trash2, Download } from "lucide-react"
 
 interface AdminOrderListItem {
   _id: string;
+  source?: string;
   invoiceNumber?: string;
   customerName?: string;
   customerEmail?: string;
@@ -123,7 +124,14 @@ export default function AdminOrdersPage() {
                       <input type="checkbox" className="w-4 h-4 rounded border-gray-300 text-gray-900 focus:ring-gray-900" />
                     </td>
                     <td className="px-5 py-4 font-medium text-gray-900">
-                      #{order._id.slice(-8).toUpperCase()}
+                      <div className="flex flex-col gap-1">
+                        <span>#{order._id.slice(-8).toUpperCase()}</span>
+                        {order.source === 'ai_agent' && (
+                          <span className="inline-flex items-center gap-1 w-max px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-100 text-purple-700 border border-purple-200">
+                            ✨ AI Order
+                          </span>
+                        )}
+                      </div>
                     </td>
                     <td className="px-5 py-4">
                       <div className="font-medium text-gray-900">{order.customerName}</div>

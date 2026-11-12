@@ -3,12 +3,12 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useWishlist } from "@/components/providers/WishlistProvider";
-import ProductGridNike from "@/components/ui/product-grid-nike";
+import ProductGridRimon from "@/components/ui/product-grid-rimon";
 import { Loader2, Heart } from "lucide-react";
 
 export default function WishlistPage() {
   const { items, count } = useWishlist();
-  const [products, setProducts] = useState<React.ComponentProps<typeof ProductGridNike>['products']>([]);
+  const [products, setProducts] = useState<React.ComponentProps<typeof ProductGridRimon>['products']>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -59,7 +59,7 @@ export default function WishlistPage() {
           </div>
         ) : products.length > 0 ? (
           <div className="animate-in fade-in duration-500">
-            <ProductGridNike products={products} />
+            <ProductGridRimon products={products} />
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center py-24 px-4 text-center">

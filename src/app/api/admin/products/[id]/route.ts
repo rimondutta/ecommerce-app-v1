@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
 import { getServerSession } from 'next-auth';
+import mongoose from 'mongoose';
 import { authOptions } from '@/lib/auth';
 import connectToDatabase from '@/lib/db';
 import Product from '@/models/Product';
@@ -19,7 +20,14 @@ export async function GET(
 
     await connectToDatabase();
     const { id } = await params;
-    const product = await Product.findById(id).populate('category', 'name');
+    
+    let product = null;
+    if (mongoose.Types.ObjectId.isValid(id)) {
+      product = await Product.findById(id).populate('category', 'name');
+    }
+    if (!product) {
+      product = await Product.findOne({ $or: [{ _id: id }, { slug: id }] }).populate('category', 'name');
+    }
     
     if (!product) {
       return NextResponse.json({ error: 'Product not found' }, { status: 404 });
@@ -52,7 +60,14 @@ export async function PUT(
     const { id } = await params;
 
     // Fetch existing product to compare images
-    const existingProduct = await Product.findById(id);
+    let existingProduct = null;
+    if (mongoose.Types.ObjectId.isValid(id)) {
+      existingProduct = await Product.findById(id);
+    }
+    if (!existingProduct) {
+      existingProduct = await Product.findOne({ $or: [{ _id: id }, { slug: id }] });
+    }
+
     if (!existingProduct) {
       return NextResponse.json({ error: 'Product not found' }, { status: 404 });
     }
@@ -71,14 +86,15 @@ export async function PUT(
       }
     }
 
-    const product = await Product.findByIdAndUpdate(id, data, {
+    const product = await Product.findByIdAndUpdate(existingProduct._id, data, {
       new: true,
       runValidators: true,
     });
 
     revalidatePath('/');
     revalidatePath('/products');
-    if (product.slug) {
+    revalidatePath('/admin/products');
+    if (product?.slug) {
       revalidatePath(`/products/${product.slug}`);
     }
 
@@ -86,8 +102,10 @@ export async function PUT(
     await touchProductsTimestamp();
 
     // Invalidate Redis caches
-    const { invalidateCache } = await import('@/lib/cache');
-    await invalidateCache('products:*', `product:*:*`);
+    try {
+      const { invalidateCache } = await import('@/lib/cache');
+      await invalidateCache('products:*', `product:*:*`);
+    } catch {}
 
     return NextResponse.json({ product });
   } catch (error: unknown) {
@@ -114,16 +132,32 @@ export async function DELETE(
     await connectToDatabase();
     const { id } = await params;
     
-    // Find the product first to get image URLs
-    const product = await Product.findById(id);
+    // Find the product by ObjectId or slug/string ID
+    let product = null;
+    if (mongoose.Types.ObjectId.isValid(id)) {
+      product = await Product.findById(id);
+    }
     if (!product) {
-      return NextResponse.json({ error: 'Product not found' }, { status: 404 });
+      product = await Product.findOne({ $or: [{ _id: id }, { slug: id }] });
+    }
+
+    // If product is already gone, treat DELETE as idempotent success
+    if (!product) {
+      await touchProductsTimestamp();
+      revalidatePath('/');
+      revalidatePath('/products');
+      revalidatePath('/admin/products');
+      try {
+        const { invalidateCache } = await import('@/lib/cache');
+        await invalidateCache('products:*', `product:*:*`);
+      } catch {}
+      return NextResponse.json({ message: 'Product already deleted', success: true });
     }
 
     // Delete images from Cloudinary if they exist
     if (product.images && Array.isArray(product.images)) {
       for (const img of product.images) {
-        if (isCloudinaryUrl(img.url)) {
+        if (img?.url && isCloudinaryUrl(img.url)) {
           try {
             await deleteImage(img.url);
           } catch (cloudinaryError) {
@@ -133,17 +167,43 @@ export async function DELETE(
       }
     }
 
-    // Delete product from database
-    await Product.findByIdAndDelete(id);
+    // Also delete any variant images if on Cloudinary
+    if (product.variants && Array.isArray(product.variants)) {
+      for (const v of product.variants) {
+        if (v.images && Array.isArray(v.images)) {
+          for (const vImg of v.images) {
+            const u = typeof vImg === 'string' ? vImg : vImg?.url;
+            if (u && isCloudinaryUrl(u)) {
+              try {
+                await deleteImage(u);
+              } catch {}
+            }
+          }
+        }
+      }
+    }
+
+    // Delete product from database using resolved document _id
+    await Product.deleteOne({ _id: product._id });
 
     // Bump last-updated so mobile polling detects this deletion
     await touchProductsTimestamp();
 
-    // Invalidate Redis caches
-    const { invalidateCache } = await import('@/lib/cache');
-    await invalidateCache('products:*', `product:*:*`);
+    // Revalidate paths
+    revalidatePath('/');
+    revalidatePath('/products');
+    revalidatePath('/admin/products');
+    if (product.slug) {
+      revalidatePath(`/products/${product.slug}`);
+    }
 
-    return NextResponse.json({ message: 'Product and associated images deleted' });
+    // Invalidate Redis caches
+    try {
+      const { invalidateCache } = await import('@/lib/cache');
+      await invalidateCache('products:*', `product:*:*`);
+    } catch {}
+
+    return NextResponse.json({ message: 'Product and associated images deleted', success: true });
   } catch (error: unknown) {
     return NextResponse.json({ error: error instanceof Error ? (error as Error).message : String(error) }, { status: 500 });
   }

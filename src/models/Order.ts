@@ -37,6 +37,10 @@ const OrderSchema = new mongoose.Schema(
     notes: {
       type: String,
     },
+    source: {
+      type: String,
+      default: 'web',
+    },
     fulfillmentStatus: {
       type: String,
       enum: ['unfulfilled', 'processing', 'shipped', 'delivered', 'cancelled'],

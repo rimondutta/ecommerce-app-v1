@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import ProductCardAwwwards from "./product-card-nike";
+import ProductCardAwwwards from "./product-card-rimon";
 import Link from "next/link";
 
 export interface Product {
@@ -28,7 +28,7 @@ interface ProductGridProps {
   theme?: "dark" | "light";
 }
 
-export default function ProductGridNike({
+export default function ProductGridRimon({
   products,
   title,
   subtitle,
