@@ -17,7 +17,7 @@
     "@tabler/icons-react": "^3.44.0",
     "@types/nodemailer": "^8.0.2",
     "@types/three": "^0.184.0",
-    "@upstash/ratelimit": "^2.0.8",
+    "@upstash/ratelimit": "^2.2.0",
     "@upstash/redis": "^1.41.0",
     "ai": "^7.0.89",
     "bcryptjs": "^3.0.3",
