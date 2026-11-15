@@ -123,7 +123,9 @@ export async function POST(req: Request) {
     } else {
       // Default / OpenRouter
       apiKey = decryptApiKey(settings?.openrouter?.apiKey) || process.env.OPENROUTER_API_KEY || '';
-      modelName = settings?.openrouter?.model || process.env.OPENROUTER_MODEL || 'openrouter/free';
+      const rawModel = settings?.openrouter?.model || process.env.OPENROUTER_MODEL || 'openrouter/free';
+      // Auto-correct deprecated free slugs to active openrouter/free
+      modelName = rawModel === 'meta-llama/llama-3.3-70b-instruct:free' ? 'openrouter/free' : rawModel;
       baseURL = 'https://openrouter.ai/api/v1';
     }
 

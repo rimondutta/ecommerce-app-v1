@@ -39,7 +39,7 @@ export function buildProvider(
     if (!apiKey) return null;
     return new OpenRouterProvider(
       apiKey,
-      settings?.openrouter?.model || 'meta-llama/llama-3.3-70b-instruct:free'
+      settings?.openrouter?.model || 'openrouter/free'
     );
   }
 
@@ -66,7 +66,7 @@ export function buildProvider(
 function buildEnvOpenRouterFallback(): AIProvider | null {
   const apiKey = process.env.OPENROUTER_API_KEY || '';
   if (!apiKey) return null;
-  const model = process.env.OPENROUTER_MODEL || 'meta-llama/llama-3.3-70b-instruct:free';
+  const model = process.env.OPENROUTER_MODEL || 'openrouter/free';
   return new OpenRouterProvider(apiKey, model);
 }
 

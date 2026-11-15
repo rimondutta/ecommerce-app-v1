@@ -49,7 +49,7 @@ export async function POST(req: Request) {
       }
       targetProvider = new OpenRouterProvider(
         resolvedKey,
-        model || settings?.openrouter?.model || 'meta-llama/llama-3.3-70b-instruct:free'
+        model || settings?.openrouter?.model || 'openrouter/free'
       );
     } else if (provider === 'custom') {
       let resolvedKey = apiKey && !isMaskedKey(apiKey) ? apiKey : '';
@@ -82,7 +82,7 @@ export async function POST(req: Request) {
       system: 'You are a test assistant. Reply with a short polite confirmation in Bangla (maximum 1 sentence).',
       messages: [{ role: 'user', content: 'হাই, তুমি কি প্রস্তুত?' }],
       temperature: 0.1,
-      maxTokens: 50,
+      maxTokens: 150,
     });
 
     return NextResponse.json({

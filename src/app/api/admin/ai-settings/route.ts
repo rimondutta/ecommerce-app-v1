@@ -38,9 +38,9 @@ export async function GET() {
       openrouter: {
         apiKey: maskApiKey(openrouterDecrypted || process.env.OPENROUTER_API_KEY),
         model:
-          settings.openrouter?.model === 'openrouter/free'
-            ? 'meta-llama/llama-3.3-70b-instruct:free'
-            : settings.openrouter?.model || 'meta-llama/llama-3.3-70b-instruct:free',
+          settings.openrouter?.model === 'meta-llama/llama-3.3-70b-instruct:free'
+            ? 'openrouter/free'
+            : settings.openrouter?.model || 'openrouter/free',
         hasEnvFallback: Boolean(process.env.OPENROUTER_API_KEY),
       },
       custom: {
@@ -132,9 +132,9 @@ export async function PUT(req: Request) {
       },
       openrouter: {
         apiKey: openrouterEncryptedKey,
-        model: body.openrouter?.model === 'openrouter/free'
-          ? 'meta-llama/llama-3.3-70b-instruct:free'
-          : body.openrouter?.model || 'meta-llama/llama-3.3-70b-instruct:free',
+        model: body.openrouter?.model === 'meta-llama/llama-3.3-70b-instruct:free'
+          ? 'openrouter/free'
+          : body.openrouter?.model || 'openrouter/free',
       },
       custom: {
         apiKey: customEncryptedKey,

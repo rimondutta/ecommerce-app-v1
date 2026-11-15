@@ -5,11 +5,19 @@ function sleep(ms: number) {
 }
 
 // Recommended fast & reliable free models on OpenRouter (max 2 fallbacks; OpenRouter limits 'models' array to <= 3 items)
-const DEFAULT_FREE_MODEL = 'meta-llama/llama-3.3-70b-instruct:free';
+const DEFAULT_FREE_MODEL = 'openrouter/free';
 const CANDIDATE_FALLBACK_MODELS = [
+  'nvidia/nemotron-3.5-lightning:free',
+  'baidu/ernie-5.5-flash-preview:free',
+];
+
+const DEPRECATED_SLUGS = new Set([
+  'meta-llama/llama-3.3-70b-instruct:free',
   'google/gemini-2.0-flash-exp:free',
   'deepseek/deepseek-chat:free',
-];
+  'openrouter/auto:free',
+  'google/gemini-flash-1.5',
+]);
 
 export class OpenRouterProvider implements AIProvider {
   private apiKey: string;
@@ -19,13 +27,8 @@ export class OpenRouterProvider implements AIProvider {
     this.apiKey = apiKey;
     const clean = (model || '').trim();
 
-    // Auto-correct invalid/legacy 'openrouter/free' or deprecated slugs to an active free model
-    if (
-      !clean ||
-      clean === 'openrouter/free' ||
-      clean === 'openrouter/auto:free' ||
-      clean === 'google/gemini-flash-1.5'
-    ) {
+    // Auto-correct deprecated or unavailable free slugs to an active free model
+    if (!clean || DEPRECATED_SLUGS.has(clean)) {
       this.model = DEFAULT_FREE_MODEL;
     } else {
       this.model = clean;
@@ -69,7 +72,7 @@ export class OpenRouterProvider implements AIProvider {
         this.model,
         ...CANDIDATE_FALLBACK_MODELS,
       ]
-        .filter((m, i, arr) => arr.indexOf(m) === i)
+        .filter((m, i, arr) => arr.indexOf(m) === i && !DEPRECATED_SLUGS.has(m))
         .slice(0, 3);
 
       const bodyPayload: Record<string, unknown> = {

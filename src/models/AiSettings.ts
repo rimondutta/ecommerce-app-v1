@@ -74,7 +74,7 @@ const AiSettingsSchema = new mongoose.Schema(
     },
     openrouter: {
       apiKey: { type: String, default: '' },
-      model: { type: String, default: 'meta-llama/llama-3.3-70b-instruct:free' },
+      model: { type: String, default: 'openrouter/free' },
     },
     custom: {
       apiKey: { type: String, default: '' },

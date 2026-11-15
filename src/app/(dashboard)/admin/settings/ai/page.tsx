@@ -79,7 +79,7 @@ export default function AiSettingsPage() {
     },
     openrouter: {
       apiKey: "",
-      model: "meta-llama/llama-3.3-70b-instruct:free",
+      model: "openrouter/free",
     },
     custom: {
       apiKey: "",
@@ -562,10 +562,11 @@ export default function AiSettingsPage() {
                     <div className="flex flex-wrap gap-1.5 mt-1.5">
                       <span className="text-[10px] text-gray-400 py-0.5">সুপারিশ:</span>
                       {[
-                        "meta-llama/llama-3.3-70b-instruct:free",
-                        "google/gemini-2.0-flash-exp:free",
-                        "deepseek/deepseek-chat:free",
+                        "openrouter/free",
+                        "nvidia/nemotron-3.5-lightning:free",
+                        "baidu/ernie-5.5-flash-preview:free",
                         "openrouter/auto",
+                        "meta-llama/llama-3.3-70b-instruct",
                       ].map((m) => (
                         <button
                           key={m}
