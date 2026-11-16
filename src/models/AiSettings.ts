@@ -70,7 +70,7 @@ const AiSettingsSchema = new mongoose.Schema(
     },
     gemini: {
       apiKey: { type: String, default: '' },
-      model: { type: String, default: 'gemini-2.0-flash' },
+      model: { type: String, default: 'gemini-3-flash-preview' },
     },
     openrouter: {
       apiKey: { type: String, default: '' },

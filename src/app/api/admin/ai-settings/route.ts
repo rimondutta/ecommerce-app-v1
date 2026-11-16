@@ -32,7 +32,10 @@ export async function GET() {
       fallbackProvider: settings.fallbackProvider || 'none',
       gemini: {
         apiKey: maskApiKey(geminiDecrypted || process.env.GEMINI_API_KEY),
-        model: settings.gemini?.model || 'gemini-2.0-flash',
+        model:
+          settings.gemini?.model === 'gemini-2.0-flash' || settings.gemini?.model === 'gemini-2.5-flash'
+            ? 'gemini-3-flash-preview'
+            : settings.gemini?.model || 'gemini-3-flash-preview',
         hasEnvFallback: Boolean(process.env.GEMINI_API_KEY),
       },
       openrouter: {
@@ -128,7 +131,7 @@ export async function PUT(req: Request) {
       fallbackProvider: body.fallbackProvider || 'none',
       gemini: {
         apiKey: geminiEncryptedKey,
-        model: body.gemini?.model || 'gemini-2.0-flash',
+        model: body.gemini?.model || 'gemini-3-flash-preview',
       },
       openrouter: {
         apiKey: openrouterEncryptedKey,

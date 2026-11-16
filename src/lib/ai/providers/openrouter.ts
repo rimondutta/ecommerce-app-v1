@@ -40,7 +40,7 @@ export class OpenRouterProvider implements AIProvider {
       throw new Error('OpenRouter API key is not configured');
     }
 
-    const timeoutMs = options.timeoutMs ?? 20000;
+    const timeoutMs = options.timeoutMs ?? 35000;
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 

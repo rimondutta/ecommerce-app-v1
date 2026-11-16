@@ -75,7 +75,7 @@ export default function AiSettingsPage() {
     fallbackProvider: "none",
     gemini: {
       apiKey: "",
-      model: "gemini-2.0-flash",
+      model: "gemini-3-flash-preview",
     },
     openrouter: {
       apiKey: "",
@@ -499,7 +499,7 @@ export default function AiSettingsPage() {
                     />
                     <div className="flex flex-wrap gap-1.5 mt-1.5">
                       <span className="text-[10px] text-gray-400 py-0.5">সুপারিশ:</span>
-                      {["gemini-2.0-flash", "gemini-2.5-flash", "gemini-2.5-pro"].map((m) => (
+                      {["gemini-3-flash-preview", "gemini-3.1-flash-lite", "gemini-2.5-flash"].map((m) => (
                         <button
                           key={m}
                           type="button"

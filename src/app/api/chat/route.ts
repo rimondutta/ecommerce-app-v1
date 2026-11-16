@@ -108,7 +108,7 @@ export async function POST(req: Request) {
 
     if (activeProvider === 'gemini') {
       apiKey = decryptApiKey(settings?.gemini?.apiKey) || process.env.GEMINI_API_KEY || '';
-      modelName = settings?.gemini?.model || 'gemini-2.5-flash';
+      modelName = settings?.gemini?.model || 'gemini-3-flash-preview';
       // Google Generative AI provides an official OpenAI-compatible endpoint
       baseURL = 'https://generativelanguage.googleapis.com/v1beta/openai/';
     } else if (activeProvider === 'custom' && settings?.custom?.baseUrl) {

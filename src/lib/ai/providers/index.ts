@@ -30,7 +30,7 @@ export function buildProvider(
     const dbKey = decryptApiKey(settings?.gemini?.apiKey);
     const apiKey = dbKey || process.env.GEMINI_API_KEY || '';
     if (!apiKey) return null;
-    return new GeminiProvider(apiKey, settings?.gemini?.model || 'gemini-2.0-flash');
+    return new GeminiProvider(apiKey, settings?.gemini?.model || 'gemini-3-flash-preview');
   }
 
   if (providerType === 'openrouter') {
@@ -103,9 +103,8 @@ export async function getAIProviders(): Promise<ProviderBundle> {
     const dbKey = decryptApiKey(settings?.gemini?.apiKey);
     const geminiKey = dbKey || process.env.GEMINI_API_KEY || '';
     if (geminiKey) {
-      // Use gemini-2.0-flash as the auto-fallback default — it has the broadest availability
-      // on free-tier API keys and is more reliable than gemini-2.5-flash as a fallback.
-      const autoFallbackModel = settings?.gemini?.model || 'gemini-2.0-flash';
+      // Use gemini-3-flash-preview as the auto-fallback default
+      const autoFallbackModel = settings?.gemini?.model || 'gemini-3-flash-preview';
       fallback = new GeminiProvider(geminiKey, autoFallbackModel);
       effectiveFallbackName = 'gemini (auto-fallback)';
       console.info('[AI] Auto-fallback to Gemini (env/DB key) enabled.');

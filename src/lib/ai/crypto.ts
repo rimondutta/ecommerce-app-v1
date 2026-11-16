@@ -18,6 +18,34 @@ function getKey(): Buffer {
 }
 
 /**
+ * Returns all potential decryption keys to gracefully handle keys
+ * encrypted before or after AI_SETTINGS_ENCRYPTION_KEY or NEXTAUTH_SECRET changes.
+ */
+function getCandidateKeys(): Buffer[] {
+  const keys: Buffer[] = [];
+  const primary = getKey();
+  keys.push(primary);
+
+  const envKey = process.env.AI_SETTINGS_ENCRYPTION_KEY;
+  if (envKey) {
+    if (/^[0-9a-fA-F]{64}$/.test(envKey)) {
+      const hashKey = crypto.createHash('sha256').update(envKey).digest();
+      if (!hashKey.equals(primary)) keys.push(hashKey);
+    }
+  }
+
+  if (process.env.NEXTAUTH_SECRET) {
+    const nextAuthKey = crypto.createHash('sha256').update(process.env.NEXTAUTH_SECRET).digest();
+    if (!nextAuthKey.equals(primary)) keys.push(nextAuthKey);
+  }
+
+  const defaultKey = crypto.createHash('sha256').update('toyhourse-secret-ai-encryption-key-default').digest();
+  if (!defaultKey.equals(primary)) keys.push(defaultKey);
+
+  return keys;
+}
+
+/**
  * Encrypts a plaintext string using AES-256-GCM.
  * Output format: iv:authTag:ciphertext (all hex encoded)
  */
@@ -41,6 +69,7 @@ export function encryptApiKey(text: string): string {
 
 /**
  * Decrypts an AES-256-GCM string.
+ * Uses fallback candidate keys so keys encrypted with prior secrets decrypt seamlessly.
  * Gracefully handles unencrypted legacy text if found.
  */
 export function decryptApiKey(cipherText?: string): string {
@@ -53,15 +82,23 @@ export function decryptApiKey(cipherText?: string): string {
 
   try {
     const [ivHex, authTagHex, encryptedHex] = parts;
-    const key = getKey();
     const iv = Buffer.from(ivHex, 'hex');
     const authTag = Buffer.from(authTagHex, 'hex');
-    const decipher = crypto.createDecipheriv(ALGORITHM, key, iv, { authTagLength: AUTH_TAG_LENGTH });
-    decipher.setAuthTag(authTag);
 
-    let decrypted = decipher.update(encryptedHex, 'hex', 'utf8');
-    decrypted += decipher.final('utf8');
-    return decrypted;
+    const candidates = getCandidateKeys();
+    for (const key of candidates) {
+      try {
+        const decipher = crypto.createDecipheriv(ALGORITHM, key, iv, { authTagLength: AUTH_TAG_LENGTH });
+        decipher.setAuthTag(authTag);
+        let decrypted = decipher.update(encryptedHex, 'hex', 'utf8');
+        decrypted += decipher.final('utf8');
+        if (decrypted) return decrypted;
+      } catch {
+        // Try next candidate key
+      }
+    }
+
+    return '';
   } catch (error) {
     console.error('[crypto] Decryption error:', error);
     return '';

@@ -1,16 +1,15 @@
 import { AIProvider, GenerateOptions } from './types';
 
-// Ordered list of models to try — from newest to most broadly available.
-// gemini-2.0-flash is the most reliable free-tier model; 2.5-flash may 404 on some API keys.
+// Ordered list of models to try — from newest to broadly available.
 const GEMINI_FALLBACK_MODELS = [
+  'gemini-3-flash-preview',
+  'gemini-2.5-flash-lite',
   'gemini-2.5-flash',
   'gemini-2.0-flash',
-  'gemini-2.0-flash-lite',
-  'gemini-1.5-flash',
 ];
 
-// Default safe model: gemini-2.0-flash has the broadest availability on free-tier API keys
-const GEMINI_DEFAULT_MODEL = 'gemini-2.0-flash';
+// Default safe model: gemini-3-flash-preview is actively supported across newer v1beta keys
+const GEMINI_DEFAULT_MODEL = 'gemini-3-flash-preview';
 
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -87,13 +86,13 @@ export class GeminiProvider implements AIProvider {
 
       let cleanModel = (this.model || GEMINI_DEFAULT_MODEL).trim().replace(/^models\//, '');
 
-      // Normalize known invalid or deprecated model names → GEMINI_DEFAULT_MODEL
+      // Normalize known deprecated or legacy model names → GEMINI_DEFAULT_MODEL
       const INVALID_MODELS = [
         'gemini-1.0-pro',
         'gemini-pro',
-        'gemini-3.5-flash',   // non-existent, typo
-        'gemini-3.8-flash',   // non-existent, typo
         'gemini-ultra',
+        'gemini-1.5-pro',
+        'gemini-1.5-flash',
       ];
       if (INVALID_MODELS.includes(cleanModel)) {
         console.warn(`[Gemini] Invalid/deprecated model "${cleanModel}", auto-correcting to ${GEMINI_DEFAULT_MODEL}`);
