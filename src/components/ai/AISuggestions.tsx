@@ -69,8 +69,8 @@ export default function AISuggestions({
   if (compact) {
     return (
       <div className="space-y-3 font-bengali">
-        <div className="flex items-center gap-1.5 text-xs font-bold text-purple-700">
-          <Sparkles size={14} className="text-purple-600 animate-pulse" />
+        <div className="flex items-center gap-1.5 text-xs font-bold text-black">
+          <Sparkles size={14} className="text-black" />
           <span>আপনার পছন্দ হতে পারে এমন কিছু খেলনা:</span>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -78,21 +78,21 @@ export default function AISuggestions({
             <Link
               key={p._id}
               href={`/products/${p.slug}`}
-              className="flex gap-2.5 p-2 rounded-xl bg-purple-50/70 hover:bg-purple-100/70 border border-purple-200/50 transition-colors"
+              className="flex gap-2.5 p-2 rounded-xl bg-neutral-50 hover:bg-neutral-100 border border-neutral-200 transition-colors"
             >
-              <div className="relative w-12 h-12 rounded-lg bg-white overflow-hidden shrink-0 border border-purple-100">
+              <div className="relative w-12 h-12 rounded-lg bg-white overflow-hidden shrink-0 border border-neutral-200">
                 {p.image ? (
                   <Image src={p.image} alt={p.title} fill sizes="48px" className="object-cover" />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center text-gray-400">
+                  <div className="w-full h-full flex items-center justify-center text-neutral-400">
                     <Package size={16} />
                   </div>
                 )}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-xs font-bold text-gray-900 truncate">{p.title}</p>
-                <p className="text-[11px] text-purple-700 truncate leading-tight mt-0.5">{p.reason}</p>
-                <p className="text-xs font-bold text-gray-900 mt-0.5">৳{p.price.toLocaleString()}</p>
+                <p className="text-xs font-bold text-black truncate">{p.title}</p>
+                <p className="text-[11px] text-neutral-600 truncate leading-tight mt-0.5">{p.reason}</p>
+                <p className="text-xs font-bold text-black mt-0.5">৳{p.price.toLocaleString()}</p>
               </div>
             </Link>
           ))}
