@@ -19,10 +19,10 @@ export async function GET() {
       settings = (await AiSettings.create({ key: 'global' })) as IAiSettings;
     }
 
-    // Decrypt and mask keys so only last 4 chars are visible
-    const geminiDecrypted = decryptApiKey(settings.gemini?.apiKey);
-    const openrouterDecrypted = decryptApiKey(settings.openrouter?.apiKey);
-    const customDecrypted = decryptApiKey(settings.custom?.apiKey);
+    // Verify whether providers have active keys configured (either in DB or env)
+    const hasGeminiKey = Boolean(decryptApiKey(settings.gemini?.apiKey) || process.env.GEMINI_API_KEY);
+    const hasOpenRouterKey = Boolean(decryptApiKey(settings.openrouter?.apiKey) || process.env.OPENROUTER_API_KEY);
+    const hasCustomKey = Boolean(decryptApiKey(settings.custom?.apiKey));
 
     const safeSettings = {
       isChatbotEnabled: settings.isChatbotEnabled !== false,
@@ -31,23 +31,20 @@ export async function GET() {
       activeProvider: settings.activeProvider || 'gemini',
       fallbackProvider: settings.fallbackProvider || 'none',
       gemini: {
-        apiKey: maskApiKey(geminiDecrypted || process.env.GEMINI_API_KEY),
-        model:
-          settings.gemini?.model === 'gemini-2.0-flash' || settings.gemini?.model === 'gemini-2.5-flash'
-            ? 'gemini-3-flash-preview'
-            : settings.gemini?.model || 'gemini-3-flash-preview',
+        apiKey: '', // Never pre-fill the input with static bullet dots
+        isConfigured: hasGeminiKey,
+        model: settings.gemini?.model || 'gemini-3-flash-preview',
         hasEnvFallback: Boolean(process.env.GEMINI_API_KEY),
       },
       openrouter: {
-        apiKey: maskApiKey(openrouterDecrypted || process.env.OPENROUTER_API_KEY),
-        model:
-          settings.openrouter?.model === 'meta-llama/llama-3.3-70b-instruct:free'
-            ? 'openrouter/free'
-            : settings.openrouter?.model || 'openrouter/free',
+        apiKey: '', // Never pre-fill the input with static bullet dots
+        isConfigured: hasOpenRouterKey,
+        model: settings.openrouter?.model || 'openrouter/free',
         hasEnvFallback: Boolean(process.env.OPENROUTER_API_KEY),
       },
       custom: {
-        apiKey: maskApiKey(customDecrypted),
+        apiKey: '', // Never pre-fill the input with static bullet dots
+        isConfigured: hasCustomKey,
         model: settings.custom?.model || 'gpt-4o-mini',
         baseUrl: settings.custom?.baseUrl || '',
         headers: settings.custom?.headers || '',

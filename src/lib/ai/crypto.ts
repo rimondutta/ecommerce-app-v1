@@ -12,8 +12,11 @@ function getKey(): Buffer {
     }
     return crypto.createHash('sha256').update(envKey).digest();
   }
-  // Fallback to NEXTAUTH_SECRET if custom key not yet set in env
-  const fallbackKey = process.env.NEXTAUTH_SECRET || 'toyhourse-secret-ai-encryption-key-default';
+  // Fallback to NEXTAUTH_SECRET if custom key not set in env
+  const fallbackKey = process.env.NEXTAUTH_SECRET || '';
+  if (!fallbackKey) {
+    throw new Error('Encryption key missing: Neither AI_SETTINGS_ENCRYPTION_KEY nor NEXTAUTH_SECRET is configured in environment.');
+  }
   return crypto.createHash('sha256').update(fallbackKey).digest();
 }
 
@@ -23,24 +26,25 @@ function getKey(): Buffer {
  */
 function getCandidateKeys(): Buffer[] {
   const keys: Buffer[] = [];
-  const primary = getKey();
-  keys.push(primary);
+  try {
+    const primary = getKey();
+    keys.push(primary);
+  } catch {
+    // Primary key missing
+  }
 
   const envKey = process.env.AI_SETTINGS_ENCRYPTION_KEY;
   if (envKey) {
     if (/^[0-9a-fA-F]{64}$/.test(envKey)) {
       const hashKey = crypto.createHash('sha256').update(envKey).digest();
-      if (!hashKey.equals(primary)) keys.push(hashKey);
+      if (!keys.some((k) => k.equals(hashKey))) keys.push(hashKey);
     }
   }
 
   if (process.env.NEXTAUTH_SECRET) {
     const nextAuthKey = crypto.createHash('sha256').update(process.env.NEXTAUTH_SECRET).digest();
-    if (!nextAuthKey.equals(primary)) keys.push(nextAuthKey);
+    if (!keys.some((k) => k.equals(nextAuthKey))) keys.push(nextAuthKey);
   }
-
-  const defaultKey = crypto.createHash('sha256').update('toyhourse-secret-ai-encryption-key-default').digest();
-  if (!defaultKey.equals(primary)) keys.push(defaultKey);
 
   return keys;
 }

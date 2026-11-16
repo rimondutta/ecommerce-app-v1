@@ -25,7 +25,7 @@ export async function POST(req: Request) {
     let targetProvider: AIProvider | null = null;
 
     if (provider === 'gemini') {
-      let resolvedKey = apiKey && !isMaskedKey(apiKey) ? apiKey : '';
+      let resolvedKey = apiKey && !isMaskedKey(apiKey) && apiKey.trim() !== '' ? apiKey.trim() : '';
       if (!resolvedKey) {
         resolvedKey = decryptApiKey(settings?.gemini?.apiKey) || process.env.GEMINI_API_KEY || '';
       }
@@ -37,7 +37,7 @@ export async function POST(req: Request) {
       }
       targetProvider = new GeminiProvider(resolvedKey, model || settings?.gemini?.model || 'gemini-3-flash-preview');
     } else if (provider === 'openrouter') {
-      let resolvedKey = apiKey && !isMaskedKey(apiKey) ? apiKey : '';
+      let resolvedKey = apiKey && !isMaskedKey(apiKey) && apiKey.trim() !== '' ? apiKey.trim() : '';
       if (!resolvedKey) {
         resolvedKey = decryptApiKey(settings?.openrouter?.apiKey) || process.env.OPENROUTER_API_KEY || '';
       }
@@ -52,7 +52,7 @@ export async function POST(req: Request) {
         model || settings?.openrouter?.model || 'openrouter/free'
       );
     } else if (provider === 'custom') {
-      let resolvedKey = apiKey && !isMaskedKey(apiKey) ? apiKey : '';
+      let resolvedKey = apiKey && !isMaskedKey(apiKey) && apiKey.trim() !== '' ? apiKey.trim() : '';
       if (!resolvedKey) {
         resolvedKey = decryptApiKey(settings?.custom?.apiKey) || '';
       }

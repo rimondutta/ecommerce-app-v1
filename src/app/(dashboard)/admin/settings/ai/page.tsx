@@ -46,11 +46,13 @@ interface AiSettingsForm {
   gemini: {
     apiKey: string;
     model: string;
+    isConfigured?: boolean;
     hasEnvFallback?: boolean;
   };
   openrouter: {
     apiKey: string;
     model: string;
+    isConfigured?: boolean;
     hasEnvFallback?: boolean;
   };
   custom: {
@@ -60,6 +62,7 @@ interface AiSettingsForm {
     headers: string;
     temperature: number;
     maxTokens: number;
+    isConfigured?: boolean;
   };
   storeName: string;
   systemPromptExtra: string;
@@ -457,15 +460,22 @@ export default function AiSettingsPage() {
               {config.activeProvider === "gemini" && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-semibold text-gray-700 mb-1">
-                      Gemini API Key
-                    </label>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="block text-xs font-semibold text-gray-700">
+                        Gemini API Key
+                      </label>
+                      {config.gemini.isConfigured && (
+                        <span className="text-[10px] text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md font-medium">
+                          ✓ Key কনফিগার করা আছে
+                        </span>
+                      )}
+                    </div>
                     <input
                       type="password"
                       value={config.gemini.apiKey}
                       placeholder={
-                        config.gemini.hasEnvFallback
-                          ? "•••••••••••• (env GEMINI_API_KEY ব্যবহৃত হবে)"
+                        config.gemini.isConfigured
+                          ? "নতুন Key দিতে চাইলে লিখুন (অথবা ফাঁকা রাখুন)"
                           : "AIzaSy..."
                       }
                       onChange={(e) =>
@@ -477,7 +487,9 @@ export default function AiSettingsPage() {
                       className="w-full px-3.5 py-2 border border-gray-300 rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-purple-600 font-mono"
                     />
                     <p className="text-[11px] text-gray-400 mt-1">
-                      API Key এনক্রিপ্ট করে ডাটাবেজে রাখা হবে। ব্রাউজারে কখনো পুরো কি দেখানো হয় না।
+                      {config.gemini.isConfigured
+                        ? "বর্তমান Key ডাটাবেজে এনক্রিপ্ট করা আছে। পরিবর্তন করতে চাইলে নতুন কী দিন।"
+                        : "API Key এনক্রিপ্ট করে ডাটাবেজে সংরক্ষণ করা হবে।"}
                     </p>
                   </div>
 
@@ -488,7 +500,7 @@ export default function AiSettingsPage() {
                     <input
                       type="text"
                       value={config.gemini.model}
-                      placeholder="gemini-2.0-flash"
+                      placeholder="gemini-3-flash-preview"
                       onChange={(e) =>
                         setConfig((p) => ({
                           ...p,
@@ -522,15 +534,22 @@ export default function AiSettingsPage() {
               {config.activeProvider === "openrouter" && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-semibold text-gray-700 mb-1">
-                      OpenRouter API Key
-                    </label>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="block text-xs font-semibold text-gray-700">
+                        OpenRouter API Key
+                      </label>
+                      {config.openrouter.isConfigured && (
+                        <span className="text-[10px] text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md font-medium">
+                          ✓ Key কনফিগার করা আছে
+                        </span>
+                      )}
+                    </div>
                     <input
                       type="password"
                       value={config.openrouter.apiKey}
                       placeholder={
-                        config.openrouter.hasEnvFallback
-                          ? "•••••••••••• (env OPENROUTER_API_KEY ব্যবহৃত হবে)"
+                        config.openrouter.isConfigured
+                          ? "নতুন Key দিতে চাইলে লিখুন (অথবা ফাঁকা রাখুন)"
                           : "sk-or-v1-..."
                       }
                       onChange={(e) =>
@@ -541,6 +560,11 @@ export default function AiSettingsPage() {
                       }
                       className="w-full px-3.5 py-2 border border-gray-300 rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-purple-600 font-mono"
                     />
+                    <p className="text-[11px] text-gray-400 mt-1">
+                      {config.openrouter.isConfigured
+                        ? "বর্তমান Key ডাটাবেজে এনক্রিপ্ট করা আছে। পরিবর্তন করতে চাইলে নতুন কী দিন।"
+                        : "OpenRouter থেকে পাওয়া API Key এখানে দিন।"}
+                    </p>
                   </div>
 
                   <div>
@@ -609,13 +633,24 @@ export default function AiSettingsPage() {
                     </div>
 
                     <div>
-                      <label className="block text-xs font-semibold text-gray-700 mb-1">
-                        Custom API Key
-                      </label>
+                      <div className="flex items-center justify-between mb-1">
+                        <label className="block text-xs font-semibold text-gray-700">
+                          Custom API Key
+                        </label>
+                        {config.custom.isConfigured && (
+                          <span className="text-[10px] text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md font-medium">
+                            ✓ Key কনফিগার করা আছে
+                          </span>
+                        )}
+                      </div>
                       <input
                         type="password"
                         value={config.custom.apiKey}
-                        placeholder="sk-..."
+                        placeholder={
+                          config.custom.isConfigured
+                            ? "নতুন Key দিতে চাইলে লিখুন (অথবা ফাঁকা রাখুন)"
+                            : "sk-..."
+                        }
                         onChange={(e) =>
                           setConfig((p) => ({
                             ...p,

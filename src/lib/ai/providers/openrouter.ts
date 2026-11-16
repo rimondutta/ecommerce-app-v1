@@ -4,12 +4,7 @@ function sleep(ms: number) {
   return new Promise<void>((r) => setTimeout(r, ms));
 }
 
-// Recommended fast & reliable free models on OpenRouter (max 2 fallbacks; OpenRouter limits 'models' array to <= 3 items)
 const DEFAULT_FREE_MODEL = 'openrouter/free';
-const CANDIDATE_FALLBACK_MODELS = [
-  'nvidia/nemotron-3.5-lightning:free',
-  'baidu/ernie-5.5-flash-preview:free',
-];
 
 const DEPRECATED_SLUGS = new Set([
   'meta-llama/llama-3.3-70b-instruct:free',
@@ -66,18 +61,8 @@ export class OpenRouterProvider implements AIProvider {
         !this.model.endsWith(':free') &&
         this.model !== 'openrouter/auto';
 
-      // OpenRouter supports passing fallback models via `models: [...]`.
-      // NOTE: OpenRouter strictly enforces that the 'models' array must have 3 items or fewer.
-      const candidateModels = [
-        this.model,
-        ...CANDIDATE_FALLBACK_MODELS,
-      ]
-        .filter((m, i, arr) => arr.indexOf(m) === i && !DEPRECATED_SLUGS.has(m))
-        .slice(0, 3);
-
       const bodyPayload: Record<string, unknown> = {
         model: this.model,
-        models: candidateModels,
         messages,
         temperature: options.temperature ?? 0.3,
         max_tokens: options.maxTokens ?? 1200,
