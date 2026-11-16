@@ -35,7 +35,7 @@ export async function POST(req: Request) {
           { status: 400 }
         );
       }
-      targetProvider = new GeminiProvider(resolvedKey, model || settings?.gemini?.model || 'gemini-2.5-flash');
+      targetProvider = new GeminiProvider(resolvedKey, model || settings?.gemini?.model || 'gemini-3-flash-preview');
     } else if (provider === 'openrouter') {
       let resolvedKey = apiKey && !isMaskedKey(apiKey) ? apiKey : '';
       if (!resolvedKey) {
@@ -82,7 +82,7 @@ export async function POST(req: Request) {
       system: 'You are a test assistant. Reply with a short polite confirmation in Bangla (maximum 1 sentence).',
       messages: [{ role: 'user', content: 'হাই, তুমি কি প্রস্তুত?' }],
       temperature: 0.1,
-      maxTokens: 150,
+      maxTokens: 400,
     });
 
     return NextResponse.json({
