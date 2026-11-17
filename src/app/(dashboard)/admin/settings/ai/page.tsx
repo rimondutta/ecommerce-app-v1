@@ -20,6 +20,7 @@ import {
   Truck,
   RotateCcw,
   Eye,
+  EyeOff,
 } from "lucide-react";
 
 export interface ChatbotConfigForm {
@@ -119,6 +120,7 @@ export default function AiSettingsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [testing, setTesting] = useState(false);
+  const [showApiKey, setShowApiKey] = useState(false);
   const [testResult, setTestResult] = useState<{ success: boolean; message: string } | null>(null);
   const [toast, setToast] = useState<{ type: "success" | "error"; message: string } | null>(null);
   const [newPromptInput, setNewPromptInput] = useState("");
@@ -470,22 +472,28 @@ export default function AiSettingsPage() {
                         </span>
                       )}
                     </div>
-                    <input
-                      type="password"
-                      value={config.gemini.apiKey}
-                      placeholder={
-                        config.gemini.isConfigured
-                          ? "নতুন Key দিতে চাইলে লিখুন (অথবা ফাঁকা রাখুন)"
-                          : "AIzaSy..."
-                      }
-                      onChange={(e) =>
-                        setConfig((p) => ({
-                          ...p,
-                          gemini: { ...p.gemini, apiKey: e.target.value },
-                        }))
-                      }
-                      className="w-full px-3.5 py-2 border border-gray-300 rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-purple-600 font-mono"
-                    />
+                    <div className="relative">
+                      <input
+                        type={showApiKey ? "text" : "password"}
+                        value={config.gemini.apiKey}
+                        placeholder="AIzaSy..."
+                        onChange={(e) =>
+                          setConfig((p) => ({
+                            ...p,
+                            gemini: { ...p.gemini, apiKey: e.target.value },
+                          }))
+                        }
+                        className="w-full px-3.5 py-2 pr-10 border border-gray-300 rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-purple-600 font-mono"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowApiKey((prev) => !prev)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 transition-colors p-1"
+                        title={showApiKey ? "Hide Key" : "Show Key"}
+                      >
+                        {showApiKey ? <EyeOff size={16} /> : <Eye size={16} />}
+                      </button>
+                    </div>
                     <p className="text-[11px] text-gray-400 mt-1">
                       {config.gemini.isConfigured
                         ? "বর্তমান Key ডাটাবেজে এনক্রিপ্ট করা আছে। পরিবর্তন করতে চাইলে নতুন কী দিন।"
@@ -544,22 +552,28 @@ export default function AiSettingsPage() {
                         </span>
                       )}
                     </div>
-                    <input
-                      type="password"
-                      value={config.openrouter.apiKey}
-                      placeholder={
-                        config.openrouter.isConfigured
-                          ? "নতুন Key দিতে চাইলে লিখুন (অথবা ফাঁকা রাখুন)"
-                          : "sk-or-v1-..."
-                      }
-                      onChange={(e) =>
-                        setConfig((p) => ({
-                          ...p,
-                          openrouter: { ...p.openrouter, apiKey: e.target.value },
-                        }))
-                      }
-                      className="w-full px-3.5 py-2 border border-gray-300 rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-purple-600 font-mono"
-                    />
+                    <div className="relative">
+                      <input
+                        type={showApiKey ? "text" : "password"}
+                        value={config.openrouter.apiKey}
+                        placeholder="sk-or-v1-..."
+                        onChange={(e) =>
+                          setConfig((p) => ({
+                            ...p,
+                            openrouter: { ...p.openrouter, apiKey: e.target.value },
+                          }))
+                        }
+                        className="w-full px-3.5 py-2 pr-10 border border-gray-300 rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-purple-600 font-mono"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowApiKey((prev) => !prev)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 transition-colors p-1"
+                        title={showApiKey ? "Hide Key" : "Show Key"}
+                      >
+                        {showApiKey ? <EyeOff size={16} /> : <Eye size={16} />}
+                      </button>
+                    </div>
                     <p className="text-[11px] text-gray-400 mt-1">
                       {config.openrouter.isConfigured
                         ? "বর্তমান Key ডাটাবেজে এনক্রিপ্ট করা আছে। পরিবর্তন করতে চাইলে নতুন কী দিন।"
@@ -643,22 +657,28 @@ export default function AiSettingsPage() {
                           </span>
                         )}
                       </div>
-                      <input
-                        type="password"
-                        value={config.custom.apiKey}
-                        placeholder={
-                          config.custom.isConfigured
-                            ? "নতুন Key দিতে চাইলে লিখুন (অথবা ফাঁকা রাখুন)"
-                            : "sk-..."
-                        }
-                        onChange={(e) =>
-                          setConfig((p) => ({
-                            ...p,
-                            custom: { ...p.custom, apiKey: e.target.value },
-                          }))
-                        }
-                        className="w-full px-3.5 py-2 border border-gray-300 rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-purple-600 font-mono"
-                      />
+                      <div className="relative">
+                        <input
+                          type={showApiKey ? "text" : "password"}
+                          value={config.custom.apiKey}
+                          placeholder="sk-..."
+                          onChange={(e) =>
+                            setConfig((p) => ({
+                              ...p,
+                              custom: { ...p.custom, apiKey: e.target.value },
+                            }))
+                          }
+                          className="w-full px-3.5 py-2 pr-10 border border-gray-300 rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-purple-600 font-mono"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowApiKey((prev) => !prev)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 transition-colors p-1"
+                          title={showApiKey ? "Hide Key" : "Show Key"}
+                        >
+                          {showApiKey ? <EyeOff size={16} /> : <Eye size={16} />}
+                        </button>
+                      </div>
                     </div>
                   </div>
 

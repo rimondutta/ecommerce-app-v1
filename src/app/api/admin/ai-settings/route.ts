@@ -19,10 +19,10 @@ export async function GET() {
       settings = (await AiSettings.create({ key: 'global' })) as IAiSettings;
     }
 
-    // Verify whether providers have active keys configured (either in DB or env)
-    const hasGeminiKey = Boolean(decryptApiKey(settings.gemini?.apiKey) || process.env.GEMINI_API_KEY);
-    const hasOpenRouterKey = Boolean(decryptApiKey(settings.openrouter?.apiKey) || process.env.OPENROUTER_API_KEY);
-    const hasCustomKey = Boolean(decryptApiKey(settings.custom?.apiKey));
+    // Decrypt keys so the authenticated admin can review and manage them
+    const geminiDecrypted = decryptApiKey(settings.gemini?.apiKey);
+    const openrouterDecrypted = decryptApiKey(settings.openrouter?.apiKey);
+    const customDecrypted = decryptApiKey(settings.custom?.apiKey);
 
     const safeSettings = {
       isChatbotEnabled: settings.isChatbotEnabled !== false,
@@ -31,20 +31,20 @@ export async function GET() {
       activeProvider: settings.activeProvider || 'gemini',
       fallbackProvider: settings.fallbackProvider || 'none',
       gemini: {
-        apiKey: '', // Never pre-fill the input with static bullet dots
-        isConfigured: hasGeminiKey,
+        apiKey: geminiDecrypted || '',
+        isConfigured: Boolean(geminiDecrypted || process.env.GEMINI_API_KEY),
         model: settings.gemini?.model || 'gemini-3-flash-preview',
         hasEnvFallback: Boolean(process.env.GEMINI_API_KEY),
       },
       openrouter: {
-        apiKey: '', // Never pre-fill the input with static bullet dots
-        isConfigured: hasOpenRouterKey,
+        apiKey: openrouterDecrypted || '',
+        isConfigured: Boolean(openrouterDecrypted || process.env.OPENROUTER_API_KEY),
         model: settings.openrouter?.model || 'openrouter/free',
         hasEnvFallback: Boolean(process.env.OPENROUTER_API_KEY),
       },
       custom: {
-        apiKey: '', // Never pre-fill the input with static bullet dots
-        isConfigured: hasCustomKey,
+        apiKey: customDecrypted || '',
+        isConfigured: Boolean(customDecrypted),
         model: settings.custom?.model || 'gpt-4o-mini',
         baseUrl: settings.custom?.baseUrl || '',
         headers: settings.custom?.headers || '',
@@ -102,22 +102,40 @@ export async function PUT(req: Request) {
 
     const existingSettings = (await AiSettings.findOne({ key: 'global' })) as IAiSettings | null;
 
-    // Resolve Gemini Key: If incoming is masked or empty, preserve existing encrypted key
+    // Resolve Gemini Key: If unchanged, keep existing; if new string provided, encrypt; if cleared, empty
     let geminiEncryptedKey = existingSettings?.gemini?.apiKey || '';
-    if (body.gemini?.apiKey && !isMaskedKey(body.gemini.apiKey)) {
-      geminiEncryptedKey = encryptApiKey(body.gemini.apiKey.trim());
+    if (typeof body.gemini?.apiKey === 'string') {
+      const incoming = body.gemini.apiKey.trim();
+      const existingDecrypted = decryptApiKey(existingSettings?.gemini?.apiKey);
+      if (!incoming) {
+        geminiEncryptedKey = '';
+      } else if (incoming !== existingDecrypted && !isMaskedKey(incoming)) {
+        geminiEncryptedKey = encryptApiKey(incoming);
+      }
     }
 
-    // Resolve OpenRouter Key
+    // Resolve OpenRouter Key: If unchanged, keep existing; if new string provided, encrypt; if cleared, empty
     let openrouterEncryptedKey = existingSettings?.openrouter?.apiKey || '';
-    if (body.openrouter?.apiKey && !isMaskedKey(body.openrouter.apiKey)) {
-      openrouterEncryptedKey = encryptApiKey(body.openrouter.apiKey.trim());
+    if (typeof body.openrouter?.apiKey === 'string') {
+      const incoming = body.openrouter.apiKey.trim();
+      const existingDecrypted = decryptApiKey(existingSettings?.openrouter?.apiKey);
+      if (!incoming) {
+        openrouterEncryptedKey = '';
+      } else if (incoming !== existingDecrypted && !isMaskedKey(incoming)) {
+        openrouterEncryptedKey = encryptApiKey(incoming);
+      }
     }
 
-    // Resolve Custom Key
+    // Resolve Custom Key: If unchanged, keep existing; if new string provided, encrypt; if cleared, empty
     let customEncryptedKey = existingSettings?.custom?.apiKey || '';
-    if (body.custom?.apiKey && !isMaskedKey(body.custom.apiKey)) {
-      customEncryptedKey = encryptApiKey(body.custom.apiKey.trim());
+    if (typeof body.custom?.apiKey === 'string') {
+      const incoming = body.custom.apiKey.trim();
+      const existingDecrypted = decryptApiKey(existingSettings?.custom?.apiKey);
+      if (!incoming) {
+        customEncryptedKey = '';
+      } else if (incoming !== existingDecrypted && !isMaskedKey(incoming)) {
+        customEncryptedKey = encryptApiKey(incoming);
+      }
     }
 
     const updateDoc = {
