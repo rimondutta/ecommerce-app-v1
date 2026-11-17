@@ -33,14 +33,17 @@ export default function Homepage({
   initialTrendingProducts = [],
   initialCategories = [],
   initialBlogs = [],
+  initialSpecialOfferProducts = [],
 }: {
   initialTrendingProducts?: Product[];
   initialCategories?: Category[];
   initialBlogs?: BlogPreview[];
+  initialSpecialOfferProducts?: Product[];
 }) {
   const [trendingProducts] = useState(initialTrendingProducts);
   const [categories] = useState<Category[]>(initialCategories);
   const [blogs] = useState<BlogPreview[]>(initialBlogs);
+  const [specialOfferProducts] = useState<Product[]>(initialSpecialOfferProducts);
   const heroRef = useRef<HTMLDivElement>(null);
 
   // GSAP hero entrance — enhances visibility, does NOT gate it
@@ -244,6 +247,44 @@ export default function Homepage({
           theme="light"
         />
       </section>
+
+      {/* ═══════════════════════════════════════════════
+          SPECIAL OFFERS
+          ═══════════════════════════════════════════════ */}
+      {specialOfferProducts.length > 0 && (
+        <section className="px-4 sm:px-8 lg:px-[5vw] py-16 md:py-24 bg-amber-50">
+          <AnimatedReveal className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
+            <div>
+              <p className="font-mono text-xs uppercase tracking-[0.2em] text-amber-600 mb-3">Limited Time</p>
+              <h2 className="font-serif font-light text-4xl md:text-5xl text-black tracking-tight">
+                Special Offers
+              </h2>
+            </div>
+            <Link
+              href="/products?tag=specialoffer"
+              className="hidden md:flex items-center gap-2 font-mono text-xs uppercase tracking-widest text-black hover:text-zinc-500 transition-colors border-b border-black/20 hover:border-zinc-500 pb-1"
+            >
+              View All Offers
+            </Link>
+          </AnimatedReveal>
+
+          <DynamicProductGridRimon
+            title={undefined}
+            viewAllLink="/products?tag=specialoffer"
+            products={specialOfferProducts}
+            theme="light"
+          />
+
+          <div className="mt-10 flex justify-center md:hidden">
+            <Link
+              href="/products?tag=specialoffer"
+              className="w-full flex items-center justify-center bg-black text-white font-body font-bold text-sm uppercase tracking-widest px-8 py-4 hover:bg-zinc-800 transition-colors"
+            >
+              View All Offers
+            </Link>
+          </div>
+        </section>
+      )}
 
 
       {/* ═══════════════════════════════════════════════

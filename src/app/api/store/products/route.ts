@@ -9,6 +9,7 @@ export async function GET(req: Request) {
     const { searchParams } = new URL(req.url);
     const categoryQuery = searchParams.get('category');
     const searchQuery = searchParams.get('search');
+    const tagQuery = searchParams.get('tag');
     const idsQuery = searchParams.get('ids');
     
     await connectToDatabase();
@@ -69,6 +70,7 @@ export async function GET(req: Request) {
 
       // ── Search path ──
       const query: Record<string, unknown> = { isPublished: true };
+      if (tagQuery) query.tags = tagQuery;
       if (searchQuery) {
         const escapedSearch = searchQuery.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
         query.$or = [

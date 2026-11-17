@@ -16,13 +16,14 @@ interface AdminProduct {
   category?: { name?: string; slug?: string };
   inventory?: number;
   isPublished?: boolean;
+  tags?: string[];
 }
 
 export default function AdminProductsPage() {
   const [products, setProducts] = useState<AdminProduct[]>([])
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState("")
-  const [selectedTab, setSelectedTab] = useState<"all" | "active" | "draft">("all")
+  const [selectedTab, setSelectedTab] = useState<"all" | "active" | "draft" | "special">("all")
   const [isImportModalOpen, setIsImportModalOpen] = useState(false)
   const [isExporting, setIsExporting] = useState(false)
 
@@ -81,6 +82,7 @@ export default function AdminProductsPage() {
       // Tab filter
       if (selectedTab === "active" && !p.isPublished) return false
       if (selectedTab === "draft" && p.isPublished) return false
+      if (selectedTab === "special" && !p.tags?.includes('specialoffer')) return false
 
       // Search filter
       if (searchQuery.trim()) {
@@ -170,6 +172,15 @@ export default function AdminProductsPage() {
           >
             Draft ({products.filter(p => !p.isPublished).length})
             {selectedTab === "draft" && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gray-900 rounded-full" />}
+          </button>
+          <button
+            onClick={() => setSelectedTab("special")}
+            className={`text-sm font-medium pb-3 px-1 transition-colors relative ${
+              selectedTab === "special" ? "text-amber-700 font-semibold" : "text-gray-500 hover:text-gray-700"
+            }`}
+          >
+            ⭐ Special Offers ({products.filter(p => p.tags?.includes('specialoffer')).length})
+            {selectedTab === "special" && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-amber-500 rounded-full" />}
           </button>
         </div>
 

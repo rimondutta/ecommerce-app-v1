@@ -114,7 +114,8 @@ export default function ProductForm({ initialData, categories, onSubmit, loading
     ageRange: initialData?.ageRange || "",
     images: (initialData?.images || []) as { url: string; alt: string }[],
   }))
-  const [tags, setTags] = useState(() => (initialData?.tags ? initialData.tags.join(", ") : ""))
+  const [tags, setTags] = useState(() => (initialData?.tags ? initialData.tags.filter(t => t !== 'specialoffer').join(", ") : ""))
+  const [isSpecialOffer, setIsSpecialOffer] = useState(() => Boolean(initialData?.tags?.includes('specialoffer')))
   const [attributes, setAttributes] = useState<{ name: string; value: string }[]>(() => initialData?.attributes || [])
   const [uploadingImage, setUploadingImage] = useState(false)
   const [error, setError] = useState("")
@@ -414,7 +415,7 @@ export default function ProductForm({ initialData, categories, onSubmit, loading
       price: Number(formData.price),
       compareAtPrice: formData.compareAtPrice !== "" ? Number(formData.compareAtPrice) : null,
       images: formData.images || [],
-      tags: tags.split(",").map(t => t.trim()).filter(Boolean),
+      tags: [...tags.split(",").map(t => t.trim()).filter(Boolean), ...(isSpecialOffer ? ['specialoffer'] : [])],
       attributes: attributes.filter(a => a.name.trim() !== ""),
       hasVariations,
     }
@@ -994,6 +995,20 @@ export default function ProductForm({ initialData, categories, onSubmit, loading
                   placeholder="tag1, tag2, tag3"
                   className="w-full bg-white text-gray-900 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-gray-500 outline-none transition-shadow"
                 />
+              </div>
+              {/* Special Offer Toggle */}
+              <div className="flex items-center justify-between p-3 rounded-lg border border-gray-200 bg-amber-50">
+                <div>
+                  <p className="text-sm font-medium text-gray-900">⭐ Special Offer</p>
+                  <p className="text-xs text-gray-500 mt-0.5">Show this product in the homepage Special Offers section</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsSpecialOffer(prev => !prev)}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${isSpecialOffer ? 'bg-amber-500' : 'bg-gray-300'}`}
+                >
+                  <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform ${isSpecialOffer ? 'translate-x-6' : 'translate-x-1'}`} />
+                </button>
               </div>
               <div className="space-y-1.5">
                 <label className="block text-sm font-medium text-gray-900">URL Slug</label>
