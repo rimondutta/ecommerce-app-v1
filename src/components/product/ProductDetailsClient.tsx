@@ -9,7 +9,7 @@ import { useWishlist } from "@/store/wishlistStore";
 import { useToast } from "@/components/playshelf/Toast";
 import ProductGridRimon from "@/components/ui/product-grid-rimon";
 import { Star, Truck, RefreshCcw, ChevronLeft, ChevronRight } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, getOptimizedCloudinaryUrl } from "@/lib/utils";
 import { trackViewContent, trackAddToCart, trackAddToWishlist } from "@/lib/fbPixel";
 import OrderWithAIButton from "@/components/ai/OrderWithAIButton";
 import AISuggestions from "@/components/ai/AISuggestions";
@@ -420,7 +420,7 @@ export default function ProductDetailsClient({
                         : "border-transparent opacity-60 hover:opacity-100 hover:border-joy-rule"
                     )}
                   >
-                    <Image src={img.url} alt={img.alt || "Thumbnail"} fill className="object-cover" sizes="72px" />
+                    <Image src={getOptimizedCloudinaryUrl(img.url, { width: 144 })} alt={img.alt || "Thumbnail"} fill className="object-cover" sizes="72px" />
                   </button>
                 ))}
               </div>
@@ -431,7 +431,7 @@ export default function ProductDetailsClient({
               {currentGallery[activeImage] && (
                 <Image
                   key={currentGallery[activeImage].url}
-                  src={currentGallery[activeImage].url}
+                  src={getOptimizedCloudinaryUrl(currentGallery[activeImage].url, { width: 900 })}
                   alt={currentGallery[activeImage].alt || product.title}
                   fill
                   className="object-cover transition-opacity duration-300"
@@ -480,7 +480,7 @@ export default function ProductDetailsClient({
                       activeImage === idx ? "border-joy-cobalt" : "border-transparent opacity-50"
                     )}
                   >
-                    <Image src={img.url} alt={img.alt || "Thumbnail"} fill className="object-cover" sizes="56px" />
+                    <Image src={getOptimizedCloudinaryUrl(img.url, { width: 120 })} alt={img.alt || "Thumbnail"} fill className="object-cover" sizes="56px" />
                   </button>
                 ))}
               </div>

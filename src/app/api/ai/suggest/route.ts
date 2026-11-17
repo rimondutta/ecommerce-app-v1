@@ -26,7 +26,14 @@ export async function GET(req: Request) {
     }
 
     const suggestions = await getProductSuggestions(productId);
-    return NextResponse.json({ suggestions, available: true });
+    return NextResponse.json(
+      { suggestions, available: true },
+      {
+        headers: {
+          'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600',
+        },
+      }
+    );
   } catch (err: unknown) {
     console.error('[API /api/ai/suggest GET] Error:', err);
     return NextResponse.json({ suggestions: [], error: 'Failed to fetch suggestions' }, { status: 500 });

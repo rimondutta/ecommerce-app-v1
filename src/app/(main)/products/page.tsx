@@ -124,27 +124,28 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
         }
       }
 
-      const [dbProducts, total, allCategories, allVariationTypes, allVariationValues, rawAgeRanges] =
-        await Promise.all([
-          Product.find(filter)
-            .populate("category", "name slug")
-            .populate("variationTypes", "name slug displayType")
-            .populate("variants.combination.variationType", "name slug displayType")
-            .populate("variants.combination.variationValue", "value slug colorHex")
-            .select(
-              "title price compareAtPrice slug images category badge ageRange createdAt rating reviewCount hasVariations variationTypes variants tags"
-            )
-            .sort({ createdAt: -1 })
-            .skip(skip)
-            .limit(limit)
-            .lean(),
-          Product.countDocuments(filter),
-          Category.find({}).select("name slug").lean(),
-          VariationType.find({}).sort({ name: 1 }).lean(),
-          VariationValue.find({}).sort({ sortOrder: 1, value: 1 }).lean(),
-          // Distinct age ranges from ALL published products (no filter) for the sidebar
-          Product.distinct("ageRange", { isPublished: true }),
-        ]);
+      const [allCategories, allVariationTypes, allVariationValues, rawAgeRanges] =
+        await withCache('products:filter_metadata', 600, async () => {
+          return await Promise.all([
+            Category.find({}).select("name slug").lean(),
+            VariationType.find({}).sort({ name: 1 }).lean(),
+            VariationValue.find({}).sort({ sortOrder: 1, value: 1 }).lean(),
+            Product.distinct("ageRange", { isPublished: true }),
+          ]);
+        });
+
+      const [dbProducts, total] = await Promise.all([
+        Product.find(filter)
+          .populate("category", "name slug")
+          .select(
+            "title price compareAtPrice slug images category badge ageRange createdAt rating reviewCount hasVariations variants tags"
+          )
+          .sort({ createdAt: -1 })
+          .skip(skip)
+          .limit(limit)
+          .lean(),
+        Product.countDocuments(filter),
+      ]);
 
       // Group variation values under their variation type
       const valueMap = new Map<string, VariationFilterOption[]>();

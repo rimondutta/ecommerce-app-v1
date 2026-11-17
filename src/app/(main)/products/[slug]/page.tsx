@@ -8,6 +8,7 @@ import ProductDetailsClient from "@/components/product/ProductDetailsClient";
 import { Metadata } from "next";
 import { cache } from "react";
 import { getOrSetCached } from "@/lib/cache/redis-cache";
+import { withCache } from "@/lib/cache";
 import { KEYS } from "@/lib/cache/invalidation";
 import { isOrderAgentAvailable } from "@/lib/ai/providers";
 
@@ -42,10 +43,12 @@ const getProductData = cache(async (slug: string) => {
         .populate(populateConfig)
         .select('-__v')
         .lean(),
-      Product.find({ isPublished: true })
-        .select('title price compareAtPrice slug images category inventory rating reviewCount')
-        .limit(8)
-        .lean(),
+      withCache('products:related_sample', 300, async () => {
+        return await Product.find({ isPublished: true })
+          .select('title price compareAtPrice slug images category inventory rating reviewCount')
+          .limit(8)
+          .lean();
+      }),
     ]);
   });
 });
