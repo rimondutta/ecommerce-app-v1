@@ -125,9 +125,12 @@ export async function getAIProviders(): Promise<ProviderBundle> {
  */
 export async function isOrderAgentAvailable(): Promise<boolean> {
   try {
-    const { active, settings } = await getAIProviders();
-    if (!settings?.isOrderAgentEnabled) return false;
-    return active !== null;
+    const { withCache } = await import('@/lib/cache');
+    return await withCache('ai:order-agent:available', 60, async () => {
+      const { active, settings } = await getAIProviders();
+      if (!settings?.isOrderAgentEnabled) return false;
+      return active !== null;
+    });
   } catch {
     return false;
   }

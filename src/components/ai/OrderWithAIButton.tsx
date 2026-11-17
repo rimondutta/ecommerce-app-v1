@@ -14,19 +14,39 @@ interface OrderWithAIButtonProps {
     hasVariations?: boolean;
   };
   disabled?: boolean;
+  initialAvailable?: boolean;
 }
 
-export default function OrderWithAIButton({ product, disabled }: OrderWithAIButtonProps) {
+export default function OrderWithAIButton({ product, disabled, initialAvailable }: OrderWithAIButtonProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [isAvailable, setIsAvailable] = useState<boolean | null>(null);
+  const [isAvailable, setIsAvailable] = useState<boolean | null>(() => {
+    if (initialAvailable !== undefined) return initialAvailable;
+    if (typeof window !== 'undefined') {
+      const cached = sessionStorage.getItem('ai_order_available');
+      if (cached !== null) return cached === 'true';
+    }
+    return true; // Optimistically show the button so there is 0 latency
+  });
 
   useEffect(() => {
+    // If availability was already confirmed from server, no need to refetch
+    if (initialAvailable !== undefined) {
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem('ai_order_available', String(initialAvailable));
+      }
+      return;
+    }
+
     let isMounted = true;
     fetch('/api/ai/order-agent')
       .then((res) => res.json())
       .then((data) => {
         if (isMounted) {
-          setIsAvailable(Boolean(data?.available));
+          const avail = Boolean(data?.available);
+          setIsAvailable(avail);
+          if (typeof window !== 'undefined') {
+            sessionStorage.setItem('ai_order_available', String(avail));
+          }
         }
       })
       .catch(() => {
@@ -36,7 +56,7 @@ export default function OrderWithAIButton({ product, disabled }: OrderWithAIButt
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [initialAvailable]);
 
   // Hide button if AI feature is disabled or not configured
   if (isAvailable === false || isAvailable === null) {

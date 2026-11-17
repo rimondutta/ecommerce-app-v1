@@ -85,12 +85,19 @@ export default function AIOrderChat({ isOpen, onClose, product }: AIOrderChatPro
   // Initial greeting call when opened for the first time
   useEffect(() => {
     if (isOpen && messages.length === 0 && !sessionId) {
+      const instantGreeting = `আসসালামু আলাইকুম! 😊 Toy Hourse-এ আপনাকে স্বাগতম!\n\n"${product.title}" দেখছেন — চমৎকার পছন্দ! 🎁\n\nঅর্ডার করতে শুধু আপনার মোবাইল নম্বরটা দিন (যেমন: 017XXXXXXXX) 👇`;
+      setMessages([
+        {
+          id: 'welcome',
+          role: 'assistant',
+          content: instantGreeting,
+        },
+      ]);
       initSession();
     }
   }, [isOpen]);
 
   const initSession = async () => {
-    setLoading(true);
     try {
       const res = await fetch('/api/ai/order-agent', {
         method: 'POST',

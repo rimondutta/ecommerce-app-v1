@@ -9,6 +9,7 @@ import { Metadata } from "next";
 import { cache } from "react";
 import { getOrSetCached } from "@/lib/cache/redis-cache";
 import { KEYS } from "@/lib/cache/invalidation";
+import { isOrderAgentAvailable } from "@/lib/ai/providers";
 
 interface ProductLean {
   _id: unknown;
@@ -104,7 +105,10 @@ export async function generateStaticParams() {
 export default async function ProductDetailPage({ params }: PageProps) {
   const { slug } = await params;
 
-  const [product, relatedProducts] = await getProductData(slug);
+  const [[product, relatedProducts], isAiAvailable] = await Promise.all([
+    getProductData(slug),
+    isOrderAgentAvailable().catch(() => false),
+  ]);
 
   if (!product) {
     notFound();
@@ -114,5 +118,5 @@ export default async function ProductDetailPage({ params }: PageProps) {
   const serializedProduct = JSON.parse(JSON.stringify(product));
   const serializedRelated = JSON.parse(JSON.stringify(relatedProducts?.filter((p: { slug?: string }) => p.slug !== slug) || []));
 
-  return <ProductDetailsClient product={serializedProduct} relatedProducts={serializedRelated} />;
+  return <ProductDetailsClient product={serializedProduct} relatedProducts={serializedRelated} isAiAvailable={isAiAvailable} />;
 }

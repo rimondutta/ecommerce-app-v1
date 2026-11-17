@@ -12,7 +12,14 @@ const RequestSchema = z.object({
 
 export async function GET() {
   const available = await isOrderAgentAvailable();
-  return NextResponse.json({ available });
+  return NextResponse.json(
+    { available },
+    {
+      headers: {
+        'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120',
+      },
+    }
+  );
 }
 
 export async function POST(req: Request) {

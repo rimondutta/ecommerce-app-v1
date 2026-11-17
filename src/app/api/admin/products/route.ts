@@ -20,7 +20,13 @@ export async function GET(req: Request) {
     await connectToDatabase();
 
     const [products, total] = await Promise.all([
-      Product.find({}).select('-__v').populate('category', 'name').sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
+      Product.find({})
+        .select('title price compareAtPrice slug images category inventory isPublished tags createdAt')
+        .populate('category', 'name')
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .lean(),
       Product.countDocuments({}),
     ]);
 

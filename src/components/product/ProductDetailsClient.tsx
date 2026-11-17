@@ -90,7 +90,15 @@ function NavLink({ href, children }: { href: string; children: React.ReactNode }
   );
 }
 
-export default function ProductDetailsClient({ product: initialProduct, relatedProducts }: { product: DetailedProduct; relatedProducts?: DetailedProduct[] }) {
+export default function ProductDetailsClient({
+  product: initialProduct,
+  relatedProducts,
+  isAiAvailable = true,
+}: {
+  product: DetailedProduct;
+  relatedProducts?: DetailedProduct[];
+  isAiAvailable?: boolean;
+}) {
   const router = useRouter();
   const { addItem, openCart } = useCart();
   const { showToast } = useToast();
@@ -662,6 +670,7 @@ export default function ProductDetailsClient({ product: initialProduct, relatedP
                   hasVariations: product.hasVariations,
                 }}
                 disabled={currentInventory <= 0}
+                initialAvailable={isAiAvailable}
               />
             </div>
 

@@ -3,34 +3,61 @@ import Order from "@/models/Order";
 import Product from "@/models/Product";
 import DashboardClient from "@/components/admin/DashboardClient";
 
+export const dynamic = "force-dynamic";
+
 export default async function AdminDashboardPage() {
   await connectToDatabase();
+  const { withCache } = await import('@/lib/cache');
 
-  const totalOrdersCount = await Order.countDocuments();
-  const totalProductsCount = await Product.countDocuments();
-  const totalCustomersCount = (await Order.distinct('customerEmail')).length;
+  const data = await withCache('admin:dashboard:overview', 30, async () => {
+    const [
+      totalOrdersCount,
+      totalProductsCount,
+      customerEmails,
+      revenueAgg,
+      recentOrders,
+      topProducts,
+    ] = await Promise.all([
+      Order.countDocuments(),
+      Product.countDocuments(),
+      Order.distinct('customerEmail'),
+      Order.aggregate([
+        { $match: { paymentStatus: 'paid' } },
+        { $group: { _id: null, total: { $sum: '$totalAmount' } } },
+      ]),
+      Order.find()
+        .select('orderNumber customerName customerEmail createdAt totalAmount paymentStatus fulfillmentStatus')
+        .sort({ createdAt: -1 })
+        .limit(6)
+        .lean(),
+      Product.find()
+        .select('title price soldCount images')
+        .sort({ createdAt: -1 })
+        .limit(4)
+        .lean(),
+    ]);
 
-  const paidOrders = await Order.find({ paymentStatus: 'paid' }).lean();
-  const totalRevenue = paidOrders.reduce((sum, order) => sum + (order.totalAmount || 0), 0);
+    const totalRevenue = revenueAgg?.[0]?.total || 0;
+    const totalCustomersCount = customerEmails.length;
 
-  const recentOrders = await Order.find()
-    .sort({ createdAt: -1 })
-    .limit(6)
-    .lean();
-
-  const topProducts = await Product.find()
-    .sort({ createdAt: -1 })
-    .limit(4)
-    .lean();
+    return {
+      totalRevenue,
+      totalOrdersCount,
+      totalCustomersCount,
+      totalProductsCount,
+      recentOrders,
+      topProducts,
+    };
+  });
 
   return (
     <DashboardClient
-      totalRevenue={totalRevenue}
-      totalOrdersCount={totalOrdersCount}
-      totalCustomersCount={totalCustomersCount}
-      totalProductsCount={totalProductsCount}
-      recentOrders={JSON.parse(JSON.stringify(recentOrders))}
-      topProducts={JSON.parse(JSON.stringify(topProducts))}
+      totalRevenue={data.totalRevenue}
+      totalOrdersCount={data.totalOrdersCount}
+      totalCustomersCount={data.totalCustomersCount}
+      totalProductsCount={data.totalProductsCount}
+      recentOrders={JSON.parse(JSON.stringify(data.recentOrders))}
+      topProducts={JSON.parse(JSON.stringify(data.topProducts))}
     />
   );
 }

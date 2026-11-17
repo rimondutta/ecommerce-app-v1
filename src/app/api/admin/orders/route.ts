@@ -31,7 +31,12 @@ export async function GET(req: Request) {
     // High performance: Uses OrderSchema.index({ createdAt: -1 })
     // or OrderSchema.index({ fulfillmentStatus: 1, createdAt: -1 })
     const [orders, total] = await Promise.all([
-      Order.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
+      Order.find(filter)
+        .select('orderNumber invoiceNumber customerName customerEmail shippingAddress totalAmount fulfillmentStatus paymentStatus source createdAt')
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .lean(),
       Order.countDocuments(filter),
     ]);
 
