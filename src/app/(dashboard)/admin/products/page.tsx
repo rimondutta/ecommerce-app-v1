@@ -254,12 +254,19 @@ export default function AdminProductsPage() {
                           />
                         </div>
                         <div className="min-w-0">
-                          <Link
-                            href={`/admin/products/${product._id}/edit`}
-                            className="font-medium text-gray-900 group-hover:text-blue-600 transition-colors line-clamp-1 block text-sm"
-                          >
-                            {product.title}
-                          </Link>
+                          <div className="flex items-center gap-2">
+                            <Link
+                              href={`/admin/products/${product._id}/edit`}
+                              className="font-medium text-gray-900 group-hover:text-blue-600 transition-colors line-clamp-1 block text-sm"
+                            >
+                              {product.title}
+                            </Link>
+                            {product.tags?.includes('specialoffer') && (
+                              <span className="shrink-0 inline-flex items-center gap-0.5 text-[10px] font-semibold bg-amber-50 text-amber-800 border border-amber-300 px-1.5 py-0.5 rounded">
+                                ⭐ Special
+                              </span>
+                            )}
+                          </div>
                           {product.slug && (
                             <span className="text-[11px] text-gray-400 font-mono block">/{product.slug}</span>
                           )}

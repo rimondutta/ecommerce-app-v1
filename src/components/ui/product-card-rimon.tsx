@@ -26,6 +26,7 @@ interface Product {
   sizes?: unknown[];
   category?: { name?: string; slug?: string } | string;
   inventory?: number;
+  tags?: string[];
 }
 
 interface Props {
@@ -112,6 +113,11 @@ export default function ProductCardModern({ product, priority = false }: Props) 
           {product.badge && (
             <span className="bg-[#A3E635] text-[#14532D] font-bold text-[11px] px-3 py-1 rounded-full shadow-sm">
               {product.badge}
+            </span>
+          )}
+          {product.tags?.includes('specialoffer') && !product.badge && (
+            <span className="bg-amber-400 text-amber-950 font-bold text-[11px] px-3 py-1 rounded-full shadow-sm">
+              ⭐ Special Offer
             </span>
           )}
           {hasDiscount && (

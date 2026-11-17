@@ -23,6 +23,8 @@ interface ShopPageProps {
     age?: string;
     search?: string;
     variant?: string;
+    tag?: string;
+    offer?: string;
   }>;
 }
 
@@ -35,7 +37,9 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
   await connectToDatabase();
   const { withCache } = await import("@/lib/cache");
 
-  const cacheKey = `products:catalog:v3:p${page}:l${limit}:${params.category || "all"}:${params.age || "all"}:${params.variant || "none"}:${params.search || "none"}`;
+  const tagParam = params.tag || (params.offer === "special" ? "specialoffer" : undefined);
+
+  const cacheKey = `products:catalog:v3:p${page}:l${limit}:${params.category || "all"}:${params.age || "all"}:${params.variant || "none"}:${tagParam || "none"}:${params.search || "none"}`;
 
   // Fetch paginated products, categories, and variation filters with Redis caching
   const { products, totalCount, categories, variationFilters, ageRanges } = await withCache(
@@ -43,6 +47,11 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
     60,
     async () => {
       const filter: Record<string, unknown> = { isPublished: true };
+
+      // 0. Tag filter (e.g. ?tag=specialoffer)
+      if (tagParam) {
+        filter.tags = tagParam;
+      }
 
       // 1. Age Range flexible filter
       if (params.age) {
@@ -123,7 +132,7 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
             .populate("variants.combination.variationType", "name slug displayType")
             .populate("variants.combination.variationValue", "value slug colorHex")
             .select(
-              "title price compareAtPrice slug images category badge ageRange createdAt rating reviewCount hasVariations variationTypes variants"
+              "title price compareAtPrice slug images category badge ageRange createdAt rating reviewCount hasVariations variationTypes variants tags"
             )
             .sort({ createdAt: -1 })
             .skip(skip)
@@ -200,6 +209,7 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
         allCategories={serializedCategories}
         variationFilters={serializedVariationFilters}
         ageRanges={serializedAgeRanges}
+        initialTag={tagParam || null}
         pagination={{
           page,
           limit,

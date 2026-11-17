@@ -30,6 +30,7 @@ export interface CategoryItem {
 export type ShopProduct = React.ComponentProps<typeof ProductCardRimon>["product"] & {
   createdAt?: string;
   hasVariations?: boolean;
+  tags?: string[];
   variationTypes?: Array<{
     _id: string;
     name: string;
@@ -200,6 +201,7 @@ function ShopGridPure({
   ageParam,
   variantParam,
   searchParam,
+  tagParam,
 }: {
   initialProducts: ShopProduct[];
   allCategories?: CategoryItem[];
@@ -210,6 +212,7 @@ function ShopGridPure({
   ageParam: string | null;
   variantParam: string | null;
   searchParam: string | null;
+  tagParam: string | null;
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -235,6 +238,7 @@ function ShopGridPure({
     if (ageParam) currentParams.set("age", ageParam);
     if (searchParam) currentParams.set("search", searchParam);
     if (variantParam) currentParams.set("variant", variantParam);
+    if (tagParam) currentParams.set("tag", tagParam);
 
     if (value === null) currentParams.delete(key);
     else currentParams.set(key, value);
@@ -303,7 +307,8 @@ function ShopGridPure({
       const ageMatch = !ageParam || matchesAgeRange(p.ageRange, ageParam);
       const searchMatch = !searchParam || p.title.toLowerCase().includes(searchParam.toLowerCase());
       const variantMatch = productMatchesVariants(p, selectedVariantSlugs);
-      return catMatch && ageMatch && searchMatch && variantMatch;
+      const tagMatch = !tagParam || (Array.isArray(p.tags) && p.tags.some((t) => t.toLowerCase() === tagParam.toLowerCase()));
+      return catMatch && ageMatch && searchMatch && variantMatch && tagMatch;
     });
 
     if (sortBy === "price-low") result.sort((a: ShopProduct, b: ShopProduct) => a.price - b.price);
@@ -314,7 +319,7 @@ function ShopGridPure({
           new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()
       );
     return result;
-  }, [initialProducts, categoryParam, ageParam, sortBy, searchParam, selectedVariantSlugs]);
+  }, [initialProducts, categoryParam, ageParam, sortBy, searchParam, selectedVariantSlugs, tagParam]);
 
   const clearFilters = () => {
     startTransition(() => {
@@ -325,6 +330,7 @@ function ShopGridPure({
   const activeFilterCount = [
     categoryParam,
     ageParam,
+    tagParam,
     ...(selectedVariantSlugs.length > 0 ? selectedVariantSlugs : []),
   ].filter(Boolean).length;
 
@@ -335,7 +341,7 @@ function ShopGridPure({
       <section className="relative bg-joy-cream pb-4 pt-32 lg:pt-36">
         <div className="px-4 sm:px-8 lg:px-[5vw] py-5 flex items-end justify-between border-b border-joy-rule">
           <h1 className="font-display font-bold text-4xl md:text-5xl text-joy-navy tracking-tight">
-            {categoryParam || "All Toys"}
+            {tagParam === "specialoffer" ? "Special Offers" : (categoryParam || "All Toys")}
           </h1>
           <span className="font-body text-sm text-joy-muted mb-1">
             {totalDisplayCount} {totalDisplayCount === 1 ? "product" : "products"}
@@ -363,8 +369,22 @@ function ShopGridPure({
           <div className="hidden lg:flex items-center gap-2 flex-wrap">
             <FilterPill
               label="All"
-              selected={!categoryParam}
-              onClick={() => updateFilters("category", null)}
+              selected={!categoryParam && !tagParam}
+              onClick={() => {
+                const currentParams = new URLSearchParams(searchParams?.toString() || "");
+                currentParams.delete("page");
+                currentParams.delete("category");
+                currentParams.delete("tag");
+                startTransition(() => {
+                  const q = currentParams.toString();
+                  router.push(q ? `/products?${q}` : "/products", { scroll: false });
+                });
+              }}
+            />
+            <FilterPill
+              label="⭐ Special Offers"
+              selected={tagParam === "specialoffer"}
+              onClick={() => updateFilters("tag", tagParam === "specialoffer" ? null : "specialoffer")}
             />
             {categories.map((cat) => (
               <FilterPill
@@ -423,6 +443,22 @@ function ShopGridPure({
         {/* ── DESKTOP SIDEBAR ── */}
         <aside className="hidden lg:block w-56 shrink-0">
           <div className="sticky top-32 space-y-6 bg-white border border-joy-rule rounded-2xl p-6 shadow-[0_2px_12px_rgba(26,31,58,0.04)]">
+            {/* Special Offers Filter */}
+            <div className="space-y-3">
+              <h4 className="font-display font-bold text-joy-navy text-xs uppercase tracking-wider text-joy-muted">
+                Offers
+              </h4>
+              <div className="space-y-1">
+                <SidebarFilterItem
+                  label="⭐ Special Offers"
+                  selected={tagParam === "specialoffer"}
+                  onClick={() => updateFilters("tag", tagParam === "specialoffer" ? null : "specialoffer")}
+                />
+              </div>
+            </div>
+
+            <div className="border-t border-joy-rule" />
+
             {/* Category Filter */}
             <div className="space-y-3">
               <h4 className="font-display font-bold text-joy-navy text-xs uppercase tracking-wider text-joy-muted">
@@ -601,6 +637,18 @@ function ShopGridPure({
                   </button>
                 </span>
               )}
+              {tagParam && (
+                <span className="inline-flex items-center gap-1.5 bg-amber-50 text-amber-900 text-xs font-semibold px-3 py-1.5 rounded-full border border-amber-300">
+                  {tagParam === "specialoffer" ? "⭐ Special Offers" : `Tag: ${tagParam}`}
+                  <button
+                    type="button"
+                    onClick={() => updateFilters("tag", null)}
+                    className="hover:text-joy-coral text-amber-800 transition-colors"
+                  >
+                    <X size={12} />
+                  </button>
+                </span>
+              )}
               {ageParam && (
                 <span className="inline-flex items-center gap-1.5 bg-joy-mist text-joy-navy text-xs font-semibold px-3 py-1.5 rounded-full border border-joy-rule">
                   Age: {ageParam} Years
@@ -772,6 +820,25 @@ function ShopGridPure({
                         onClick={() => setSortBy(opt.value)}
                       />
                     ))}
+                  </div>
+                </div>
+
+                {/* Special Offers */}
+                <div className="space-y-4">
+                  <h3 className="font-body text-sm font-semibold text-joy-navy uppercase tracking-wider">
+                    Offers
+                  </h3>
+                  <div className="flex flex-wrap gap-2">
+                    <FilterPill
+                      label="⭐ Special Offers"
+                      selected={tagParam === "specialoffer"}
+                      onClick={() =>
+                        updateFilters(
+                          "tag",
+                          tagParam === "specialoffer" ? null : "specialoffer"
+                        )
+                      }
+                    />
                   </div>
                 </div>
 
@@ -969,12 +1036,14 @@ function ShopContent({
   variationFilters,
   ageRanges,
   pagination,
+  initialTag,
 }: {
   initialProducts: ShopProduct[];
   allCategories?: CategoryItem[];
   variationFilters?: VariationFilterGroup[];
   ageRanges?: string[];
   pagination?: PaginationInfo;
+  initialTag?: string | null;
 }) {
   const searchParams = useSearchParams();
 
@@ -989,6 +1058,7 @@ function ShopContent({
       ageParam={searchParams.get("age")}
       variantParam={searchParams.get("variant")}
       searchParam={searchParams.get("search")}
+      tagParam={searchParams.get("tag") || initialTag || null}
     />
   );
 }
@@ -999,12 +1069,14 @@ export default function ShopClient({
   variationFilters,
   ageRanges,
   pagination,
+  initialTag,
 }: {
   initialProducts: ShopProduct[];
   allCategories?: CategoryItem[];
   variationFilters?: VariationFilterGroup[];
   ageRanges?: string[];
   pagination?: PaginationInfo;
+  initialTag?: string | null;
 }) {
   return (
     <Suspense
@@ -1019,6 +1091,7 @@ export default function ShopClient({
           ageParam={null}
           variantParam={null}
           searchParam={null}
+          tagParam={initialTag || null}
         />
       }
     >
@@ -1028,6 +1101,7 @@ export default function ShopClient({
         variationFilters={variationFilters}
         ageRanges={ageRanges}
         pagination={pagination}
+        initialTag={initialTag}
       />
     </Suspense>
   );
