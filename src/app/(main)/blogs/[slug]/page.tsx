@@ -87,20 +87,10 @@ const SingleBlogPage = async ({
 
       {/* ── Content Body ── */}
       <div className="max-w-3xl mx-auto px-4 sm:px-8">
-        <div className="prose prose-lg md:prose-xl max-w-none prose-p:font-body prose-p:font-light prose-p:text-zinc-700 prose-p:leading-relaxed prose-headings:font-serif prose-headings:font-light prose-headings:text-black prose-a:text-[#043224] prose-a:underline prose-li:font-body prose-li:font-light prose-li:text-zinc-700">
-          {post.content.split('\n\n').map((paragraph: string, i: number) => {
-            if (paragraph.startsWith('# ')) {
-              return <h2 key={i} className="text-4xl mt-16 mb-8 tracking-tight">{paragraph.replace('# ', '')}</h2>;
-            }
-            if (paragraph.startsWith('## ')) {
-              return <h3 key={i} className="text-3xl mt-12 mb-6 tracking-tight">{paragraph.replace('## ', '')}</h3>;
-            }
-            if (paragraph.startsWith('- ')) {
-               return <li key={i} className="ml-6 list-disc mb-3">{paragraph.replace('- ', '')}</li>;
-            }
-            return <p key={i} className="mb-8">{paragraph}</p>;
-          })}
-        </div>
+        <div
+          className="prose prose-lg md:prose-xl max-w-none prose-p:font-body prose-p:font-light prose-p:text-zinc-700 prose-p:leading-relaxed prose-headings:font-serif prose-headings:font-light prose-headings:text-black prose-a:text-[#043224] prose-a:underline prose-li:font-body prose-li:font-light prose-li:text-zinc-700 prose-h1:text-5xl prose-h1:mt-16 prose-h1:mb-8 prose-h2:text-4xl prose-h2:mt-14 prose-h2:mb-6 prose-h3:text-3xl prose-h3:mt-12 prose-h3:mb-5 prose-h4:text-2xl prose-h4:mt-10 prose-h4:mb-4 prose-blockquote:border-l-4 prose-blockquote:border-black/20 prose-blockquote:pl-6 prose-blockquote:italic prose-blockquote:text-zinc-500 prose-hr:border-black/10 prose-hr:my-12"
+          dangerouslySetInnerHTML={{ __html: post.content }}
+        />
 
         {/* ── Tags ── */}
         {post.tags && post.tags.length > 0 && (
