@@ -78,6 +78,8 @@ export interface DetailedProduct {
   hasVariations?: boolean;
   variationTypes?: VariationType[];
   variants?: ProductVariant[];
+  isFreeShipping?: boolean;
+  shippingRate?: number;
 }
 
 // ─── Breadcrumb underline link ───
@@ -193,7 +195,8 @@ export default function ProductDetailsClient({
       price: matchingVariant ? matchingVariant.price : product.price,
       quantity,
       image: imageUrl,
-      variantId: matchingVariant?._id
+      variantId: matchingVariant?._id,
+      isFreeShipping: Boolean(product.isFreeShipping),
     });
     try { trackAddToCart(product, quantity); } catch { /* noop */ }
     showToast(`Added ${quantity} to your bag!`, "success");
@@ -210,7 +213,8 @@ export default function ProductDetailsClient({
       price: matchingVariant ? matchingVariant.price : product.price,
       quantity,
       image: imageUrl,
-      variantId: matchingVariant?._id
+      variantId: matchingVariant?._id,
+      isFreeShipping: Boolean(product.isFreeShipping),
     });
     try { trackAddToCart(product, quantity); } catch { /* noop */ }
     router.push("/checkout");
@@ -648,6 +652,14 @@ export default function ProductDetailsClient({
                 </button>
               </div>
             </div>
+
+            {/* Free Shipping Badge */}
+            {product.isFreeShipping && (
+              <div className="flex items-center gap-2 px-3.5 py-2.5 bg-green-50 text-green-800 border border-green-200 rounded-xl mb-3 text-xs font-semibold">
+                <Truck size={16} className="text-green-600 shrink-0" />
+                <span>🎉 Free Shipping / ফ্রি ডেলিভারি — এই পণ্যের কোনো ডেলিভারি চার্জ নেই!</span>
+              </div>
+            )}
 
             {/* Buy Now */}
             <button

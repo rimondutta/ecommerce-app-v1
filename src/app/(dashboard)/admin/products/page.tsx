@@ -17,6 +17,7 @@ interface AdminProduct {
   inventory?: number;
   isPublished?: boolean;
   tags?: string[];
+  isFreeShipping?: boolean;
 }
 
 export default function AdminProductsPage() {
@@ -264,6 +265,11 @@ export default function AdminProductsPage() {
                             {product.tags?.includes('specialoffer') && (
                               <span className="shrink-0 inline-flex items-center gap-0.5 text-[10px] font-semibold bg-amber-50 text-amber-800 border border-amber-300 px-1.5 py-0.5 rounded">
                                 ⭐ Special
+                              </span>
+                            )}
+                            {product.isFreeShipping && (
+                              <span className="shrink-0 inline-flex items-center gap-0.5 text-[10px] font-semibold bg-green-50 text-green-700 border border-green-300 px-1.5 py-0.5 rounded">
+                                🚚 Free Ship
                               </span>
                             )}
                           </div>

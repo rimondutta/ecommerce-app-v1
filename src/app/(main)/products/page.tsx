@@ -138,7 +138,7 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
         Product.find(filter)
           .populate("category", "name slug")
           .select(
-            "title price compareAtPrice slug images category badge ageRange createdAt rating reviewCount hasVariations variants tags"
+            "title price compareAtPrice slug images category badge ageRange createdAt rating reviewCount hasVariations variants tags isFreeShipping"
           )
           .sort({ createdAt: -1 })
           .skip(skip)

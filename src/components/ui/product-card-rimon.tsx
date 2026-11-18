@@ -27,6 +27,7 @@ interface Product {
   category?: { name?: string; slug?: string } | string;
   inventory?: number;
   tags?: string[];
+  isFreeShipping?: boolean;
 }
 
 interface Props {
@@ -113,6 +114,11 @@ export default function ProductCardModern({ product, priority = false }: Props) 
           {product.badge && (
             <span className="bg-[#A3E635] text-[#14532D] font-bold text-[11px] px-3 py-1 rounded-full shadow-sm">
               {product.badge}
+            </span>
+          )}
+          {product.isFreeShipping && (
+            <span className="bg-emerald-500 text-white font-bold text-[11px] px-2.5 py-1 rounded-full shadow-sm">
+              🚚 Free Ship
             </span>
           )}
           {product.tags?.includes('specialoffer') && !product.badge && (

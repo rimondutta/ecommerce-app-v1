@@ -174,11 +174,14 @@ export default function CheckoutPage() {
       ? shippingConfig.outsideDhakaRate
       : shippingConfig.insideDhakaRate;
 
+  const hasFreeShippingItem = items.some((item) => (item as unknown as { isFreeShipping?: boolean }).isFreeShipping === true);
+
   const qualifiesForFreeShipping =
-    shippingConfig.freeShippingEnabled &&
-    (shippingConfig.freeShippingZone === "all" ||
-      shippingConfig.freeShippingZone === form.shippingZone) &&
-    total >= shippingConfig.freeShippingMinOrder;
+    hasFreeShippingItem ||
+    (shippingConfig.freeShippingEnabled &&
+      (shippingConfig.freeShippingZone === "all" ||
+        shippingConfig.freeShippingZone === form.shippingZone) &&
+      total >= shippingConfig.freeShippingMinOrder);
 
   const shippingCost = qualifiesForFreeShipping ? 0 : baseShippingCost;
 
@@ -425,9 +428,10 @@ export default function CheckoutPage() {
                         ].map((zone) => {
                           const isSelected = form.shippingZone === zone.key;
                           const zoneFree =
-                            shippingConfig.freeShippingEnabled &&
-                            (shippingConfig.freeShippingZone === "all" || shippingConfig.freeShippingZone === zone.key) &&
-                            total >= shippingConfig.freeShippingMinOrder;
+                            hasFreeShippingItem ||
+                            (shippingConfig.freeShippingEnabled &&
+                              (shippingConfig.freeShippingZone === "all" || shippingConfig.freeShippingZone === zone.key) &&
+                              total >= shippingConfig.freeShippingMinOrder);
                           return (
                             <button
                               key={zone.key}

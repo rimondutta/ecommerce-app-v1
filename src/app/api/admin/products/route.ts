@@ -21,7 +21,7 @@ export async function GET(req: Request) {
 
     const [products, total] = await Promise.all([
       Product.find({})
-        .select('title price compareAtPrice slug images category inventory isPublished tags createdAt')
+        .select('title price compareAtPrice slug images category inventory isPublished tags isFreeShipping shippingRate createdAt')
         .populate('category', 'name')
         .sort({ createdAt: -1 })
         .skip(skip)

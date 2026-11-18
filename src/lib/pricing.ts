@@ -19,6 +19,8 @@ interface ProductDoc {
   price: number;
   inventory?: number;
   images?: Array<{ url?: string }>;
+  isFreeShipping?: boolean;
+  shippingRate?: number;
   variants?: VariantDoc[];
 }
 
@@ -52,6 +54,7 @@ export interface VerifiedOrderItem {
   price: number;
   quantity: number;
   image?: string;
+  isFreeShipping?: boolean;
   variantOptions?: Map<string, string> | Record<string, string>;
 }
 
@@ -182,6 +185,7 @@ export async function calculateOrderPricing(
         price: unitPrice,
         quantity,
         image: itemImage,
+        isFreeShipping: Boolean(product.isFreeShipping),
         variantOptions: cartItem.variantOptions || undefined,
       });
     }
@@ -202,10 +206,14 @@ export async function calculateOrderPricing(
 
   const baseShippingCost = normalizedZone === 'outside_dhaka' ? outsideDhakaRate : insideDhakaRate;
 
+  // Check if any product in this order has product-level free shipping
+  const hasFreeShippingProduct = products.some((p) => Boolean(p.isFreeShipping));
+
   const qualifiesForFreeShipping =
-    freeShippingEnabled &&
-    (freeShippingZone === 'all' || freeShippingZone === normalizedZone) &&
-    subtotal >= freeShippingMinOrder;
+    hasFreeShippingProduct ||
+    (freeShippingEnabled &&
+      (freeShippingZone === 'all' || freeShippingZone === normalizedZone) &&
+      subtotal >= freeShippingMinOrder);
 
   const shippingCost = qualifiesForFreeShipping ? 0 : baseShippingCost;
 

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react"
 import Image from "next/image"
-import { Trash, Save, Loader2, AlertCircle, ChevronDown, ChevronUp, Image as ImageIcon, Camera, Upload, X } from "lucide-react"
+import { Trash, Save, Loader2, AlertCircle, ChevronDown, ChevronUp, Image as ImageIcon, Camera, Upload, X, Truck, CheckCircle2 } from "lucide-react"
 import { isCloudinaryUrl } from "@/lib/utils"
 import RichDescriptionEditor from "@/components/admin/RichDescriptionEditor"
 
@@ -59,6 +59,8 @@ interface ProductInitialData {
   ageRange?: string
   images?: Array<{ url: string; alt: string }>
   tags?: string[];
+  isFreeShipping?: boolean;
+  shippingRate?: number;
   attributes?: Array<{ name: string; value: string }>
   hasVariations?: boolean
   variationTypes?: Array<string | VariationTypeItem>
@@ -116,6 +118,8 @@ export default function ProductForm({ initialData, categories, onSubmit, loading
   }))
   const [tags, setTags] = useState(() => (initialData?.tags ? initialData.tags.filter(t => t !== 'specialoffer').join(", ") : ""))
   const [isSpecialOffer, setIsSpecialOffer] = useState(() => Boolean(initialData?.tags?.includes('specialoffer')))
+  const [isFreeShipping, setIsFreeShipping] = useState<boolean>(() => Boolean(initialData?.isFreeShipping))
+  const [shippingRate, setShippingRate] = useState<string>(() => initialData?.shippingRate !== undefined && initialData?.shippingRate !== null ? initialData.shippingRate.toString() : "")
   const [attributes, setAttributes] = useState<{ name: string; value: string }[]>(() => initialData?.attributes || [])
   const [uploadingImage, setUploadingImage] = useState(false)
   const [error, setError] = useState("")
@@ -416,6 +420,8 @@ export default function ProductForm({ initialData, categories, onSubmit, loading
       compareAtPrice: formData.compareAtPrice !== "" ? Number(formData.compareAtPrice) : null,
       images: formData.images || [],
       tags: [...tags.split(",").map(t => t.trim()).filter(Boolean), ...(isSpecialOffer ? ['specialoffer'] : [])],
+      isFreeShipping,
+      shippingRate: isFreeShipping ? 0 : (shippingRate.trim() !== "" ? Number(shippingRate) : null),
       attributes: attributes.filter(a => a.name.trim() !== ""),
       hasVariations,
     }
@@ -563,6 +569,76 @@ export default function ProductForm({ initialData, categories, onSubmit, loading
               <p className="text-xs text-blue-600 bg-blue-50 border border-blue-100 rounded-lg px-3 py-2">
                 ℹ️ Each variant has its own price. The base price above is used as the default when generating variants.
               </p>
+            )}
+          </div>
+
+          {/* Shipping & Delivery */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 space-y-4">
+            <div className="flex items-center gap-2">
+              <Truck size={18} className="text-gray-700" />
+              <h3 className="text-base font-semibold text-gray-900">Shipping & Delivery</h3>
+            </div>
+
+            {/* Free Shipping Toggle */}
+            <div className="flex items-center justify-between p-4 rounded-xl border border-gray-200 bg-gray-50/70 hover:bg-gray-50 transition-colors">
+              <div className="space-y-0.5 pr-4">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-semibold text-gray-900">Free Shipping</span>
+                  {isFreeShipping && (
+                    <span className="text-[10px] font-bold bg-green-100 text-green-700 px-2 py-0.5 rounded-full border border-green-200">
+                      FREE DELIVERY
+                    </span>
+                  )}
+                </div>
+                <p className="text-xs text-gray-500">
+                  {isFreeShipping
+                    ? "Free shipping is enabled. Shipping rate is automatically hidden and delivery will be free (৳0) for this product."
+                    : "Turn this on to offer free delivery on this product and auto-hide shipping rates."}
+                </p>
+              </div>
+              <button
+                type="button"
+                role="switch"
+                aria-checked={isFreeShipping}
+                onClick={() => setIsFreeShipping(prev => !prev)}
+                className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full transition-colors duration-200 ease-in-out focus:outline-none ${
+                  isFreeShipping ? 'bg-green-600' : 'bg-gray-300'
+                }`}
+              >
+                <span
+                  className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out ${
+                    isFreeShipping ? 'translate-x-6' : 'translate-x-1'
+                  } mt-1`}
+                />
+              </button>
+            </div>
+
+            {/* Auto-hide shipping rate when Free Shipping is ON */}
+            {!isFreeShipping ? (
+              <div className="space-y-3 pt-1">
+                <div className="space-y-1.5">
+                  <label className="block text-sm font-medium text-gray-900">
+                    Custom Shipping Rate (৳) <span className="text-gray-400 font-normal">[Optional]</span>
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    step="1"
+                    value={shippingRate}
+                    onChange={e => setShippingRate(e.target.value)}
+                    placeholder="Leave blank for store default (৳120 Inside / ৳150 Outside Dhaka)"
+                    className="w-full bg-white text-gray-900 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-gray-500 focus:ring-1 focus:ring-gray-500 outline-none transition-shadow"
+                  />
+                  <p className="text-xs text-gray-500">
+                    Leave blank to use standard store delivery rates (Inside Dhaka: ৳120, Outside Dhaka: ৳150).
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="p-3.5 bg-green-50 border border-green-200 rounded-xl flex items-center gap-2.5 text-green-800 text-xs font-medium">
+                <CheckCircle2 size={16} className="text-green-600 shrink-0" />
+                <span>Shipping rate is auto-hidden. Customers will not be charged any delivery fee for this product at checkout.</span>
+              </div>
             )}
           </div>
 

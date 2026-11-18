@@ -23,6 +23,8 @@ const ProductSchema = new mongoose.Schema(
     ageRange: String, // e.g., '3-5', '5-8'
     inventory: { type: Number, default: 0 },
     isPublished: { type: Boolean, default: true },
+    isFreeShipping: { type: Boolean, default: false },
+    shippingRate: { type: Number, default: null },
     reviews: [
       {
         rating: { type: Number, required: true, min: 1, max: 5 },
