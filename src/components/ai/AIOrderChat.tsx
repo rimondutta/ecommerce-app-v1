@@ -456,7 +456,8 @@ export default function AIOrderChat({ isOpen, onClose, product }: AIOrderChatPro
                       : 'আপনার উত্তর এখানে লিখুন (যেমন: নাম, ফোন, ঠিকানা)...'
                   }
                   disabled={loading}
-                  className="flex-1 px-4 py-2.5 text-sm bg-neutral-50 border border-neutral-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-black focus:border-black focus:bg-white transition-all text-neutral-900 placeholder:text-neutral-400"
+                  className="flex-1 px-4 py-2.5 text-sm bg-neutral-50 border border-neutral-300 rounded-xl outline-none focus:outline-none focus-visible:outline-none focus:ring-2 focus:ring-black focus:border-black focus:bg-white transition-all text-neutral-900 placeholder:text-neutral-400"
+                  style={{ outline: 'none' }}
                 />
                 <button
                   type="submit"

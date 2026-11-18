@@ -444,7 +444,8 @@ export default function Chatbot() {
                   onChange={handleInputChange}
                   placeholder={config.placeholder || 'খেলনা খুঁজুন বা প্রশ্ন লিখুন...'}
                   disabled={isLoading}
-                  className="flex-1 bg-transparent text-xs sm:text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none py-1.5"
+                  className="flex-1 bg-transparent text-xs sm:text-sm text-slate-800 placeholder:text-slate-400 border-none outline-none ring-0 focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 shadow-none py-1.5"
+                  style={{ outline: 'none', border: 'none', boxShadow: 'none' }}
                 />
 
                 <button

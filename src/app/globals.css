@@ -167,6 +167,16 @@ button, input[type="button"], input[type="submit"], [role="button"], .btn {
   border-radius: 4px;
 }
 
+/* Form controls manage their own border/ring focus styles */
+input:focus,
+input:focus-visible,
+textarea:focus,
+textarea:focus-visible,
+select:focus,
+select:focus-visible {
+  outline: none;
+}
+
 /* ═══════════════════════════════════════
    Custom Scrollbar
    ═══════════════════════════════════════ */
