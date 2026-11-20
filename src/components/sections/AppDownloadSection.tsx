@@ -9,7 +9,7 @@ import { FaApple, FaGooglePlay, FaGithub } from "react-icons/fa";
 export default function AppDownloadSection() {
   return (
     <AnimatedReveal>
-      <section className="px-4 sm:px-10 lg:px-[5vw] py-16 md:py-24 bg-white text-black relative overflow-hidden border-t border-black/10">
+      <section className="px-4 sm:px-10 lg:px-[5vw] py-16 md:py-24 bg-[#FDF8F0] text-[#2C2416] relative overflow-hidden border-t border-[#EDE4D8]">
 
         <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-12 lg:gap-20 max-w-7xl mx-auto">
 
@@ -95,6 +95,7 @@ export default function AppDownloadSection() {
                   src="/images/mobile-app-image.png"
                   alt="App Screenshot"
                   fill
+                  loading="eager"
                   sizes="(max-width: 768px) 300px, 340px"
                   className="object-contain"
                 />

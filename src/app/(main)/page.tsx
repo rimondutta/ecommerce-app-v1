@@ -19,6 +19,8 @@ interface HomeProduct {
   ageRange?: string;
   rating?: number;
   reviewCount?: number;
+  category?: string;
+  inventory?: number | { quantity?: number };
 }
 
 interface HomeCategory {
@@ -43,29 +45,61 @@ export default async function Home() {
   let categories: HomeCategory[] = [];
   let latestBlogs: HomeBlog[] = [];
   let specialOfferProducts: HomeProduct[] = [];
+  let bestsellingProducts: HomeProduct[] = [];
+  let discountProducts: HomeProduct[] = [];
+  let freeDeliveryProducts: HomeProduct[] = [];
 
   try {
     await connectToDatabase();
 
-    // Fetch trending products and categories server-side in parallel
+    // Fetch homepage products and categories server-side in parallel
     const { withCache } = await import('@/lib/cache');
 
-    const [dbProducts, dbCategories, dbBlogs, dbSpecialOffers] = await withCache('home:isr:data', 60, async () => {
+    const [
+      dbProducts,
+      dbCategories,
+      dbBlogs,
+      dbSpecialOffers,
+      dbBestsellers,
+      dbDiscounts,
+      dbFreeDelivery,
+    ] = await withCache('home:isr:data', 60, async () => {
       return await Promise.all([
         Product.find({ isPublished: true })
           .select('title price compareAtPrice slug images category badge colors sizes inventory rating reviewCount')
           .sort({ createdAt: -1 })
           .limit(4)
           .lean(),
-        Category.find({}).lean(),
+        Category.find({ isActive: true })
+          .select('name slug description image isActive')
+          .sort({ createdAt: -1 })
+          .lean(),
         BlogPost.find({ isPublished: true })
           .sort({ publishedAt: -1 })
           .limit(3)
           .lean(),
         Product.find({ isPublished: true, tags: 'specialoffer' })
+          .select('title price compareAtPrice slug images badge rating reviewCount tags category inventory')
+          .sort({ createdAt: -1 })
+          .limit(12)
+          .lean(),
+        Product.find({ isPublished: true, tags: 'bestselling' })
           .select('title price compareAtPrice slug images badge rating reviewCount tags')
           .sort({ createdAt: -1 })
-          .limit(8)
+          .limit(10)
+          .lean(),
+        Product.find({ isPublished: true, tags: 'discount' })
+          .select('title price compareAtPrice slug images badge rating reviewCount tags category inventory')
+          .sort({ createdAt: -1 })
+          .limit(10)
+          .lean(),
+        Product.find({
+          isPublished: true,
+          $or: [{ tags: 'freedelivery' }, { tags: 'freeshipping' }, { isFreeShipping: true }],
+        })
+          .select('title price compareAtPrice slug images badge rating reviewCount tags category inventory')
+          .sort({ createdAt: -1 })
+          .limit(10)
           .lean(),
       ]);
     });
@@ -75,9 +109,22 @@ export default async function Home() {
     categories = JSON.parse(JSON.stringify(dbCategories || []));
     latestBlogs = JSON.parse(JSON.stringify(dbBlogs || []));
     specialOfferProducts = JSON.parse(JSON.stringify(dbSpecialOffers || []));
+    bestsellingProducts = JSON.parse(JSON.stringify(dbBestsellers || []));
+    discountProducts = JSON.parse(JSON.stringify(dbDiscounts || []));
+    freeDeliveryProducts = JSON.parse(JSON.stringify(dbFreeDelivery || []));
   } catch (error) {
     console.warn("Could not load initial homepage data (DB offline or build-time prerender):", error);
   }
 
-  return <Homepage initialTrendingProducts={trendingProducts} initialCategories={categories} initialBlogs={latestBlogs} initialSpecialOfferProducts={specialOfferProducts} />;
+  return (
+    <Homepage
+      initialTrendingProducts={trendingProducts}
+      initialCategories={categories}
+      initialBlogs={latestBlogs}
+      initialSpecialOfferProducts={specialOfferProducts}
+      initialBestsellingProducts={bestsellingProducts}
+      initialDiscountProducts={discountProducts}
+      initialFreeDeliveryProducts={freeDeliveryProducts}
+    />
+  );
 }

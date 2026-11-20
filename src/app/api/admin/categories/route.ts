@@ -32,6 +32,14 @@ export async function POST(req: Request) {
     await connectToDatabase();
     const category = await Category.create(data);
 
+    // Invalidate Redis caches so changes show immediately on storefront
+    try {
+      const { invalidateCategory } = await import('@/lib/cache/invalidation');
+      await invalidateCategory(category._id.toString(), category.slug);
+    } catch (cacheErr) {
+      console.warn('[POST /api/admin/categories] cache invalidation warning:', cacheErr);
+    }
+
     return NextResponse.json({ category }, { status: 201 });
   } catch (error: unknown) {
     if ((error as { code?: number })?.code === 11000) {

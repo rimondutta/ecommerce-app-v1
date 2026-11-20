@@ -19,12 +19,20 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { m, AnimatePresence } from 'framer-motion';
 
-const BotIcon = ({ className }: { className?: string }) => (
+const BotIcon = ({
+  className,
+  priority = false,
+}: {
+  className?: string;
+  priority?: boolean;
+}) => (
   <Image
     src="/images/ai-chatbot.png"
     alt="AI Bot"
     width={48}
     height={48}
+    loading="eager"
+    priority={priority}
     className={className}
   />
 );
@@ -182,7 +190,7 @@ export default function Chatbot() {
               className="relative w-16 h-16 rounded-full focus:outline-none transition-transform cursor-pointer flex items-center justify-center drop-shadow-[0_10px_20px_rgba(0,0,0,0.25)]"
               aria-label="Open AI Chat"
             >
-              <BotIcon className="w-16 h-16 object-contain" />
+              <BotIcon className="w-16 h-16 object-contain" priority />
 
               {/* Online indicator dot */}
               <span className="absolute top-1 right-1 flex h-3 w-3">

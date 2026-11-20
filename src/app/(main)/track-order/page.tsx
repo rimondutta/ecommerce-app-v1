@@ -408,7 +408,7 @@ function TrackOrderContent() {
                   <div key={idx} className="flex items-center gap-4 py-2 border-b border-slate-100 last:border-none">
                     <div className="w-14 h-14 rounded-xl bg-slate-100 relative overflow-hidden shrink-0 border border-slate-200">
                       {item.image ? (
-                        <Image src={item.image} alt={item.title} fill className="object-cover" />
+                        <Image src={item.image} alt={item.title} fill sizes="56px" className="object-cover" />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-slate-400 text-xs font-bold">
                           TOY

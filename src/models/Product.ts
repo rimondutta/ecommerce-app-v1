@@ -6,6 +6,14 @@ const ProductSchema = new mongoose.Schema(
     slug: { type: String, required: true, unique: true },
     description: String,
     longDescription: String,
+    descriptionHeading: { type: String, default: '' },
+    keyFeatures: [{ type: String }],
+    specifications: [
+      {
+        name: String,
+        value: String,
+      },
+    ],
     price: { type: Number, required: true },
     compareAtPrice: { type: Number },
     category: { type: mongoose.Schema.Types.ObjectId, ref: 'Category' },
@@ -37,6 +45,7 @@ const ProductSchema = new mongoose.Schema(
     ],
     rating: { type: Number, default: 0 },
     reviewCount: { type: Number, default: 0 },
+    soldCount: { type: Number, default: 0 },
 
     // ─────────────────────────────────────────────────────────────
     // DYNAMIC VARIATION SYSTEM

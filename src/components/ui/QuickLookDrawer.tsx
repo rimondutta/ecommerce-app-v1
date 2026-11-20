@@ -6,6 +6,7 @@ import Image from "next/image";
 import { useQuickLook } from "@/store/quickLookStore";
 import { useCart } from "@/components/providers/CartProvider";
 import { useWishlist } from "@/components/providers/WishlistProvider";
+import { useToast } from "@/components/playshelf/Toast";
 import Link from "next/link";
 import { X, Heart, ArrowRight } from "lucide-react";
 import Button from "@/components/ui/Button";
@@ -17,6 +18,7 @@ export default function QuickLookDrawer() {
   const { isOpen, product, closeQuickLook } = useQuickLook();
   const { addItem, openCart } = useCart();
   const { toggleItem, isWishlisted } = useWishlist();
+  const { showToast } = useToast();
 
   const [selectedColor, setSelectedColor] = useState<{ name: string; hex?: string; class?: string } | null>(null);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
@@ -61,6 +63,7 @@ export default function QuickLookDrawer() {
       image: images[0],
     });
     closeQuickLook();
+    showToast(`"${product.title}" added to cart!`, "success");
     openCart();
   };
 

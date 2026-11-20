@@ -54,6 +54,8 @@ interface ProductInitialData {
   category?: CategoryOption | string
   description?: string
   longDescription?: string
+  descriptionHeading?: string
+  keyFeatures?: string[]
   inventory?: number
   isPublished?: boolean
   ageRange?: string
@@ -62,6 +64,7 @@ interface ProductInitialData {
   isFreeShipping?: boolean;
   shippingRate?: number;
   attributes?: Array<{ name: string; value: string }>
+  specifications?: Array<{ name: string; value: string }>
   hasVariations?: boolean
   variationTypes?: Array<string | VariationTypeItem>
   variants?: ProductVariantData[]
@@ -120,7 +123,11 @@ export default function ProductForm({ initialData, categories, onSubmit, loading
   const [isSpecialOffer, setIsSpecialOffer] = useState(() => Boolean(initialData?.tags?.includes('specialoffer')))
   const [isFreeShipping, setIsFreeShipping] = useState<boolean>(() => Boolean(initialData?.isFreeShipping))
   const [shippingRate, setShippingRate] = useState<string>(() => initialData?.shippingRate !== undefined && initialData?.shippingRate !== null ? initialData.shippingRate.toString() : "")
-  const [attributes, setAttributes] = useState<{ name: string; value: string }[]>(() => initialData?.attributes || [])
+  const [attributes, setAttributes] = useState<{ name: string; value: string }[]>(
+    () => initialData?.specifications || initialData?.attributes || []
+  )
+  const [descriptionHeading, setDescriptionHeading] = useState(() => initialData?.descriptionHeading || "")
+  const [keyFeatures, setKeyFeatures] = useState<string[]>(() => initialData?.keyFeatures || [])
   const [uploadingImage, setUploadingImage] = useState(false)
   const [error, setError] = useState("")
 
@@ -230,7 +237,15 @@ export default function ProductForm({ initialData, categories, onSubmit, loading
       images: (initialData.images || []) as { url: string; alt: string }[],
     })
     if (initialData.tags) setTags(initialData.tags.join(", "))
-    if (initialData.attributes) setAttributes(initialData.attributes)
+    if (initialData.specifications || initialData.attributes) {
+      setAttributes(initialData.specifications || initialData.attributes || [])
+    }
+    if (initialData.descriptionHeading !== undefined) {
+      setDescriptionHeading(initialData.descriptionHeading || "")
+    }
+    if (initialData.keyFeatures) {
+      setKeyFeatures(initialData.keyFeatures)
+    }
   }
 
   // ── Fetch all available variation types once ──
@@ -422,7 +437,10 @@ export default function ProductForm({ initialData, categories, onSubmit, loading
       tags: [...tags.split(",").map(t => t.trim()).filter(Boolean), ...(isSpecialOffer ? ['specialoffer'] : [])],
       isFreeShipping,
       shippingRate: isFreeShipping ? 0 : (shippingRate.trim() !== "" ? Number(shippingRate) : null),
+      descriptionHeading: descriptionHeading.trim(),
+      keyFeatures: keyFeatures.map(f => f.trim()).filter(Boolean),
       attributes: attributes.filter(a => a.name.trim() !== ""),
+      specifications: attributes.filter(a => a.name.trim() !== ""),
       hasVariations,
     }
 
@@ -505,6 +523,92 @@ export default function ProductForm({ initialData, categories, onSubmit, loading
               onChange={val => setFormData(prev => ({ ...prev, longDescription: val }))}
               placeholder="Full product details, specifications, usage instructions, or features..."
             />
+
+            {/* Description Tab Heading */}
+            <div>
+              <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wide mb-1.5">
+                Description Tab Heading (Optional)
+              </label>
+              <input
+                type="text"
+                value={descriptionHeading}
+                onChange={e => setDescriptionHeading(e.target.value)}
+                className="w-full bg-white text-gray-900 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-purple-500 outline-none"
+                placeholder="e.g. Let Your Child Play and Learn! (defaults to product title)"
+              />
+              <p className="text-[11px] text-gray-400 mt-1">Displayed as the main title inside the Description tab on the product details page.</p>
+            </div>
+
+            {/* Key Highlights / Features */}
+            <div className="space-y-2 pt-3 border-t border-gray-100">
+              <div className="flex items-center justify-between">
+                <div>
+                  <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wide">
+                    Key Features / Highlights (Checkmark Badges)
+                  </label>
+                  <p className="text-xs text-gray-400">Rendered as green checkmark badges under the product description</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setKeyFeatures(prev => [...prev, ""])}
+                  className="text-xs text-[#5428D8] hover:text-[#431db8] font-bold flex items-center gap-1"
+                >
+                  + Add Feature
+                </button>
+              </div>
+
+              {/* Quick Feature Suggestions */}
+              <div className="flex flex-wrap gap-1.5 pt-1">
+                {[
+                  "Bright Lights & Fun Music",
+                  "Automatic Climbing & Sliding",
+                  "Safe for Kids",
+                  "Encourages Active Play",
+                  "Durable & Non-Toxic",
+                  "Easy to Assemble",
+                  "Rechargeable Battery",
+                  "Interactive Learning",
+                ].map(suggestion => (
+                  <button
+                    key={suggestion}
+                    type="button"
+                    onClick={() => {
+                      if (!keyFeatures.includes(suggestion)) {
+                        setKeyFeatures(prev => [...prev.filter(Boolean), suggestion])
+                      }
+                    }}
+                    className="text-[11px] bg-purple-50 hover:bg-purple-100 text-[#5428D8] px-2 py-0.5 rounded-full font-medium transition-colors"
+                  >
+                    + {suggestion}
+                  </button>
+                ))}
+              </div>
+
+              {keyFeatures.length > 0 && (
+                <div className="space-y-2 mt-2">
+                  {keyFeatures.map((feat, idx) => (
+                    <div key={idx} className="flex gap-2 items-center">
+                      <span className="text-green-600 font-bold text-sm">✓</span>
+                      <input
+                        type="text"
+                        value={feat}
+                        onChange={e => setKeyFeatures(prev => prev.map((f, i) => i === idx ? e.target.value : f))}
+                        placeholder="e.g. Bright Lights & Fun Music"
+                        className="flex-1 bg-white text-gray-900 rounded-lg border border-gray-300 px-3 py-1.5 text-xs focus:border-purple-500 outline-none"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setKeyFeatures(prev => prev.filter((_, i) => i !== idx))}
+                        className="p-1 text-gray-400 hover:text-red-500 transition-colors"
+                        title="Remove highlight"
+                      >
+                        <Trash size={14} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Media */}
@@ -982,44 +1086,91 @@ export default function ProductForm({ initialData, categories, onSubmit, loading
             )}
           </div>
 
-          {/* Custom Attributes */}
+          {/* Product Specifications & Custom Attributes */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-base font-semibold text-gray-900">Custom Attributes</h3>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div>
+                <h3 className="text-base font-semibold text-gray-900">Product Specifications & Attributes</h3>
+                <p className="text-xs text-gray-400">
+                  Displayed in the &ldquo;Specifications&rdquo; tab on the product details page.
+                </p>
+              </div>
               <button
                 type="button"
                 onClick={() => setAttributes(prev => [...prev, { name: "", value: "" }])}
-                className="text-sm text-gray-600 hover:text-gray-900 font-medium flex items-center gap-1 transition-colors"
+                className="text-xs bg-[#5428D8] text-white px-3 py-1.5 rounded-lg hover:bg-[#431db8] font-bold flex items-center gap-1 transition-colors self-start sm:self-auto"
               >
-                + Add
+                + Add Specification
               </button>
             </div>
-            {attributes.length === 0 && (
-              <p className="text-sm text-gray-400">No custom attributes. Click Add to create one.</p>
-            )}
-            {attributes.map((attr, idx) => (
-              <div key={idx} className="flex gap-2 items-center">
-                <input
-                  type="text" placeholder="Name"
-                  value={attr.name}
-                  onChange={e => setAttributes(prev => prev.map((a, i) => i === idx ? { ...a, name: e.target.value } : a))}
-                  className="flex-1 bg-white text-gray-900 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-gray-500 outline-none"
-                />
-                <input
-                  type="text" placeholder="Value"
-                  value={attr.value}
-                  onChange={e => setAttributes(prev => prev.map((a, i) => i === idx ? { ...a, value: e.target.value } : a))}
-                  className="flex-1 bg-white text-gray-900 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-gray-500 outline-none"
-                />
-                <button
-                  type="button"
-                  onClick={() => setAttributes(prev => prev.filter((_, i) => i !== idx))}
-                  className="p-1 text-gray-400 hover:text-red-500 transition-colors"
-                >
-                  <Trash size={15} />
-                </button>
+
+            {/* Quick Spec Presets */}
+            <div>
+              <p className="text-[11px] font-bold text-gray-500 uppercase tracking-wide mb-1.5">
+                Quick Presets:
+              </p>
+              <div className="flex flex-wrap gap-1.5">
+                {[
+                  "Material",
+                  "Dimensions",
+                  "Weight",
+                  "Battery Type",
+                  "Age Recommendation",
+                  "Package Includes",
+                  "Origin",
+                  "Warranty",
+                  "Care Instructions",
+                ].map(specName => (
+                  <button
+                    key={specName}
+                    type="button"
+                    onClick={() => {
+                      if (!attributes.some(a => a.name.toLowerCase() === specName.toLowerCase())) {
+                        setAttributes(prev => [...prev, { name: specName, value: "" }])
+                      }
+                    }}
+                    className="text-[11px] bg-gray-100 hover:bg-purple-50 hover:text-[#5428D8] text-gray-600 px-2.5 py-1 rounded-md transition-colors font-medium"
+                  >
+                    + {specName}
+                  </button>
+                ))}
               </div>
-            ))}
+            </div>
+
+            {attributes.length === 0 && (
+              <div className="p-4 bg-gray-50 border border-dashed border-gray-200 rounded-lg text-center text-xs text-gray-400">
+                No custom specifications added. Click a preset above or &ldquo;+ Add Specification&rdquo; to add details like Material, Dimensions, Battery, etc.
+              </div>
+            )}
+
+            <div className="space-y-2">
+              {attributes.map((attr, idx) => (
+                <div key={idx} className="flex gap-2 items-center">
+                  <input
+                    type="text"
+                    placeholder="Spec Name (e.g. Material)"
+                    value={attr.name}
+                    onChange={e => setAttributes(prev => prev.map((a, i) => i === idx ? { ...a, name: e.target.value } : a))}
+                    className="w-1/3 bg-white text-gray-900 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-purple-500 outline-none font-medium"
+                  />
+                  <input
+                    type="text"
+                    placeholder="Value (e.g. Premium ABS Plastic)"
+                    value={attr.value}
+                    onChange={e => setAttributes(prev => prev.map((a, i) => i === idx ? { ...a, value: e.target.value } : a))}
+                    className="flex-1 bg-white text-gray-900 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-purple-500 outline-none"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setAttributes(prev => prev.filter((_, i) => i !== idx))}
+                    className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                    title="Delete specification"
+                  >
+                    <Trash size={15} />
+                  </button>
+                </div>
+              ))}
+            </div>
           </div>
 
         </div>
@@ -1071,6 +1222,38 @@ export default function ProductForm({ initialData, categories, onSubmit, loading
                   placeholder="tag1, tag2, tag3"
                   className="w-full bg-white text-gray-900 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-gray-500 outline-none transition-shadow"
                 />
+                {/* Quick Homepage Section Tag Chips */}
+                <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                  <span className="text-[11px] text-gray-500">Homepage controls:</span>
+                  {[
+                    { tag: 'bestselling', label: '🔥 Best Selling' },
+                    { tag: 'discount', label: '🏷️ Discount' },
+                    { tag: 'freedelivery', label: '🚚 Free Delivery' },
+                  ].map(({ tag, label }) => {
+                    const active = tags.split(',').map(t => t.trim().toLowerCase()).includes(tag);
+                    return (
+                      <button
+                        key={tag}
+                        type="button"
+                        onClick={() => {
+                          const current = tags.split(',').map(t => t.trim()).filter(Boolean);
+                          if (active) {
+                            setTags(current.filter(t => t.toLowerCase() !== tag).join(', '));
+                          } else {
+                            setTags([...current, tag].join(', '));
+                          }
+                        }}
+                        className={`text-xs px-2.5 py-1 rounded-full font-medium transition-colors cursor-pointer border ${
+                          active
+                            ? 'bg-[#5428D8] text-white border-[#5428D8]'
+                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border-gray-200'
+                        }`}
+                      >
+                        {label} {active ? '✓' : '+'}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
               {/* Special Offer Toggle */}
               <div className="flex items-center justify-between p-3 rounded-lg border border-gray-200 bg-amber-50">

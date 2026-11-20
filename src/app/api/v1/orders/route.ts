@@ -175,14 +175,14 @@ export async function POST(req: Request) {
         return {
           updateOne: {
             filter: { _id: item.product, 'variants._id': item.variantId },
-            update: { $inc: { 'variants.$.stock': -item.quantity } },
+            update: { $inc: { 'variants.$.stock': -item.quantity, soldCount: item.quantity } },
           },
         };
       } else {
         return {
           updateOne: {
             filter: { _id: item.product },
-            update: { $inc: { inventory: -item.quantity } },
+            update: { $inc: { inventory: -item.quantity, soldCount: item.quantity } },
           },
         };
       }

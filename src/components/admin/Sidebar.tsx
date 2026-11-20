@@ -6,7 +6,8 @@ import { usePathname } from "next/navigation"
 import { signOut, useSession } from "next-auth/react"
 import { 
   Home, ShoppingCart, Tag, Users, BarChart2, 
-  Ticket, Store, LogOut, Plus, UserPlus, Image as ImageIcon, Layers, Sliders, Truck, MessageSquare, FileText, Package, Sparkles
+  Ticket, Store, LogOut, Plus, UserPlus, Image as ImageIcon, Layers, Sliders, Truck, MessageSquare, FileText, Package, Sparkles,
+  Menu as MenuIcon
 } from "lucide-react"
 
 export default function Sidebar() {
@@ -19,6 +20,7 @@ export default function Sidebar() {
     { name: "Products", href: "/admin/products", icon: Tag },
     { name: "Variations", href: "/admin/variations", icon: Sliders },
     { name: "Categories", href: "/admin/categories", icon: Layers },
+    { name: "Menu Manager", href: "/admin/menu", icon: MenuIcon },
     { name: "Customers", href: "/admin/customers", icon: Users },
     { name: "Reviews", href: "/admin/reviews", icon: MessageSquare },
     { name: "Blog Posts", href: "/admin/blog", icon: FileText },

@@ -221,7 +221,7 @@ export default function BlogUploadPage() {
                 required
               />
               {preview ? (
-                <Image src={preview} alt="Preview" fill unoptimized className="absolute inset-0 w-full h-full object-cover z-0 opacity-50" />
+                <Image src={preview} alt="Preview" fill unoptimized sizes="(max-width: 768px) 100vw, 800px" className="absolute inset-0 w-full h-full object-cover z-0 opacity-50" />
               ) : null}
               <div className="z-10 flex flex-col items-center bg-white/80 p-4 rounded-xl shadow-sm pointer-events-none">
                 <ImageIcon size={32} className="mb-3 text-gray-800" />

@@ -126,6 +126,7 @@ export default function SearchDrawer({ isOpen, onClose }: SearchDrawerProps) {
                         src={image}
                         alt={product.title}
                         fill
+                        sizes="56px"
                         className="object-cover group-hover:scale-105 transition-transform"
                       />
                     </div>

@@ -13,46 +13,47 @@
    ═══════════════════════════════════════════════════ */
 
 @theme {
-  /* ─── Joy Lab Palette ─── */
-  --color-joy-cream:   #FEFAF3; /* Base background — warmer than white */
-  --color-joy-navy:    #1A1F3A; /* Primary text + dark surfaces */
-  --color-joy-cobalt:  #043224; /* Primary brand color — dark hunter green */
-  --color-joy-coral:   #FF5533; /* CTAs, badges, urgency */
-  --color-joy-sun:     #FFB800; /* Stars, promos, warmth */
-  --color-joy-mist:    #EEF0F7; /* Card surfaces, hover backgrounds */
-  --color-joy-rule:    #D8DAE8; /* Borders, dividers */
-  --color-joy-muted:   #6B7280; /* Secondary text */
+  /* ─── Warm Human Palette — Hand-crafted toy shop feel ─── */
+  --color-joy-cream:   #FDF8F0; /* Warm parchment base — not sterile white */
+  --color-joy-navy:    #2C2416; /* Deep warm brown-navy for text */
+  --color-joy-cobalt:  #5428D8; /* Brand violet */
+  --color-joy-coral:   #E8470A; /* Warm terracotta CTAs */
+  --color-joy-sun:     #F5A623; /* Honey-amber warmth */
+  --color-joy-mist:    #FBF4EB; /* Warm card surfaces */
+  --color-joy-rule:    #E8DDD0; /* Warm parchment borders */
+  --color-joy-muted:   #7A6E62; /* Warm taupe secondary text */
 
-  /* ─── Semantic aliases (used in components) ─── */
-  --color-ink-black:   #1A1F3A;
-  --color-paper-white: #FEFAF3;
-  --color-paper-grey:  #EEF0F7;
-  --color-rule-grey:   #D8DAE8;
-  --color-stamp-red:   #FF5533; /* re-mapped to coral for CTAs */
-  --color-accent-yellow: #FFB800;
+  /* ─── Semantic aliases ─── */
+  --color-ink-black:   #2C2416;
+  --color-paper-white: #FDF8F0;
+  --color-paper-grey:  #FBF4EB;
+  --color-rule-grey:   #E8DDD0;
+  --color-stamp-red:   #E8470A;
+  --color-accent-yellow: #F5A623;
 
   /* ─── Typography ─── */
-  --font-display: var(--font-poppins), 'Poppins', var(--font-manrope), 'Manrope', sans-serif;
-  --font-heading: var(--font-poppins), 'Poppins', var(--font-manrope), 'Manrope', sans-serif;
-  --font-serif:   var(--font-poppins), 'Poppins', var(--font-manrope), 'Manrope', sans-serif;
-  --font-poppins: var(--font-poppins), 'Poppins', var(--font-manrope), 'Manrope', sans-serif;
-  --font-body:    var(--font-dm-sans), 'DM Sans', var(--font-manrope), 'Manrope', sans-serif;
-  --font-sans:    var(--font-dm-sans), 'DM Sans', var(--font-manrope), 'Manrope', sans-serif;
-  --font-mono:    var(--font-dm-sans), 'DM Sans', sans-serif;
-  --font-bengali: var(--font-bengali), 'Hind Siliguri', 'Noto Sans Bengali', sans-serif;
+  --font-display:  'Poppins', var(--font-poppins), sans-serif;
+  --font-heading:  'Poppins', var(--font-poppins), sans-serif;
+  --font-serif:    'Playfair Display', var(--font-playfair), Georgia, serif;
+  --font-playfair: 'Playfair Display', var(--font-playfair), Georgia, serif;
+  --font-poppins:  'Poppins', var(--font-poppins), sans-serif;
+  --font-body:     'Poppins', var(--font-poppins), sans-serif;
+  --font-sans:     'Poppins', var(--font-poppins), sans-serif;
+  --font-mono:     'Poppins', var(--font-poppins), sans-serif;
+  --font-bengali:  var(--font-bengali), 'Hind Siliguri', 'Noto Sans Bengali', sans-serif;
 
-  /* ─── Radii — rounded but not bubbly ─── */
+  /* ─── Radii — organic, not perfectly geometric ─── */
   --radius-none: 0px;
-  --radius-sm:   4px;
-  --radius-md:   8px;
-  --radius-lg:   12px;
-  --radius-xl:   16px;
-  --radius-2xl:  24px;
-  --radius-3xl:  32px;
-  --radius:      8px;
+  --radius-sm:   5px;
+  --radius-md:   10px;
+  --radius-lg:   14px;
+  --radius-xl:   18px;
+  --radius-2xl:  26px;
+  --radius-3xl:  36px;
+  --radius:      10px;
 
-  /* ─── Easing ─── */
-  --ease-joy:     cubic-bezier(0.34, 1.56, 0.64, 1); /* spring-like */
+  /* ─── Easing — natural, breath-like ─── */
+  --ease-joy:     cubic-bezier(0.34, 1.56, 0.64, 1);
   --ease-smooth:  cubic-bezier(0.25, 1, 0.5, 1);
 }
 
@@ -63,18 +64,19 @@
 html {
   /* Do NOT set scroll-behavior: smooth here — Lenis owns scroll smoothing.
      Setting both causes double-smoothing jank on desktop. */
-  background-color: #FEFAF3;
+  background-color: #FDF8F0;
 }
 
 body {
-  background-color: #FEFAF3;
-  color: #1A1F3A;
-  font-family: var(--font-dm-sans), 'DM Sans', var(--font-manrope), 'Manrope', sans-serif;
+  background-color: #FDF8F0;
+  color: #2C2416;
+  font-family: 'Poppins', var(--font-poppins), sans-serif;
   font-weight: 400;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
-  line-height: 1.6;
+  line-height: 1.65;
+  letter-spacing: 0.01em;
 }
 
 /* ═══════════════════════════════════════
@@ -93,11 +95,10 @@ img, video {
   will-change: transform;
 }
 
-/* Logo, Main Heading, Product Title, Price -> Poppins */
+/* Headings, Displays, Titles, Buttons, Links -> Poppins */
 h1, h2, h3, h4, h5, h6,
 .font-display,
 .font-heading,
-.font-serif,
 .font-poppins,
 .font-logo,
 .font-price,
@@ -105,10 +106,16 @@ h1, h2, h3, h4, h5, h6,
 .logo-text,
 .product-title,
 .price-tag {
-  font-family: var(--font-poppins), 'Poppins', var(--font-manrope), 'Manrope', sans-serif;
+  font-family: 'Poppins', var(--font-poppins), sans-serif;
 }
 
-/* Body text, Button, Nav text -> DM Sans */
+/* Editorial & Serif typography -> Playfair Display */
+.font-serif,
+.font-playfair {
+  font-family: 'Playfair Display', var(--font-playfair), Georgia, serif !important;
+}
+
+/* Body text, Button, Nav text -> Poppins */
 p, span, li, td, th, input, select, textarea, label,
 button,
 nav,
@@ -116,25 +123,24 @@ nav a,
 .font-body,
 .font-sans,
 .font-mono,
-.font-dm-sans,
 .font-button,
 .font-nav {
-  font-family: var(--font-dm-sans), 'DM Sans', var(--font-manrope), 'Manrope', sans-serif;
+  font-family: 'Poppins', var(--font-poppins), sans-serif;
 }
 
 /* Explicit Button Font Override */
 button, input[type="button"], input[type="submit"], [role="button"], .btn {
-  font-family: var(--font-dm-sans), 'DM Sans', var(--font-manrope), 'Manrope', sans-serif !important;
+  font-family: 'Poppins', var(--font-poppins), sans-serif !important;
 }
 
 /* Explicit Logo & Product Title & Price Font Overrides */
 [data-logo="true"], .brand-logo, .site-logo {
-  font-family: var(--font-poppins), 'Poppins', var(--font-manrope), 'Manrope', sans-serif !important;
+  font-family: 'Poppins', var(--font-poppins), sans-serif !important;
 }
 
 ::selection {
-  background-color: #043224;
-  color: #FEFAF3;
+  background-color: #5428D8;
+  color: #FDF8F0;
 }
 
 /* ═══════════════════════════════════════
@@ -142,19 +148,19 @@ button, input[type="button"], input[type="submit"], [role="button"], .btn {
    ═══════════════════════════════════════ */
 
 .font-display {
-  font-family: var(--font-poppins), 'Poppins', var(--font-manrope), 'Manrope', sans-serif;
+  font-family: 'Poppins', var(--font-poppins), sans-serif;
 }
 
 .font-body {
-  font-family: var(--font-dm-sans), 'DM Sans', var(--font-manrope), 'Manrope', sans-serif;
+  font-family: 'Poppins', var(--font-poppins), sans-serif;
 }
 
 .font-mono {
-  font-family: var(--font-dm-sans), 'DM Sans', sans-serif;
+  font-family: 'Poppins', var(--font-poppins), sans-serif;
 }
 
 .font-serif {
-  font-family: var(--font-poppins), 'Poppins', var(--font-manrope), 'Manrope', sans-serif;
+  font-family: 'Playfair Display', var(--font-playfair), Georgia, serif !important;
 }
 
 /* ═══════════════════════════════════════
@@ -162,7 +168,7 @@ button, input[type="button"], input[type="submit"], [role="button"], .btn {
    ═══════════════════════════════════════ */
 
 :focus-visible {
-  outline: 2px solid #043224;
+  outline: 2px solid #5428D8;
   outline-offset: 3px;
   border-radius: 4px;
 }
@@ -186,21 +192,21 @@ select:focus-visible {
 }
 
 ::-webkit-scrollbar-track {
-  background: #EEF0F7;
+  background: #FBF4EB;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #D8DAE8;
+  background: #E8DDD0;
   border-radius: 99px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #2D5BE3;
+  background: #5428D8;
 }
 
 * {
   scrollbar-width: thin;
-  scrollbar-color: #D8DAE8 #EEF0F7;
+  scrollbar-color: #E8DDD0 #FBF4EB;
 }
 
 /* ═══════════════════════════════════════
@@ -262,7 +268,6 @@ select:focus-visible {
 .joy-card-shadow:hover {
   box-shadow: 0 20px 48px rgba(26,31,58,0.14), 0 0 0 1px rgba(26,31,58,0.06);
 }
-
 /* ═══════════════════════════════════════
    Reduced Motion
    ═══════════════════════════════════════ */
@@ -299,4 +304,166 @@ select:focus-visible {
 
 .animate-joy-bounce {
   animation: joyBounce 2s ease-in-out infinite;
+}
+
+/* Custom Filter Scrollbar matching reference UI */
+.custom-filter-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: #2D1810 #F1EDE8;
+}
+.custom-filter-scroll::-webkit-scrollbar {
+  width: 5px;
+}
+.custom-filter-scroll::-webkit-scrollbar-track {
+  background: #F5EDE8;
+  border-radius: 9999px;
+}
+.custom-filter-scroll::-webkit-scrollbar-thumb {
+  background: #2D1810;
+  border-radius: 9999px;
+}
+
+/* ═══════════════════════════════════════
+   HUMAN TOUCH — Warm, Organic UI System
+   "Every pixel made with care, not code"
+   ═══════════════════════════════════════ */
+
+/* Warm card — parchment texture, soft organic shadow */
+.human-card {
+  background: #FFFFFF;
+  border: 1.5px solid #EDE4D8;
+  border-radius: 18px;
+  box-shadow:
+    0 1px 2px rgba(44,36,22,0.04),
+    0 4px 16px rgba(44,36,22,0.06),
+    0 0 0 0.5px rgba(44,36,22,0.03);
+  transition:
+    box-shadow 0.35s cubic-bezier(0.25,1,0.5,1),
+    transform   0.35s cubic-bezier(0.34,1.56,0.64,1),
+    border-color 0.25s ease;
+}
+.human-card:hover {
+  box-shadow:
+    0 2px 4px rgba(44,36,22,0.05),
+    0 12px 36px rgba(84,40,216,0.11),
+    0 0 0 1.5px rgba(84,40,216,0.12);
+  border-color: rgba(84,40,216,0.18);
+  transform: translateY(-3px) rotate(0.2deg);
+}
+
+/* Warm button — soft gradient, slightly imperfect press */
+.human-btn {
+  background: linear-gradient(135deg, #5428D8 0%, #6B3FEF 100%);
+  border-radius: 50px;
+  box-shadow:
+    0 2px 8px rgba(84,40,216,0.28),
+    inset 0 1px 0 rgba(255,255,255,0.15);
+  transition: all 0.2s cubic-bezier(0.34,1.56,0.64,1);
+}
+.human-btn:hover {
+  box-shadow:
+    0 6px 20px rgba(84,40,216,0.38),
+    inset 0 1px 0 rgba(255,255,255,0.2);
+  transform: translateY(-1px) scale(1.015);
+}
+.human-btn:active {
+  transform: translateY(1px) scale(0.985);
+  box-shadow: 0 1px 4px rgba(84,40,216,0.22);
+}
+
+/* Warm input — soft focus ring */
+.human-input {
+  background: #FEFCF8;
+  border: 1.5px solid #E8DDD0;
+  border-radius: 12px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.human-input:focus {
+  border-color: #5428D8;
+  box-shadow: 0 0 0 3px rgba(84,40,216,0.10);
+  background: #FFFFFF;
+}
+
+/* Warm page section backgrounds */
+.warm-section {
+  background: #FDF8F0;
+}
+.warm-section-alt {
+  background: linear-gradient(180deg, #FBF4EB 0%, #FDF8F0 100%);
+}
+
+/* Soft badge — honey warmth */
+.warm-badge {
+  background: linear-gradient(135deg, #FEF3C7, #FDE68A);
+  color: #92400E;
+  border: 1px solid #FCD34D;
+  border-radius: 50px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  box-shadow: 0 1px 3px rgba(146,64,14,0.12);
+}
+
+/* Product image — warm hover zoom */
+.product-img-human {
+  transition: transform 0.55s cubic-bezier(0.25,1,0.5,1);
+  transform-origin: center center;
+}
+.product-img-human:hover {
+  transform: scale(1.05) rotate(0.5deg);
+}
+
+/* Navbar — warm bottom border */
+.human-navbar {
+  background: #FFFFFF;
+  border-bottom: 1.5px solid #EDE4D8;
+  box-shadow: 0 1px 12px rgba(44,36,22,0.05);
+}
+
+/* Footer — warm top border */
+.human-footer {
+  background: #FDF8F0;
+  border-top: 1.5px solid #EDE4D8;
+}
+
+/* Price tag — warm and confident */
+.price-human {
+  color: #5428D8;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+.price-strike-human {
+  color: #B5A898;
+  font-weight: 400;
+}
+
+/* Warm announcement bar */
+.human-announce-bar {
+  background: linear-gradient(90deg, #5428D8, #7C3AED, #5428D8);
+  background-size: 200% 100%;
+  animation: warmBarFlow 8s linear infinite;
+}
+
+@keyframes warmBarFlow {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Section heading — slightly playful tilt */
+.section-heading-human {
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+}
+
+/* Cart drawer — warm background */
+.cart-drawer-human {
+  background: #FDFAF5;
+}
+
+/* Toast notification — warm */
+.toast-human {
+  background: #FFFFFF;
+  border: 1.5px solid #E8DDD0;
+  box-shadow: 0 8px 32px rgba(44,36,22,0.12), 0 2px 8px rgba(84,40,216,0.08);
+  border-radius: 16px;
 }

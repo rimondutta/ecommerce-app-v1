@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useMemo, Suspense, useTransition } from "react";
+import React, { useState, useMemo, Suspense, useTransition, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { m, AnimatePresence, useReducedMotion } from "framer-motion";
-import { X, ChevronDown, ChevronLeft, ChevronRight, Check } from "lucide-react";
-import ProductCardRimon from "@/components/ui/product-card-rimon";
+import { X, ChevronDown, ChevronLeft, ChevronRight, ChevronUp } from "lucide-react";
+import ProductCard, { ProductCardData } from "@/components/ui/ProductCard";
 import { cn } from "@/lib/utils";
 import {
   matchesAgeRange,
@@ -23,14 +23,19 @@ export interface PaginationInfo {
 }
 
 export interface CategoryItem {
+  _id?: string;
   slug: string;
   name: string;
+  count?: number;
 }
 
-export type ShopProduct = React.ComponentProps<typeof ProductCardRimon>["product"] & {
+export type ShopProduct = ProductCardData & {
   createdAt?: string;
   hasVariations?: boolean;
+  ageRange?: string;
   tags?: string[];
+  rating?: number;
+  reviewCount?: number;
   variationTypes?: Array<{
     _id: string;
     name: string;
@@ -54,108 +59,43 @@ export type ShopProduct = React.ComponentProps<typeof ProductCardRimon>["product
   }>;
 };
 
-function FilterPill({
-  label,
-  selected,
-  onClick,
-}: {
-  label: string;
-  selected: boolean;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      className={cn(
-        "font-display font-semibold text-sm px-4 py-2 rounded-xl transition-all duration-200 whitespace-nowrap",
-        selected
-          ? "bg-joy-cobalt text-white shadow-[0_4px_12px_rgba(45,91,227,0.3)]"
-          : "bg-joy-mist text-joy-navy hover:bg-joy-cobalt/10 hover:text-joy-cobalt"
-      )}
-    >
-      {label}
-    </button>
-  );
-}
+// Preset discount options matching reference image
+const PRESET_DISCOUNTS = [
+  { label: "Up to 5%", min: 0.1, max: 5 },
+  { label: "5% - 10%", min: 5, max: 10 },
+  { label: "10% - 15%", min: 10, max: 15 },
+  { label: "15% - 25%", min: 15, max: 25 },
+  { label: "25% or more", min: 25, max: 100 },
+];
 
-function formatAgeLabel(age: string): string {
-  const clean = age.trim();
-  if (/\b(?:year|years|yrs|yr|month|months|mth|m)\b/i.test(clean)) {
-    return clean;
-  }
-  return `${clean} Years`;
-}
-
-function formatAgePill(age: string): string {
-  const clean = age.trim();
-  if (/\b(?:year|years|yrs|yr|month|months|mth|m)\b/i.test(clean)) {
-    return clean;
-  }
-  return `${clean} yrs`;
-}
-
-function SidebarFilterItem({
-  label,
-  selected,
-  onClick,
-}: {
-  label: string;
-  selected: boolean;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      className="flex items-center gap-3 w-full group py-1.5 text-left"
-    >
-      <div
-        className={cn(
-          "w-4 h-4 rounded-md border-2 flex items-center justify-center transition-all shrink-0",
-          selected
-            ? "bg-joy-cobalt border-joy-cobalt"
-            : "border-joy-rule bg-white group-hover:border-joy-cobalt/50"
-        )}
-      >
-        {selected && (
-          <svg
-            width="8"
-            height="8"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="white"
-            strokeWidth="3.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M20 6L9 17l-5-5" />
-          </svg>
-        )}
-      </div>
-      <span
-        className={cn(
-          "font-display font-medium text-sm transition-colors",
-          selected ? "text-joy-navy font-semibold" : "text-joy-muted group-hover:text-joy-navy"
-        )}
-      >
-        {label}
-      </span>
-    </button>
-  );
-}
-
-function productMatchesVariants(product: ShopProduct, selectedSlugs: string[]): boolean {
+function productMatchesVariants(
+  product: ShopProduct,
+  selectedSlugs: string[],
+  variationFilters?: VariationFilterGroup[]
+): boolean {
   if (!selectedSlugs || selectedSlugs.length === 0) return true;
   if (!product.hasVariations || !Array.isArray(product.variants) || product.variants.length === 0) {
     return false;
   }
 
-  // Every selected slug should be satisfied by at least one active variant of the product
+  // Lookup map for unpopulated variationValue IDs
+  const idToValueMap = new Map<string, { slug: string; value: string }>();
+  if (variationFilters) {
+    variationFilters.forEach((g) => {
+      g.values?.forEach((v) => {
+        idToValueMap.set(String(v._id), {
+          slug: v.slug.toLowerCase(),
+          value: v.value.toLowerCase(),
+        });
+      });
+    });
+  }
+
   return selectedSlugs.every((slug) => {
     const target = slug.toLowerCase();
     return product.variants!.some((v) => {
       if (v.isActive === false) return false;
 
-      // 1. Check combination items
       if (Array.isArray(v.combination)) {
         const match = v.combination.some((c) => {
           const valObj = c.variationValue;
@@ -166,6 +106,10 @@ function productMatchesVariants(product: ShopProduct, selectedSlugs: string[]): 
             return vSlug === target || vVal === target;
           }
           if (typeof valObj === "string") {
+            const mapped = idToValueMap.get(valObj);
+            if (mapped && (mapped.slug === target || mapped.value === target)) {
+              return true;
+            }
             return valObj.toLowerCase() === target;
           }
           return false;
@@ -173,7 +117,6 @@ function productMatchesVariants(product: ShopProduct, selectedSlugs: string[]): 
         if (match) return true;
       }
 
-      // 2. Check combinationLabel (e.g. "Red / M")
       if (v.combinationLabel && typeof v.combinationLabel === "string") {
         const parts = v.combinationLabel.toLowerCase().split(/\s*[\/\-,]\s*/);
         if (parts.includes(target) || v.combinationLabel.toLowerCase().includes(target)) {
@@ -181,7 +124,6 @@ function productMatchesVariants(product: ShopProduct, selectedSlugs: string[]): 
         }
       }
 
-      // 3. Check SKU (e.g. "PRD-RED")
       if (v.sku && typeof v.sku === "string" && v.sku.toLowerCase().includes(target)) {
         return true;
       }
@@ -195,6 +137,8 @@ function ShopGridPure({
   initialProducts,
   allCategories,
   variationFilters,
+  availableSizes,
+  availableColors,
   ageRanges: ageRangesProp,
   pagination,
   categoryParam,
@@ -202,10 +146,16 @@ function ShopGridPure({
   variantParam,
   searchParam,
   tagParam,
+  minPriceParam,
+  maxPriceParam,
+  ratingParam,
+  discountParam,
 }: {
   initialProducts: ShopProduct[];
   allCategories?: CategoryItem[];
   variationFilters?: VariationFilterGroup[];
+  availableSizes?: Array<{ label: string; slug: string }>;
+  availableColors?: Array<{ name: string; hex: string; slug: string }>;
   ageRanges?: string[];
   pagination?: PaginationInfo;
   categoryParam: string | null;
@@ -213,6 +163,10 @@ function ShopGridPure({
   variantParam: string | null;
   searchParam: string | null;
   tagParam: string | null;
+  minPriceParam: string | null;
+  maxPriceParam: string | null;
+  ratingParam: string | null;
+  discountParam: string | null;
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -221,6 +175,22 @@ function ShopGridPure({
 
   const [sortBy, setSortBy] = useState("featured");
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
+
+  // Price inputs local state
+  const [minPriceInput, setMinPriceInput] = useState(minPriceParam || "");
+  const [maxPriceInput, setMaxPriceInput] = useState(maxPriceParam || "");
+
+  // Scroll ref for category list
+  const categoryScrollRef = useRef<HTMLDivElement>(null);
+
+  // Multi-category selected slugs/names
+  const selectedCategorySlugs = useMemo(() => {
+    if (!categoryParam) return [];
+    return categoryParam
+      .split(",")
+      .map((s) => s.trim().toLowerCase())
+      .filter(Boolean);
+  }, [categoryParam]);
 
   const selectedVariantSlugs = useMemo(() => {
     if (!variantParam) return [];
@@ -239,9 +209,46 @@ function ShopGridPure({
     if (searchParam) currentParams.set("search", searchParam);
     if (variantParam) currentParams.set("variant", variantParam);
     if (tagParam) currentParams.set("tag", tagParam);
+    if (minPriceParam) currentParams.set("minPrice", minPriceParam);
+    if (maxPriceParam) currentParams.set("maxPrice", maxPriceParam);
+    if (ratingParam) currentParams.set("rating", ratingParam);
+    if (discountParam) currentParams.set("discount", discountParam);
 
-    if (value === null) currentParams.delete(key);
+    if (value === null || value === "") currentParams.delete(key);
     else currentParams.set(key, value);
+
+    startTransition(() => {
+      const q = currentParams.toString();
+      router.push(q ? `/products?${q}` : "/products", { scroll: false });
+    });
+  };
+
+  const toggleCategory = (slugOrName: string) => {
+    const clean = slugOrName.trim().toLowerCase();
+    let updated: string[];
+    if (selectedCategorySlugs.includes(clean)) {
+      updated = selectedCategorySlugs.filter((s) => s !== clean);
+    } else {
+      updated = [...selectedCategorySlugs, clean];
+    }
+    updateFilters("category", updated.length > 0 ? updated.join(",") : null);
+  };
+
+  const handleApplyPrice = () => {
+    const currentParams = new URLSearchParams(searchParams?.toString() || "");
+    currentParams.delete("page");
+
+    if (minPriceInput.trim()) {
+      currentParams.set("minPrice", minPriceInput.trim());
+    } else {
+      currentParams.delete("minPrice");
+    }
+
+    if (maxPriceInput.trim()) {
+      currentParams.set("maxPrice", maxPriceInput.trim());
+    } else {
+      currentParams.delete("maxPrice");
+    }
 
     startTransition(() => {
       const q = currentParams.toString();
@@ -260,12 +267,6 @@ function ShopGridPure({
     updateFilters("variant", updated.length > 0 ? updated.join(",") : null);
   };
 
-  const clearVariantGroup = (group: VariationFilterGroup) => {
-    const groupSlugs = group.values.map((v) => v.slug.toLowerCase());
-    const remaining = selectedVariantSlugs.filter((s) => !groupSlugs.includes(s));
-    updateFilters("variant", remaining.length > 0 ? remaining.join(",") : null);
-  };
-
   const goToPage = (newPage: number) => {
     const currentParams = new URLSearchParams(searchParams?.toString() || "");
     currentParams.set("page", newPage.toString());
@@ -274,41 +275,89 @@ function ShopGridPure({
     });
   };
 
-  const categories = useMemo(() => {
+  // Pure dynamic categories from database / server
+  const categories: CategoryItem[] = useMemo(() => {
     if (allCategories && allCategories.length > 0) {
       return allCategories;
     }
-    const m = new Map<string, string>();
+    const m = new Map<string, CategoryItem>();
     initialProducts.forEach((p: ShopProduct) => {
       const cat = typeof p.category === "object" && p.category !== null ? p.category : null;
-      if (cat?.name && cat?.slug) m.set(cat.slug, cat.name);
+      if (cat?.name && cat?.slug) {
+        m.set(cat.slug.toLowerCase(), { slug: cat.slug, name: cat.name });
+      }
     });
-    return Array.from(m.entries()).map(([slug, name]) => ({ slug, name }));
+    return Array.from(m.values());
   }, [allCategories, initialProducts]);
 
+  // Compute product count per category dynamically
+  const fallbackCategoryCounts = useMemo(() => {
+    const counts = new Map<string, number>();
+    initialProducts.forEach((p: ShopProduct) => {
+      const cat = typeof p.category === "object" && p.category !== null ? p.category : null;
+      if (cat?.slug) {
+        const s = cat.slug.toLowerCase();
+        counts.set(s, (counts.get(s) || 0) + 1);
+      }
+      if (cat?.name) {
+        const n = cat.name.toLowerCase();
+        counts.set(n, (counts.get(n) || 0) + 1);
+      }
+    });
+    return counts;
+  }, [initialProducts]);
+
   const ageRanges = useMemo(() => {
-    // 1. Prefer server-provided dynamic list (from DB distinct)
     if (ageRangesProp && ageRangesProp.length > 0) return ageRangesProp;
-    // 2. Derive from current page's products as fallback
     const seen = new Set<string>();
     initialProducts.forEach((p) => {
       if (p.ageRange && typeof p.ageRange === "string" && p.ageRange.trim()) {
         seen.add(p.ageRange.trim());
       }
     });
-    // 3. If nothing in products, return a sensible static default
     return seen.size > 0 ? sortAgeRanges(Array.from(seen)) : ["0-1", "1-3", "3-5", "5-8", "8+"];
   }, [ageRangesProp, initialProducts]);
 
   const filteredProducts = useMemo(() => {
     const result = initialProducts.filter((p: ShopProduct) => {
       const cat = typeof p.category === "object" && p.category !== null ? p.category : null;
-      const catMatch = !categoryParam || cat?.slug === categoryParam || cat?.name === categoryParam;
+
+      // Category matching (supports multi-category)
+      const catMatch =
+        selectedCategorySlugs.length === 0 ||
+        selectedCategorySlugs.some(
+          (sel) =>
+            cat?.slug?.toLowerCase() === sel ||
+            cat?.name?.toLowerCase() === sel
+        );
+
       const ageMatch = !ageParam || matchesAgeRange(p.ageRange, ageParam);
       const searchMatch = !searchParam || p.title.toLowerCase().includes(searchParam.toLowerCase());
-      const variantMatch = productMatchesVariants(p, selectedVariantSlugs);
+      const variantMatch = productMatchesVariants(p, selectedVariantSlugs, variationFilters);
       const tagMatch = !tagParam || (Array.isArray(p.tags) && p.tags.some((t) => t.toLowerCase() === tagParam.toLowerCase()));
-      return catMatch && ageMatch && searchMatch && variantMatch && tagMatch;
+
+      // Price filter
+      const minP = minPriceParam ? parseFloat(minPriceParam) : 0;
+      const maxP = maxPriceParam ? parseFloat(maxPriceParam) : Infinity;
+      const priceMatch = p.price >= minP && p.price <= maxP;
+
+      // Rating filter
+      const minR = ratingParam ? parseFloat(ratingParam) : 0;
+      const ratingMatch = minR === 0 || ((p.rating || 4.5) >= minR);
+
+      // Discount filter
+      let discountMatch = true;
+      if (discountParam) {
+        const discPct = p.compareAtPrice && p.compareAtPrice > p.price
+          ? Math.round(((p.compareAtPrice - p.price) / p.compareAtPrice) * 100)
+          : 0;
+        const [dMin, dMax] = discountParam.split("-").map(Number);
+        if (!isNaN(dMin)) {
+          discountMatch = discPct >= dMin && (isNaN(dMax) ? true : discPct <= dMax);
+        }
+      }
+
+      return catMatch && ageMatch && searchMatch && variantMatch && tagMatch && priceMatch && ratingMatch && discountMatch;
     });
 
     if (sortBy === "price-low") result.sort((a: ShopProduct, b: ShopProduct) => a.price - b.price);
@@ -319,9 +368,228 @@ function ShopGridPure({
           new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()
       );
     return result;
-  }, [initialProducts, categoryParam, ageParam, sortBy, searchParam, selectedVariantSlugs, tagParam]);
+  }, [initialProducts, selectedCategorySlugs, ageParam, sortBy, searchParam, selectedVariantSlugs, tagParam, minPriceParam, maxPriceParam, ratingParam, discountParam, variationFilters]);
+
+  // Pure dynamic sizes extracted from variable products and variation types added in dashboard
+  const dynamicSizes = useMemo(() => {
+    // 1. If server passed availableSizes that are in actual variable products
+    if (availableSizes && availableSizes.length > 0) {
+      return availableSizes;
+    }
+
+    // 2. Client-side dynamic discovery: check if any product actually has variations
+    const variableProds = initialProducts.filter(
+      (p) => p.hasVariations && Array.isArray(p.variants) && p.variants.length > 0
+    );
+
+    if (variableProds.length === 0 && (!availableSizes || availableSizes.length === 0)) {
+      // No variable products at all -> do NOT show SIZE
+      return [];
+    }
+
+    const sizeGroup = variationFilters?.find((g) => {
+      const n = (g.name || "").toLowerCase();
+      const s = (g.slug || "").toLowerCase();
+      return (
+        s === "size" ||
+        s === "sizes" ||
+        n === "size" ||
+        n === "sizes" ||
+        s.includes("size") ||
+        n.includes("size") ||
+        n.includes("সাইজ")
+      );
+    });
+
+    const sizesMap = new Map<string, { label: string; slug: string }>();
+
+    variableProds.forEach((p) => {
+      p.variants?.forEach((v) => {
+        if (v.isActive === false) return;
+
+        if (Array.isArray(v.combination)) {
+          v.combination.forEach((c) => {
+            const valObj = c.variationValue;
+            const typeObj = c.variationType;
+
+            const isSizeType =
+              (typeof typeObj === "object" &&
+                typeObj !== null &&
+                ((typeObj.slug && typeObj.slug.toLowerCase().includes("size")) ||
+                  (typeObj.name && typeObj.name.toLowerCase().includes("size")))) ||
+              (sizeGroup &&
+                (c.variationType === sizeGroup._id ||
+                  (typeof typeObj === "object" && typeObj?._id === sizeGroup._id)));
+
+            if (typeof valObj === "object" && valObj !== null && valObj.value) {
+              if (isSizeType || !typeObj) {
+                const s = (valObj.slug || valObj.value).toLowerCase();
+                if (!sizesMap.has(s)) {
+                  sizesMap.set(s, { label: valObj.value, slug: valObj.slug || s });
+                }
+              }
+            } else if (typeof valObj === "string" && sizeGroup) {
+              const matchedVal = sizeGroup.values.find((gv) => gv._id === valObj || gv.slug === valObj);
+              if (matchedVal) {
+                const s = matchedVal.slug.toLowerCase();
+                if (!sizesMap.has(s)) {
+                  sizesMap.set(s, { label: matchedVal.value, slug: matchedVal.slug });
+                }
+              }
+            }
+          });
+        }
+
+        if (sizesMap.size === 0 && v.combinationLabel && typeof v.combinationLabel === "string") {
+          const parts = v.combinationLabel.split(/\s*[\/\-,]\s*/).map((s) => s.trim());
+          parts.forEach((part) => {
+            if (part) {
+              const matchedVal = sizeGroup?.values.find(
+                (gv) => gv.value.toLowerCase() === part.toLowerCase() || gv.slug.toLowerCase() === part.toLowerCase()
+              );
+              if (matchedVal) {
+                const s = matchedVal.slug.toLowerCase();
+                if (!sizesMap.has(s)) {
+                  sizesMap.set(s, { label: matchedVal.value, slug: matchedVal.slug });
+                }
+              }
+            }
+          });
+        }
+      });
+    });
+
+    if (sizesMap.size === 0 && variableProds.length > 0 && sizeGroup && sizeGroup.values.length > 0) {
+      sizeGroup.values.forEach((v) => {
+        sizesMap.set(v.slug.toLowerCase(), { label: v.value, slug: v.slug });
+      });
+    }
+
+    return Array.from(sizesMap.values());
+  }, [availableSizes, variationFilters, initialProducts]);
+
+  // Pure dynamic colors extracted from variable products and variation types added in dashboard
+  const dynamicColors = useMemo(() => {
+    // 1. If server passed availableColors that are in actual variable products
+    if (availableColors && availableColors.length > 0) {
+      return availableColors;
+    }
+
+    // 2. Client-side dynamic discovery: check if any product actually has variations
+    const variableProds = initialProducts.filter(
+      (p) => p.hasVariations && Array.isArray(p.variants) && p.variants.length > 0
+    );
+
+    if (variableProds.length === 0 && (!availableColors || availableColors.length === 0)) {
+      // No variable products at all -> do NOT show COLORS
+      return [];
+    }
+
+    const colorGroup = variationFilters?.find((g) => {
+      const n = (g.name || "").toLowerCase();
+      const s = (g.slug || "").toLowerCase();
+      const d = (g.displayType || "").toLowerCase();
+      return (
+        d === "swatch" ||
+        s === "color" ||
+        s === "colour" ||
+        s === "colors" ||
+        n === "color" ||
+        n === "colour" ||
+        n === "colors" ||
+        s.includes("color") ||
+        n.includes("color") ||
+        n.includes("colour") ||
+        n.includes("রং")
+      );
+    });
+
+    const colorsMap = new Map<string, { name: string; hex: string; slug: string }>();
+
+    variableProds.forEach((p) => {
+      p.variants?.forEach((v) => {
+        if (v.isActive === false) return;
+
+        if (Array.isArray(v.combination)) {
+          v.combination.forEach((c) => {
+            const valObj = c.variationValue;
+            const typeObj = c.variationType;
+
+            const isColorType =
+              (typeof typeObj === "object" &&
+                typeObj !== null &&
+                ((typeObj.slug && typeObj.slug.toLowerCase().includes("color")) ||
+                  (typeObj.name && typeObj.name.toLowerCase().includes("color")))) ||
+              (colorGroup &&
+                (c.variationType === colorGroup._id ||
+                  (typeof typeObj === "object" && typeObj?._id === colorGroup._id)));
+
+            if (typeof valObj === "object" && valObj !== null && valObj.value) {
+              if (isColorType || valObj.colorHex || !typeObj) {
+                const s = (valObj.slug || valObj.value).toLowerCase();
+                if (!colorsMap.has(s)) {
+                  colorsMap.set(s, {
+                    name: valObj.value,
+                    hex: valObj.colorHex || getColorFallback(valObj.value),
+                    slug: valObj.slug || s,
+                  });
+                }
+              }
+            } else if (typeof valObj === "string" && colorGroup) {
+              const matchedVal = colorGroup.values.find((gv) => gv._id === valObj || gv.slug === valObj);
+              if (matchedVal) {
+                const s = matchedVal.slug.toLowerCase();
+                if (!colorsMap.has(s)) {
+                  colorsMap.set(s, {
+                    name: matchedVal.value,
+                    hex: matchedVal.colorHex || getColorFallback(matchedVal.value),
+                    slug: matchedVal.slug,
+                  });
+                }
+              }
+            }
+          });
+        }
+
+        if (colorsMap.size === 0 && v.combinationLabel && typeof v.combinationLabel === "string") {
+          const parts = v.combinationLabel.split(/\s*[\/\-,]\s*/).map((s) => s.trim());
+          parts.forEach((part) => {
+            if (part) {
+              const matchedVal = colorGroup?.values.find(
+                (gv) => gv.value.toLowerCase() === part.toLowerCase() || gv.slug.toLowerCase() === part.toLowerCase()
+              );
+              if (matchedVal) {
+                const s = matchedVal.slug.toLowerCase();
+                if (!colorsMap.has(s)) {
+                  colorsMap.set(s, {
+                    name: matchedVal.value,
+                    hex: matchedVal.colorHex || getColorFallback(matchedVal.value),
+                    slug: matchedVal.slug,
+                  });
+                }
+              }
+            }
+          });
+        }
+      });
+    });
+
+    if (colorsMap.size === 0 && variableProds.length > 0 && colorGroup && colorGroup.values.length > 0) {
+      colorGroup.values.forEach((v) => {
+        colorsMap.set(v.slug.toLowerCase(), {
+          name: v.value,
+          hex: v.colorHex || getColorFallback(v.value),
+          slug: v.slug,
+        });
+      });
+    }
+
+    return Array.from(colorsMap.values());
+  }, [availableColors, variationFilters, initialProducts]);
 
   const clearFilters = () => {
+    setMinPriceInput("");
+    setMaxPriceInput("");
     startTransition(() => {
       router.push("/products", { scroll: false });
     });
@@ -331,84 +599,320 @@ function ShopGridPure({
     categoryParam,
     ageParam,
     tagParam,
+    minPriceParam,
+    maxPriceParam,
+    ratingParam,
+    discountParam,
     ...(selectedVariantSlugs.length > 0 ? selectedVariantSlugs : []),
   ].filter(Boolean).length;
 
   const totalDisplayCount = pagination?.total ?? filteredProducts.length;
 
+  // Helper to scroll category container up/down
+  const scrollCategories = (direction: "up" | "down") => {
+    if (!categoryScrollRef.current) return;
+    categoryScrollRef.current.scrollBy({
+      top: direction === "up" ? -60 : 60,
+      behavior: "smooth",
+    });
+  };
+
+  /* ─────────────────────────────────────────────────────────────
+     RENDER: Reusable Filter Panel (Shared for Desktop & Mobile)
+     Matching the Reference UI with 100% Dynamic Categories
+     ───────────────────────────────────────────────────────────── */
+  const renderFilterContent = () => (
+    <div className="space-y-6 text-[#2D1810]">
+      {/* ── 1. CATEGORY (100% Dynamic from Database) ── */}
+      <div>
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-[#2D1810]">
+            CATEGORY
+          </h3>
+          {categories.length > 5 && (
+            <div className="flex items-center gap-1">
+              <button
+                type="button"
+                onClick={() => scrollCategories("up")}
+                className="p-0.5 text-stone-500 hover:text-[#2D1810] transition-colors cursor-pointer"
+                aria-label="Scroll categories up"
+              >
+                <ChevronUp size={14} strokeWidth={2.5} />
+              </button>
+              <button
+                type="button"
+                onClick={() => scrollCategories("down")}
+                className="p-0.5 text-stone-500 hover:text-[#2D1810] transition-colors cursor-pointer"
+                aria-label="Scroll categories down"
+              >
+                <ChevronDown size={14} strokeWidth={2.5} />
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Scrollable list of database categories */}
+        <div
+          ref={categoryScrollRef}
+          className="max-h-52 overflow-y-auto space-y-2.5 pr-2 custom-filter-scroll"
+        >
+          {categories.length > 0 ? (
+            categories.map((cat) => {
+              const isSelected =
+                selectedCategorySlugs.includes(cat.slug.toLowerCase()) ||
+                selectedCategorySlugs.includes(cat.name.toLowerCase());
+              const count =
+                cat.count !== undefined
+                  ? cat.count
+                  : fallbackCategoryCounts.get(cat.slug.toLowerCase()) ??
+                    fallbackCategoryCounts.get(cat.name.toLowerCase());
+
+              return (
+                <label
+                  key={cat.slug}
+                  className="flex items-center justify-between gap-3 text-sm font-normal text-stone-700 hover:text-[#2D1810] cursor-pointer select-none group py-0.5"
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <input
+                      type="checkbox"
+                      checked={isSelected}
+                      onChange={() => toggleCategory(cat.slug || cat.name)}
+                      className="w-4 h-4 rounded border-stone-300 text-[#2D1810] accent-[#2D1810] focus:ring-0 cursor-pointer shrink-0"
+                    />
+                    <span
+                      className={cn(
+                        "transition-colors truncate",
+                        isSelected && "font-semibold text-[#2D1810]"
+                      )}
+                    >
+                      {cat.name}
+                    </span>
+                  </div>
+                  {count !== undefined && count > 0 && (
+                    <span className="text-xs text-stone-400 font-normal shrink-0">
+                      ({count})
+                    </span>
+                  )}
+                </label>
+              );
+            })
+          ) : (
+            <p className="text-xs text-stone-400 py-1">No categories found</p>
+          )}
+        </div>
+      </div>
+
+      {/* ── 2. PRICE RANGE ── */}
+      <div className="pt-2">
+        <h3 className="text-xs font-bold uppercase tracking-wider text-[#2D1810] mb-3">
+          PRICE RANGE
+        </h3>
+        <div className="flex items-center gap-2">
+          <input
+            type="number"
+            placeholder="Min"
+            value={minPriceInput}
+            onChange={(e) => setMinPriceInput(e.target.value)}
+            className="w-full bg-white text-[#2D1810] text-sm text-center placeholder:text-stone-400 rounded-2xl border border-stone-200 py-2 px-3 focus:outline-none focus:border-[#2D1810] transition-colors"
+          />
+          <span className="text-stone-400 font-medium px-1">-</span>
+          <input
+            type="number"
+            placeholder="Max"
+            value={maxPriceInput}
+            onChange={(e) => setMaxPriceInput(e.target.value)}
+            className="w-full bg-white text-[#2D1810] text-sm text-center placeholder:text-stone-400 rounded-2xl border border-stone-200 py-2 px-3 focus:outline-none focus:border-[#2D1810] transition-colors"
+          />
+        </div>
+        <button
+          type="button"
+          onClick={handleApplyPrice}
+          className="w-full mt-2.5 py-2.5 px-4 rounded-full bg-[#F5EDE8] hover:bg-[#EBDDD4] text-[#2D1810] font-bold text-xs uppercase tracking-wider transition-colors text-center cursor-pointer shadow-xs"
+        >
+          Apply
+        </button>
+      </div>
+
+      {/* ── 3. RATING ── */}
+      <div className="pt-2">
+        <h3 className="text-xs font-bold uppercase tracking-wider text-[#2D1810] mb-3">
+          RATING
+        </h3>
+        <div className="space-y-2">
+          {[5, 4, 3, 2, 1].map((stars) => {
+            const isSelected = ratingParam === String(stars);
+            return (
+              <label
+                key={stars}
+                className="flex items-center gap-2.5 text-sm cursor-pointer select-none group"
+              >
+                <input
+                  type="checkbox"
+                  checked={isSelected}
+                  onChange={() => updateFilters("rating", isSelected ? null : String(stars))}
+                  className="w-4 h-4 rounded border-stone-300 text-[#2D1810] accent-[#2D1810] focus:ring-0 cursor-pointer"
+                />
+                <div className="flex items-center gap-1 text-[#C88A2D]">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <span key={i} className="text-base leading-none">
+                      {i < stars ? "★" : "☆"}
+                    </span>
+                  ))}
+                  <span className="text-xs font-medium text-[#78716C] ml-1.5">
+                    & up
+                  </span>
+                </div>
+              </label>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* ── 4. COLORS (Dynamic: shows only when admin adds color in variable product) ── */}
+      {dynamicColors.length > 0 && (
+        <div className="pt-2">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-[#2D1810] mb-3">
+            COLORS
+          </h3>
+          <div className="flex items-center gap-2.5 flex-wrap">
+            {dynamicColors.map((col) => {
+              const isSelected =
+                selectedVariantSlugs.includes(col.slug.toLowerCase()) ||
+                selectedVariantSlugs.includes(col.name.toLowerCase());
+              const isLight = isColorLight(col.hex);
+              return (
+                <button
+                  key={col.slug}
+                  type="button"
+                  onClick={() => toggleVariant(col.slug)}
+                  title={col.name}
+                  className={cn(
+                    "w-7 h-7 rounded-full transition-all flex items-center justify-center cursor-pointer focus:outline-none",
+                    isLight && "border border-stone-300",
+                    isSelected
+                      ? "ring-2 ring-offset-2 ring-[#2D1810] scale-110 shadow-xs"
+                      : "hover:scale-105"
+                  )}
+                  style={{ backgroundColor: col.hex }}
+                />
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* ── 5. SIZE (Dynamic: shows only when admin adds size in variable product) ── */}
+      {dynamicSizes.length > 0 && (
+        <div className="pt-2">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-[#2D1810] mb-3">
+            SIZE
+          </h3>
+          <div className="flex flex-wrap gap-2">
+            {dynamicSizes.map((size) => {
+              const isSelected =
+                selectedVariantSlugs.includes(size.slug.toLowerCase()) ||
+                selectedVariantSlugs.includes(size.label.toLowerCase());
+              return (
+                <button
+                  key={size.slug}
+                  type="button"
+                  onClick={() => toggleVariant(size.slug)}
+                  className={cn(
+                    "rounded-2xl px-3.5 py-2 text-xs font-medium transition-colors cursor-pointer",
+                    isSelected
+                      ? "bg-[#2D1810] text-white font-bold shadow-xs"
+                      : "bg-[#F5EDE8] text-[#2D1810] hover:bg-[#EBDDD4]"
+                  )}
+                >
+                  {size.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* ── 6. DISCOUNT ── */}
+      <div className="pt-2">
+        <h3 className="text-xs font-bold uppercase tracking-wider text-[#2D1810] mb-3">
+          DISCOUNT
+        </h3>
+        <div className="space-y-2">
+          {PRESET_DISCOUNTS.map((disc) => {
+            const key = `${disc.min}-${disc.max}`;
+            const isSelected = discountParam === key;
+            return (
+              <label
+                key={key}
+                className="flex items-center gap-2.5 text-sm font-normal text-stone-700 hover:text-[#2D1810] cursor-pointer select-none group"
+              >
+                <input
+                  type="checkbox"
+                  checked={isSelected}
+                  onChange={() => updateFilters("discount", isSelected ? null : key)}
+                  className="w-4 h-4 rounded border-stone-300 text-[#2D1810] accent-[#2D1810] focus:ring-0 cursor-pointer"
+                />
+                <span className={cn("transition-colors", isSelected && "font-semibold text-[#2D1810]")}>
+                  {disc.label}
+                </span>
+              </label>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+
   return (
-    <div suppressHydrationWarning className="flex-1 bg-joy-cream min-h-screen text-joy-navy font-body">
-      <section className="relative bg-joy-cream pb-4 pt-32 lg:pt-36">
-        <div className="px-4 sm:px-8 lg:px-[5vw] py-5 flex items-end justify-between border-b border-joy-rule">
-          <h1 className="font-display font-bold text-4xl md:text-5xl text-joy-navy tracking-tight">
-            {tagParam === "specialoffer" ? "Special Offers" : (categoryParam || "All Toys")}
-          </h1>
-          <span className="font-body text-sm text-joy-muted mb-1">
+    <div suppressHydrationWarning className="flex-1 bg-[#FAF7F2] min-h-screen text-[#2D1810] font-body">
+      {/* ── Top Header Section ── */}
+      <section className="relative pb-4 pt-28 lg:pt-32">
+        <div className="max-w-[1360px] mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-end justify-between border-b border-stone-200/80">
+          <div>
+            <h1 className="font-extrabold text-3xl md:text-4xl text-[#2D1810] tracking-tight">
+              {tagParam === "specialoffer" ? "Special Deals" : (categoryParam ? categoryParam.split(",").join(", ") : "All Products")}
+            </h1>
+            <p className="text-xs sm:text-sm text-stone-500 mt-1">
+              Find the perfect match from our curated collection
+            </p>
+          </div>
+          <span className="text-sm font-medium text-stone-500 mb-1">
             {totalDisplayCount} {totalDisplayCount === 1 ? "product" : "products"}
           </span>
         </div>
 
-        <div className="px-4 sm:px-8 lg:px-[5vw] py-4 flex items-center justify-between gap-4">
+        {/* ── Mobile Filter Trigger & Desktop Sort ── */}
+        <div className="max-w-[1360px] mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-4">
           <button
+            type="button"
             onClick={() => setIsMobileFiltersOpen(true)}
             className={cn(
-              "lg:hidden flex items-center gap-2 font-display font-semibold text-sm px-4 py-2.5 rounded-xl border-2 transition-all",
+              "lg:hidden flex items-center gap-2 font-bold text-xs uppercase tracking-wider px-4 py-2.5 rounded-full border transition-all cursor-pointer",
               activeFilterCount > 0
-                ? "border-joy-cobalt text-joy-cobalt bg-joy-cobalt/5"
-                : "border-joy-rule text-joy-navy hover:border-joy-cobalt/50"
+                ? "border-[#2D1810] text-white bg-[#2D1810]"
+                : "border-stone-300 text-[#2D1810] bg-white hover:border-[#2D1810]"
             )}
           >
             Filters
             {activeFilterCount > 0 && (
-              <span className="bg-joy-cobalt text-white w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold">
+              <span className="bg-[#F5EDE8] text-[#2D1810] w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold">
                 {activeFilterCount}
               </span>
             )}
           </button>
 
-          <div className="hidden lg:flex items-center gap-2 flex-wrap">
-            <FilterPill
-              label="All"
-              selected={!categoryParam && !tagParam}
-              onClick={() => {
-                const currentParams = new URLSearchParams(searchParams?.toString() || "");
-                currentParams.delete("page");
-                currentParams.delete("category");
-                currentParams.delete("tag");
-                startTransition(() => {
-                  const q = currentParams.toString();
-                  router.push(q ? `/products?${q}` : "/products", { scroll: false });
-                });
-              }}
-            />
-            <FilterPill
-              label="⭐ Special Offers"
-              selected={tagParam === "specialoffer"}
-              onClick={() => updateFilters("tag", tagParam === "specialoffer" ? null : "specialoffer")}
-            />
-            {categories.map((cat) => (
-              <FilterPill
-                key={cat.slug}
-                label={cat.name}
-                selected={categoryParam === cat.name || categoryParam === cat.slug}
-                onClick={() =>
-                  updateFilters("category", categoryParam === cat.name ? null : cat.name)
-                }
-              />
-            ))}
-          </div>
-
           <div className="flex-1 hidden lg:block" />
 
-          <div className="relative flex items-center gap-3 shrink-0">
-            <span className="font-display font-medium text-sm text-joy-muted hidden sm:block">
+          {/* Sort By Dropdown */}
+          <div className="relative flex items-center gap-2 ml-auto">
+            <span className="text-xs font-bold uppercase tracking-wider text-stone-500 hidden sm:block">
               Sort by:
             </span>
             <div className="relative">
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="appearance-none font-display font-semibold text-sm text-joy-navy bg-joy-mist px-4 py-2 pr-8 rounded-xl focus:outline-none focus:ring-2 focus:ring-joy-cobalt/30 cursor-pointer"
+                className="appearance-none font-semibold text-xs sm:text-sm text-[#2D1810] bg-white border border-stone-200 px-4 py-2 pr-8 rounded-full focus:outline-none focus:border-[#2D1810] cursor-pointer shadow-xs"
                 suppressHydrationWarning
               >
                 <option value="featured">Featured</option>
@@ -418,244 +922,106 @@ function ShopGridPure({
               </select>
               <ChevronDown
                 size={14}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-joy-muted pointer-events-none"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 pointer-events-none"
               />
             </div>
           </div>
-
-          {activeFilterCount > 0 && (
-            <button
-              onClick={clearFilters}
-              className="hidden lg:flex items-center gap-1 font-display font-semibold text-sm text-joy-coral hover:text-joy-coral/70 ml-2"
-            >
-              <X size={14} /> Clear
-            </button>
-          )}
         </div>
       </section>
 
+      {/* ── Main Layout: Sidebar & Product Grid ── */}
       <div
         className={cn(
-          "px-4 sm:px-8 lg:px-[5vw] py-10 flex flex-col lg:flex-row gap-10",
+          "max-w-[1360px] mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-16 flex flex-col lg:flex-row gap-8 items-start",
           isPending && "opacity-70 pointer-events-none transition-opacity"
         )}
       >
-        {/* ── DESKTOP SIDEBAR ── */}
-        <aside className="hidden lg:block w-56 shrink-0">
-          <div className="sticky top-32 space-y-6 bg-white border border-joy-rule rounded-2xl p-6 shadow-[0_2px_12px_rgba(26,31,58,0.04)]">
-            {/* Special Offers Filter */}
-            <div className="space-y-3">
-              <h4 className="font-display font-bold text-joy-navy text-xs uppercase tracking-wider text-joy-muted">
-                Offers
-              </h4>
-              <div className="space-y-1">
-                <SidebarFilterItem
-                  label="⭐ Special Offers"
-                  selected={tagParam === "specialoffer"}
-                  onClick={() => updateFilters("tag", tagParam === "specialoffer" ? null : "specialoffer")}
-                />
-              </div>
-            </div>
-
-            <div className="border-t border-joy-rule" />
-
-            {/* Category Filter */}
-            <div className="space-y-3">
-              <h4 className="font-display font-bold text-joy-navy text-xs uppercase tracking-wider text-joy-muted">
-                Category
-              </h4>
-              <div className="space-y-1">
-                <SidebarFilterItem
-                  label="All Products"
-                  selected={!categoryParam}
-                  onClick={() => updateFilters("category", null)}
-                />
-                {categories.map((cat) => (
-                  <SidebarFilterItem
-                    key={cat.slug}
-                    label={cat.name}
-                    selected={categoryParam === cat.name || categoryParam === cat.slug}
-                    onClick={() =>
-                      updateFilters("category", categoryParam === cat.name ? null : cat.name)
-                    }
-                  />
-                ))}
-              </div>
-            </div>
-
-            {ageRanges.length > 0 && (
-            <>
-            <div className="border-t border-joy-rule" />
-
-            {/* Age Range Filter */}
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <h4 className="font-display font-bold text-joy-navy text-xs uppercase tracking-wider text-joy-muted">
-                  Age Range
-                </h4>
-                {ageParam && (
-                  <button
-                    type="button"
-                    onClick={() => updateFilters("age", null)}
-                    className="text-[11px] font-semibold text-joy-muted hover:text-joy-coral transition-colors"
-                  >
-                    Reset
-                  </button>
-                )}
-              </div>
-              <div className="space-y-1">
-                {ageRanges.map((age) => (
-                  <SidebarFilterItem
-                    key={age}
-                    label={formatAgeLabel(age)}
-                    selected={ageParam === age}
-                    onClick={() => updateFilters("age", ageParam === age ? null : age)}
-                  />
-                ))}
-              </div>
-            </div>
-            </>
-            )}
-
-            {/* Variation Filters (Colors, Sizes, etc.) */}
-            {variationFilters &&
-              variationFilters.length > 0 &&
-              variationFilters.map((group) => {
-                const isSwatch =
-                  group.displayType === "swatch" ||
-                  group.name.toLowerCase().includes("color") ||
-                  group.name.toLowerCase().includes("colour") ||
-                  group.name.toLowerCase().includes("রং") ||
-                  group.values.some((v) => Boolean(v.colorHex));
-
-                const hasSelected = group.values.some((v) =>
-                  selectedVariantSlugs.includes(v.slug.toLowerCase())
-                );
-
-                return (
-                  <div key={group._id} className="pt-6 border-t border-joy-rule space-y-3">
-                    <div className="flex items-center justify-between">
-                      <h4 className="font-display font-bold text-joy-navy text-xs uppercase tracking-wider text-joy-muted">
-                        {group.name}
-                      </h4>
-                      {hasSelected && (
-                        <button
-                          type="button"
-                          onClick={() => clearVariantGroup(group)}
-                          className="text-[11px] font-semibold text-joy-muted hover:text-joy-coral transition-colors"
-                        >
-                          Reset
-                        </button>
-                      )}
-                    </div>
-
-                    {isSwatch ? (
-                      /* Color Swatches Grid */
-                      <div className="flex flex-wrap gap-2.5 pt-1">
-                        {group.values.map((val) => {
-                          const isSelected = selectedVariantSlugs.includes(
-                            val.slug.toLowerCase()
-                          );
-                          const hex = val.colorHex || getColorFallback(val.value);
-                          const light = isColorLight(hex);
-
-                          return (
-                            <button
-                              key={val._id}
-                              type="button"
-                              onClick={() => toggleVariant(val.slug)}
-                              title={`${val.value} (${group.name})`}
-                              className={cn(
-                                "relative w-7 h-7 rounded-full transition-all flex items-center justify-center focus:outline-none",
-                                isSelected
-                                  ? "ring-2 ring-joy-cobalt ring-offset-2 scale-110 shadow-sm"
-                                  : "hover:scale-110 border border-joy-rule/80 hover:border-joy-navy/40"
-                              )}
-                              style={{ backgroundColor: hex }}
-                            >
-                              {isSelected && (
-                                <Check
-                                  size={13}
-                                  className={cn(
-                                    "stroke-[3]",
-                                    light ? "text-gray-900" : "text-white"
-                                  )}
-                                />
-                              )}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    ) : (
-                      /* Size / Option Button Pills */
-                      <div className="flex flex-wrap gap-1.5 pt-1">
-                        {group.values.map((val) => {
-                          const isSelected = selectedVariantSlugs.includes(
-                            val.slug.toLowerCase()
-                          );
-                          return (
-                            <button
-                              key={val._id}
-                              type="button"
-                              onClick={() => toggleVariant(val.slug)}
-                              className={cn(
-                                "px-3 py-1.5 rounded-xl text-xs font-semibold font-display border transition-all duration-150",
-                                isSelected
-                                  ? "bg-joy-cobalt text-white border-joy-cobalt shadow-[0_2px_8px_rgba(45,91,227,0.25)]"
-                                  : "bg-joy-mist/70 text-joy-navy border-joy-rule hover:border-joy-cobalt/40 hover:bg-joy-mist"
-                              )}
-                            >
-                              {val.value}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
+        {/* ── DESKTOP SIDEBAR (Reference UI Design) ── */}
+        <aside className="hidden lg:block w-72 shrink-0 self-start sticky top-[168px] z-20">
+          <div className="bg-white rounded-3xl p-5 sm:p-6 border border-stone-200/80 shadow-xs">
+            {renderFilterContent()}
           </div>
         </aside>
 
         {/* ── MAIN PRODUCTS GRID ── */}
-        <div className="flex-1">
-          {/* Active Filter Pills Bar */}
+        <div className="flex-1 w-full">
+          {/* Active Filter Badges */}
           {activeFilterCount > 0 && (
-            <div className="flex items-center gap-2 flex-wrap mb-6 pb-4 border-b border-joy-rule">
-              <span className="text-xs font-semibold text-joy-muted uppercase tracking-wider mr-1">
-                Active filters:
+            <div className="flex items-center gap-2 flex-wrap mb-6 pb-4 border-b border-stone-200/80">
+              <span className="text-xs font-bold uppercase tracking-wider text-stone-400 mr-1">
+                Active:
               </span>
-              {categoryParam && (
-                <span className="inline-flex items-center gap-1.5 bg-joy-mist text-joy-navy text-xs font-semibold px-3 py-1.5 rounded-full border border-joy-rule">
-                  Category: {categoryParam}
-                  <button
-                    type="button"
-                    onClick={() => updateFilters("category", null)}
-                    className="hover:text-joy-coral text-joy-muted transition-colors"
+              {selectedCategorySlugs.map((slug) => {
+                const matched = categories.find(
+                  (c) =>
+                    c.slug.toLowerCase() === slug ||
+                    c.name.toLowerCase() === slug
+                );
+                const label = matched?.name || slug;
+                return (
+                  <span
+                    key={slug}
+                    className="inline-flex items-center gap-1.5 bg-[#F5EDE8] text-[#2D1810] text-xs font-semibold px-3 py-1.5 rounded-full border border-stone-200"
                   >
-                    <X size={12} />
-                  </button>
-                </span>
-              )}
+                    Category: {label}
+                    <button
+                      type="button"
+                      onClick={() => toggleCategory(slug)}
+                      className="hover:text-red-600 transition-colors cursor-pointer"
+                    >
+                      <X size={12} />
+                    </button>
+                  </span>
+                );
+              })}
               {tagParam && (
-                <span className="inline-flex items-center gap-1.5 bg-amber-50 text-amber-900 text-xs font-semibold px-3 py-1.5 rounded-full border border-amber-300">
-                  {tagParam === "specialoffer" ? "⭐ Special Offers" : `Tag: ${tagParam}`}
+                <span className="inline-flex items-center gap-1.5 bg-[#F5EDE8] text-[#2D1810] text-xs font-semibold px-3 py-1.5 rounded-full border border-stone-200">
+                  {tagParam}
                   <button
                     type="button"
                     onClick={() => updateFilters("tag", null)}
-                    className="hover:text-joy-coral text-amber-800 transition-colors"
+                    className="hover:text-red-600 transition-colors cursor-pointer"
                   >
                     <X size={12} />
                   </button>
                 </span>
               )}
-              {ageParam && (
-                <span className="inline-flex items-center gap-1.5 bg-joy-mist text-joy-navy text-xs font-semibold px-3 py-1.5 rounded-full border border-joy-rule">
-                  Age: {ageParam} Years
+              {(minPriceParam || maxPriceParam) && (
+                <span className="inline-flex items-center gap-1.5 bg-[#F5EDE8] text-[#2D1810] text-xs font-semibold px-3 py-1.5 rounded-full border border-stone-200">
+                  ৳{minPriceParam || "0"} - ৳{maxPriceParam || "Max"}
                   <button
                     type="button"
-                    onClick={() => updateFilters("age", null)}
-                    className="hover:text-joy-coral text-joy-muted transition-colors"
+                    onClick={() => {
+                      setMinPriceInput("");
+                      setMaxPriceInput("");
+                      updateFilters("minPrice", null);
+                      updateFilters("maxPrice", null);
+                    }}
+                    className="hover:text-red-600 transition-colors cursor-pointer"
+                  >
+                    <X size={12} />
+                  </button>
+                </span>
+              )}
+              {ratingParam && (
+                <span className="inline-flex items-center gap-1.5 bg-[#F5EDE8] text-[#2D1810] text-xs font-semibold px-3 py-1.5 rounded-full border border-stone-200">
+                  {ratingParam}★ & up
+                  <button
+                    type="button"
+                    onClick={() => updateFilters("rating", null)}
+                    className="hover:text-red-600 transition-colors cursor-pointer"
+                  >
+                    <X size={12} />
+                  </button>
+                </span>
+              )}
+              {discountParam && (
+                <span className="inline-flex items-center gap-1.5 bg-[#F5EDE8] text-[#2D1810] text-xs font-semibold px-3 py-1.5 rounded-full border border-stone-200">
+                  {discountParam}% off
+                  <button
+                    type="button"
+                    onClick={() => updateFilters("discount", null)}
+                    className="hover:text-red-600 transition-colors cursor-pointer"
                   >
                     <X size={12} />
                   </button>
@@ -664,13 +1030,13 @@ function ShopGridPure({
               {selectedVariantSlugs.map((slug) => (
                 <span
                   key={slug}
-                  className="inline-flex items-center gap-1.5 bg-joy-cobalt/10 text-joy-cobalt text-xs font-semibold px-3 py-1.5 rounded-full border border-joy-cobalt/20"
+                  className="inline-flex items-center gap-1.5 bg-[#F5EDE8] text-[#2D1810] text-xs font-semibold px-3 py-1.5 rounded-full border border-stone-200 capitalize"
                 >
-                  {slug.toUpperCase()}
+                  {slug}
                   <button
                     type="button"
                     onClick={() => toggleVariant(slug)}
-                    className="hover:text-joy-coral text-joy-cobalt transition-colors"
+                    className="hover:text-red-600 transition-colors cursor-pointer"
                   >
                     <X size={12} />
                   </button>
@@ -679,7 +1045,7 @@ function ShopGridPure({
               <button
                 type="button"
                 onClick={clearFilters}
-                className="text-xs font-semibold text-joy-coral hover:underline ml-2"
+                className="text-xs font-bold text-red-600 underline underline-offset-2 ml-2 hover:opacity-80 transition-opacity cursor-pointer"
               >
                 Clear all
               </button>
@@ -688,24 +1054,27 @@ function ShopGridPure({
 
           {filteredProducts.length > 0 ? (
             <>
-              <div className="grid grid-cols-2 lg:grid-cols-3 gap-x-4 sm:gap-x-6 gap-y-8 sm:gap-y-12">
+              {/* Product grid matching homepage: 2 on mobile, 3 on md/lg, 4 on 2xl */}
+              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 gap-3.5 sm:gap-4.5">
                 {filteredProducts.map((product: ShopProduct, idx: number) => (
-                  <ProductCardRimon
-                    key={product._id}
-                    product={product}
-                    priority={idx < 4}
-                    index={idx + 1}
-                  />
+                  <div key={product._id} className="h-full">
+                    <ProductCard
+                      product={product}
+                      badgeColor="red"
+                      cartButtonColor="purple"
+                      priority={idx < 4}
+                    />
+                  </div>
                 ))}
               </div>
 
               {/* ── Pagination Controls ── */}
               {pagination && pagination.totalPages > 1 && (
-                <div className="flex items-center justify-center gap-2 mt-12 pt-8 border-t border-joy-rule">
+                <div className="flex items-center justify-center gap-2 mt-12 pt-8 border-t border-stone-200/80">
                   <button
                     onClick={() => goToPage(pagination.page - 1)}
                     disabled={pagination.page <= 1}
-                    className="flex items-center gap-1 px-4 py-2 rounded-xl text-sm font-semibold font-display border border-joy-rule bg-white text-joy-navy hover:bg-joy-mist disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                    className="flex items-center gap-1 px-4 py-2 rounded-full text-xs sm:text-sm font-semibold border border-stone-200 bg-white text-[#2D1810] hover:bg-stone-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
                   >
                     <ChevronLeft size={16} />
                     Prev
@@ -723,14 +1092,14 @@ function ShopGridPure({
                         const hasGap = prev && p - prev > 1;
                         return (
                           <div key={p} className="flex items-center gap-1">
-                            {hasGap && <span className="px-2 text-joy-muted">…</span>}
+                            {hasGap && <span className="px-2 text-stone-400">…</span>}
                             <button
                               onClick={() => goToPage(p)}
                               className={cn(
-                                "w-10 h-10 rounded-xl text-sm font-semibold font-display transition-all flex items-center justify-center",
+                                "w-9 h-9 sm:w-10 sm:h-10 rounded-full text-xs sm:text-sm font-bold transition-all flex items-center justify-center",
                                 p === pagination.page
-                                  ? "bg-joy-cobalt text-white shadow-[0_4px_12px_rgba(45,91,227,0.3)]"
-                                  : "bg-white text-joy-navy border border-joy-rule hover:bg-joy-mist"
+                                  ? "bg-[#2D1810] text-white shadow-xs"
+                                  : "bg-white text-[#2D1810] border border-stone-200 hover:bg-stone-50"
                               )}
                             >
                               {p}
@@ -742,7 +1111,7 @@ function ShopGridPure({
                   <button
                     onClick={() => goToPage(pagination.page + 1)}
                     disabled={pagination.page >= pagination.totalPages}
-                    className="flex items-center gap-1 px-4 py-2 rounded-xl text-sm font-semibold font-display border border-joy-rule bg-white text-joy-navy hover:bg-joy-mist disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                    className="flex items-center gap-1 px-4 py-2 rounded-full text-xs sm:text-sm font-semibold border border-stone-200 bg-white text-[#2D1810] hover:bg-stone-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
                   >
                     Next
                     <ChevronRight size={16} />
@@ -751,19 +1120,19 @@ function ShopGridPure({
               )}
             </>
           ) : (
-            <div className="flex flex-col items-center justify-center py-24 text-center gap-4">
-              <div className="w-16 h-16 rounded-2xl bg-joy-mist flex items-center justify-center text-3xl">
-                🧸
+            <div className="flex flex-col items-center justify-center py-20 bg-white rounded-3xl border border-stone-200/80 p-8 text-center gap-3">
+              <div className="w-16 h-16 rounded-full bg-[#F5EDE8] flex items-center justify-center text-3xl">
+                🔍
               </div>
-              <p className="font-display font-semibold text-xl text-joy-navy">
-                Nothing here yet.
-              </p>
-              <p className="font-body text-joy-muted text-sm">
-                Try adjusting your filters to find what you&apos;re looking for.
+              <h2 className="font-extrabold text-xl text-[#2D1810]">
+                No matching products found
+              </h2>
+              <p className="text-sm text-stone-500 max-w-sm">
+                Try adjusting or clearing your filters to see more available products.
               </p>
               <button
                 onClick={clearFilters}
-                className="bg-joy-cobalt text-white px-6 py-3 rounded-xl font-display font-bold text-sm hover:bg-joy-cobalt/90 transition-colors shadow-[0_4px_16px_rgba(45,91,227,0.3)]"
+                className="mt-2 bg-[#2D1810] text-white px-6 py-2.5 rounded-full font-bold text-xs uppercase tracking-wider hover:bg-[#1E110A] transition-colors shadow-xs"
               >
                 Clear all filters
               </button>
@@ -772,7 +1141,7 @@ function ShopGridPure({
         </div>
       </div>
 
-      {/* ── MOBILE FILTERS DRAWER ── */}
+      {/* ── MOBILE FILTERS DRAWER (Matching Reference UI) ── */}
       <AnimatePresence>
         {isMobileFiltersOpen && (
           <>
@@ -780,7 +1149,7 @@ function ShopGridPure({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-ink-black/40 z-[1000]"
+              className="fixed inset-0 bg-black/50 backdrop-blur-xs z-[1000]"
               onClick={() => setIsMobileFiltersOpen(false)}
             />
             <m.div
@@ -788,239 +1157,40 @@ function ShopGridPure({
               animate={reduced ? { opacity: 1 } : { y: 0 }}
               exit={reduced ? { opacity: 0 } : { y: "100%" }}
               transition={{ type: "spring", damping: 28, stiffness: 220 }}
-              className="fixed inset-x-0 bottom-0 h-[82vh] bg-joy-cream z-[1001] flex flex-col overflow-hidden rounded-t-3xl shadow-[0_-20px_60px_rgba(26,31,58,0.15)]"
+              className="fixed inset-x-0 bottom-0 h-[85vh] bg-white z-[1001] flex flex-col overflow-hidden rounded-t-[32px] shadow-2xl"
             >
-              <div className="flex justify-between items-center px-6 py-5 border-b border-joy-rule">
-                <h2 className="font-display font-bold text-xl text-joy-navy">Filters</h2>
+              <div className="flex justify-between items-center px-6 py-4 border-b border-stone-200">
+                <h2 className="font-extrabold text-lg text-[#2D1810]">Filter Products</h2>
                 <button
                   onClick={() => setIsMobileFiltersOpen(false)}
-                  className="text-joy-muted hover:text-joy-navy transition-colors bg-joy-mist p-2 rounded-xl"
+                  className="w-9 h-9 rounded-full bg-[#F5EDE8] flex items-center justify-center text-[#2D1810] hover:bg-[#EBDDD4] transition-colors"
                 >
-                  <X size={20} />
+                  <X size={18} strokeWidth={2.5} />
                 </button>
               </div>
 
-              <div className="flex-1 overflow-y-auto px-6 py-6 space-y-8">
-                {/* Sort by */}
-                <div className="space-y-4">
-                  <h3 className="font-body text-sm font-semibold text-joy-navy uppercase tracking-wider">
-                    Sort by
-                  </h3>
-                  <div className="flex flex-wrap gap-2">
-                    {[
-                      { value: "featured", label: "Featured" },
-                      { value: "newest", label: "Newest" },
-                      { value: "price-low", label: "Price ↑" },
-                      { value: "price-high", label: "Price ↓" },
-                    ].map((opt) => (
-                      <FilterPill
-                        key={opt.value}
-                        label={opt.label}
-                        selected={sortBy === opt.value}
-                        onClick={() => setSortBy(opt.value)}
-                      />
-                    ))}
-                  </div>
-                </div>
-
-                {/* Special Offers */}
-                <div className="space-y-4">
-                  <h3 className="font-body text-sm font-semibold text-joy-navy uppercase tracking-wider">
-                    Offers
-                  </h3>
-                  <div className="flex flex-wrap gap-2">
-                    <FilterPill
-                      label="⭐ Special Offers"
-                      selected={tagParam === "specialoffer"}
-                      onClick={() =>
-                        updateFilters(
-                          "tag",
-                          tagParam === "specialoffer" ? null : "specialoffer"
-                        )
-                      }
-                    />
-                  </div>
-                </div>
-
-                {/* Category */}
-                <div className="space-y-4">
-                  <h3 className="font-body text-sm font-semibold text-joy-navy uppercase tracking-wider">
-                    Category
-                  </h3>
-                  <div className="flex flex-wrap gap-2">
-                    <FilterPill
-                      label="All"
-                      selected={!categoryParam}
-                      onClick={() => updateFilters("category", null)}
-                    />
-                    {categories.map((cat) => (
-                      <FilterPill
-                        key={cat.slug}
-                        label={cat.name}
-                        selected={categoryParam === cat.name || categoryParam === cat.slug}
-                        onClick={() =>
-                          updateFilters(
-                            "category",
-                            categoryParam === cat.name ? null : cat.name
-                          )
-                        }
-                      />
-                    ))}
-                  </div>
-                </div>
-
-                {/* Age Range */}
-                {ageRanges.length > 0 && (
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <h3 className="font-body text-sm font-semibold text-joy-navy uppercase tracking-wider">
-                      Age Range
-                    </h3>
-                    {ageParam && (
-                      <button
-                        type="button"
-                        onClick={() => updateFilters("age", null)}
-                        className="text-xs font-semibold text-joy-coral"
-                      >
-                        Reset
-                      </button>
-                    )}
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    {ageRanges.map((age) => (
-                      <FilterPill
-                        key={age}
-                        label={formatAgePill(age)}
-                        selected={ageParam === age}
-                        onClick={() =>
-                          updateFilters("age", ageParam === age ? null : age)
-                        }
-                      />
-                    ))}
-                  </div>
-                </div>
-                )}
-
-                {/* Variation Filters (Colors, Sizes, etc.) */}
-                {variationFilters &&
-                  variationFilters.length > 0 &&
-                  variationFilters.map((group) => {
-                    const isSwatch =
-                      group.displayType === "swatch" ||
-                      group.name.toLowerCase().includes("color") ||
-                      group.name.toLowerCase().includes("colour") ||
-                      group.name.toLowerCase().includes("রং") ||
-                      group.values.some((v) => Boolean(v.colorHex));
-
-                    const hasSelected = group.values.some((v) =>
-                      selectedVariantSlugs.includes(v.slug.toLowerCase())
-                    );
-
-                    return (
-                      <div key={group._id} className="space-y-4 pt-4 border-t border-joy-rule">
-                        <div className="flex items-center justify-between">
-                          <h3 className="font-body text-sm font-semibold text-joy-navy uppercase tracking-wider">
-                            {group.name}
-                          </h3>
-                          {hasSelected && (
-                            <button
-                              type="button"
-                              onClick={() => clearVariantGroup(group)}
-                              className="text-xs font-semibold text-joy-coral"
-                            >
-                              Reset
-                            </button>
-                          )}
-                        </div>
-
-                        {isSwatch ? (
-                          <div className="flex flex-wrap gap-3">
-                            {group.values.map((val) => {
-                              const isSelected = selectedVariantSlugs.includes(
-                                val.slug.toLowerCase()
-                              );
-                              const hex = val.colorHex || getColorFallback(val.value);
-                              const light = isColorLight(hex);
-
-                              return (
-                                <button
-                                  key={val._id}
-                                  type="button"
-                                  onClick={() => toggleVariant(val.slug)}
-                                  className={cn(
-                                    "flex items-center gap-2 px-3 py-2 rounded-xl border transition-all text-xs font-semibold",
-                                    isSelected
-                                      ? "bg-joy-cobalt text-white border-joy-cobalt shadow-sm"
-                                      : "bg-white text-joy-navy border-joy-rule"
-                                  )}
-                                >
-                                  <span
-                                    className="w-4 h-4 rounded-full border border-black/10 shrink-0 flex items-center justify-center"
-                                    style={{ backgroundColor: hex }}
-                                  >
-                                    {isSelected && (
-                                      <Check
-                                        size={9}
-                                        className={cn(
-                                          "stroke-[3]",
-                                          light ? "text-gray-900" : "text-white"
-                                        )}
-                                      />
-                                    )}
-                                  </span>
-                                  {val.value}
-                                </button>
-                              );
-                            })}
-                          </div>
-                        ) : (
-                          <div className="flex flex-wrap gap-2">
-                            {group.values.map((val) => {
-                              const isSelected = selectedVariantSlugs.includes(
-                                val.slug.toLowerCase()
-                              );
-                              return (
-                                <button
-                                  key={val._id}
-                                  type="button"
-                                  onClick={() => toggleVariant(val.slug)}
-                                  className={cn(
-                                    "font-display font-semibold text-xs px-3.5 py-2 rounded-xl border transition-all",
-                                    isSelected
-                                      ? "bg-joy-cobalt text-white border-joy-cobalt shadow-sm"
-                                      : "bg-white text-joy-navy border-joy-rule hover:border-joy-cobalt/40"
-                                  )}
-                                >
-                                  {val.value}
-                                </button>
-                              );
-                            })}
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
+              <div className="flex-1 overflow-y-auto px-6 py-6 custom-filter-scroll">
+                {renderFilterContent()}
               </div>
 
-              <div className="p-6 border-t border-joy-rule bg-white space-y-3">
+              <div className="p-4 px-6 border-t border-stone-200 bg-white flex items-center gap-3">
                 <button
-                  className="w-full bg-joy-cobalt text-white font-display font-bold text-sm py-4 rounded-xl hover:bg-joy-cobalt/90 transition-colors shadow-[0_4px_16px_rgba(45,91,227,0.3)]"
+                  type="button"
+                  onClick={() => {
+                    clearFilters();
+                    setIsMobileFiltersOpen(false);
+                  }}
+                  className="flex-1 py-3 font-bold text-xs uppercase tracking-wider text-[#2D1810] bg-[#F5EDE8] hover:bg-[#EBDDD4] rounded-full transition-colors text-center cursor-pointer"
+                >
+                  Reset
+                </button>
+                <button
+                  type="button"
+                  className="flex-2 py-3 font-bold text-xs uppercase tracking-wider text-white bg-[#2D1810] hover:bg-[#1E110A] rounded-full transition-colors text-center shadow-xs cursor-pointer"
                   onClick={() => setIsMobileFiltersOpen(false)}
                 >
-                  View {totalDisplayCount}{" "}
-                  {totalDisplayCount === 1 ? "Product" : "Products"}
+                  View ({totalDisplayCount})
                 </button>
-                {activeFilterCount > 0 && (
-                  <button
-                    onClick={() => {
-                      clearFilters();
-                      setIsMobileFiltersOpen(false);
-                    }}
-                    className="w-full py-2 font-display font-semibold text-sm text-joy-coral hover:opacity-70 transition-opacity"
-                  >
-                    Clear all filters
-                  </button>
-                )}
               </div>
             </m.div>
           </>
@@ -1034,16 +1204,28 @@ function ShopContent({
   initialProducts,
   allCategories,
   variationFilters,
+  availableSizes,
+  availableColors,
   ageRanges,
   pagination,
   initialTag,
+  initialMinPrice,
+  initialMaxPrice,
+  initialRating,
+  initialDiscount,
 }: {
   initialProducts: ShopProduct[];
   allCategories?: CategoryItem[];
   variationFilters?: VariationFilterGroup[];
+  availableSizes?: Array<{ label: string; slug: string }>;
+  availableColors?: Array<{ name: string; hex: string; slug: string }>;
   ageRanges?: string[];
   pagination?: PaginationInfo;
   initialTag?: string | null;
+  initialMinPrice?: string | null;
+  initialMaxPrice?: string | null;
+  initialRating?: string | null;
+  initialDiscount?: string | null;
 }) {
   const searchParams = useSearchParams();
 
@@ -1052,6 +1234,8 @@ function ShopContent({
       initialProducts={initialProducts}
       allCategories={allCategories}
       variationFilters={variationFilters}
+      availableSizes={availableSizes}
+      availableColors={availableColors}
       ageRanges={ageRanges}
       pagination={pagination}
       categoryParam={searchParams.get("category")}
@@ -1059,6 +1243,10 @@ function ShopContent({
       variantParam={searchParams.get("variant")}
       searchParam={searchParams.get("search")}
       tagParam={searchParams.get("tag") || initialTag || null}
+      minPriceParam={searchParams.get("minPrice") || initialMinPrice || null}
+      maxPriceParam={searchParams.get("maxPrice") || initialMaxPrice || null}
+      ratingParam={searchParams.get("rating") || initialRating || null}
+      discountParam={searchParams.get("discount") || initialDiscount || null}
     />
   );
 }
@@ -1067,16 +1255,28 @@ export default function ShopClient({
   initialProducts,
   allCategories,
   variationFilters,
+  availableSizes,
+  availableColors,
   ageRanges,
   pagination,
   initialTag,
+  initialMinPrice,
+  initialMaxPrice,
+  initialRating,
+  initialDiscount,
 }: {
   initialProducts: ShopProduct[];
   allCategories?: CategoryItem[];
   variationFilters?: VariationFilterGroup[];
+  availableSizes?: Array<{ label: string; slug: string }>;
+  availableColors?: Array<{ name: string; hex: string; slug: string }>;
   ageRanges?: string[];
   pagination?: PaginationInfo;
   initialTag?: string | null;
+  initialMinPrice?: string | null;
+  initialMaxPrice?: string | null;
+  initialRating?: string | null;
+  initialDiscount?: string | null;
 }) {
   return (
     <Suspense
@@ -1085,6 +1285,8 @@ export default function ShopClient({
           initialProducts={initialProducts}
           allCategories={allCategories}
           variationFilters={variationFilters}
+          availableSizes={availableSizes}
+          availableColors={availableColors}
           ageRanges={ageRanges}
           pagination={pagination}
           categoryParam={null}
@@ -1092,6 +1294,10 @@ export default function ShopClient({
           variantParam={null}
           searchParam={null}
           tagParam={initialTag || null}
+          minPriceParam={initialMinPrice || null}
+          maxPriceParam={initialMaxPrice || null}
+          ratingParam={initialRating || null}
+          discountParam={initialDiscount || null}
         />
       }
     >
@@ -1099,9 +1305,15 @@ export default function ShopClient({
         initialProducts={initialProducts}
         allCategories={allCategories}
         variationFilters={variationFilters}
+        availableSizes={availableSizes}
+        availableColors={availableColors}
         ageRanges={ageRanges}
         pagination={pagination}
         initialTag={initialTag}
+        initialMinPrice={initialMinPrice}
+        initialMaxPrice={initialMaxPrice}
+        initialRating={initialRating}
+        initialDiscount={initialDiscount}
       />
     </Suspense>
   );

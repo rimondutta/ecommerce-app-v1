@@ -37,6 +37,7 @@ export async function GET(req: NextRequest) {
 
     // — Filters —
     const categorySlug = searchParams.get('category');
+    const tag          = searchParams.get('tag');
     const searchQuery  = searchParams.get('search');
     const sort         = searchParams.get('sort') || 'newest';
     const minPrice     = parseFloat(searchParams.get('minPrice') || '0') || 0;
@@ -46,6 +47,10 @@ export async function GET(req: NextRequest) {
 
     // Build the base filter
     const filter: Record<string, unknown> = { isPublished: true };
+
+    if (tag) {
+      filter.tags = tag;
+    }
 
     if (searchQuery) {
       // Use MongoDB text index for high-performance searching instead of slow regex
@@ -68,7 +73,7 @@ export async function GET(req: NextRequest) {
     const sortObj = sortMap[sort] ?? sortMap.newest;
 
     // Generate a unique cache key based on query params
-    const cacheKey = `api:products:list:${categorySlug || 'all'}-${searchQuery || 'none'}-${sort}-${page}-${limit}-${minPrice}-${maxPrice}`;
+    const cacheKey = `api:products:list:${categorySlug || 'all'}-${tag || 'all'}-${searchQuery || 'none'}-${sort}-${page}-${limit}-${minPrice}-${maxPrice}`;
 
     // Wrap the entire data fetching block in Redis cache (60s TTL)
     const { withCache } = await import('@/lib/cache');

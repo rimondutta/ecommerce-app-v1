@@ -25,6 +25,10 @@ interface ShopPageProps {
     variant?: string;
     tag?: string;
     offer?: string;
+    minPrice?: string;
+    maxPrice?: string;
+    rating?: string;
+    discount?: string;
   }>;
 }
 
@@ -39,10 +43,10 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
 
   const tagParam = params.tag || (params.offer === "special" ? "specialoffer" : undefined);
 
-  const cacheKey = `products:catalog:v3:p${page}:l${limit}:${params.category || "all"}:${params.age || "all"}:${params.variant || "none"}:${tagParam || "none"}:${params.search || "none"}`;
+  const cacheKey = `products:catalog:v7:p${page}:l${limit}:${params.category || "all"}:${params.age || "all"}:${params.variant || "none"}:${tagParam || "none"}:${params.minPrice || "0"}:${params.maxPrice || "inf"}:${params.rating || "all"}:${params.search || "none"}`;
 
   // Fetch paginated products, categories, and variation filters with Redis caching
-  const { products, totalCount, categories, variationFilters, ageRanges } = await withCache(
+  const { products, totalCount, categories, variationFilters, availableSizes, availableColors, ageRanges } = await withCache(
     cacheKey,
     60,
     async () => {
@@ -65,20 +69,44 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
         filter.title = { $regex: escaped, $options: "i" };
       }
 
-      // 3. Category filter
+      // 3. Category filter (supports multi-category comma separated, e.g. ?category=toys,gadgets)
       if (params.category) {
-        const cat = (await Category.findOne({
-          $or: [{ slug: params.category }, { name: params.category }],
-        })
-          .select("_id")
-          .lean()) as { _id: unknown } | null;
+        const catSlugs = params.category
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean);
 
-        if (cat) {
-          filter.category = cat._id;
+        if (catSlugs.length > 0) {
+          const matchedCats = (await Category.find({
+            $or: [
+              { slug: { $in: catSlugs } },
+              { name: { $in: catSlugs } },
+              { slug: { $in: catSlugs.map((s) => new RegExp(`^${s}$`, "i")) } },
+            ],
+          })
+            .select("_id")
+            .lean()) as Array<{ _id: unknown }>;
+
+          if (matchedCats.length > 0) {
+            filter.category = { $in: matchedCats.map((c) => c._id) };
+          }
         }
       }
 
-      // 4. Variation filter (e.g. ?variant=red or ?variant=red,xl)
+      // 4. Price range filter
+      if (params.minPrice || params.maxPrice) {
+        const priceCond: Record<string, number> = {};
+        if (params.minPrice) priceCond.$gte = Number(params.minPrice);
+        if (params.maxPrice) priceCond.$lte = Number(params.maxPrice);
+        filter.price = priceCond;
+      }
+
+      // 5. Rating filter
+      if (params.rating) {
+        filter.rating = { $gte: Number(params.rating) };
+      }
+
+      // 6. Variation filter (e.g. ?variant=red or ?variant=red,xl)
       if (params.variant) {
         const variantSlugs = params.variant
           .split(",")
@@ -124,19 +152,234 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
         }
       }
 
-      const [allCategories, allVariationTypes, allVariationValues, rawAgeRanges] =
-        await withCache('products:filter_metadata', 600, async () => {
-          return await Promise.all([
-            Category.find({}).select("name slug").lean(),
+      const [allCategories, allVariationTypes, allVariationValues, rawAgeRanges, usedSizesList, usedColorsList] =
+        await withCache('products:filter_metadata:v6', 60, async () => {
+          const [cats, vTypes, vVals, ages, catCounts, usedVarValues, varProducts] = await Promise.all([
+            Category.find({ isActive: { $ne: false } }).select("name slug").sort({ name: 1 }).lean(),
             VariationType.find({}).sort({ name: 1 }).lean(),
             VariationValue.find({}).sort({ sortOrder: 1, value: 1 }).lean(),
             Product.distinct("ageRange", { isPublished: true }),
+            Product.aggregate([
+              { $match: { isPublished: true } },
+              { $group: { _id: "$category", count: { $sum: 1 } } },
+            ]),
+            Product.distinct("variants.combination.variationValue", {
+              isPublished: true,
+              hasVariations: true,
+            }),
+            Product.find({ isPublished: true, hasVariations: true })
+              .select("variationTypes variants.combination variants.combinationLabel variants.isActive")
+              .lean(),
           ]);
+
+          const countMap = new Map<string, number>(
+            (catCounts as Array<{ _id: unknown; count: number }>).map((c) => [
+              String(c._id),
+              c.count,
+            ])
+          );
+
+          const categoriesWithCount = (
+            cats as Array<{ _id: unknown; name: string; slug: string }>
+          ).map((c) => ({
+            _id: String(c._id),
+            name: c.name,
+            slug: c.slug,
+            count: countMap.get(String(c._id)) || 0,
+          }));
+
+          // Discover sizes configured on variable products by the admin
+          const isSizeVariationType = (vt: { name?: string; slug?: string }) => {
+            const n = (vt?.name || "").toLowerCase();
+            const s = (vt?.slug || "").toLowerCase();
+            return (
+              s === "size" ||
+              s === "sizes" ||
+              n === "size" ||
+              n === "sizes" ||
+              s.includes("size") ||
+              n.includes("size") ||
+              n.includes("সাইজ")
+            );
+          };
+
+          // Discover colors configured on variable products by the admin
+          const isColorVariationType = (vt: { name?: string; slug?: string; displayType?: string }) => {
+            const n = (vt?.name || "").toLowerCase();
+            const s = (vt?.slug || "").toLowerCase();
+            const d = (vt?.displayType || "").toLowerCase();
+            return (
+              d === "swatch" ||
+              s === "color" ||
+              s === "colour" ||
+              s === "colors" ||
+              n === "color" ||
+              n === "colour" ||
+              n === "colors" ||
+              s.includes("color") ||
+              n.includes("color") ||
+              n.includes("colour") ||
+              n.includes("রং")
+            );
+          };
+
+          const sizeTypeIds = new Set(
+            (vTypes as Array<{ _id: unknown; name: string; slug: string }>)
+              .filter(isSizeVariationType)
+              .map((vt) => String(vt._id))
+          );
+
+          const colorTypeIds = new Set(
+            (vTypes as Array<{ _id: unknown; name: string; slug: string; displayType?: string }>)
+              .filter(isColorVariationType)
+              .map((vt) => String(vt._id))
+          );
+
+          const sizeValuesMap = new Map<string, { label: string; slug: string }>();
+          const colorValuesMap = new Map<string, { name: string; hex: string; slug: string }>();
+
+          (vVals as Array<{ _id: unknown; variationType?: unknown; value: string; slug: string; colorHex?: string | null }>).forEach((val) => {
+            const tId = String(val.variationType);
+            if (sizeTypeIds.has(tId)) {
+              sizeValuesMap.set(String(val._id), {
+                label: val.value,
+                slug: val.slug,
+              });
+            }
+            if (colorTypeIds.has(tId)) {
+              colorValuesMap.set(String(val._id), {
+                name: val.value,
+                hex: val.colorHex || "#CCCCCC",
+                slug: val.slug,
+              });
+            }
+          });
+
+          // Set of used variation value IDs
+          const usedVarValueSet = new Set(
+            (usedVarValues as Array<unknown>).map((id) => String(id))
+          );
+
+          const discoveredSizesMap = new Map<string, { label: string; slug: string }>();
+          const discoveredColorsMap = new Map<string, { name: string; hex: string; slug: string }>();
+
+          // Match from usedVarValues
+          sizeValuesMap.forEach((info, valId) => {
+            if (usedVarValueSet.has(valId)) {
+              discoveredSizesMap.set(info.slug.toLowerCase(), info);
+            }
+          });
+          colorValuesMap.forEach((info, valId) => {
+            if (usedVarValueSet.has(valId)) {
+              discoveredColorsMap.set(info.slug.toLowerCase(), info);
+            }
+          });
+
+          // Also scan variable products in case of combinations or labels
+          (varProducts as Array<{
+            variationTypes?: unknown[];
+            variants?: Array<{
+              isActive?: boolean;
+              combinationLabel?: string;
+              combination?: Array<{ variationType?: unknown; variationValue?: unknown }>;
+            }>;
+          }>).forEach((prod) => {
+            prod.variants?.forEach((v) => {
+              if (v.isActive === false) return;
+              if (Array.isArray(v.combination)) {
+                v.combination.forEach((c) => {
+                  const valObj = c.variationValue as { _id?: unknown } | string | undefined;
+                  const typeObj = c.variationType as { _id?: unknown } | string | undefined;
+                  const valId = String((typeof valObj === "object" && valObj?._id) ? valObj._id : valObj || "");
+                  const typeId = String((typeof typeObj === "object" && typeObj?._id) ? typeObj._id : typeObj || "");
+
+                  // Check size
+                  if (sizeValuesMap.has(valId)) {
+                    const info = sizeValuesMap.get(valId)!;
+                    discoveredSizesMap.set(info.slug.toLowerCase(), info);
+                  } else if (sizeTypeIds.has(typeId)) {
+                    const matchedVal = (vVals as Array<{ _id: unknown; value: string; slug: string }>).find(
+                      (item) => String(item._id) === valId
+                    );
+                    if (matchedVal) {
+                      discoveredSizesMap.set(matchedVal.slug.toLowerCase(), {
+                        label: matchedVal.value,
+                        slug: matchedVal.slug,
+                      });
+                    }
+                  }
+
+                  // Check color
+                  if (colorValuesMap.has(valId)) {
+                    const info = colorValuesMap.get(valId)!;
+                    discoveredColorsMap.set(info.slug.toLowerCase(), info);
+                  } else if (colorTypeIds.has(typeId)) {
+                    const matchedVal = (vVals as Array<{ _id: unknown; value: string; slug: string; colorHex?: string | null }>).find(
+                      (item) => String(item._id) === valId
+                    );
+                    if (matchedVal) {
+                      discoveredColorsMap.set(matchedVal.slug.toLowerCase(), {
+                        name: matchedVal.value,
+                        hex: matchedVal.colorHex || "#CCCCCC",
+                        slug: matchedVal.slug,
+                      });
+                    }
+                  }
+                });
+              }
+
+              if (v.combinationLabel && typeof v.combinationLabel === "string") {
+                const parts = v.combinationLabel.split(/\s*[\/\-,]\s*/).map((s) => s.trim());
+                parts.forEach((part) => {
+                  if (!part) return;
+                  const matchedSize = (vVals as Array<{ _id: unknown; variationType?: unknown; value: string; slug: string }>).find(
+                    (item) =>
+                      sizeTypeIds.has(String(item.variationType)) &&
+                      (item.value.toLowerCase() === part.toLowerCase() ||
+                        item.slug.toLowerCase() === part.toLowerCase())
+                  );
+                  if (matchedSize) {
+                    discoveredSizesMap.set(matchedSize.slug.toLowerCase(), {
+                      label: matchedSize.value,
+                      slug: matchedSize.slug,
+                    });
+                  }
+
+                  const matchedColor = (vVals as Array<{ _id: unknown; variationType?: unknown; value: string; slug: string; colorHex?: string | null }>).find(
+                    (item) =>
+                      colorTypeIds.has(String(item.variationType)) &&
+                      (item.value.toLowerCase() === part.toLowerCase() ||
+                        item.slug.toLowerCase() === part.toLowerCase())
+                  );
+                  if (matchedColor) {
+                    discoveredColorsMap.set(matchedColor.slug.toLowerCase(), {
+                      name: matchedColor.value,
+                      hex: matchedColor.colorHex || "#CCCCCC",
+                      slug: matchedColor.slug,
+                    });
+                  }
+                });
+              }
+            });
+          });
+
+          const activeSizes = Array.from(discoveredSizesMap.values());
+          const activeColors = Array.from(discoveredColorsMap.values());
+
+          return [categoriesWithCount, vTypes, vVals, ages, activeSizes, activeColors];
         });
 
       const [dbProducts, total] = await Promise.all([
         Product.find(filter)
           .populate("category", "name slug")
+          .populate({
+            path: "variants.combination.variationType",
+            select: "name slug displayType",
+          })
+          .populate({
+            path: "variants.combination.variationValue",
+            select: "value slug colorHex",
+          })
           .select(
             "title price compareAtPrice slug images category badge ageRange createdAt rating reviewCount hasVariations variants tags isFreeShipping"
           )
@@ -189,6 +432,8 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
         totalCount: total,
         categories: allCategories,
         variationFilters: groups,
+        availableSizes: (usedSizesList as Array<{ label: string; slug: string }>) || [],
+        availableColors: (usedColorsList as Array<{ name: string; hex: string; slug: string }>) || [],
         ageRanges: sortAgeRanges(
           (rawAgeRanges as (string | null | undefined)[])
             .filter((v): v is string => typeof v === "string" && v.trim().length > 0)
@@ -200,6 +445,8 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
   const serializedProducts = JSON.parse(JSON.stringify(products));
   const serializedCategories = JSON.parse(JSON.stringify(categories));
   const serializedVariationFilters = JSON.parse(JSON.stringify(variationFilters || []));
+  const serializedAvailableSizes = JSON.parse(JSON.stringify(availableSizes || []));
+  const serializedAvailableColors = JSON.parse(JSON.stringify(availableColors || []));
   const serializedAgeRanges: string[] = JSON.parse(JSON.stringify(ageRanges || []));
   const totalPages = Math.max(1, Math.ceil(totalCount / limit));
 
@@ -209,8 +456,14 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
         initialProducts={serializedProducts}
         allCategories={serializedCategories}
         variationFilters={serializedVariationFilters}
+        availableSizes={serializedAvailableSizes}
+        availableColors={serializedAvailableColors}
         ageRanges={serializedAgeRanges}
         initialTag={tagParam || null}
+        initialMinPrice={params.minPrice || null}
+        initialMaxPrice={params.maxPrice || null}
+        initialRating={params.rating || null}
+        initialDiscount={params.discount || null}
         pagination={{
           page,
           limit,

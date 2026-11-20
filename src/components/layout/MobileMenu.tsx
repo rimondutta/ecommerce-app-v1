@@ -4,6 +4,7 @@ import React from "react";
 import Link from "next/link";
 import { m, AnimatePresence, useReducedMotion, type Variants } from "framer-motion";
 import { useUIStore } from "@/store/uiStore";
+import { useSession } from "next-auth/react";
 
 const navItems = [
   { num: "01", label: "SHOP", href: "/products" },
@@ -16,7 +17,8 @@ const navItems = [
 ];
 
 export default function MobileMenu() {
-  const { isMobileMenuOpen, closeMobileMenu } = useUIStore();
+  const { isMobileMenuOpen, closeMobileMenu, openAuthModal } = useUIStore();
+  const { data: session } = useSession();
   const reduced = useReducedMotion() ?? false;
 
   const container: Variants = {
@@ -82,18 +84,36 @@ export default function MobileMenu() {
             >
               {navItems.map((link) => (
                 <m.div key={link.num} variants={item}>
-                  <Link
-                    href={link.href}
-                    onClick={closeMobileMenu}
-                    className="group flex items-baseline gap-4 py-4 border-b border-white/5 last:border-0"
-                  >
-                    <span className="font-mono text-[11px] text-violet-500 w-6 shrink-0">
-                      {link.num}
-                    </span>
-                    <span className="font-display text-[28px] uppercase text-white leading-none tracking-[-0.02em] group-hover:text-violet-400 transition-colors duration-200">
-                      {link.label}
-                    </span>
-                  </Link>
+                  {link.label === "ACCOUNT" && !session?.user ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        closeMobileMenu();
+                        openAuthModal("signin");
+                      }}
+                      className="group w-full flex items-baseline gap-4 py-4 border-b border-white/5 text-left cursor-pointer"
+                    >
+                      <span className="font-mono text-[11px] text-violet-500 w-6 shrink-0">
+                        {link.num}
+                      </span>
+                      <span className="font-display font-bold text-[28px] uppercase text-white leading-none tracking-[-0.02em] group-hover:text-violet-400 transition-colors duration-200">
+                        SIGN IN
+                      </span>
+                    </button>
+                  ) : (
+                    <Link
+                      href={link.href}
+                      onClick={closeMobileMenu}
+                      className="group flex items-baseline gap-4 py-4 border-b border-white/5 last:border-0"
+                    >
+                      <span className="font-mono text-[11px] text-violet-500 w-6 shrink-0">
+                        {link.num}
+                      </span>
+                      <span className="font-display font-bold text-[28px] uppercase text-white leading-none tracking-[-0.02em] group-hover:text-violet-400 transition-colors duration-200">
+                        {link.label}
+                      </span>
+                    </Link>
+                  )}
                 </m.div>
               ))}
             </m.nav>

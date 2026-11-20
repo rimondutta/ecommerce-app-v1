@@ -129,7 +129,11 @@ export default function CategoryForm({ initialData, onSubmit, loading = false }:
 
           {/* Media Card */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 space-y-4">
-            <label className="block text-sm font-medium text-gray-900">Category Image</label>
+            <div className="flex items-center justify-between">
+              <label className="block text-sm font-medium text-gray-900">Category Image</label>
+              <span className="text-xs text-gray-500">Upload or select a 3D preset</span>
+            </div>
+            
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
               {formData.image && (
                 <div className="relative aspect-square rounded-lg border border-gray-200 overflow-hidden group bg-gray-50">
@@ -161,6 +165,41 @@ export default function CategoryForm({ initialData, onSubmit, loading = false }:
                   )}
                 </div>
               )}
+            </div>
+
+            {/* Quick 3D Toy Icons Presets */}
+            <div className="pt-3 border-t border-gray-100">
+              <p className="text-xs font-medium text-gray-700 mb-2.5">Quick Presets (Toy House 3D Icons):</p>
+              <div className="grid grid-cols-4 sm:grid-cols-8 gap-2">
+                {[
+                  { name: "Toys", url: "/images/categories/toys.png" },
+                  { name: "Gadgets", url: "/images/categories/gadgets.png" },
+                  { name: "Dolls", url: "/images/categories/dolls.png" },
+                  { name: "Puzzles", url: "/images/categories/puzzles.png" },
+                  { name: "Toy Cars", url: "/images/categories/toy-cars.png" },
+                  { name: "Arts & Crafts", url: "/images/categories/arts-crafts.png" },
+                  { name: "Cosmetics", url: "/images/categories/cosmetics.png" },
+                  { name: "Gift Sets", url: "/images/categories/gift-sets.png" },
+                ].map((preset) => (
+                  <button
+                    key={preset.url}
+                    type="button"
+                    onClick={() => setFormData((prev) => ({ ...prev, image: preset.url }))}
+                    className={`relative p-1 rounded-xl border transition-all text-center flex flex-col items-center gap-1 ${
+                      formData.image === preset.url
+                        ? "border-[#5428D8] bg-purple-50 ring-2 ring-[#5428D8]/20"
+                        : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
+                    }`}
+                  >
+                    <div className="relative w-8 h-8 rounded-lg overflow-hidden">
+                      <Image src={preset.url} alt={preset.name} fill sizes="32px" className="object-contain" />
+                    </div>
+                    <span className="text-[10px] text-gray-600 font-medium leading-tight truncate w-full">
+                      {preset.name}
+                    </span>
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
 

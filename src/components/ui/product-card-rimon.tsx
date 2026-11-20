@@ -7,6 +7,7 @@ import Image from "next/image";
 
 import { useCart } from "@/components/providers/CartProvider";
 import { useWishlist } from "@/store/wishlistStore";
+import { useToast } from "@/components/playshelf/Toast";
 import { cn, getOptimizedCloudinaryUrl } from "@/lib/utils";
 import { Heart, Star } from "lucide-react";
 
@@ -43,6 +44,7 @@ function formatPrice(n: number): string {
 export default function ProductCardModern({ product, priority = false }: Props) {
   const { addItem, openCart } = useCart();
   const { toggleItem, isWishlisted } = useWishlist();
+  const { showToast } = useToast();
   const [isAdding, setIsAdding] = useState(false);
 
   const wishlisted = isWishlisted(product._id);
@@ -75,6 +77,7 @@ export default function ProductCardModern({ product, priority = false }: Props) 
       trackAddToCart(product, 1);
     } catch { /* noop */ }
 
+    showToast(`"${product.title}" added to cart!`, "success");
     openCart();
   };
 
@@ -169,7 +172,7 @@ export default function ProductCardModern({ product, priority = false }: Props) 
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center bg-joy-mist">
-              <Image src="/placeholder.jpg" alt="Placeholder" fill className="object-cover opacity-40" />
+              <Image src="/placeholder.jpg" alt="Placeholder" fill sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw" className="object-cover opacity-40" />
             </div>
           )}
 

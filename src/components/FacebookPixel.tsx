@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { usePathname } from "next/navigation";
+import { useSafePathname } from "@/lib/useSafePathname";
 import Script from "next/script";
 
 interface PixelConfig {
@@ -33,7 +33,7 @@ interface PixelConfig {
 export default function FacebookPixel() {
   const [config, setConfig] = useState<PixelConfig | null>(null);
 
-  const pathname = usePathname();
+  const pathname = useSafePathname();
   const initialPathnameRef = useRef<string | null>(null);
 
   useEffect(() => {

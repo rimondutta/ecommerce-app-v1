@@ -45,8 +45,8 @@ const getProductData = cache(async (slug: string) => {
         .lean(),
       withCache('products:related_sample', 300, async () => {
         return await Product.find({ isPublished: true })
-          .select('title price compareAtPrice slug images category inventory rating reviewCount')
-          .limit(8)
+          .select('title price compareAtPrice slug images category inventory rating reviewCount badge')
+          .limit(10)
           .lean();
       }),
     ]);

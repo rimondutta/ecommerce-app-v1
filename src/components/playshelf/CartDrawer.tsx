@@ -6,12 +6,8 @@ import Image from "next/image";
 import { useCart } from "@/components/providers/CartProvider";
 import Link from "next/link";
 
-const FREE_SHIPPING_THRESHOLD = 2000;
-
 export default function CartDrawer() {
   const { items, isOpen, closeCart, removeItem, updateQuantity, total, count } = useCart();
-  const remaining = Math.max(0, FREE_SHIPPING_THRESHOLD - total);
-  const pct = Math.min(100, (total / FREE_SHIPPING_THRESHOLD) * 100);
 
   return (
     <Transition show={isOpen} as={Fragment}>
@@ -40,21 +36,21 @@ export default function CartDrawer() {
           leaveFrom="translate-x-0"
           leaveTo="translate-x-full"
         >
-          <DialogPanel className="fixed inset-y-0 right-0 w-full sm:w-[400px] bg-paper-white/95 backdrop-blur-2xl border-l border-rule-grey flex flex-col overflow-hidden">
+          <DialogPanel className="fixed inset-y-0 right-0 w-full sm:w-[400px] bg-[#FDFAF5] backdrop-blur-2xl border-l border-[#EDE4D8] flex flex-col overflow-hidden">
 
             {/* ─── Header ─── */}
-            <div className="flex items-start justify-between px-6 pt-8 pb-6 border-b border-rule-grey">
+            <div className="flex items-start justify-between px-6 pt-8 pb-6 border-b border-[#EDE4D8]">
               <div>
-                <h2 className="font-display text-[32px] uppercase text-ink-black leading-none tracking-[-0.01em]">
+                <h2 className="font-bold text-2xl text-[#2C2416] leading-none tracking-tight">
                   Your Cart
                 </h2>
-                <p className="font-mono text-[11px] text-rule-black uppercase tracking-[0.12em] mt-1">
+                <p className="text-xs text-[#7A6E62] font-normal mt-1">
                   {count} {count === 1 ? "item" : "items"}
                 </p>
               </div>
               <button
                 onClick={closeCart}
-                className="text-ink-black hover:text-rule-grey transition-colors mt-1"
+                className="text-[#7A6E62] hover:text-[#2C2416] transition-colors mt-1"
                 aria-label="Close cart"
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
@@ -63,20 +59,7 @@ export default function CartDrawer() {
               </button>
             </div>
 
-            {/* ─── Free shipping progress ─── */}
-            {remaining > 0 && (
-              <div className="px-6 py-4 border-b border-rule-grey">
-                <p className="font-mono text-[10px] text-ink-black uppercase tracking-[0.1em] mb-2">
-                  Add <strong className="text-stamp-red">৳{remaining.toLocaleString()}</strong> for free shipping
-                </p>
-                <div className="h-[1px] w-full bg-rule-grey relative overflow-hidden">
-                  <div
-                    className="absolute inset-y-0 left-0 bg-ink-black transition-all duration-700"
-                    style={{ width: `${pct}%` }}
-                  />
-                </div>
-              </div>
-            )}
+
 
             {/* ─── Cart Items — "receipt" rows ─── */}
             <div className="flex-1 overflow-y-auto">
@@ -85,10 +68,10 @@ export default function CartDrawer() {
                   <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" className="text-rule-grey">
                     <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" /><line x1="3" y1="6" x2="21" y2="6" /><path d="M16 10a4 4 0 0 1-8 0" />
                   </svg>
-                  <p className="font-body text-[14px] text-[#043224]">Your cart is empty.</p>
+                  <p className="font-body text-[14px] text-[#2C2416]">Your cart is empty.</p>
                   <button
                     onClick={closeCart}
-                    className="font-mono text-[11px] uppercase tracking-[0.1em] text-[#043224] border border-[#043224] px-5 py-2.5 hover:bg-[#043224]/90 hover:text-white transition-colors cursor-pointer"
+                    className="text-sm font-semibold text-[#5428D8] border border-[#5428D8] px-5 py-2.5 rounded-full hover:bg-[#5428D8] hover:text-white transition-colors cursor-pointer"
                   >
                     Continue Shopping
                   </button>
@@ -97,10 +80,10 @@ export default function CartDrawer() {
                 items.map((item) => (
                   <div
                     key={`${item.id}-${JSON.stringify(item.variantOptions)}`}
-                    className="flex gap-4 px-6 py-5 border-b border-rule-grey"
+                    className="flex gap-4 px-6 py-5 border-b border-[#EDE4D8]"
                   >
-                    {/* Thumbnail — flat, no radius */}
-                    <div className="w-[72px] h-[90px] relative shrink-0 bg-paper-grey overflow-hidden">
+                    {/* Thumbnail — warm rounded */}
+                    <div className="w-[72px] h-[90px] relative shrink-0 bg-[#FBF4EB] overflow-hidden rounded-xl">
                       <Image src={item.image} alt={item.title} fill className="object-cover" sizes="72px" />
                     </div>
 
@@ -110,40 +93,40 @@ export default function CartDrawer() {
                         <Link
                           href={`/products/${item.slug}`}
                           onClick={closeCart}
-                          className="font-body text-[13px] text-ink-black leading-snug line-clamp-2 hover:text-rule-grey transition-colors"
+                          className="font-body text-[13px] text-[#2C2416] leading-snug line-clamp-2 hover:text-[#5428D8] transition-colors"
                         >
                           {item.title}
                         </Link>
                         {Object.keys(item.variantOptions || {}).length > 0 && (
-                          <p className="font-mono text-[10px] text-rule-grey uppercase tracking-[0.08em] mt-0.5">
+                          <p className="text-[10px] text-[#7A6E62] mt-0.5">
                             {Object.entries(item.variantOptions || {}).map(([k, v]) => `${k}: ${v}`).join(" · ")}
                           </p>
                         )}
                       </div>
 
                       <div className="flex items-center justify-between mt-3">
-                        {/* Flat text-based quantity stepper */}
-                        <div className="flex items-center gap-0">
+                        {/* Quantity stepper */}
+                        <div className="flex items-center gap-0 rounded-lg overflow-hidden border border-[#E8DDD0]">
                           <button
                             onClick={() => updateQuantity(item.id, Math.max(1, item.quantity - 1), item.variantId, item.variantOptions)}
-                            className="font-mono text-[16px] text-ink-black w-7 h-7 flex items-center justify-center border border-rule-grey hover:border-ink-black transition-colors leading-none"
+                            className="text-[16px] text-[#2C2416] w-7 h-7 flex items-center justify-center bg-[#F5F0E8] hover:bg-[#EDE4D8] transition-colors leading-none"
                             aria-label="Decrease"
                           >
                             −
                           </button>
-                          <span className="font-mono text-[12px] text-ink-black w-8 h-7 flex items-center justify-center border-y border-rule-grey">
+                          <span className="text-[12px] text-[#2C2416] w-8 h-7 flex items-center justify-center bg-white border-x border-[#E8DDD0]">
                             {item.quantity}
                           </span>
                           <button
                             onClick={() => updateQuantity(item.id, item.quantity + 1, item.variantId, item.variantOptions)}
-                            className="font-mono text-[16px] text-ink-black w-7 h-7 flex items-center justify-center border border-rule-grey hover:border-ink-black transition-colors leading-none"
+                            className="text-[16px] text-[#2C2416] w-7 h-7 flex items-center justify-center bg-[#F5F0E8] hover:bg-[#EDE4D8] transition-colors leading-none"
                             aria-label="Increase"
                           >
                             +
                           </button>
                         </div>
 
-                        <span className="font-mono text-[13px] text-ink-black">
+                        <span className="text-[13px] text-[#2C2416] font-semibold">
                           ৳{(item.price * item.quantity).toLocaleString()}
                         </span>
                       </div>
@@ -166,16 +149,16 @@ export default function CartDrawer() {
 
             {/* ─── Checkout Footer ─── */}
             {items.length > 0 && (
-              <div className="border-t border-rule-grey px-6 py-6 space-y-4 bg-paper-grey">
+              <div className="border-t border-[#EDE4D8] px-6 py-6 space-y-4 bg-[#FBF4EB]">
                 <div className="flex justify-between items-baseline">
-                  <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-[#043224]">Subtotal</span>
-                  <span className="font-mono text-[20px] text-[#043224]">৳{total.toLocaleString()}</span>
+                  <span className="text-xs uppercase tracking-[0.08em] text-[#7A6E62]">Subtotal</span>
+                  <span className="text-xl font-bold text-[#2C2416]">৳{total.toLocaleString()}</span>
                 </div>
-                <p className="font-mono text-[10px] text-[#043224] uppercase tracking-[0.08em]">
+                <p className="text-[10px] text-[#7A6E62] uppercase tracking-[0.06em]">
                   Shipping & taxes calculated at checkout.
                 </p>
                 <Link href="/checkout" onClick={closeCart} className="block">
-                  <button className="w-full bg-[#043224] text-white font-mono text-[11px] uppercase tracking-[0.15em] py-4 hover:bg-[#043224]/90 hover:text-white transition-colors cursor-pointer duration-200">
+                  <button className="w-full bg-[#5428D8] text-white font-semibold text-sm rounded-full py-3.5 hover:bg-[#4318C4] transition-colors cursor-pointer duration-200 shadow-[0_4px_14px_rgba(84,40,216,0.35)]">
                     Proceed to Checkout →
                   </button>
                 </Link>
