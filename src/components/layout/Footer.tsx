@@ -149,10 +149,10 @@ export default function Footer() {
       <div className="max-w-[1360px] mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* ─── 5-Column Navigation Grid Matching Reference Image ─── */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8 lg:gap-10">
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8 lg:gap-10">
 
           {/* Col 1: Brand Logo, Description, Socials */}
-          <div className="flex flex-col gap-3.5">
+          <div className="col-span-2 sm:col-span-2 md:col-span-1 lg:col-span-1 flex flex-col gap-3.5">
             <Link href="/" className="flex items-center gap-2.5 group w-fit">
               <RockingHorseLogo className="w-8 h-8 group-hover:scale-105 transition-transform shrink-0" />
               <span className="font-bold text-xl sm:text-2xl text-stone-900 tracking-tight">
@@ -302,7 +302,7 @@ export default function Footer() {
           </div>
 
           {/* Col 5: Contact Us & Payment */}
-          <div className="flex flex-col gap-3.5">
+          <div className="col-span-2 sm:col-span-2 md:col-span-2 lg:col-span-1 flex flex-col gap-3.5">
             <h4 className="font-bold text-[15px] sm:text-base text-stone-900">Contact Us</h4>
             
             <div className="flex flex-col gap-3">

@@ -866,7 +866,7 @@ function ShopGridPure({
   return (
     <div suppressHydrationWarning className="flex-1 bg-[#FAF7F2] min-h-screen text-[#2D1810] font-body">
       {/* ── Top Header Section ── */}
-      <section className="relative pb-4 pt-28 lg:pt-32">
+      <section className="relative pb-4 pt-4 sm:pt-6 lg:pt-8">
         <div className="max-w-[1360px] mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-end justify-between border-b border-stone-200/80">
           <div>
             <h1 className="font-extrabold text-3xl md:text-4xl text-[#2D1810] tracking-tight">

@@ -326,23 +326,23 @@ export default function TopNavbar() {
       {/* ═══════════════════════════════════════════════
           2. MAIN HEADER (Logo, Search Bar, Account, Cart)
           ═══════════════════════════════════════════════ */}
-      <div className="w-full bg-white border-b border-gray-100 py-3 sm:py-4 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-[1360px] mx-auto flex items-center justify-between gap-4 sm:gap-8">
+      <div className="w-full bg-white border-b border-gray-100 py-2.5 sm:py-4 px-3 sm:px-6 lg:px-8">
+        <div className="max-w-[1360px] mx-auto flex items-center justify-between gap-2 xs:gap-4 sm:gap-8">
 
           {/* Left: Mobile Menu Trigger + Brand Logo */}
-          <div className="flex items-center gap-3 shrink-0">
+          <div className="flex items-center gap-1.5 xs:gap-2.5 sm:gap-3 shrink-0 min-w-0">
             <button
               type="button"
               onClick={openMobileMenu}
-              className="lg:hidden p-2 rounded-xl text-gray-700 hover:bg-gray-100 transition-colors"
+              className="lg:hidden p-1.5 xs:p-2 rounded-xl text-gray-700 hover:bg-gray-100 transition-colors shrink-0"
               aria-label="Open navigation menu"
             >
-              <Menu className="w-6 h-6" />
+              <Menu className="w-5 h-5 xs:w-6 xs:h-6" />
             </button>
 
-            <Link href="/" className="flex items-center gap-2.5 group">
-              <RockingHorseIcon className="w-9 h-9 sm:w-10 sm:h-10 transition-transform group-hover:scale-105" />
-              <span className="font-extrabold text-xl sm:text-2xl text-[#1E1B4B] tracking-tight">
+            <Link href="/" className="flex items-center gap-2 group min-w-0">
+              <RockingHorseIcon className="w-8 h-8 xs:w-9 xs:h-9 sm:w-10 sm:h-10 transition-transform group-hover:scale-105 shrink-0" />
+              <span className="font-extrabold text-lg xs:text-xl sm:text-2xl text-[#1E1B4B] tracking-tight truncate">
                 Toy Hourse
               </span>
             </Link>
@@ -372,7 +372,7 @@ export default function TopNavbar() {
           </div>
 
           {/* Right: Account & Cart Buttons */}
-          <div className="flex items-center gap-3 sm:gap-6 shrink-0">
+          <div className="flex items-center gap-1.5 xs:gap-2.5 sm:gap-6 shrink-0">
 
             {/* Mobile Search Icon */}
             <button

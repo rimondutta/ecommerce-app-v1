@@ -110,22 +110,22 @@ export default function CategorySection({
       {/* ═══════════════════════════════════════════════
           Shop by Category — Reference UI Style
           ═══════════════════════════════════════════════ */}
-      <section className="w-full bg-white py-14 md:py-20 font-sans select-none">
+      <section className="w-full bg-[#FDF8F0] py-10 sm:py-14 md:py-20 font-sans select-none">
         <div className="max-w-[1360px] mx-auto px-4 sm:px-6 lg:px-8">
 
           {/* ── Centered header with decorative lines (Reference UI) ── */}
-          <div className="flex flex-col items-center mb-10 sm:mb-14">
-            <div className="flex items-center gap-3 sm:gap-4 mb-2.5">
+          <div className="flex flex-col items-center mb-8 sm:mb-12 md:mb-14">
+            <div className="flex items-center gap-2 xs:gap-3 sm:gap-4 mb-2">
               {/* Left decorative line */}
-              <span className="w-8 sm:w-16 md:w-20 h-[1.5px] bg-[#5428D8]/40" />
+              <span className="hidden xs:block w-6 sm:w-16 md:w-20 h-[1.5px] bg-[#5428D8]/40" />
               <h2
-                className="text-2xl sm:text-3xl md:text-4xl text-[#1E1B4B] tracking-tight text-center font-serif font-semibold whitespace-nowrap"
+                className="text-xl xs:text-2xl sm:text-3xl md:text-4xl text-[#2C2416] tracking-tight text-center font-serif font-semibold"
                 style={{ fontFamily: "'Playfair Display', var(--font-playfair), Georgia, serif" }}
               >
                 Shop by Category
               </h2>
               {/* Right decorative line */}
-              <span className="w-8 sm:w-16 md:w-20 h-[1.5px] bg-[#5428D8]/40" />
+              <span className="hidden xs:block w-6 sm:w-16 md:w-20 h-[1.5px] bg-[#5428D8]/40" />
             </div>
             <p className="text-xs sm:text-sm md:text-base text-gray-500 font-normal text-center">
               Find the perfect piece for your style
@@ -133,7 +133,7 @@ export default function CategorySection({
           </div>
 
           {/* ── Category circles ── */}
-          <div className="flex flex-wrap justify-center gap-x-6 sm:gap-x-10 md:gap-x-12 lg:gap-x-14 gap-y-8 sm:gap-y-10">
+          <div className="flex flex-wrap justify-center gap-x-3 xs:gap-x-6 sm:gap-x-10 md:gap-x-12 lg:gap-x-14 gap-y-6 sm:gap-y-10">
             {categories.map((cat) => {
               const imageSrc = getCategoryImage(cat);
               const isPreset = imageSrc.startsWith("/images/categories/");
@@ -141,11 +141,11 @@ export default function CategorySection({
                 <Link
                   key={cat._id || cat.slug}
                   href={`/products?category=${encodeURIComponent(cat.slug)}`}
-                  className="group flex flex-col items-center gap-3.5 w-[110px] sm:w-[145px] md:w-[165px]"
+                  className="group flex flex-col items-center gap-2.5 sm:gap-3.5 w-[95px] xs:w-[110px] sm:w-[145px] md:w-[165px]"
                 >
                   {/* Large circle photo with warm aesthetic background */}
                   <div className="
-                    relative w-[110px] h-[110px] sm:w-[140px] sm:h-[140px] md:w-[165px] md:h-[165px]
+                    relative w-[95px] h-[95px] xs:w-[110px] xs:h-[110px] sm:w-[140px] sm:h-[140px] md:w-[165px] md:h-[165px]
                     rounded-full overflow-hidden flex-shrink-0
                     bg-[#FAF7F2]
                     shadow-[0_4px_20px_rgba(0,0,0,0.06)]
@@ -158,18 +158,18 @@ export default function CategorySection({
                       alt={cat.name}
                       fill
                       sizes="(max-width: 640px) 110px, (max-width: 768px) 140px, 165px"
-                      className={`${isPreset ? "object-contain p-3.5 sm:p-4" : "object-cover"} transition-transform duration-500 group-hover:scale-110`}
+                      className={`${isPreset ? "object-contain p-3 sm:p-4" : "object-cover"} transition-transform duration-500 group-hover:scale-110`}
                     />
                     {/* Soft gradient sheen */}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/5 via-transparent to-transparent pointer-events-none rounded-full" />
                   </div>
 
                   {/* Text block */}
-                  <div className="flex flex-col items-center gap-1 text-center">
-                    <span className="text-sm sm:text-base md:text-lg font-bold text-[#2C2416] leading-tight line-clamp-1">
+                  <div className="flex flex-col items-center gap-0.5 sm:gap-1 text-center w-full px-1">
+                    <span className="text-xs xs:text-sm sm:text-base md:text-lg font-bold text-[#2C2416] leading-tight line-clamp-1">
                       {cat.name}
                     </span>
-                    <span className="text-xs sm:text-sm font-semibold text-[#5428D8] group-hover:text-[#431db8] transition-colors inline-flex items-center gap-1">
+                    <span className="text-[11px] sm:text-xs md:text-sm font-semibold text-[#5428D8] group-hover:text-[#431db8] transition-colors inline-flex items-center gap-1">
                       View All →
                     </span>
                   </div>

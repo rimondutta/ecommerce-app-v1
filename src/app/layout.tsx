@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { CartProvider } from "@/components/providers/CartProvider";
 import { WishlistProvider } from "@/components/providers/WishlistProvider";
@@ -10,6 +10,12 @@ import FacebookPixel from "@/components/FacebookPixel";
 import ExtensionHydrationFix from "@/components/ExtensionHydrationFix";
 import LenisProvider from "@/components/providers/LenisProvider";
 import FramerMotionProvider from "@/components/providers/FramerMotionProvider";
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXTAUTH_URL || 'https://toyhourse.com'),

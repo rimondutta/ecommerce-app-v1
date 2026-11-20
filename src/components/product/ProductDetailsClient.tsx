@@ -885,7 +885,7 @@ export default function ProductDetailsClient({
         <div className="max-w-[1100px] mx-auto">
 
           {/* Tab bar */}
-          <div className="flex gap-0 border-b border-gray-200 mb-8 overflow-x-auto">
+          <div className="flex gap-0 border-b border-gray-200 mb-6 sm:mb-8 overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {[
               { key: "description", label: "Product Description" },
               { key: "specs", label: "Specifications" },
@@ -899,7 +899,7 @@ export default function ProductDetailsClient({
                 key={key}
                 onClick={() => setActiveTab(key)}
                 className={cn(
-                  "shrink-0 px-5 py-3 text-sm font-semibold border-b-2 transition-all duration-200 whitespace-nowrap",
+                  "shrink-0 px-3.5 sm:px-5 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold border-b-2 transition-all duration-200 whitespace-nowrap",
                   activeTab === key
                     ? "border-[#5428D8] text-[#5428D8]"
                     : "border-transparent text-gray-500 hover:text-[#1E1B4B]"

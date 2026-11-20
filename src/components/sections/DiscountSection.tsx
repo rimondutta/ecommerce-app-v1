@@ -56,20 +56,22 @@ export default function DiscountSection({ initialProducts = [] }: DiscountSectio
           </div>
 
           <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
-            <button
-              onClick={() => scroll("left")}
-              className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white border border-gray-200 shadow-sm flex items-center justify-center hover:border-[#5428D8] hover:text-[#5428D8] text-gray-400 transition-all cursor-pointer"
-              aria-label="Scroll left"
-            >
-              <ChevronLeft size={14} strokeWidth={2.5} className="sm:w-4 sm:h-4" />
-            </button>
-            <button
-              onClick={() => scroll("right")}
-              className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white border border-gray-200 shadow-sm flex items-center justify-center hover:border-[#5428D8] hover:text-[#5428D8] text-gray-400 transition-all cursor-pointer"
-              aria-label="Scroll right"
-            >
-              <ChevronRight size={14} strokeWidth={2.5} className="sm:w-4 sm:h-4" />
-            </button>
+            <div className="hidden sm:flex items-center gap-1.5">
+              <button
+                onClick={() => scroll("left")}
+                className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white border border-gray-200 shadow-sm flex items-center justify-center hover:border-[#5428D8] hover:text-[#5428D8] text-gray-400 transition-all cursor-pointer"
+                aria-label="Scroll left"
+              >
+                <ChevronLeft size={14} strokeWidth={2.5} className="sm:w-4 sm:h-4" />
+              </button>
+              <button
+                onClick={() => scroll("right")}
+                className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white border border-gray-200 shadow-sm flex items-center justify-center hover:border-[#5428D8] hover:text-[#5428D8] text-gray-400 transition-all cursor-pointer"
+                aria-label="Scroll right"
+              >
+                <ChevronRight size={14} strokeWidth={2.5} className="sm:w-4 sm:h-4" />
+              </button>
+            </div>
             <Link
               href="/products?tag=discount"
               className="text-xs sm:text-sm font-bold text-[#5428D8] hover:text-[#4318C4] transition-colors whitespace-nowrap pl-1"

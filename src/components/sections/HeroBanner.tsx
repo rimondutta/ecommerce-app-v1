@@ -11,7 +11,7 @@ export default function HeroBanner() {
   const [activeSlide, setActiveSlide] = useState(0);
 
   return (
-    <section className="w-full relative overflow-hidden bg-[#FDF8F0] border-b border-[#EDE4D8] min-h-[480px] sm:min-h-[520px] lg:min-h-[560px] xl:min-h-[620px] flex items-center font-sans">
+    <section className="w-full relative overflow-hidden bg-[#FDF8F0] border-b border-[#EDE4D8] min-h-[440px] sm:min-h-[520px] lg:min-h-[560px] xl:min-h-[620px] flex items-center font-sans">
       
       {/* ═══ Full Width Background Banner Image (toyhourse-hero-section.png) ═══ */}
       <div className="absolute inset-0 w-full h-full pointer-events-none select-none">
@@ -24,23 +24,23 @@ export default function HeroBanner() {
           className="object-cover object-right"
         />
         {/* Subtle gradient overlay on left for pristine contrast & readability on any device */}
-        <div className="absolute inset-0 bg-gradient-to-r from-[#FDF8F0] via-[#FDF8F0]/95 md:via-[#FDF8F0]/75 to-transparent w-full md:w-[60%] lg:w-[50%]" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#FDF8F0] via-[#FDF8F0]/95 sm:via-[#FDF8F0]/85 md:via-[#FDF8F0]/75 to-transparent w-full md:w-[65%] lg:w-[50%]" />
       </div>
 
       {/* ═══ Content Container (Centered & Aligned with Navigation Grid) ═══ */}
-      <div className="w-full max-w-[1360px] xl:max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 lg:py-16 relative z-10 flex items-center justify-between">
+      <div className="w-full max-w-[1360px] xl:max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-14 lg:py-16 relative z-10 flex items-center justify-between">
         
         {/* Left Content Area */}
         <div className="relative z-10 max-w-xl lg:max-w-2xl flex flex-col justify-center">
           
           {/* Welcome Badge */}
-          <div className="inline-flex items-center gap-2 bg-[#FFFBEB] border border-[#FDE68A] text-[#1E1B4B] text-xs sm:text-sm font-semibold px-4 py-1.5 rounded-full shadow-xs mb-5 sm:mb-6 w-fit animate-fade-in">
-            <Star className="w-4 h-4 text-[#F59E0B] fill-[#F59E0B]" />
+          <div className="inline-flex items-center gap-2 bg-[#FFFBEB] border border-[#FDE68A] text-[#1E1B4B] text-xs sm:text-sm font-semibold px-3.5 py-1 sm:px-4 sm:py-1.5 rounded-full shadow-xs mb-4 sm:mb-6 w-fit animate-fade-in">
+            <Star className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#F59E0B] fill-[#F59E0B]" />
             <span>Welcome to Toy Hourse!</span>
           </div>
 
           {/* Headline */}
-          <h1 className="text-3xl sm:text-5xl lg:text-[56px] xl:text-[62px] font-black tracking-tight text-[#1E1B4B] leading-[1.12] mb-5">
+          <h1 className="text-2xl xs:text-3xl sm:text-5xl lg:text-[56px] xl:text-[62px] font-black tracking-tight text-[#1E1B4B] leading-[1.15] sm:leading-[1.12] mb-4 sm:mb-5">
             Play. Learn. Grow.
             <br />
             <span className="relative inline-block text-[#5428D8] mt-1">
@@ -64,15 +64,15 @@ export default function HeroBanner() {
           </h1>
 
           {/* Subtitle */}
-          <p className="text-gray-600 text-base sm:text-lg lg:text-xl font-normal leading-relaxed max-w-md sm:max-w-lg mb-8">
+          <p className="text-gray-600 text-sm sm:text-lg lg:text-xl font-normal leading-relaxed max-w-md sm:max-w-lg mb-6 sm:mb-8">
             Discover amazing toys, cool gadgets and more for a happier childhood.
           </p>
 
           {/* Action CTA Buttons */}
-          <div className="flex items-center gap-4 flex-wrap">
+          <div className="flex items-center gap-3 sm:gap-4 flex-wrap">
             <Link
               href="/products"
-              className="inline-flex items-center gap-2 bg-[#5428D8] hover:bg-[#481fbe] text-white font-semibold text-sm sm:text-base px-7 py-3.5 rounded-full shadow-lg shadow-[#5428D8]/25 transition-all duration-200 hover:scale-[1.03] active:scale-[0.98] group"
+              className="inline-flex items-center gap-2 bg-[#5428D8] hover:bg-[#481fbe] text-white font-semibold text-xs sm:text-base px-5 py-3 sm:px-7 sm:py-3.5 rounded-full shadow-lg shadow-[#5428D8]/25 transition-all duration-200 hover:scale-[1.03] active:scale-[0.98] group"
             >
               <span>Shop Now</span>
               <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
@@ -81,9 +81,9 @@ export default function HeroBanner() {
             <button
               type="button"
               onClick={() => setIsVideoOpen(true)}
-              className="inline-flex items-center gap-2.5 bg-white/95 hover:bg-white text-[#1E1B4B] font-semibold text-sm sm:text-base px-6 py-3.5 rounded-full border border-gray-200/90 shadow-xs transition-all duration-200 hover:scale-[1.03] active:scale-[0.98] cursor-pointer"
+              className="inline-flex items-center gap-2 bg-white/95 hover:bg-white text-[#1E1B4B] font-semibold text-xs sm:text-base px-4 py-3 sm:px-6 sm:py-3.5 rounded-full border border-gray-200/90 shadow-xs transition-all duration-200 hover:scale-[1.03] active:scale-[0.98] cursor-pointer"
             >
-              <Play className="w-4 h-4 fill-[#1E1B4B] text-[#1E1B4B]" />
+              <Play className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-[#1E1B4B] text-[#1E1B4B]" />
               <span>Watch Video</span>
             </button>
           </div>
