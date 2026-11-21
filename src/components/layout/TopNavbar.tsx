@@ -20,6 +20,7 @@ import {
   LogOut,
   Package,
   Heart,
+  Truck,
 } from "lucide-react";
 import {
   FaFacebookF,
@@ -249,7 +250,7 @@ export default function TopNavbar() {
 
           {/* Left: Free Shipping Announcement */}
           <div className="flex items-center gap-2 font-medium tracking-tight">
-            <Sparkles className="w-3.5 h-3.5 text-amber-300 shrink-0" />
+            <Truck className="w-4 h-4 text-white shrink-0" />
             <span>সারা বাংলাদেশ ডেলিভারি</span>
           </div>
 
