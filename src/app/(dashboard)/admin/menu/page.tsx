@@ -41,10 +41,6 @@ interface MenuItem {
   children?: MenuChild[];
 }
 
-const COMMON_EMOJIS = [
-  "🏠", "🧸", "🎮", "✨", "🔥", "👧", "🧩", "🏎️", "🎨", "💄", "🎁", "👶", "⚡", "🛍️", "🎯", "⭐"
-];
-
 const PRESET_URLS = [
   { label: "Home Page", url: "/" },
   { label: "Shop (All Products)", url: "/products" },
@@ -228,7 +224,7 @@ export default function AdminMenuPage() {
       const payload = {
         label: editItem.label.trim(),
         url: editItem.url.trim(),
-        icon: editItem.icon?.trim() || "",
+        icon: "",
         badge: editItem.badge?.trim() || "",
         openInNewTab: Boolean(editItem.openInNewTab),
         isActive: editItem.isActive !== false,
@@ -322,7 +318,7 @@ export default function AdminMenuPage() {
             <div>
               <h1 className="text-xl font-bold text-gray-900">Header Menu CMS</h1>
               <p className="text-xs text-gray-500">
-                Manage website navbar links, categories, emojis, and dropdown menus.
+                Manage website navbar links, categories, and dropdown menus.
               </p>
             </div>
           </div>
@@ -378,7 +374,6 @@ export default function AdminMenuPage() {
                   onMouseLeave={() => setActivePreviewDropdown(null)}
                 >
                   <div className="flex items-center gap-1.5 text-sm font-bold text-gray-800 hover:text-[#5428D8] cursor-pointer py-1">
-                    {item.icon && <span className="text-base">{item.icon}</span>}
                     <span>{item.label}</span>
                     {item.badge && (
                       <span className="bg-[#EF4444] text-white text-[9px] font-extrabold px-1.5 py-0.2 rounded-full uppercase">
@@ -472,8 +467,8 @@ export default function AdminMenuPage() {
                       </div>
 
                       {/* Icon */}
-                      <div className="w-10 h-10 rounded-xl bg-purple-50 border border-purple-100 flex items-center justify-center text-lg shrink-0">
-                        {item.icon || <Link2 size={16} className="text-[#5428D8]" />}
+                      <div className="w-10 h-10 rounded-xl bg-purple-50 border border-purple-100 flex items-center justify-center shrink-0">
+                        <Link2 size={16} className="text-[#5428D8]" />
                       </div>
 
                       {/* Label + URL */}
@@ -660,47 +655,18 @@ export default function AdminMenuPage() {
                 </div>
               </div>
 
-              {/* Emoji Icon & Badge */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-1.5">
-                    Emoji Icon
-                  </label>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="text"
-                      value={editItem.icon || ""}
-                      onChange={(e) => setEditItem((p) => ({ ...p, icon: e.target.value }))}
-                      placeholder="e.g. 🧸, 🎮, 💄"
-                      className="w-24 border border-gray-200 rounded-xl px-3 py-2 text-center text-lg outline-none focus:border-[#5428D8]"
-                    />
-                    <div className="flex flex-wrap gap-1">
-                      {COMMON_EMOJIS.slice(0, 8).map((emoji) => (
-                        <button
-                          key={emoji}
-                          type="button"
-                          onClick={() => setEditItem((p) => ({ ...p, icon: emoji }))}
-                          className="w-7 h-7 rounded-lg hover:bg-purple-50 text-base flex items-center justify-center transition-colors"
-                        >
-                          {emoji}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-1.5">
-                    Optional Badge (e.g. HOT, NEW)
-                  </label>
-                  <input
-                    type="text"
-                    value={editItem.badge || ""}
-                    onChange={(e) => setEditItem((p) => ({ ...p, badge: e.target.value }))}
-                    placeholder="e.g. HOT, NEW, 20% OFF"
-                    className="w-full border border-gray-200 rounded-xl px-3.5 py-2 text-sm text-gray-800 outline-none focus:border-[#5428D8]"
-                  />
-                </div>
+              {/* Optional Badge */}
+              <div>
+                <label className="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-1.5">
+                  Optional Badge (e.g. HOT, NEW, 20% OFF)
+                </label>
+                <input
+                  type="text"
+                  value={editItem.badge || ""}
+                  onChange={(e) => setEditItem((p) => ({ ...p, badge: e.target.value }))}
+                  placeholder="e.g. HOT, NEW, 20% OFF"
+                  className="w-full border border-gray-200 rounded-xl px-3.5 py-2 text-sm text-gray-800 outline-none focus:border-[#5428D8]"
+                />
               </div>
 
               {/* Checkboxes: Active & New Tab */}

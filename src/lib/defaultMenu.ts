@@ -2,7 +2,7 @@ export const DEFAULT_MENU_ITEMS = [
   {
     label: "Home",
     url: "/",
-    icon: "🏠",
+    icon: "",
     order: 0,
     isActive: true,
     children: [],
@@ -10,7 +10,7 @@ export const DEFAULT_MENU_ITEMS = [
   {
     label: "Toys",
     url: "/products?category=toys",
-    icon: "🧸",
+    icon: "",
     order: 1,
     isActive: true,
     children: [
@@ -23,7 +23,7 @@ export const DEFAULT_MENU_ITEMS = [
   {
     label: "Gadgets",
     url: "/products?category=gadgets",
-    icon: "🎮",
+    icon: "",
     order: 2,
     isActive: true,
     children: [
@@ -35,7 +35,7 @@ export const DEFAULT_MENU_ITEMS = [
   {
     label: "Cosmetics",
     url: "/products?category=cosmetics",
-    icon: "✨",
+    icon: "",
     order: 3,
     isActive: true,
     children: [
@@ -47,7 +47,7 @@ export const DEFAULT_MENU_ITEMS = [
   {
     label: "Deals",
     url: "/products?tag=specialoffer",
-    icon: "🔥",
+    icon: "",
     order: 4,
     isActive: true,
     children: [],
