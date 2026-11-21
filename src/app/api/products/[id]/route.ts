@@ -104,13 +104,23 @@ export async function PUT(
       );
     }
 
-    // Auto-calculate inventory from variants if hasVariations is true
+    // Auto-calculate inventory and pricing from variants if hasVariations is true
     if (data.hasVariations && Array.isArray(data.variants)) {
       data.inventory = data.variants.reduce(
         (sum: number, v: { stock?: number; isActive?: boolean }) =>
           sum + (v.isActive !== false ? (Number(v.stock) || 0) : 0),
         0
       );
+
+      const activeVariants = data.variants.filter((v: { isActive?: boolean }) => v.isActive !== false);
+      const vList = activeVariants.length > 0 ? activeVariants : data.variants;
+      const minVariant = vList.reduce((min: { price?: number; comparePrice?: number }, curr: { price?: number; comparePrice?: number }) =>
+        (Number(curr.price || 0) < Number(min.price || 0) ? curr : min), vList[0]
+      );
+      if (minVariant) {
+        if (!data.price || Number(data.price) === 0) data.price = Number(minVariant.price) || 0;
+        if (!data.compareAtPrice && minVariant.comparePrice) data.compareAtPrice = Number(minVariant.comparePrice);
+      }
     }
 
     await connectToDatabase();

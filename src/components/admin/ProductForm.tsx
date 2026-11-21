@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react"
 import Image from "next/image"
-import { Trash, Save, Loader2, AlertCircle, ChevronDown, ChevronUp, Image as ImageIcon, Camera, Upload, X, Truck, CheckCircle2 } from "lucide-react"
+import { Trash, Save, Loader2, AlertCircle, ChevronDown, ChevronUp, Image as ImageIcon, Camera, Upload, X, Truck, CheckCircle2, Sparkles } from "lucide-react"
 import { isCloudinaryUrl } from "@/lib/utils"
 import RichDescriptionEditor from "@/components/admin/RichDescriptionEditor"
 
@@ -191,6 +191,20 @@ export default function ProductForm({ initialData, categories, onSubmit, loading
   const [expandedVariant, setExpandedVariant] = useState<number | null>(null)
   const [pickingImageForVariant, setPickingImageForVariant] = useState<number | null>(null)
   const [uploadingVariantImage, setUploadingVariantImage] = useState(false)
+  const [bulkSalePrice, setBulkSalePrice] = useState("")
+  const [bulkRegularPrice, setBulkRegularPrice] = useState("")
+  const [bulkStock, setBulkStock] = useState("")
+
+  const applyBulkValues = () => {
+    if (!bulkSalePrice && !bulkRegularPrice && !bulkStock) return
+    setVariantRows(prev => prev.map(row => {
+      const updated = { ...row }
+      if (bulkSalePrice !== "") updated.price = Number(bulkSalePrice)
+      if (bulkRegularPrice !== "") updated.comparePrice = Number(bulkRegularPrice)
+      if (bulkStock !== "") updated.stock = Number(bulkStock)
+      return updated
+    }))
+  }
 
   const handleVariantDirectUpload = async (variantIdx: number, e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -311,6 +325,8 @@ export default function ProductForm({ initialData, categories, onSubmit, loading
           const combos = cartesian(nonEmpty)
           const prefix = (formData.title || "PRD").substring(0, 3).toUpperCase()
           const basePrice = Number(formData.price) || 0
+          const baseComparePrice = formData.compareAtPrice !== "" ? Number(formData.compareAtPrice) : ""
+          const baseStock = formData.inventory > 0 ? formData.inventory : 0
 
           setVariantRows(prevRows => combos.map(combo => {
             const label = combo.map(c => c.valueObj.value).join(" / ")
@@ -339,8 +355,8 @@ export default function ProductForm({ initialData, categories, onSubmit, loading
               combinationLabel: label,
               sku: existing?.sku || [prefix, ...skuParts].join("-"),
               price: existing?.price ?? basePrice,
-              comparePrice: existing?.comparePrice ?? "",
-              stock: existing?.stock ?? 0,
+              comparePrice: existing?.comparePrice !== undefined && existing?.comparePrice !== "" ? existing.comparePrice : baseComparePrice,
+              stock: existing?.stock ?? baseStock,
               isActive: existing?.isActive ?? true,
               image: assignedImage,
             }
@@ -455,7 +471,7 @@ export default function ProductForm({ initialData, categories, onSubmit, loading
         combination: row.combination,
         combinationLabel: row.combinationLabel,
         sku: row.sku,
-        price: Number(row.price),
+        price: Number(row.price) || 0,
         comparePrice: row.comparePrice !== "" && row.comparePrice !== null
           ? Number(row.comparePrice)
           : null,
@@ -463,6 +479,19 @@ export default function ProductForm({ initialData, categories, onSubmit, loading
         isActive: row.isActive,
         images: row.image ? [row.image] : [],
       }))
+
+      // Auto-sync default base price & compareAtPrice from active variants
+      const activeRows = variantRows.filter(r => r.isActive !== false)
+      const rowsForPricing = activeRows.length > 0 ? activeRows : variantRows
+      if (rowsForPricing.length > 0) {
+        const minPriceRow = rowsForPricing.reduce((min, curr) => (Number(curr.price || 0) < Number(min.price || 0) ? curr : min), rowsForPricing[0])
+        if (!submissionData.price || Number(submissionData.price) === 0) {
+          submissionData.price = Number(minPriceRow.price) || 0
+        }
+        if (!submissionData.compareAtPrice && minPriceRow.comparePrice) {
+          submissionData.compareAtPrice = Number(minPriceRow.comparePrice)
+        }
+      }
     } else {
       submissionData.variationTypes = []
       submissionData.variants = []
@@ -941,16 +970,56 @@ export default function ProductForm({ initialData, categories, onSubmit, loading
                       </span>
                     </div>
 
+                    {/* Quick Bulk Apply Bar */}
+                    <div className="mb-3 p-3 bg-purple-50/60 border border-purple-100 rounded-xl flex flex-wrap items-center justify-between gap-2.5">
+                      <div className="flex items-center gap-1.5 text-xs font-semibold text-gray-700">
+                        <Sparkles size={14} className="text-[#5428D8]" />
+                        <span>Quick Apply to All Variants:</span>
+                      </div>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <input
+                          type="number" min="0" step="0.01"
+                          placeholder="Sale Price (৳)"
+                          title="Sale / Discount Price (what customers pay)"
+                          value={bulkSalePrice}
+                          onChange={e => setBulkSalePrice(e.target.value)}
+                          className="w-28 bg-white text-gray-900 rounded-lg border border-gray-300 px-2.5 py-1 text-xs focus:border-purple-500 outline-none"
+                        />
+                        <input
+                          type="number" min="0" step="0.01"
+                          placeholder="Regular Price (৳)"
+                          title="Regular / MRP Price (shows strikethrough & discount %)"
+                          value={bulkRegularPrice}
+                          onChange={e => setBulkRegularPrice(e.target.value)}
+                          className="w-32 bg-white text-gray-900 rounded-lg border border-gray-300 px-2.5 py-1 text-xs focus:border-purple-500 outline-none"
+                        />
+                        <input
+                          type="number" min="0"
+                          placeholder="Stock"
+                          value={bulkStock}
+                          onChange={e => setBulkStock(e.target.value)}
+                          className="w-20 bg-white text-gray-900 rounded-lg border border-gray-300 px-2.5 py-1 text-xs focus:border-purple-500 outline-none"
+                        />
+                        <button
+                          type="button"
+                          onClick={applyBulkValues}
+                          className="bg-[#5428D8] hover:bg-[#431db8] text-white text-xs font-bold px-3 py-1 rounded-lg transition-colors shadow-sm"
+                        >
+                          Apply to All
+                        </button>
+                      </div>
+                    </div>
+
                     <div className="border border-gray-200 rounded-xl overflow-hidden overflow-x-auto">
-                      <div className="min-w-[660px]">
+                      <div className="min-w-[690px]">
                       {/* Header */}
                       <div
                         className="grid bg-gray-50 border-b border-gray-200 px-4 py-2.5 text-xs font-semibold text-gray-500 uppercase tracking-wider"
-                        style={{ gridTemplateColumns: "minmax(180px, 1.5fr) 100px 100px 80px 120px 36px" }}
+                        style={{ gridTemplateColumns: "minmax(180px, 1.5fr) 115px 125px 80px 110px 36px" }}
                       >
                         <div>Variant</div>
-                        <div>Price (৳)</div>
-                        <div>Compare (৳)</div>
+                        <div title="Sale / Discount Price (the price customers pay)">Sale Price (৳)</div>
+                        <div title="Regular / MRP Price (optional, for discount display)">Regular Price (৳)</div>
                         <div>Stock</div>
                         <div>SKU</div>
                         <div />
@@ -962,7 +1031,7 @@ export default function ProductForm({ initialData, categories, onSubmit, loading
                             {/* Summary row */}
                             <div
                               className={`grid items-center px-4 py-2.5 gap-2 cursor-pointer hover:bg-gray-50 transition-colors ${!row.isActive ? "opacity-50" : ""} ${expandedVariant === i ? "bg-gray-50" : "bg-white"}`}
-                              style={{ gridTemplateColumns: "minmax(180px, 1.5fr) 100px 100px 80px 120px 36px" }}
+                              style={{ gridTemplateColumns: "minmax(180px, 1.5fr) 115px 125px 80px 110px 36px" }}
                               onClick={() => setExpandedVariant(expandedVariant === i ? null : i)}
                             >
                               <div className="flex items-center gap-2.5 min-w-0">
@@ -997,20 +1066,29 @@ export default function ProductForm({ initialData, categories, onSubmit, loading
                                 )}
                               </div>
                               <input
-                                type="number" min="0"
+                                type="number" min="0" step="0.01"
                                 value={row.price}
+                                placeholder="Sale ৳"
+                                title="Sale / Discount Price (the price customers pay)"
                                 onClick={e => e.stopPropagation()}
                                 onChange={e => updateVariantRow(i, "price", e.target.value)}
-                                className="w-full bg-gray-100 hover:bg-white focus:bg-white text-gray-900 rounded-md border border-transparent hover:border-gray-300 focus:border-gray-400 px-2 py-1.5 text-sm outline-none transition-all"
+                                className="w-full bg-gray-100 hover:bg-white focus:bg-white text-gray-900 font-medium rounded-md border border-transparent hover:border-gray-300 focus:border-purple-500 px-2 py-1.5 text-sm outline-none transition-all"
                               />
-                              <input
-                                type="number" min="0"
-                                value={row.comparePrice}
-                                placeholder="—"
-                                onClick={e => e.stopPropagation()}
-                                onChange={e => updateVariantRow(i, "comparePrice", e.target.value)}
-                                className="w-full bg-gray-100 hover:bg-white focus:bg-white text-gray-900 rounded-md border border-transparent hover:border-gray-300 focus:border-gray-400 px-2 py-1.5 text-sm outline-none transition-all"
-                              />
+                              <div className="relative" onClick={e => e.stopPropagation()}>
+                                <input
+                                  type="number" min="0" step="0.01"
+                                  value={row.comparePrice}
+                                  placeholder="Regular ৳"
+                                  title="Regular / MRP Price (optional, for discount display)"
+                                  onChange={e => updateVariantRow(i, "comparePrice", e.target.value)}
+                                  className="w-full bg-gray-100 hover:bg-white focus:bg-white text-gray-900 rounded-md border border-transparent hover:border-gray-300 focus:border-purple-500 px-2 py-1.5 text-sm outline-none transition-all pr-8"
+                                />
+                                {row.comparePrice && Number(row.comparePrice) > Number(row.price) && (
+                                  <span className="absolute right-1 top-1/2 -translate-y-1/2 text-[9px] bg-green-100 text-green-700 font-bold px-1 py-0.5 rounded pointer-events-none">
+                                    -{Math.round(((Number(row.comparePrice) - Number(row.price)) / Number(row.comparePrice)) * 100)}%
+                                  </span>
+                                )}
+                              </div>
                               <input
                                 type="number" min="0"
                                 value={row.stock}
@@ -1055,6 +1133,49 @@ export default function ProductForm({ initialData, categories, onSubmit, loading
                                   >
                                     <Trash size={14} /> Delete variant
                                   </button>
+                                </div>
+
+                                {/* Variant Pricing & Discount */}
+                                <div className="mt-3 pt-3 border-t border-gray-200">
+                                  <h4 className="text-xs font-semibold text-gray-700 uppercase tracking-wider mb-2">
+                                    Variant Pricing & Discount
+                                  </h4>
+                                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-white p-3 rounded-lg border border-gray-200">
+                                    <div className="space-y-1">
+                                      <label className="block text-xs font-semibold text-gray-700">
+                                        Sale / Discount Price (৳) <span className="text-red-500">*</span>
+                                      </label>
+                                      <input
+                                        type="number" min="0" step="0.01"
+                                        value={row.price}
+                                        onChange={e => updateVariantRow(i, "price", e.target.value)}
+                                        placeholder="e.g. 990"
+                                        className="w-full bg-white text-gray-900 font-semibold rounded-lg border border-gray-300 px-3 py-1.5 text-sm focus:border-purple-500 outline-none"
+                                      />
+                                      <p className="text-[11px] text-gray-500">The actual discounted price the customer pays.</p>
+                                    </div>
+                                    <div className="space-y-1">
+                                      <label className="block text-xs font-semibold text-gray-700">
+                                        Regular / MRP Price (৳) <span className="text-gray-400">[Optional]</span>
+                                      </label>
+                                      <input
+                                        type="number" min="0" step="0.01"
+                                        value={row.comparePrice}
+                                        onChange={e => updateVariantRow(i, "comparePrice", e.target.value)}
+                                        placeholder="e.g. 1200"
+                                        className="w-full bg-white text-gray-900 rounded-lg border border-gray-300 px-3 py-1.5 text-sm focus:border-purple-500 outline-none"
+                                      />
+                                      <p className="text-[11px] text-gray-500">Original price before discount (shows crossed out).</p>
+                                    </div>
+                                    {row.comparePrice && Number(row.comparePrice) > Number(row.price) && (
+                                      <div className="sm:col-span-2 flex items-center gap-2 text-xs text-green-700 font-semibold bg-green-50 border border-green-200 px-2.5 py-1.5 rounded-lg">
+                                        <span>✓ Active Discount:</span>
+                                        <span>
+                                          Save ৳{(Number(row.comparePrice) - Number(row.price)).toLocaleString()} ({Math.round(((Number(row.comparePrice) - Number(row.price)) / Number(row.comparePrice)) * 100)}% OFF)
+                                        </span>
+                                      </div>
+                                    )}
+                                  </div>
                                 </div>
 
                                 {/* Variant Image Selector */}

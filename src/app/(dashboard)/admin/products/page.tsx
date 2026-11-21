@@ -282,12 +282,19 @@ export default function AdminProductsPage() {
                     </td>
                     <td className="px-5 py-3.5">
                       <div className="flex flex-col">
-                        {product.compareAtPrice ? (
+                        {product.compareAtPrice && product.compareAtPrice > product.price ? (
                           <span className="text-xs text-gray-400 line-through">৳{product.compareAtPrice?.toLocaleString()}</span>
                         ) : null}
-                        <span className={`text-sm font-semibold ${product.compareAtPrice ? 'text-green-600' : 'text-gray-900'}`}>
-                          ৳{product.price?.toLocaleString()}
-                        </span>
+                        <div className="flex items-center gap-1.5">
+                          <span className={`text-sm font-semibold ${product.compareAtPrice && product.compareAtPrice > product.price ? 'text-green-600' : 'text-gray-900'}`}>
+                            ৳{product.price?.toLocaleString()}
+                          </span>
+                          {product.compareAtPrice && product.compareAtPrice > product.price ? (
+                            <span className="text-[10px] font-bold bg-green-50 text-green-700 px-1.5 py-0.2 rounded border border-green-200">
+                              -{Math.round(((product.compareAtPrice - product.price) / product.compareAtPrice) * 100)}%
+                            </span>
+                          ) : null}
+                        </div>
                       </div>
                     </td>
                     <td className="px-5 py-3.5">

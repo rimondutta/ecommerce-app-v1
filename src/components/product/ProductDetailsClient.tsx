@@ -251,8 +251,9 @@ export default function ProductDetailsClient({
   }, [product.hasVariations, product.variants, product.inventory]);
 
   const currentPrice = matchingVariant ? matchingVariant.price : product.price;
-  const currentComparePrice =
-    matchingVariant?.comparePrice || product.compareAtPrice;
+  const currentComparePrice = matchingVariant
+    ? (matchingVariant.comparePrice || null)
+    : product.compareAtPrice;
   const currentInventory =
     (matchingVariant ? matchingVariant.stock : totalVariationStock) ?? 0;
   const hasDiscount = Boolean(

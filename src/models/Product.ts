@@ -82,7 +82,7 @@ const ProductSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// Auto-sync inventory from active variants when hasVariations is true
+// Auto-sync inventory and default pricing from active variants when hasVariations is true
 ProductSchema.pre('validate', function () {
   if (this.hasVariations && Array.isArray(this.variants) && this.variants.length > 0) {
     this.inventory = this.variants.reduce(
@@ -90,6 +90,20 @@ ProductSchema.pre('validate', function () {
         sum + (v.isActive !== false ? (Number(v.stock) || 0) : 0),
       0
     );
+    const activeVariants = this.variants.filter((v: { isActive?: boolean }) => v.isActive !== false);
+    const vList = activeVariants.length > 0 ? activeVariants : this.variants;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const minVariant = (vList as any[]).reduce((min: any, curr: any) =>
+      (Number(curr?.price || 0) < Number(min?.price || 0) ? curr : min), vList[0]
+    );
+    if (minVariant) {
+      if (!this.price || Number(this.price) === 0) {
+        this.price = Number(minVariant.price) || 0;
+      }
+      if (!this.compareAtPrice && minVariant.comparePrice) {
+        this.compareAtPrice = Number(minVariant.comparePrice) || null;
+      }
+    }
   }
 });
 
@@ -100,6 +114,20 @@ ProductSchema.pre('save', function () {
         sum + (v.isActive !== false ? (Number(v.stock) || 0) : 0),
       0
     );
+    const activeVariants = this.variants.filter((v: { isActive?: boolean }) => v.isActive !== false);
+    const vList = activeVariants.length > 0 ? activeVariants : this.variants;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const minVariant = (vList as any[]).reduce((min: any, curr: any) =>
+      (Number(curr?.price || 0) < Number(min?.price || 0) ? curr : min), vList[0]
+    );
+    if (minVariant) {
+      if (!this.price || Number(this.price) === 0) {
+        this.price = Number(minVariant.price) || 0;
+      }
+      if (!this.compareAtPrice && minVariant.comparePrice) {
+        this.compareAtPrice = Number(minVariant.comparePrice) || null;
+      }
+    }
   }
 });
 
