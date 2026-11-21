@@ -63,10 +63,10 @@ const DEFAULT_CONFIG: ChatbotConfig = {
     'হ্যালো! Toy Hourse এ আপনাকে স্বাগতম। আপনার বাচ্চার জন্য সেরা খেলনা খুঁজতে বা যেকোনো তথ্যের জন্য আমাকে জিজ্ঞেস করতে পারেন।',
   placeholder: 'খেলনা খুঁজুন বা প্রশ্ন লিখুন...',
   quickPrompts: [
-    '🚗 জনপ্রিয় খেলনা দেখাও',
-    '🧸 ১-৩ বছরের খেলনা কি আছে?',
-    '🚚 ডেলিভারি চার্জ ও সময় কত?',
-    '💳 ক্যাশ অন ডেলিভারি আছে?',
+    'জনপ্রিয় খেলনা সমূহ',
+    '১-৩ বছর বয়সীদের খেলনা',
+    'ডেলিভারি চার্জ ও সময়সীমা',
+    'ক্যাশ অন ডেলিভারি তথ্য',
   ],
   supportPhone: '',
   deliveryInsideDhaka: 70,
@@ -75,7 +75,7 @@ const DEFAULT_CONFIG: ChatbotConfig = {
   returnPolicy: '৭ দিনের সহজ রিটার্ন ও রিপ্লেসমেন্ট পলিসি',
   primaryColor: '#7C3AED',
   position: 'bottom-right',
-  badgeText: 'Chat with AI 🤖',
+  badgeText: 'Live Support',
 };
 
 export default function Chatbot() {
@@ -400,15 +400,52 @@ export default function Chatbot() {
                                 a: ({ href, children }) => (
                                   <a
                                     href={href}
-                                    className={`inline-flex items-center gap-1 px-2 py-0.5 my-0.5 rounded-md font-bold text-xs no-underline transition-all ${
+                                    className={`inline-flex items-center gap-1.5 px-2.5 py-1 my-0.5 rounded-lg font-semibold text-xs no-underline transition-all shadow-2xs ${
                                       isUser
                                         ? 'bg-white/20 text-white underline'
-                                        : 'bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 shadow-xs'
+                                        : 'bg-purple-600 hover:bg-purple-700 text-white hover:shadow-xs'
                                     }`}
                                   >
                                     <span>{children}</span>
-                                    <span className="text-[10px]">↗</span>
+                                    <span className="text-[10px] font-bold">↗</span>
                                   </a>
+                                ),
+                                table: ({ children }) => (
+                                  <div className="w-full overflow-x-auto my-2.5 rounded-xl border border-slate-200/90 shadow-2xs bg-white">
+                                    <table className="w-full min-w-full divide-y divide-slate-200 text-xs text-left">
+                                      {children}
+                                    </table>
+                                  </div>
+                                ),
+                                thead: ({ children }) => (
+                                  <thead className="bg-slate-50/90 text-slate-700 font-bold border-b border-slate-200">
+                                    {children}
+                                  </thead>
+                                ),
+                                th: ({ children }) => (
+                                  <th className="px-3 py-2 text-[11px] font-bold text-slate-700 whitespace-nowrap">
+                                    {children}
+                                  </th>
+                                ),
+                                td: ({ children }) => (
+                                  <td className="px-3 py-2 text-xs text-slate-700 border-t border-slate-100 whitespace-nowrap">
+                                    {children}
+                                  </td>
+                                ),
+                                ul: ({ children }) => (
+                                  <ul className="my-1.5 space-y-1 list-none pl-0">
+                                    {children}
+                                  </ul>
+                                ),
+                                li: ({ children }) => (
+                                  <li className="text-xs text-slate-700 leading-relaxed">
+                                    {children}
+                                  </li>
+                                ),
+                                strong: ({ children }) => (
+                                  <strong className="font-bold text-slate-900">
+                                    {children}
+                                  </strong>
                                 ),
                               }}
                             >

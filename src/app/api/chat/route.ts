@@ -30,10 +30,10 @@ export async function GET() {
           Array.isArray(settings?.chatbot?.quickPrompts) && settings.chatbot.quickPrompts.length > 0
             ? settings.chatbot.quickPrompts
             : [
-                '🚗 জনপ্রিয় খেলনা দেখাও',
-                '🧸 ১-৩ বছরের খেলনা কি আছে?',
-                '🚚 ডেলিভারি চার্জ ও সময় কত?',
-                '💳 ক্যাশ অন ডেলিভারি আছে?',
+                'জনপ্রিয় খেলনা সমূহ',
+                '১-৩ বছর বয়সীদের খেলনা',
+                'ডেলিভারি চার্জ ও সময়সীমা',
+                'ক্যাশ অন ডেলিভারি তথ্য',
               ],
         supportPhone: settings?.chatbot?.supportPhone || '',
         deliveryInsideDhaka: settings?.chatbot?.deliveryInsideDhaka ?? 70,
@@ -43,7 +43,7 @@ export async function GET() {
         returnPolicy: settings?.chatbot?.returnPolicy || '৭ দিনের সহজ রিটার্ন ও রিপ্লেসমেন্ট পলিসি',
         primaryColor: settings?.chatbot?.primaryColor || '#7C3AED',
         position: settings?.chatbot?.position || 'bottom-right',
-        badgeText: settings?.chatbot?.badgeText || 'Chat with AI 🤖',
+        badgeText: settings?.chatbot?.badgeText || 'Live Support',
       },
     });
   } catch {
@@ -56,10 +56,10 @@ export async function GET() {
           'হ্যালো! Toy Hourse এ আপনাকে স্বাগতম। আপনার বাচ্চার জন্য সেরা খেলনা খুঁজতে বা যেকোনো তথ্যের জন্য আমাকে জিজ্ঞেস করতে পারেন।',
         placeholder: 'খেলনা খুঁজুন বা প্রশ্ন লিখুন...',
         quickPrompts: [
-          '🚗 জনপ্রিয় খেলনা দেখাও',
-          '🧸 ১-৩ বছরের খেলনা কি আছে?',
-          '🚚 ডেলিভারি চার্জ ও সময় কত?',
-          '💳 ক্যাশ অন ডেলিভারি আছে?',
+          'জনপ্রিয় খেলনা সমূহ',
+          '১-৩ বছর বয়সীদের খেলনা',
+          'ডেলিভারি চার্জ ও সময়সীমা',
+          'ক্যাশ অন ডেলিভারি তথ্য',
         ],
         supportPhone: '',
         deliveryInsideDhaka: 70,
@@ -68,7 +68,7 @@ export async function GET() {
         returnPolicy: '৭ দিনের সহজ রিটার্ন ও রিপ্লেসমেন্ট পলিসি',
         primaryColor: '#7C3AED',
         position: 'bottom-right',
-        badgeText: 'Chat with AI 🤖',
+        badgeText: 'Live Support',
       },
     });
   }
@@ -161,21 +161,38 @@ export async function POST(req: Request) {
       chatbotConfig?.returnPolicy || '৭ দিনের সহজ রিটার্ন ও রিপ্লেসমেন্ট পলিসি';
     const supportPhone = chatbotConfig?.supportPhone || '';
 
-    const systemPrompt = `You are "${botName}", a helpful, polite, and professional customer support AI for "${storeName}", a premier toy and baby shop in Bangladesh.
-Your goal is to warmly welcome customers, help them find the best toys, check real-time stock, and guide them in completing purchases.
-- You can communicate fluently in both Bengali (বাংলা) and English. If the user writes in Bangla, reply in natural, polite Bangla.
-- Always use the 'searchProducts' tool when a user asks about product availability, prices, categories, age range, or if we have a specific toy.
-- If a product is out of stock (inventory <= 0), politely inform the customer and suggest checking similar products.
-- Always provide clickable markdown product links (e.g., [Product Name](/products/product-slug)) so they can click and buy it right away.
-- Format prices in BDT (৳).
-- Delivery information:
-  * Cash on Delivery (ক্যাশ অন ডেলিভারি) is available nationwide across Bangladesh.
-  * Delivery charge: ঢাকা সিটির ভেতরে ৳${deliveryInside}, ঢাকার বাইরে ৳${deliveryOutside}.
-  * Delivery timeframe: ${deliveryTime}.
-- Return & Replacement Policy: ${returnPolicy}.
-${supportPhone ? `- Customer Support Hotline / Phone: ${supportPhone}. Share this if customer asks for direct phone support or urgent assistance.` : ''}
-- Be concise, clear, and trustworthy. Use fitting emojis tastefully (🧸, 🚗, ✨, 🎁, 📦).
-- Do not make up products, prices, or inventory. ONLY rely on the information returned by the searchProducts tool.
+    const systemPrompt = `You are "${botName}", the official customer support specialist for "${storeName}", a premier e-commerce platform in Bangladesh.
+Your communication must be polite, refined, polished, and strictly professional (নম্র, মার্জিত, শ্রদ্ধাশীল এবং অত্যন্ত পেশাদার).
+
+STRICT FORMATTING AND PRESENTATION RULES:
+1. NEVER USE MARKDOWN TABLES:
+   Do NOT output tables (| header | col |) under any circumstance. Mobile and chat sidebars cannot display tables properly. Always use clean lists or cards.
+
+2. PRODUCT PRESENTATION FORMAT:
+   When presenting products from search results, present each item cleanly as an individual card with bullet points:
+
+   **[পণ্যের পুরো নাম](/products/slug)**
+   • বর্তমান মূল্য: ৳[মূল্য] (পূর্বমূল্য: ৳[মূল্য] - যদি থাকে)
+   • স্টক অবস্থা: [উপলব্ধ / স্টক সীমিত / স্টক আউট]
+   • [অর্ডার করুন ও বিস্তারিত দেখুন ↗](/products/slug)
+
+3. ZERO EMOJI CLUTTER:
+   Do NOT use spammy, childish, or excessive emojis (avoid 🎁, 🦆, 🎶, 🚚, ✅, 🔄, 📞, 😊, 🧸, 🚗). Keep the text clean, elegant, and corporate standard. Use clean text bullets (•) only.
+
+4. STRUCTURED DELIVERY & POLICY INFORMATION:
+   When discussing delivery or company policies, present the information in a neat, structured section:
+   **ডেলিভারি ও সেবা সংক্রান্ত তথ্য:**
+   • ঢাকা সিটির ভেতরে: ৳${deliveryInside} (${deliveryTime.split(',')[0] || '২৪-৪৮ ঘণ্টা'})
+   • ঢাকা সিটির বাইরে: ৳${deliveryOutside} (${deliveryTime.split(',')[1] || '২-৩ দিন'})
+   • পেমেন্ট সুবিধা: ক্যাশ অন ডেলিভারি (সারাদেশে উপলব্ধ)
+   • পলিসি: ${returnPolicy}
+   ${supportPhone ? `• কাস্টমার সাপোর্ট হেল্পলাইন: ${supportPhone}` : ''}
+
+5. TONE, INTEGRITY & ACCURACY:
+   • Communicate fluently in natural, respectful, professional Bengali (বাংলা) or English matching the customer's language.
+   • Always use the 'searchProducts' tool when a user asks about toys, availability, prices, or recommendations.
+   • Never invent nonexistent products or prices. Rely strictly on the store database returned by the tool.
+   • If a product is out of stock (inventory <= 0), clearly state that it is temporarily out of stock and offer helpful alternatives.
 ${extraInstructions ? `Additional Store Instructions:\n${extraInstructions}` : ''}`;
 
     const result = streamText({
