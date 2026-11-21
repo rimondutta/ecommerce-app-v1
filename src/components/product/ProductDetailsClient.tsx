@@ -598,7 +598,7 @@ export default function ProductDetailsClient({
       <div className="py-3.5 px-4 sm:px-8 lg:px-[5vw]">
         <div className="max-w-[1400px] mx-auto">
           <nav className="flex items-center gap-2 text-xs sm:text-sm text-gray-500">
-            <Link href="/" className="hover:text-[#5428D8] transition-colors">🏠 Home</Link>
+            <Link href="/" className="hover:text-[#5428D8] transition-colors">Home</Link>
             <span className="text-gray-400">›</span>
             <Link href="/products" className="hover:text-[#5428D8] transition-colors">
               {product.category?.name || "Shop"}
