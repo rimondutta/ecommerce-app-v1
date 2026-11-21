@@ -56,6 +56,15 @@ export async function PUT(
       data.images = data.images.filter((img: { url?: string }) => img.url && (img.url.startsWith('http') || img.url.startsWith('/')));
     }
 
+    // Auto-calculate inventory from variants if hasVariations is true
+    if (data.hasVariations && Array.isArray(data.variants)) {
+      data.inventory = data.variants.reduce(
+        (sum: number, v: { stock?: number; isActive?: boolean }) =>
+          sum + (v.isActive !== false ? (Number(v.stock) || 0) : 0),
+        0
+      );
+    }
+
     await connectToDatabase();
     const { id } = await params;
 

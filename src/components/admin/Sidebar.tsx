@@ -4,8 +4,8 @@ import Link from "next/link"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
 import { signOut, useSession } from "next-auth/react"
-import { 
-  Home, ShoppingCart, Tag, Users, BarChart2, 
+import {
+  Home, ShoppingCart, Tag, Users, BarChart2,
   Ticket, Store, LogOut, Plus, UserPlus, Image as ImageIcon, Layers, Sliders, Truck, MessageSquare, FileText, Package, Sparkles,
   Menu as MenuIcon
 } from "lucide-react"
@@ -61,11 +61,10 @@ export default function Sidebar() {
             <Link
               key={link.name}
               href={link.href}
-              className={`flex items-center gap-3 px-3 py-2 rounded-md transition-colors text-sm font-medium group relative ${
-                active 
-                  ? "bg-gray-100 text-gray-900" 
+              className={`flex items-center gap-3 px-3 py-2 rounded-md transition-colors text-sm font-medium group relative ${active
+                  ? "bg-gray-100 text-gray-900"
                   : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-              }`}
+                }`}
             >
               {active && <div className="absolute left-0 top-2 bottom-2 w-1 bg-gray-900 rounded-r-full" />}
               <Icon size={18} className={active ? "text-gray-900" : "text-gray-500 group-hover:text-gray-900"} />
@@ -75,11 +74,11 @@ export default function Sidebar() {
         })}
 
         <div className="pt-6 mt-6 border-t border-gray-100">
-           <p className="text-xs font-semibold text-gray-400 mb-2 px-3">Sales Channels</p>
-           <div className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-md cursor-pointer transition-colors">
-              <Store size={18} className="text-gray-500" />
-              <span>Online Store</span>
-           </div>
+          <p className="text-xs font-semibold text-gray-400 mb-2 px-3">Sales Channels</p>
+          <div className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-md cursor-pointer transition-colors">
+            <Store size={18} className="text-gray-500" />
+            <span>View Shop</span>
+          </div>
         </div>
       </nav>
 

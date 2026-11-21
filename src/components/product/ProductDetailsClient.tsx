@@ -238,12 +238,23 @@ export default function ProductDetailsClient({
         )
       : null;
 
-  /* ── Pricing ── */
+  /* ── Pricing & Stock ── */
+  const totalVariationStock = useMemo(() => {
+    if (!product.hasVariations || !Array.isArray(product.variants) || product.variants.length === 0) {
+      return product.inventory ?? 0;
+    }
+    return product.variants.reduce(
+      (sum: number, v: { stock?: number; isActive?: boolean }) =>
+        sum + (v.isActive !== false ? (Number(v.stock) || 0) : 0),
+      0
+    );
+  }, [product.hasVariations, product.variants, product.inventory]);
+
   const currentPrice = matchingVariant ? matchingVariant.price : product.price;
   const currentComparePrice =
     matchingVariant?.comparePrice || product.compareAtPrice;
   const currentInventory =
-    (matchingVariant ? matchingVariant.stock : product.inventory) ?? 0;
+    (matchingVariant ? matchingVariant.stock : totalVariationStock) ?? 0;
   const hasDiscount = Boolean(
     currentComparePrice && currentComparePrice > currentPrice
   );

@@ -18,6 +18,7 @@ interface AdminProduct {
   isPublished?: boolean;
   tags?: string[];
   isFreeShipping?: boolean;
+  hasVariations?: boolean;
 }
 
 export default function AdminProductsPage() {
@@ -300,7 +301,13 @@ export default function AdminProductsPage() {
                       <div className={`text-sm ${(product.inventory ?? 0) <= 5 ? 'text-red-600 font-medium' : 'text-gray-900'}`}>
                         {product.inventory || 0} in stock
                       </div>
-                      {(product.inventory ?? 0) <= 5 && <div className="text-[11px] text-red-500 font-medium">Low stock</div>}
+                      {(product.inventory ?? 0) <= 5 ? (
+                        <div className="text-[11px] text-red-500 font-medium">
+                          {product.hasVariations ? 'Low variant stock' : 'Low stock'}
+                        </div>
+                      ) : product.hasVariations ? (
+                        <div className="text-[11px] text-[#5428D8] font-medium">Across variants</div>
+                      ) : null}
                     </td>
                     <td className="px-5 py-3.5 text-gray-600 text-sm">
                       {product.category?.name || "Uncategorized"}

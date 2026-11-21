@@ -82,6 +82,27 @@ const ProductSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+// Auto-sync inventory from active variants when hasVariations is true
+ProductSchema.pre('validate', function () {
+  if (this.hasVariations && Array.isArray(this.variants) && this.variants.length > 0) {
+    this.inventory = this.variants.reduce(
+      (sum: number, v: { stock?: number; isActive?: boolean }) =>
+        sum + (v.isActive !== false ? (Number(v.stock) || 0) : 0),
+      0
+    );
+  }
+});
+
+ProductSchema.pre('save', function () {
+  if (this.hasVariations && Array.isArray(this.variants) && this.variants.length > 0) {
+    this.inventory = this.variants.reduce(
+      (sum: number, v: { stock?: number; isActive?: boolean }) =>
+        sum + (v.isActive !== false ? (Number(v.stock) || 0) : 0),
+      0
+    );
+  }
+});
+
 // High Performance: Indexes for fast filtering during high traffic
 ProductSchema.index({ isPublished: 1, category: 1 });
 ProductSchema.index({ isPublished: 1, createdAt: -1 });

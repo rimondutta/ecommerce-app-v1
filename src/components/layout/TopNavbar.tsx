@@ -260,7 +260,7 @@ export default function TopNavbar() {
           {/* Left: Free Shipping Announcement */}
           <div className="flex items-center gap-2 font-medium tracking-tight">
             <Sparkles className="w-3.5 h-3.5 text-amber-300 shrink-0" />
-            <span>Fast Delivery: ঢাকা ও চট্টগ্রাম</span>
+            <span>সারা বাংলাদেশ ডেলিভারি</span>
           </div>
 
           {/* Right: Quick Links & Social Icons */}
@@ -468,7 +468,7 @@ export default function TopNavbar() {
                   aria-label="Sign in"
                 >
                   <User className="w-4 h-4 text-gray-700" />
-                  <span className="hidden sm:inline-block">Sign In</span>
+                  <span className="hidden sm:inline-block">Sign In / Sign Up</span>
                 </button>
               )}
             </div>
@@ -559,8 +559,8 @@ export default function TopNavbar() {
                         target={item.openInNewTab ? "_blank" : undefined}
                         rel={item.openInNewTab ? "noopener noreferrer" : undefined}
                         className={`flex items-center gap-1.5 font-bold transition-colors py-1 ${isCurrent
-                            ? "text-[#5428D8]"
-                            : "text-gray-800 hover:text-[#5428D8]"
+                          ? "text-[#5428D8]"
+                          : "text-gray-800 hover:text-[#5428D8]"
                           }`}
                       >
                         {item.icon && <span>{item.icon}</span>}
@@ -601,8 +601,8 @@ export default function TopNavbar() {
                     target={item.openInNewTab ? "_blank" : undefined}
                     rel={item.openInNewTab ? "noopener noreferrer" : undefined}
                     className={`flex items-center gap-1.5 font-bold transition-colors ${isCurrent
-                        ? "text-[#5428D8]"
-                        : "text-gray-800 hover:text-[#5428D8]"
+                      ? "text-[#5428D8]"
+                      : "text-gray-800 hover:text-[#5428D8]"
                       }`}
                   >
                     {item.icon && <span>{item.icon}</span>}

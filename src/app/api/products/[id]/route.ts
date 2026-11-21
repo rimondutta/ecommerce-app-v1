@@ -104,6 +104,15 @@ export async function PUT(
       );
     }
 
+    // Auto-calculate inventory from variants if hasVariations is true
+    if (data.hasVariations && Array.isArray(data.variants)) {
+      data.inventory = data.variants.reduce(
+        (sum: number, v: { stock?: number; isActive?: boolean }) =>
+          sum + (v.isActive !== false ? (Number(v.stock) || 0) : 0),
+        0
+      );
+    }
+
     await connectToDatabase();
 
     const existingProduct = await Product.findById(id);

@@ -445,7 +445,12 @@ export default function ProductForm({ initialData, categories, onSubmit, loading
     }
 
     if (hasVariations) {
-      submissionData.variationTypes = selectedTypeIds
+      const totalVariantStock = variantRows.reduce(
+        (sum, r) => sum + (r.isActive !== false ? (Number(r.stock) || 0) : 0),
+        0
+      );
+      submissionData.inventory = totalVariantStock;
+      submissionData.variationTypes = selectedTypeIds;
       submissionData.variants = variantRows.map(row => ({
         combination: row.combination,
         combinationLabel: row.combinationLabel,
@@ -454,7 +459,7 @@ export default function ProductForm({ initialData, categories, onSubmit, loading
         comparePrice: row.comparePrice !== "" && row.comparePrice !== null
           ? Number(row.comparePrice)
           : null,
-        stock: Number(row.stock),
+        stock: Number(row.stock) || 0,
         isActive: row.isActive,
         images: row.image ? [row.image] : [],
       }))
@@ -765,7 +770,14 @@ export default function ProductForm({ initialData, categories, onSubmit, loading
 
           {/* Inventory */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 space-y-4">
-            <h3 className="text-base font-semibold text-gray-900">Inventory</h3>
+            <div className="flex items-center justify-between">
+              <h3 className="text-base font-semibold text-gray-900">Inventory</h3>
+              {hasVariations && (
+                <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-purple-50 text-[#5428D8] border border-purple-100">
+                  Total variant stock: {variantRows.reduce((sum, r) => sum + (r.isActive !== false ? (Number(r.stock) || 0) : 0), 0)}
+                </span>
+              )}
+            </div>
             {!hasVariations ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
@@ -779,7 +791,17 @@ export default function ProductForm({ initialData, categories, onSubmit, loading
                 </div>
               </div>
             ) : (
-              <p className="text-sm text-gray-500">Stock is tracked per-variant. Set stock in the Variants table below.</p>
+              <div className="space-y-2">
+                <p className="text-sm text-gray-600">
+                  Stock is calculated automatically from your variants. Manage each variant&apos;s stock in the Variants table below.
+                </p>
+                {variantRows.length > 0 && variantRows.reduce((sum, r) => sum + (r.isActive !== false ? (Number(r.stock) || 0) : 0), 0) === 0 && (
+                  <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-800 flex items-center gap-2">
+                    <span>⚠️</span>
+                    <span>All variants currently have <strong>0 stock</strong>. Enter stock numbers in Step 3 below so this product isn&apos;t marked as out of stock.</span>
+                  </div>
+                )}
+              </div>
             )}
           </div>
 
@@ -910,9 +932,14 @@ export default function ProductForm({ initialData, categories, onSubmit, loading
                 {/* STEP 3 – Variant Table */}
                 {variantRows.length > 0 && (
                   <div>
-                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
-                      Step 3 — Configure each variant ({variantRows.length} variants)
-                    </p>
+                    <div className="flex items-center justify-between mb-3">
+                      <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                        Step 3 — Configure each variant ({variantRows.length} variants)
+                      </p>
+                      <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-purple-50 text-[#5428D8]">
+                        Total stock: {variantRows.reduce((sum, r) => sum + (r.isActive !== false ? (Number(r.stock) || 0) : 0), 0)}
+                      </span>
+                    </div>
 
                     <div className="border border-gray-200 rounded-xl overflow-hidden overflow-x-auto">
                       <div className="min-w-[660px]">

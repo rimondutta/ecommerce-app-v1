@@ -21,7 +21,7 @@ export async function GET(req: Request) {
 
     const [products, total] = await Promise.all([
       Product.find({})
-        .select('title price compareAtPrice slug images category inventory isPublished tags isFreeShipping shippingRate createdAt')
+        .select('title price compareAtPrice slug images category inventory isPublished tags isFreeShipping shippingRate hasVariations variants.stock variants.isActive createdAt')
         .populate('category', 'name')
         .sort({ createdAt: -1 })
         .skip(skip)
@@ -30,8 +30,28 @@ export async function GET(req: Request) {
       Product.countDocuments({}),
     ]);
 
+    const formattedProducts = products.map((prod: {
+      hasVariations?: boolean;
+      variants?: Array<{ stock?: number; isActive?: boolean }>;
+      inventory?: number;
+      [key: string]: unknown;
+    }) => {
+      let inventory = prod.inventory ?? 0;
+      if (prod.hasVariations && Array.isArray(prod.variants) && prod.variants.length > 0) {
+        inventory = prod.variants.reduce(
+          (sum: number, v: { stock?: number; isActive?: boolean }) =>
+            sum + (v.isActive !== false ? (Number(v.stock) || 0) : 0),
+          0
+        );
+      }
+      return {
+        ...prod,
+        inventory,
+      };
+    });
+
     return NextResponse.json({
-      products,
+      products: formattedProducts,
       pagination: {
         page,
         limit,
@@ -56,6 +76,15 @@ export async function POST(req: Request) {
     // Sanitize image URLs to prevent next/image crash
     if (data.images && Array.isArray(data.images)) {
       data.images = data.images.filter((img: { url?: string }) => Boolean(img?.url && (img.url.startsWith('http') || img.url.startsWith('/'))));
+    }
+
+    // Auto-calculate inventory from variants if hasVariations is true
+    if (data.hasVariations && Array.isArray(data.variants)) {
+      data.inventory = data.variants.reduce(
+        (sum: number, v: { stock?: number; isActive?: boolean }) =>
+          sum + (v.isActive !== false ? (Number(v.stock) || 0) : 0),
+        0
+      );
     }
 
     await connectToDatabase();
