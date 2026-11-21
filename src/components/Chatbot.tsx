@@ -78,6 +78,35 @@ const DEFAULT_CONFIG: ChatbotConfig = {
   badgeText: 'Live Support',
 };
 
+function cleanAiResponse(raw: string): string {
+  if (!raw) return '';
+
+  let cleaned = raw;
+
+  // 1. Repair multilingual token glitches from open-source free models
+  cleaned = cleaned
+    .replace(/infancia[©®]?/gi, 'বাচ্চাদের')
+    .replace(/_selected/gi, '')
+    .replace(/চহtera/gi, '')
+    .replace(/présenté/gi, 'উপস্থাপন')
+    .replace(/situation|situación|状況|狀況/gi, 'অবস্থা')
+    .replace(/\bBirmingham\b/gi, 'পিস');
+
+  // 2. Fix bare link paths: e.g. [/products/slug] or (/products/slug) on their own line
+  cleaned = cleaned.replace(
+    /(?:^|\n)\s*\[?\s*(\/products\/[a-zA-Z0-9_-]+)\s*\]?\s*(?:\n|$)/g,
+    '\n[অর্ডার করুন ও বিস্তারিত দেখুন]($1)\n'
+  );
+
+  // 3. Fix bold titles followed directly by a bracketed URL
+  cleaned = cleaned.replace(
+    /\*\*([^*]+)\*\*\s*\[?(\/products\/[a-zA-Z0-9_-]+)\]?/g,
+    '**[$1]($2)**'
+  );
+
+  return cleaned.trim();
+}
+
 export default function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState('');
@@ -384,8 +413,8 @@ export default function Chatbot() {
                         <div
                           className={`text-xs sm:text-sm leading-relaxed ${
                             isUser
-                              ? 'text-white px-4 py-2.5 rounded-2xl rounded-tr-xs shadow-sm'
-                              : 'bg-white text-slate-800 px-4 py-3 rounded-2xl rounded-tl-xs border border-slate-200/90 shadow-xs w-full'
+                              ? 'text-white px-4 py-2.5 rounded-2xl rounded-tr-xs shadow-sm bg-gradient-to-r from-purple-600 to-indigo-600'
+                              : 'bg-white text-slate-800 px-4 py-3 rounded-2xl rounded-tl-xs border border-slate-200/90 shadow-2xs w-full'
                           }`}
                           style={isUser ? { backgroundColor: primaryBg } : undefined}
                         >
@@ -397,19 +426,25 @@ export default function Chatbot() {
                             <ReactMarkdown
                               remarkPlugins={[remarkGfm]}
                               components={{
-                                a: ({ href, children }) => (
-                                  <a
-                                    href={href}
-                                    className={`inline-flex items-center gap-1.5 px-2.5 py-1 my-0.5 rounded-lg font-semibold text-xs no-underline transition-all shadow-2xs ${
-                                      isUser
-                                        ? 'bg-white/20 text-white underline'
-                                        : 'bg-purple-600 hover:bg-purple-700 text-white hover:shadow-xs'
-                                    }`}
-                                  >
-                                    <span>{children}</span>
-                                    <span className="text-[10px] font-bold">↗</span>
-                                  </a>
-                                ),
+                                a: ({ href, children }) => {
+                                  const text = String(children || '')
+                                    .replace(/[↗→^]+/g, '')
+                                    .trim();
+
+                                  return (
+                                    <a
+                                      href={href}
+                                      className={`inline-flex items-center gap-1.5 px-3 py-1.5 my-1 rounded-xl font-semibold text-xs no-underline transition-all shadow-2xs hover:shadow-sm cursor-pointer ${
+                                        isUser
+                                          ? 'bg-white/20 text-white underline'
+                                          : 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white active:scale-95'
+                                      }`}
+                                    >
+                                      <span>{text || 'অর্ডার করুন ও বিস্তারিত দেখুন'}</span>
+                                      <span className="text-[11px] font-bold">↗</span>
+                                    </a>
+                                  );
+                                },
                                 table: ({ children }) => (
                                   <div className="w-full overflow-x-auto my-2.5 rounded-xl border border-slate-200/90 shadow-2xs bg-white">
                                     <table className="w-full min-w-full divide-y divide-slate-200 text-xs text-left">
@@ -449,7 +484,7 @@ export default function Chatbot() {
                                 ),
                               }}
                             >
-                              {textContent}
+                              {isUser ? textContent : cleanAiResponse(textContent)}
                             </ReactMarkdown>
                           </div>
                         </div>

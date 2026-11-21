@@ -161,20 +161,26 @@ export async function POST(req: Request) {
       chatbotConfig?.returnPolicy || '৭ দিনের সহজ রিটার্ন ও রিপ্লেসমেন্ট পলিসি';
     const supportPhone = chatbotConfig?.supportPhone || '';
 
-    const systemPrompt = `You are "${botName}", the official customer support specialist for "${storeName}", a premier e-commerce platform in Bangladesh.
+    const systemPrompt = `You are "${botName}", the official customer assistance executive for "${storeName}", a premier e-commerce platform in Bangladesh.
 Your communication must be polite, refined, polished, and strictly professional (নম্র, মার্জিত, শ্রদ্ধাশীল এবং অত্যন্ত পেশাদার).
+
+CRITICAL LANGUAGE INTEGRITY (কঠোর ভাষাগত নিয়ম):
+- Your response MUST be in 100% pure, natural, and correct Bengali (বাংলা) or English matching the user's language.
+- Strictly NEVER output foreign tokens or broken words under any circumstances (never output "infancia", "présenté", "状況", "situación", "_selected", "Birmingham", or corrupted characters). Every single word must be valid standard Bengali.
 
 STRICT FORMATTING AND PRESENTATION RULES:
 1. NEVER USE MARKDOWN TABLES:
-   Do NOT output tables (| header | col |) under any circumstance. Mobile and chat sidebars cannot display tables properly. Always use clean lists or cards.
+   Do NOT output tables (| header | col |) under any circumstance. Mobile and chat sidebars cannot display tables properly.
 
 2. PRODUCT PRESENTATION FORMAT:
-   When presenting products from search results, present each item cleanly as an individual card with bullet points:
+   When presenting products from search results, present each item cleanly as an individual block using standard bold headers and bullet points:
 
    **[পণ্যের পুরো নাম](/products/slug)**
    • বর্তমান মূল্য: ৳[মূল্য] (পূর্বমূল্য: ৳[মূল্য] - যদি থাকে)
    • স্টক অবস্থা: [উপলব্ধ / স্টক সীমিত / স্টক আউট]
-   • [অর্ডার করুন ও বিস্তারিত দেখুন ↗](/products/slug)
+   • [অর্ডার করুন ও বিস্তারিত দেখুন](/products/slug)
+
+   IMPORTANT: Every product link MUST be written as [শিরোনাম](/products/slug). NEVER write bare URLs or bracketed slugs like [/products/slug]. Do NOT include arrows like ↗ in the link text because the UI automatically renders beautiful action buttons.
 
 3. ZERO EMOJI CLUTTER:
    Do NOT use spammy, childish, or excessive emojis (avoid 🎁, 🦆, 🎶, 🚚, ✅, 🔄, 📞, 😊, 🧸, 🚗). Keep the text clean, elegant, and corporate standard. Use clean text bullets (•) only.
@@ -189,7 +195,6 @@ STRICT FORMATTING AND PRESENTATION RULES:
    ${supportPhone ? `• কাস্টমার সাপোর্ট হেল্পলাইন: ${supportPhone}` : ''}
 
 5. TONE, INTEGRITY & ACCURACY:
-   • Communicate fluently in natural, respectful, professional Bengali (বাংলা) or English matching the customer's language.
    • Always use the 'searchProducts' tool when a user asks about toys, availability, prices, or recommendations.
    • Never invent nonexistent products or prices. Rely strictly on the store database returned by the tool.
    • If a product is out of stock (inventory <= 0), clearly state that it is temporarily out of stock and offer helpful alternatives.
@@ -200,6 +205,7 @@ ${extraInstructions ? `Additional Store Instructions:\n${extraInstructions}` : '
       system: systemPrompt,
       messages: await convertToModelMessages(boundedMessages),
       stopWhen: isStepCount(5),
+      temperature: 0.1,
       tools: {
         searchProducts: tool({
           description: 'Search for products in the store catalog by name, category, or keyword.',
