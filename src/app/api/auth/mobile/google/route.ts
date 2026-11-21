@@ -5,25 +5,21 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { randomUUID } from "crypto";
 import { getJwtSecret } from "@/lib/jwt-secret";
+import { getCorsHeaders, handleCorsPreflight } from "@/lib/cors";
 
-const CORS_HEADERS = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization",
-};
-
-export async function OPTIONS() {
-  return new NextResponse(null, { status: 200, headers: CORS_HEADERS });
+export async function OPTIONS(req: Request) {
+  return handleCorsPreflight(req, "POST, OPTIONS");
 }
 
 export async function POST(req: Request) {
+  const cors = getCorsHeaders(req, "POST, OPTIONS");
   try {
     const { accessToken } = await req.json();
 
     if (!accessToken) {
       return NextResponse.json(
         { success: false, error: "Google access token is required" },
-        { status: 400, headers: CORS_HEADERS }
+        { status: 400, headers: cors }
       );
     }
 
@@ -35,7 +31,7 @@ export async function POST(req: Request) {
     if (!googleRes.ok) {
       return NextResponse.json(
         { success: false, error: "Invalid or expired Google token" },
-        { status: 401, headers: CORS_HEADERS }
+        { status: 401, headers: cors }
       );
     }
 
@@ -45,29 +41,37 @@ export async function POST(req: Request) {
     if (!email || !email_verified) {
       return NextResponse.json(
         { success: false, error: "Google account email is not verified" },
-        { status: 400, headers: CORS_HEADERS }
+        { status: 400, headers: cors }
       );
     }
 
     await connectToDatabase();
 
-    // Upsert user — create on first login, just update image on subsequent logins
-    const passwordHash = await bcrypt.hash(randomUUID(), 10);
-    const user = await User.findOneAndUpdate(
-      { email },
-      {
-        $setOnInsert: {
-          name: name || email.split("@")[0],
-          email,
-          password: passwordHash,
-          role: "customer",
-        },
-        $set: { image: picture },
-      },
-      { upsert: true, new: true }
-    );
+    // Check if user exists, if not create them
+    let user = await User.findOne({ email });
 
-    // Issue our custom mobile JWT using verified secret
+    if (!user) {
+      // Create user without password (OAuth user)
+      const randomPassword = randomUUID();
+      const hashedPassword = await bcrypt.hash(randomPassword, 12);
+
+      user = await User.create({
+        name: name || "Customer",
+        email,
+        password: hashedPassword,
+        image: picture,
+        role: "customer",
+        provider: "google",
+      });
+    } else {
+      // Update image if available and not set
+      if (picture && !user.image) {
+        user.image = picture;
+        await user.save();
+      }
+    }
+
+    // Create JWT Token for mobile app using verified secret
     const token = jwt.sign(
       {
         id: user._id.toString(),
@@ -93,13 +97,13 @@ export async function POST(req: Request) {
           },
         },
       },
-      { headers: CORS_HEADERS }
+      { headers: cors }
     );
   } catch (error: unknown) {
     console.error("Mobile Google login error:", error);
     return NextResponse.json(
       { success: false, error: "Internal server error" },
-      { status: 500, headers: CORS_HEADERS }
+      { status: 500, headers: cors }
     );
   }
 }

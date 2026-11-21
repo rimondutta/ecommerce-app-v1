@@ -11,14 +11,10 @@ import bcrypt from 'bcryptjs';
 import connectToDatabase from '@/lib/db';
 import User from '@/models/User';
 import { getJwtSecret } from '@/lib/jwt-secret';
-
-const CORS = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type',
-};
+import { getCorsHeaders, handleCorsPreflight } from '@/lib/cors';
 
 export async function POST(req: Request) {
+  const cors = getCorsHeaders(req, 'POST, OPTIONS');
   try {
     const body = await req.json();
     const { resetToken, newPassword } = body;
@@ -26,7 +22,7 @@ export async function POST(req: Request) {
     if (!resetToken || !newPassword) {
       return NextResponse.json(
         { success: false, error: 'Reset token and new password are required.' },
-        { status: 400, headers: CORS }
+        { status: 400, headers: cors }
       );
     }
 
@@ -34,7 +30,7 @@ export async function POST(req: Request) {
     if (newPassword.length < 8) {
       return NextResponse.json(
         { success: false, error: 'Password must be at least 8 characters.' },
-        { status: 400, headers: CORS }
+        { status: 400, headers: cors }
       );
     }
 
@@ -53,14 +49,14 @@ export async function POST(req: Request) {
     } catch {
       return NextResponse.json(
         { success: false, error: 'Reset link has expired or is invalid. Please request a new one.' },
-        { status: 401, headers: CORS }
+        { status: 401, headers: cors }
       );
     }
 
     if (!payload || payload.purpose !== 'password_reset' || !payload.id) {
       return NextResponse.json(
         { success: false, error: 'Invalid token.' },
-        { status: 401, headers: CORS }
+        { status: 401, headers: cors }
       );
     }
 
@@ -73,7 +69,7 @@ export async function POST(req: Request) {
     if (!user) {
       return NextResponse.json(
         { success: false, error: 'User not found.' },
-        { status: 404, headers: CORS }
+        { status: 404, headers: cors }
       );
     }
 
@@ -91,17 +87,17 @@ export async function POST(req: Request) {
 
     return NextResponse.json(
       { success: true, message: 'Password updated successfully. You can now log in.' },
-      { headers: CORS }
+      { headers: cors }
     );
   } catch (err) {
     console.error('[reset-password]', err);
     return NextResponse.json(
       { success: false, error: 'Internal server error.' },
-      { status: 500, headers: CORS }
+      { status: 500, headers: cors }
     );
   }
 }
 
-export async function OPTIONS() {
-  return new NextResponse(null, { status: 200, headers: CORS });
+export async function OPTIONS(req: Request) {
+  return handleCorsPreflight(req, 'POST, OPTIONS');
 }

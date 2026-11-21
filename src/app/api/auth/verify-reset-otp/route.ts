@@ -11,16 +11,12 @@ import jwt from 'jsonwebtoken';
 import connectToDatabase from '@/lib/db';
 import User from '@/models/User';
 import { getJwtSecret } from '@/lib/jwt-secret';
+import { getCorsHeaders, handleCorsPreflight } from '@/lib/cors';
 
 const MAX_ATTEMPTS = 5;
 
-const CORS = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type',
-};
-
 export async function POST(req: Request) {
+  const cors = getCorsHeaders(req, 'POST, OPTIONS');
   try {
     const body = await req.json();
     const email = (body.email ?? '').trim().toLowerCase();
@@ -29,7 +25,7 @@ export async function POST(req: Request) {
     if (!email || !otp || otp.length !== 6) {
       return NextResponse.json(
         { success: false, error: 'Email and a 6-digit code are required.' },
-        { status: 400, headers: CORS }
+        { status: 400, headers: cors }
       );
     }
 
@@ -43,7 +39,7 @@ export async function POST(req: Request) {
     if (!user || !user.resetOtpHash || !user.resetOtpExpiresAt) {
       return NextResponse.json(
         { success: false, error: 'Invalid or expired code. Please request a new one.' },
-        { status: 400, headers: CORS }
+        { status: 400, headers: cors }
       );
     }
 
@@ -55,7 +51,7 @@ export async function POST(req: Request) {
           error: 'Too many failed attempts. Please request a new code.',
           locked: true,
         },
-        { status: 429, headers: CORS }
+        { status: 429, headers: cors }
       );
     }
 
@@ -63,7 +59,7 @@ export async function POST(req: Request) {
     if (new Date() > new Date(user.resetOtpExpiresAt)) {
       return NextResponse.json(
         { success: false, error: 'Code has expired. Please request a new one.' },
-        { status: 400, headers: CORS }
+        { status: 400, headers: cors }
       );
     }
 
@@ -81,7 +77,7 @@ export async function POST(req: Request) {
           error: `Incorrect code. ${remaining > 0 ? `${remaining} attempt${remaining !== 1 ? 's' : ''} remaining.` : 'Please request a new code.'}`,
           attemptsRemaining: remaining,
         },
-        { status: 400, headers: CORS }
+        { status: 400, headers: cors }
       );
     }
 
@@ -102,17 +98,17 @@ export async function POST(req: Request) {
 
     return NextResponse.json(
       { success: true, resetToken },
-      { headers: CORS }
+      { headers: cors }
     );
   } catch (err) {
     console.error('[verify-reset-otp]', err);
     return NextResponse.json(
       { success: false, error: 'Internal server error.' },
-      { status: 500, headers: CORS }
+      { status: 500, headers: cors }
     );
   }
 }
 
-export async function OPTIONS() {
-  return new NextResponse(null, { status: 200, headers: CORS });
+export async function OPTIONS(req: Request) {
+  return handleCorsPreflight(req, 'POST, OPTIONS');
 }

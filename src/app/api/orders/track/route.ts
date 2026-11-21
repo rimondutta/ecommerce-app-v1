@@ -92,6 +92,7 @@ export async function GET(req: Request) {
     }
 
     // Phone validation if phone parameter is provided
+    let isPhoneVerified = false;
     if (phone) {
       const cleanPhone = phone.replace(/\D/g, '');
       const orderPhone = (order.shippingAddress?.phone || '').replace(/\D/g, '');
@@ -102,7 +103,31 @@ export async function GET(req: Request) {
           { status: 401 }
         );
       }
+      if (cleanPhone && orderPhone) {
+        isPhoneVerified = true;
+      }
     }
+
+    // Mask sensitive PII for unverified tracking lookups
+    const rawPhone = order.shippingAddress?.phone || '';
+    const maskedPhone = rawPhone.length > 5
+      ? `${rawPhone.slice(0, 3)}****${rawPhone.slice(-3)}`
+      : rawPhone;
+
+    const rawEmail = order.customerEmail || '';
+    const atIndex = rawEmail.indexOf('@');
+    const maskedEmail = atIndex > 2
+      ? `${rawEmail.slice(0, 2)}***${rawEmail.slice(atIndex)}`
+      : rawEmail;
+
+    const safeShippingAddress = isPhoneVerified
+      ? order.shippingAddress
+      : {
+          city: order.shippingAddress?.city,
+          country: order.shippingAddress?.country || 'Bangladesh',
+          phone: maskedPhone,
+          addressLine1: '*** (Enter matching phone to view full address)',
+        };
 
     // Courier tracking link calculation
     let trackingUrl = order.courier?.trackingUrl;
@@ -123,9 +148,9 @@ export async function GET(req: Request) {
       data: {
         _id: order._id,
         invoiceNumber: order.invoiceNumber || `TH-${order._id.toString().slice(-6).toUpperCase()}`,
-        customerName: order.customerName,
-        customerEmail: order.customerEmail,
-        shippingAddress: order.shippingAddress,
+        customerName: isPhoneVerified ? order.customerName : (order.customerName ? `${order.customerName.slice(0, 2)}***` : 'Customer'),
+        customerEmail: isPhoneVerified ? order.customerEmail : maskedEmail,
+        shippingAddress: safeShippingAddress,
         totalAmount: order.totalAmount,
         shippingCost: order.shippingCost,
         paymentStatus: order.paymentStatus,

@@ -10,12 +10,7 @@ import { createHash, randomInt } from 'crypto';
 import connectToDatabase from '@/lib/db';
 import User from '@/models/User';
 import { sendPasswordResetOtpEmail } from '@/lib/nodemailer';
-
-const CORS = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type',
-};
+import { getCorsHeaders, handleCorsPreflight } from '@/lib/cors';
 
 const GENERIC_OK = {
   success: true,
@@ -23,6 +18,7 @@ const GENERIC_OK = {
 };
 
 export async function POST(req: Request) {
+  const cors = getCorsHeaders(req, 'POST, OPTIONS');
   try {
     const body = await req.json();
     const email = (body.email ?? '').trim().toLowerCase();
@@ -30,7 +26,7 @@ export async function POST(req: Request) {
     if (!email || !email.includes('@')) {
       return NextResponse.json(
         { success: false, error: 'A valid email address is required.' },
-        { status: 400, headers: CORS }
+        { status: 400, headers: cors }
       );
     }
 
@@ -45,7 +41,7 @@ export async function POST(req: Request) {
     if (!user) {
       return NextResponse.json(
         { success: false, error: 'No account found with this email address.' },
-        { status: 404, headers: CORS }
+        { status: 404, headers: cors }
       );
     }
 
@@ -61,7 +57,7 @@ export async function POST(req: Request) {
             error: `Please wait ${retryAfterSeconds} seconds before requesting a new code.`,
             retryAfterSeconds,
           },
-          { status: 429, headers: CORS }
+          { status: 429, headers: cors }
         );
       }
     }
@@ -87,20 +83,20 @@ export async function POST(req: Request) {
       await user.save();
       return NextResponse.json(
         { success: false, error: 'Failed to send email. Please try again.' },
-        { status: 500, headers: CORS }
+        { status: 500, headers: cors }
       );
     }
 
-    return NextResponse.json(GENERIC_OK, { headers: CORS });
+    return NextResponse.json(GENERIC_OK, { headers: cors });
   } catch (err) {
     console.error('[forgot-password]', err);
     return NextResponse.json(
       { success: false, error: 'Internal server error.' },
-      { status: 500, headers: CORS }
+      { status: 500, headers: cors }
     );
   }
 }
 
-export async function OPTIONS() {
-  return new NextResponse(null, { status: 200, headers: CORS });
+export async function OPTIONS(req: Request) {
+  return handleCorsPreflight(req, 'POST, OPTIONS');
 }

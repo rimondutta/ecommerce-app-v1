@@ -3,12 +3,7 @@ import connectToDatabase from '@/lib/db';
 import Order from '@/models/Order';
 import { getBearerSession } from '@/lib/mobile-auth';
 import { NextRequest } from 'next/server';
-
-const CORS_HEADERS = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-};
+import { getCorsHeaders, handleCorsPreflight } from '@/lib/cors';
 
 // ─────────────────────────────────────────────────────────────
 // GET /api/orders — returns the signed-in user's order history
@@ -39,12 +34,13 @@ interface MobileOrderLean {
 }
 
 export async function GET(req: NextRequest) {
+  const cors = getCorsHeaders(req, 'GET, OPTIONS');
   try {
     const session = await getBearerSession(req);
     if (!session) {
       return NextResponse.json(
         { success: false, error: 'Unauthorized' },
-        { status: 401, headers: CORS_HEADERS }
+        { status: 401, headers: cors }
       );
     }
 
@@ -89,19 +85,19 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json(
       { success: true, data: mapped, orders: mapped },
-      { headers: CORS_HEADERS }
+      { headers: cors }
     );
   } catch (error: unknown) {
     console.error('[GET /api/orders]', error);
     return NextResponse.json(
       { success: false, error: 'Internal Server Error' },
-      { status: 500, headers: CORS_HEADERS }
+      { status: 500, headers: cors }
     );
   }
 }
 
-export async function OPTIONS() {
-  return new NextResponse(null, { status: 200, headers: CORS_HEADERS });
+export async function OPTIONS(req: NextRequest) {
+  return handleCorsPreflight(req, 'GET, OPTIONS');
 }
 
 function mapFulfillmentStatus(status: string): 'pending' | 'shipped' | 'delivered' {

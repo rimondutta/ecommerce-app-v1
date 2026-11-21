@@ -3,6 +3,7 @@ import Order from '@/models/Order';
 import Product from '@/models/Product';
 import Coupon from '@/models/Coupon';
 import { calculateOrderPricing, CheckoutInputItem } from '@/lib/pricing';
+import { logger } from '@/lib/logger';
 import crypto from 'crypto';
 
 export interface CreateOrderParams {
@@ -23,6 +24,7 @@ export interface CreateOrderParams {
   notes?: string;
   couponCode?: string;
   source?: 'web' | 'ai_agent' | 'mobile';
+  stripePaymentIntentId?: string;
 }
 
 export interface CreateOrderResult {
@@ -43,15 +45,63 @@ export interface CreateOrderResult {
 }
 
 /**
- * Shared, authoritative order creation service.
+ * Restores inventory for cancelled or failed orders.
+ * Safe to call idempotently.
+ */
+export async function restoreOrderInventory(orderId: string): Promise<boolean> {
+  try {
+    await connectToDatabase();
+    const order = await Order.findById(orderId);
+    if (!order || order.inventoryRestored) {
+      return false;
+    }
+
+    for (const item of order.items) {
+      if (item.variantId) {
+        await Product.updateOne(
+          { _id: item.product, 'variants._id': item.variantId },
+          {
+            $inc: {
+              'variants.$.stock': item.quantity,
+              inventory: item.quantity,
+              soldCount: -item.quantity,
+            },
+          }
+        );
+      } else {
+        await Product.updateOne(
+          { _id: item.product },
+          {
+            $inc: {
+              inventory: item.quantity,
+              soldCount: -item.quantity,
+            },
+          }
+        );
+      }
+    }
+
+    order.inventoryRestored = true;
+    await order.save();
+    logger.info('Inventory restored for order', { orderId });
+    return true;
+  } catch (error) {
+    logger.error('Failed to restore order inventory', error, { orderId });
+    return false;
+  }
+}
+
+/**
+ * Shared, authoritative order creation service with atomic concurrency controls.
  * Used by web checkout, API endpoints, and the AI Order Agent.
  *
- * Ensures:
- * 1. Authoritative server pricing and inventory validation
- * 2. Order persistence with guest access token and source tag
- * 3. Atomic stock decrements via bulkWrite
- * 4. Coupon usage increments
- * 5. Full side effects: PDF Invoice generation, Email alert, Telegram alert, Google Sheets logging
+ * Security & Integrity Guarantees:
+ * 1. Authoritative server pricing and catalog validation.
+ * 2. Atomic stock reservation with conditional matching ({ stock: { $gte: qty } }).
+ * 3. Automatic compensation / rollback if any item fails or order persistence fails.
+ * 4. Zero negative stock or overselling under high concurrency.
+ * 5. Cryptographic guest access tokens with SHA-256 hashed lookups.
+ * 6. Structured audit logging.
  */
 export async function createStoreOrder(params: CreateOrderParams): Promise<CreateOrderResult> {
   const {
@@ -64,6 +114,7 @@ export async function createStoreOrder(params: CreateOrderParams): Promise<Creat
     notes,
     couponCode,
     source = 'web',
+    stripePaymentIntentId,
   } = params;
 
   if (!items || !Array.isArray(items) || items.length === 0) {
@@ -78,148 +129,251 @@ export async function createStoreOrder(params: CreateOrderParams): Promise<Creat
 
   await connectToDatabase();
 
-  // ── Authoritative Server-Side Price & Inventory Verification ──
+  // ── 1. Authoritative Server-Side Price & Inventory Verification ──
   const pricing = await calculateOrderPricing({
     items,
     shippingZone,
     couponCode,
   });
 
-  // Generate cryptographically secure access token for guest invoice verification
-  const rawGuestAccessToken = crypto.randomBytes(32).toString('hex');
-  const guestAccessTokenHash = crypto.createHash('sha256').update(rawGuestAccessToken).digest('hex');
+  // ── 2. Atomic Stock Reservation with Conditional Concurrency Check ──
+  // Ensures simultaneous orders cannot drive inventory negative.
+  const reservedItems: Array<{
+    productId: string;
+    variantId?: string;
+    quantity: number;
+  }> = [];
 
-  // Create order doc using server-verified values
-  const orderData: Record<string, unknown> = {
-    customerName: String(customerName || '').trim(),
-    items: pricing.items,
-    subtotal: pricing.subtotal,
-    shippingCost: pricing.shippingCost,
-    discountAmount: pricing.discountAmount,
-    couponCode: pricing.couponCode,
-    totalAmount: pricing.totalAmount,
-    shippingZone: pricing.shippingZone,
-    notes: notes ? String(notes).trim().slice(0, 500) : undefined,
-    shippingAddress: {
-      name: String(shippingAddress?.name || customerName || '').trim(),
-      email: normalizedEmail,
-      phone: String(shippingAddress?.phone || '').trim(),
-      addressLine1: String(shippingAddress?.addressLine1 || '').trim(),
-      city: String(shippingAddress?.city || 'Dhaka').trim(),
-      postcode: String(shippingAddress?.postcode || '').trim(),
-      country: shippingAddress?.country || 'Bangladesh',
-    },
-    paymentMethod,
-    paymentStatus: 'pending',
-    fulfillmentStatus: 'unfulfilled',
-    guestAccessToken: rawGuestAccessToken,
-    guestAccessTokenHash,
-    source,
-  };
+  try {
+    for (const item of pricing.items) {
+      let reservationResult;
 
-  if (normalizedEmail) {
-    orderData.customerEmail = normalizedEmail;
-  }
+      if (item.variantId) {
+        // Atomic conditional update on specific variant with sufficient stock
+        reservationResult = await Product.updateOne(
+          {
+            _id: item.product,
+            variants: {
+              $elemMatch: {
+                _id: item.variantId,
+                stock: { $gte: item.quantity },
+              },
+            },
+          },
+          {
+            $inc: {
+              'variants.$.stock': -item.quantity,
+              inventory: -item.quantity,
+              soldCount: item.quantity,
+            },
+          }
+        );
+      } else {
+        // Atomic conditional update on product-level inventory with sufficient stock
+        reservationResult = await Product.updateOne(
+          {
+            _id: item.product,
+            inventory: { $gte: item.quantity },
+          },
+          {
+            $inc: {
+              inventory: -item.quantity,
+              soldCount: item.quantity,
+            },
+          }
+        );
+      }
 
-  const order = await Order.create(orderData);
+      if (!reservationResult || reservationResult.modifiedCount === 0) {
+        logger.warn('Stock reservation failed due to race condition or exhaustion', {
+          productId: item.product.toString(),
+          variantId: item.variantId?.toString(),
+          requestedQty: item.quantity,
+        });
 
-  // Atomically increment coupon count if applicable
-  if (pricing.couponCode) {
-    await Coupon.updateOne(
-      { code: pricing.couponCode },
-      { $inc: { usedCount: 1 } }
-    ).catch((err: unknown) => console.error('Failed to increment coupon usedCount:', err));
-  }
+        // Rollback all items reserved in this transaction up to this point
+        for (const reserved of reservedItems) {
+          if (reserved.variantId) {
+            await Product.updateOne(
+              { _id: reserved.productId, 'variants._id': reserved.variantId },
+              {
+                $inc: {
+                  'variants.$.stock': reserved.quantity,
+                  inventory: reserved.quantity,
+                  soldCount: -reserved.quantity,
+                },
+              }
+            ).catch((err) => logger.error('Rollback failure for variant', err, reserved));
+          } else {
+            await Product.updateOne(
+              { _id: reserved.productId },
+              {
+                $inc: {
+                  inventory: reserved.quantity,
+                  soldCount: -reserved.quantity,
+                },
+              }
+            ).catch((err) => logger.error('Rollback failure for product', err, reserved));
+          }
+        }
 
-  // ── Atomic Inventory Decrement ──
-  const inventoryOps = pricing.items.map((item) => {
-    if (item.variantId) {
-      return {
-        updateOne: {
-          filter: { _id: item.product, 'variants._id': item.variantId },
-          update: { $inc: { 'variants.$.stock': -item.quantity } },
-        },
-      };
-    } else {
-      return {
-        updateOne: {
-          filter: { _id: item.product },
-          update: { $inc: { inventory: -item.quantity } },
-        },
-      };
+        throw new Error(`Insufficient stock for "${item.title}". It may have just sold out.`);
+      }
+
+      reservedItems.push({
+        productId: item.product.toString(),
+        variantId: item.variantId ? item.variantId.toString() : undefined,
+        quantity: item.quantity,
+      });
     }
-  });
 
-  if (inventoryOps.length > 0) {
-    await Product.bulkWrite(inventoryOps).catch((err: unknown) =>
-      console.error('Failed to update inventory via bulkWrite:', err)
-    );
+    // ── 3. Generate Cryptographically Secure Access Token for Guest Invoices ──
+    const rawGuestAccessToken = crypto.randomBytes(32).toString('hex');
+    const guestAccessTokenHash = crypto.createHash('sha256').update(rawGuestAccessToken).digest('hex');
+
+    // ── 4. Persist Order Record with Authoritative Totals ──
+    const orderData: Record<string, unknown> = {
+      customerName: String(customerName || '').trim(),
+      items: pricing.items,
+      subtotal: pricing.subtotal,
+      shippingCost: pricing.shippingCost,
+      discountAmount: pricing.discountAmount,
+      couponCode: pricing.couponCode,
+      totalAmount: pricing.totalAmount,
+      shippingZone: pricing.shippingZone,
+      notes: notes ? String(notes).trim().slice(0, 500) : undefined,
+      shippingAddress: {
+        name: String(shippingAddress?.name || customerName || '').trim(),
+        email: normalizedEmail,
+        phone: String(shippingAddress?.phone || '').trim(),
+        addressLine1: String(shippingAddress?.addressLine1 || '').trim(),
+        city: String(shippingAddress?.city || 'Dhaka').trim(),
+        postcode: String(shippingAddress?.postcode || '').trim(),
+        country: shippingAddress?.country || 'Bangladesh',
+      },
+      paymentMethod,
+      paymentStatus: 'pending',
+      fulfillmentStatus: 'unfulfilled',
+      guestAccessToken: rawGuestAccessToken,
+      guestAccessTokenHash,
+      source,
+      stripePaymentIntentId,
+    };
+
+    if (normalizedEmail) {
+      orderData.customerEmail = normalizedEmail;
+    }
+
+    const order = await Order.create(orderData);
+
+    // Atomically increment coupon count if applicable
+    if (pricing.couponCode) {
+      await Coupon.updateOne(
+        { code: pricing.couponCode },
+        { $inc: { usedCount: 1 } }
+      ).catch((err: unknown) => logger.error('Failed to increment coupon usedCount', err));
+    }
+
+    logger.info('Order created with verified stock and pricing', {
+      orderId: order._id.toString(),
+      totalAmount: pricing.totalAmount,
+      itemCount: pricing.items.length,
+      source,
+    });
+
+    // ── 5. Asynchronous Background Side Effects ──
+    const notificationPayload = {
+      orderId: order._id.toString(),
+      customerName: order.customerName,
+      customerEmail: order.customerEmail,
+      totalAmount: pricing.totalAmount,
+      items: pricing.items.map((i) => ({
+        title: i.title,
+        price: i.price,
+        quantity: i.quantity,
+      })),
+      shippingAddress: order.shippingAddress,
+      paymentMethod: order.paymentMethod,
+      shippingCost: pricing.shippingCost,
+    };
+
+    Promise.allSettled([
+      import('@/lib/invoice/generateInvoicePdf').then(({ generateInvoiceForOrder }) =>
+        generateInvoiceForOrder(order._id.toString())
+      ),
+      normalizedEmail
+        ? import('@/lib/nodemailer').then(({ sendOrderConfirmationEmail }) =>
+            sendOrderConfirmationEmail(notificationPayload)
+          )
+        : Promise.resolve(),
+      import('@/lib/telegram').then(({ sendTelegramNotification }) =>
+        sendTelegramNotification(notificationPayload)
+      ),
+      import('@/lib/googleSheets').then(({ appendOrderToSheet }) =>
+        appendOrderToSheet({
+          orderId: order._id.toString(),
+          customerName: order.customerName,
+          customerEmail: order.customerEmail,
+          phone: order.shippingAddress?.phone,
+          addressLine1: order.shippingAddress?.addressLine1,
+          city: order.shippingAddress?.city,
+          paymentMethod: order.paymentMethod,
+          items: pricing.items.map((i) => ({
+            title: i.title,
+            quantity: i.quantity,
+            price: i.price,
+          })),
+          shippingCost: pricing.shippingCost,
+          totalAmount: pricing.totalAmount,
+          fulfillmentStatus: 'unfulfilled',
+        })
+      ),
+    ]).catch((err) => logger.error('Background notification tasks error', err));
+
+    return {
+      orderId: order._id.toString(),
+      guestAccessToken: rawGuestAccessToken,
+      totalAmount: pricing.totalAmount,
+      subtotal: pricing.subtotal,
+      shippingCost: pricing.shippingCost,
+      discountAmount: pricing.discountAmount,
+      items: pricing.items.map((item) => ({
+        product: item.productId,
+        title: item.title,
+        price: item.price,
+        quantity: item.quantity,
+        variantId: item.variantId ? item.variantId.toString() : undefined,
+        image: item.image,
+      })),
+    };
+  } catch (error) {
+    // If order persistence failed after reservations succeeded, rollback all reserved stock
+    if (reservedItems.length > 0) {
+      for (const reserved of reservedItems) {
+        if (reserved.variantId) {
+          await Product.updateOne(
+            { _id: reserved.productId, 'variants._id': reserved.variantId },
+            {
+              $inc: {
+                'variants.$.stock': reserved.quantity,
+                inventory: reserved.quantity,
+                soldCount: -reserved.quantity,
+              },
+            }
+          ).catch((e) => logger.error('Rollback error after Order.create failure', e));
+        } else {
+          await Product.updateOne(
+            { _id: reserved.productId },
+            {
+              $inc: {
+                inventory: reserved.quantity,
+                soldCount: -reserved.quantity,
+              },
+            }
+          ).catch((e) => logger.error('Rollback error after Order.create failure', e));
+        }
+      }
+    }
+    throw error;
   }
-
-  // ── Background Tasks (Invoice, Email, Telegram, Google Sheets) ──
-  const notificationPayload = {
-    orderId: order._id.toString(),
-    customerName: order.customerName,
-    customerEmail: order.customerEmail,
-    totalAmount: pricing.totalAmount,
-    items: pricing.items.map((i) => ({
-      title: i.title,
-      price: i.price,
-      quantity: i.quantity,
-    })),
-    shippingAddress: order.shippingAddress,
-    paymentMethod: order.paymentMethod,
-    shippingCost: pricing.shippingCost,
-  };
-
-  await Promise.allSettled([
-    import('@/lib/invoice/generateInvoicePdf').then(({ generateInvoiceForOrder }) =>
-      generateInvoiceForOrder(order._id.toString())
-    ),
-    normalizedEmail
-      ? import('@/lib/nodemailer').then(({ sendOrderConfirmationEmail }) =>
-          sendOrderConfirmationEmail(notificationPayload)
-        )
-      : Promise.resolve(),
-    import('@/lib/telegram').then(({ sendTelegramNotification }) =>
-      sendTelegramNotification(notificationPayload)
-    ),
-    import('@/lib/googleSheets').then(({ appendOrderToSheet }) =>
-      appendOrderToSheet({
-        orderId: order._id.toString(),
-        customerName: order.customerName,
-        customerEmail: order.customerEmail,
-        phone: order.shippingAddress?.phone,
-        addressLine1: order.shippingAddress?.addressLine1,
-        city: order.shippingAddress?.city,
-        paymentMethod: order.paymentMethod,
-        items: pricing.items.map((i) => ({
-          title: i.title,
-          quantity: i.quantity,
-          price: i.price,
-        })),
-        shippingCost: pricing.shippingCost,
-        totalAmount: pricing.totalAmount,
-        fulfillmentStatus: 'unfulfilled',
-      })
-    ),
-  ]).catch((err) => console.error('Background tasks error:', err));
-
-  return {
-    orderId: order._id.toString(),
-    guestAccessToken: rawGuestAccessToken,
-    totalAmount: pricing.totalAmount,
-    subtotal: pricing.subtotal,
-    shippingCost: pricing.shippingCost,
-    discountAmount: pricing.discountAmount,
-    items: pricing.items.map((item) => ({
-      product: item.productId,
-      title: item.title,
-      price: item.price,
-      quantity: item.quantity,
-      variantId: item.variantId ? item.variantId.toString() : undefined,
-      image: item.image,
-    })),
-  };
 }
-

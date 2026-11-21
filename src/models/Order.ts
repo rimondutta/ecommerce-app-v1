@@ -104,6 +104,16 @@ const OrderSchema = new mongoose.Schema(
       type: Date,
       default: null,
     },
+    // ── Payment Gateway & Stock Rollback State ──
+    stripePaymentIntentId: {
+      type: String,
+      sparse: true,
+      index: true,
+    },
+    inventoryRestored: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );
@@ -113,5 +123,6 @@ OrderSchema.index({ customerEmail: 1, createdAt: -1 });
 OrderSchema.index({ createdAt: -1 });
 OrderSchema.index({ fulfillmentStatus: 1, createdAt: -1 });
 OrderSchema.index({ paymentStatus: 1, createdAt: -1 });
+OrderSchema.index({ stripePaymentIntentId: 1 }, { sparse: true });
 
 export default mongoose.models.Order || mongoose.model('Order', OrderSchema);

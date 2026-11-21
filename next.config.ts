@@ -144,12 +144,13 @@ const nextConfig: NextConfig = {
 
     return [
       {
-        // CORS for the mobile app REST API — no CSP applied to API routes.
+        // CORS baseline for API routes — dynamic origin validation is handled by proxy.ts & cors.ts
         source: "/api/:path*",
         headers: [
-          { key: "Access-Control-Allow-Origin", value: process.env.MOBILE_ORIGIN || "*" },
           { key: "Access-Control-Allow-Methods", value: "GET,POST,PUT,PATCH,DELETE,OPTIONS" },
-          { key: "Access-Control-Allow-Headers", value: "Content-Type, Authorization" },
+          { key: "Access-Control-Allow-Headers", value: "Content-Type, Authorization, Idempotency-Key, X-Requested-With" },
+          { key: "Access-Control-Max-Age", value: "86400" },
+          { key: "Vary", value: "Origin" },
         ],
       },
       {
