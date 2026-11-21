@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react"
 import Image from "next/image"
 import { Trash, Save, Loader2, AlertCircle, ChevronDown, ChevronUp, Image as ImageIcon, Camera, Upload, X, Truck, CheckCircle2, Sparkles } from "lucide-react"
-import { isCloudinaryUrl } from "@/lib/utils"
+import { isCloudinaryUrl, extractPiecesCount } from "@/lib/utils"
 import RichDescriptionEditor from "@/components/admin/RichDescriptionEditor"
 
 // ─── Types ─────────────────────────────────────────────────────────────────
@@ -203,6 +203,34 @@ export default function ProductForm({ initialData, categories, onSubmit, loading
       if (bulkRegularPrice !== "") updated.comparePrice = Number(bulkRegularPrice)
       if (bulkStock !== "") updated.stock = Number(bulkStock)
       return updated
+    }))
+  }
+
+  const handleAutoCalculateRegularPrices = () => {
+    let unitRegular = formData.compareAtPrice !== "" ? Number(formData.compareAtPrice) : 0
+    if (!unitRegular) {
+      const withComp = variantRows.find(r => r.comparePrice && Number(r.comparePrice) > 0)
+      if (withComp) {
+        const count = extractPiecesCount(withComp.combinationLabel)
+        if (count > 0) unitRegular = Number(withComp.comparePrice) / count
+      }
+    }
+    if (!unitRegular) {
+      const baseP = Number(formData.price) || 0
+      if (baseP > 0) unitRegular = Math.round(baseP * 1.5)
+    }
+
+    if (!unitRegular || unitRegular <= 0) return
+
+    setVariantRows(prev => prev.map(row => {
+      const count = extractPiecesCount(row.combinationLabel)
+      if (count > 0) {
+        return {
+          ...row,
+          comparePrice: Math.round(unitRegular * count)
+        }
+      }
+      return row
     }))
   }
 
@@ -1006,6 +1034,14 @@ export default function ProductForm({ initialData, categories, onSubmit, loading
                           className="bg-[#5428D8] hover:bg-[#431db8] text-white text-xs font-bold px-3 py-1 rounded-lg transition-colors shadow-sm"
                         >
                           Apply to All
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleAutoCalculateRegularPrices}
+                          title="Auto-calculate regular prices based on piece count and unit price"
+                          className="bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 text-xs font-bold px-3 py-1 rounded-lg transition-colors shadow-xs"
+                        >
+                          ⚡ Auto-calc Regular Prices
                         </button>
                       </div>
                     </div>

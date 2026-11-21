@@ -19,7 +19,7 @@ import {
   ShieldCheck,
   RefreshCcw,
 } from "lucide-react";
-import { cn, getOptimizedCloudinaryUrl } from "@/lib/utils";
+import { cn, getOptimizedCloudinaryUrl, extractPiecesCount, toBengaliNumber, formatPcsLabel } from "@/lib/utils";
 import {
   trackViewContent,
   trackAddToCart,
@@ -42,6 +42,7 @@ interface VariationValue {
 interface VariationType {
   _id: string;
   name: string;
+  slug?: string;
   displayType?: string;
   values?: VariationValue[];
 }
@@ -157,6 +158,50 @@ const MD_COMPONENTS = {
   ),
 };
 
+/* ── Helpers for Pieces / Bundle Variation Cards & Auto-Compare ── */
+
+function isPiecesVariation(vt: VariationType & { values: VariationValue[] }): boolean {
+  if (vt.displayType === "swatch") return false;
+  const s = (vt.slug || "").toLowerCase();
+  const n = (vt.name || "").toLowerCase();
+  if (
+    s.includes("piece") || s.includes("pcs") || s.includes("pack") ||
+    s.includes("bundle") || s.includes("quantity") ||
+    n.includes("piece") || n.includes("pcs") || n.includes("পিস") ||
+    n.includes("পরিমাণ") || n.includes("প্যাক") ||
+    vt.displayType === "card"
+  ) {
+    return true;
+  }
+  return vt.values?.some((val) =>
+    val.value.includes("পিস") ||
+    val.value.toLowerCase().includes("pc") ||
+    /^\d+$/.test(val.value.trim()) ||
+    /^[০-৯]+$/.test(val.value.trim())
+  );
+}
+
+function getVariantBadge(index: number, total: number, savings: number): string | null {
+  if (total === 1) {
+    return savings > 0 ? `SAVE ${savings.toLocaleString()} TK` : null;
+  }
+  if (total === 2) {
+    if (index === 0) return savings > 0 ? `SAVE ${savings.toLocaleString()} TK` : null;
+    return "BEST VALUE";
+  }
+  // 3 or more variants (exactly as in user's design)
+  if (index === 0) {
+    return savings > 0 ? `SAVE ${savings.toLocaleString()} TK` : null;
+  }
+  if (index === 1) {
+    return "MOST POPULAR";
+  }
+  if (index === total - 1) {
+    return "BEST PRICE";
+  }
+  return savings > 0 ? `SAVE ${savings.toLocaleString()} TK` : null;
+}
+
 /* ─────────────────────────── Main component ─────────────────────────── */
 
 export default function ProductDetailsClient({
@@ -250,10 +295,44 @@ export default function ProductDetailsClient({
     );
   }, [product.hasVariations, product.variants, product.inventory]);
 
+  // Unit compare price for automatic calculate across pcs / bundle options
+  const unitComparePrice = useMemo(() => {
+    if (product.variants && Array.isArray(product.variants)) {
+      for (const v of product.variants) {
+        if (v.isActive && v.comparePrice && v.comparePrice > 0) {
+          const comboStr = v.combinationLabel || (v.combination?.[0]?.variationValue as { value?: string })?.value || '';
+          const pcs = extractPiecesCount(comboStr);
+          if (pcs > 0) {
+            return v.comparePrice / pcs;
+          }
+        }
+      }
+    }
+    if (product.compareAtPrice && product.compareAtPrice > 0) {
+      return product.compareAtPrice;
+    }
+    if (product.price && product.price > 0) {
+      return Math.round(product.price * 1.5);
+    }
+    return 0;
+  }, [product.variants, product.compareAtPrice, product.price]);
+
   const currentPrice = matchingVariant ? matchingVariant.price : product.price;
-  const currentComparePrice = matchingVariant
-    ? (matchingVariant.comparePrice || null)
-    : product.compareAtPrice;
+
+  const currentComparePrice = useMemo(() => {
+    if (matchingVariant) {
+      if (matchingVariant.comparePrice && matchingVariant.comparePrice > 0) {
+        return matchingVariant.comparePrice;
+      }
+      const pcs = extractPiecesCount(matchingVariant.combinationLabel || '');
+      if (unitComparePrice > 0 && pcs > 0) {
+        return Math.round(unitComparePrice * pcs);
+      }
+      return null;
+    }
+    return product.compareAtPrice || null;
+  }, [matchingVariant, unitComparePrice, product.compareAtPrice]);
+
   const currentInventory =
     (matchingVariant ? matchingVariant.stock : totalVariationStock) ?? 0;
   const hasDiscount = Boolean(
@@ -723,60 +802,152 @@ export default function ProductDetailsClient({
               variationGroups.length > 0 && (
                 <div className="flex flex-col gap-4 mb-5">
                   {variationGroups.map(
-                    (vt: VariationType & { values: VariationValue[] }) => (
-                      <div key={vt._id}>
-                        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
-                          {vt.name}:{" "}
-                          <span className="text-[#1E1B4B] normal-case ml-1">
-                            {
-                              vt.values.find(
-                                (val) => val._id === selectedOptions[vt._id]
-                              )?.value
-                            }
-                          </span>
-                        </p>
-                        <div className="flex flex-wrap gap-2">
-                          {vt.values.map((val: VariationValue) => {
-                            const isSelected =
-                              selectedOptions[vt._id] === val._id;
-                            if (vt.displayType === "swatch" && val.colorHex) {
-                              return (
-                                <button
-                                  key={val._id}
-                                  onClick={() =>
-                                    handleOptionSelect(vt._id, val._id, val.value)
-                                  }
-                                  className={cn(
-                                    "w-9 h-9 rounded-full border-2 transition-all duration-200",
-                                    isSelected
-                                      ? "border-[#5428D8] scale-110 shadow-md"
-                                      : "border-transparent hover:scale-105 shadow-sm"
-                                  )}
-                                  style={{ backgroundColor: val.colorHex }}
-                                  aria-label={val.value}
-                                />
-                              );
-                            }
-                            return (
-                              <button
-                                key={val._id}
-                                onClick={() =>
-                                  handleOptionSelect(vt._id, val._id, val.value)
+                    (vt: VariationType & { values: VariationValue[] }) => {
+                      const isPcs = isPiecesVariation(vt);
+
+                      return (
+                        <div key={vt._id}>
+                          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+                            {vt.name}:{" "}
+                            <span className="text-[#1E1B4B] normal-case ml-1 font-bold">
+                              {
+                                vt.values.find(
+                                  (val) => val._id === selectedOptions[vt._id]
+                                )?.value
+                              }
+                            </span>
+                          </p>
+
+                          {isPcs ? (
+                            <div className="flex flex-col gap-3.5 pt-1.5 mb-2">
+                              {vt.values.map((val: VariationValue, idx: number) => {
+                                const isSelected = selectedOptions[vt._id] === val._id;
+
+                                const variantForVal = product.variants?.find((v: ProductVariant) => {
+                                  if (!v.isActive) return false;
+                                  return v.combination.some((c: VariantCombination) => {
+                                    const vId = typeof c.variationValue === "string" ? c.variationValue : c.variationValue?._id;
+                                    return vId === val._id;
+                                  });
+                                });
+
+                                const variantPrice = variantForVal ? variantForVal.price : product.price;
+                                const pcs = extractPiecesCount(val.value);
+
+                                let variantComparePrice = variantForVal?.comparePrice && variantForVal.comparePrice > 0
+                                  ? variantForVal.comparePrice
+                                  : (unitComparePrice > 0 && pcs > 0 ? Math.round(unitComparePrice * pcs) : null);
+
+                                if (variantComparePrice && variantComparePrice <= variantPrice) {
+                                  variantComparePrice = null;
                                 }
-                                className={cn(
-                                  "px-3 py-1.5 text-sm rounded-lg border transition-all duration-200 font-medium",
-                                  isSelected
-                                    ? "bg-[#5428D8] text-white border-[#5428D8]"
-                                    : "bg-white text-[#1E1B4B] border-gray-200 hover:border-[#5428D8] hover:bg-purple-50"
-                                )}
-                              >
-                                {val.value}
-                              </button>
-                            );
-                          })}
+
+                                const savings = variantComparePrice && variantComparePrice > variantPrice
+                                  ? variantComparePrice - variantPrice
+                                  : 0;
+
+                                const badge = getVariantBadge(idx, vt.values.length, savings);
+
+                                return (
+                                  <div
+                                    key={val._id}
+                                    onClick={() => handleOptionSelect(vt._id, val._id, val.value)}
+                                    className={cn(
+                                      "relative flex items-center justify-between p-3.5 sm:p-4 rounded-2xl cursor-pointer transition-all duration-200 select-none",
+                                      isSelected
+                                        ? "border-2 border-black bg-white shadow-sm"
+                                        : "border border-gray-200 bg-white hover:border-gray-300"
+                                    )}
+                                  >
+                                    {/* Floating Top Badge */}
+                                    {badge && (
+                                      <span className="absolute -top-2.5 right-4 sm:right-6 bg-[#E11D48] text-white text-[10px] sm:text-[11px] font-black px-3 py-0.5 rounded-full uppercase tracking-wider shadow-sm z-10 pointer-events-none">
+                                        {badge}
+                                      </span>
+                                    )}
+
+                                    {/* Left: Radio + Label + Inline Savings */}
+                                    <div className="flex items-center gap-3 min-w-0 pr-2">
+                                      {/* Radio Circle */}
+                                      <div
+                                        className={cn(
+                                          "w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors",
+                                          isSelected ? "border-black bg-white" : "border-gray-300 bg-white"
+                                        )}
+                                      >
+                                        {isSelected && <div className="w-2.5 h-2.5 rounded-full bg-black" />}
+                                      </div>
+
+                                      {/* Title + Pill */}
+                                      <div className="flex items-center flex-wrap gap-2 min-w-0">
+                                        <span className="text-sm sm:text-base font-bold text-gray-900 leading-tight">
+                                          {formatPcsLabel(val.value)}
+                                        </span>
+
+                                        {/* Inline Savings Pill (like in screenshot) */}
+                                        {savings > 0 && (idx > 0 || !badge) && (
+                                          <span className="bg-[#F3F4F6] text-gray-700 text-xs font-semibold px-2.5 py-0.5 rounded-full shrink-0">
+                                            save {savings.toLocaleString()} tk
+                                          </span>
+                                        )}
+                                      </div>
+                                    </div>
+
+                                    {/* Right: Prices */}
+                                    <div className="flex flex-col items-end shrink-0 pl-2 text-right">
+                                      <span className="text-base sm:text-xl font-black text-gray-900 tracking-tight leading-tight">
+                                        ৳ {variantPrice.toLocaleString()}
+                                      </span>
+                                      {variantComparePrice && (
+                                        <span className="text-xs sm:text-sm text-gray-400 line-through font-medium leading-tight mt-0.5">
+                                          ৳ {variantComparePrice.toLocaleString()}
+                                        </span>
+                                      )}
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          ) : (
+                            <div className="flex flex-wrap gap-2">
+                              {vt.values.map((val: VariationValue) => {
+                                const isSelected = selectedOptions[vt._id] === val._id;
+                                if (vt.displayType === "swatch" && val.colorHex) {
+                                  return (
+                                    <button
+                                      key={val._id}
+                                      onClick={() => handleOptionSelect(vt._id, val._id, val.value)}
+                                      className={cn(
+                                        "w-9 h-9 rounded-full border-2 transition-all duration-200",
+                                        isSelected
+                                          ? "border-[#5428D8] scale-110 shadow-md"
+                                          : "border-transparent hover:scale-105 shadow-sm"
+                                      )}
+                                      style={{ backgroundColor: val.colorHex }}
+                                      aria-label={val.value}
+                                    />
+                                  );
+                                }
+                                return (
+                                  <button
+                                    key={val._id}
+                                    onClick={() => handleOptionSelect(vt._id, val._id, val.value)}
+                                    className={cn(
+                                      "px-3 py-1.5 text-sm rounded-lg border transition-all duration-200 font-medium",
+                                      isSelected
+                                        ? "bg-[#5428D8] text-white border-[#5428D8]"
+                                        : "bg-white text-[#1E1B4B] border-gray-200 hover:border-[#5428D8] hover:bg-purple-50"
+                                    )}
+                                  >
+                                    {val.value}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          )}
                         </div>
-                      </div>
-                    )
+                      );
+                    }
                   )}
                 </div>
               )}
