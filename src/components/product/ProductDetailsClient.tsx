@@ -11,6 +11,7 @@ import {
   Star,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
   ShoppingCart,
   Zap,
   Heart,
@@ -161,23 +162,25 @@ const MD_COMPONENTS = {
 /* ── Helpers for Pieces / Bundle Variation Cards & Auto-Compare ── */
 
 function isPiecesVariation(vt: VariationType & { values: VariationValue[] }): boolean {
-  if (vt.displayType === "swatch") return false;
+  if (vt.displayType === "swatch" || vt.displayType === "button" || vt.displayType === "dropdown") return false;
+  if (vt.displayType === "cards" || vt.displayType === "pcs") return true;
   const s = (vt.slug || "").toLowerCase();
   const n = (vt.name || "").toLowerCase();
   if (
     s.includes("piece") || s.includes("pcs") || s.includes("pack") ||
     s.includes("bundle") || s.includes("quantity") ||
     n.includes("piece") || n.includes("pcs") || n.includes("পিস") ||
-    n.includes("পরিমাণ") || n.includes("প্যাক") ||
-    vt.displayType === "card"
+    n.includes("পরিমাণ") || n.includes("প্যাক")
   ) {
     return true;
   }
-  return vt.values?.some((val) =>
-    val.value.includes("পিস") ||
-    val.value.toLowerCase().includes("pc") ||
-    /^\d+$/.test(val.value.trim()) ||
-    /^[০-৯]+$/.test(val.value.trim())
+  return Boolean(
+    vt.values?.some((val) =>
+      val.value.includes("পিস") ||
+      val.value.toLowerCase().includes("pc") ||
+      /^\d+$/.test(val.value.trim()) ||
+      /^[০-৯]+$/.test(val.value.trim())
+    )
   );
 }
 
@@ -803,7 +806,13 @@ export default function ProductDetailsClient({
                 <div className="flex flex-col gap-4 mb-5">
                   {variationGroups.map(
                     (vt: VariationType & { values: VariationValue[] }) => {
-                      const isPcs = isPiecesVariation(vt);
+                      const isCards =
+                        vt.displayType === "cards" ||
+                        vt.displayType === "pcs" ||
+                        (!["button", "swatch", "dropdown"].includes(vt.displayType || "") &&
+                          isPiecesVariation(vt));
+                      const isSwatch = vt.displayType === "swatch";
+                      const isDropdown = vt.displayType === "dropdown";
 
                       return (
                         <div key={vt._id}>
@@ -818,7 +827,8 @@ export default function ProductDetailsClient({
                             </span>
                           </p>
 
-                          {isPcs ? (
+                          {/* 1. Bundle Cards Layout (Pieces / Packs) */}
+                          {isCards ? (
                             <div className="flex flex-col gap-3.5 pt-1.5 mb-2">
                               {vt.values.map((val: VariationValue, idx: number) => {
                                 const isSelected = selectedOptions[vt._id] === val._id;
@@ -884,7 +894,7 @@ export default function ProductDetailsClient({
                                           {formatPcsLabel(val.value)}
                                         </span>
 
-                                        {/* Inline Savings Pill (like in screenshot) */}
+                                        {/* Inline Savings Pill */}
                                         {savings > 0 && (idx > 0 || !badge) && (
                                           <span className="bg-[#F3F4F6] text-gray-700 text-xs font-semibold px-2.5 py-0.5 rounded-full shrink-0">
                                             save {savings.toLocaleString()} tk
@@ -908,34 +918,92 @@ export default function ProductDetailsClient({
                                 );
                               })}
                             </div>
-                          ) : (
-                            <div className="flex flex-wrap gap-2">
+                          ) : isSwatch ? (
+                            /* 2. Color Swatches Layout (Color) */
+                            <div className="flex flex-wrap gap-2.5 items-center">
                               {vt.values.map((val: VariationValue) => {
                                 const isSelected = selectedOptions[vt._id] === val._id;
-                                if (vt.displayType === "swatch" && val.colorHex) {
+                                if (val.colorHex) {
                                   return (
                                     <button
                                       key={val._id}
+                                      type="button"
                                       onClick={() => handleOptionSelect(vt._id, val._id, val.value)}
                                       className={cn(
-                                        "w-9 h-9 rounded-full border-2 transition-all duration-200",
+                                        "w-9 h-9 rounded-full border-2 transition-all duration-200 relative flex items-center justify-center",
                                         isSelected
-                                          ? "border-[#5428D8] scale-110 shadow-md"
-                                          : "border-transparent hover:scale-105 shadow-sm"
+                                          ? "border-[#5428D8] ring-2 ring-[#5428D8]/30 scale-110 shadow-md"
+                                          : "border-gray-300 hover:scale-105 shadow-sm"
                                       )}
                                       style={{ backgroundColor: val.colorHex }}
+                                      title={val.value}
                                       aria-label={val.value}
-                                    />
+                                    >
+                                      {isSelected && (
+                                        <span
+                                          className={cn(
+                                            "w-2 h-2 rounded-full",
+                                            val.colorHex.toLowerCase() === "#ffffff" || val.colorHex.toLowerCase() === "#fff"
+                                              ? "bg-black"
+                                              : "bg-white"
+                                          )}
+                                        />
+                                      )}
+                                    </button>
                                   );
                                 }
                                 return (
                                   <button
                                     key={val._id}
+                                    type="button"
                                     onClick={() => handleOptionSelect(vt._id, val._id, val.value)}
                                     className={cn(
-                                      "px-3 py-1.5 text-sm rounded-lg border transition-all duration-200 font-medium",
+                                      "px-3.5 py-1.5 text-sm rounded-lg border transition-all duration-200 font-medium",
                                       isSelected
-                                        ? "bg-[#5428D8] text-white border-[#5428D8]"
+                                        ? "bg-[#5428D8] text-white border-[#5428D8] shadow-sm"
+                                        : "bg-white text-[#1E1B4B] border-gray-200 hover:border-[#5428D8] hover:bg-purple-50"
+                                    )}
+                                  >
+                                    {val.value}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          ) : isDropdown ? (
+                            /* 3. Dropdown Select Layout */
+                            <div className="relative max-w-xs">
+                              <select
+                                value={selectedOptions[vt._id] || ""}
+                                onChange={(e) => {
+                                  const found = vt.values.find((v) => v._id === e.target.value);
+                                  if (found) handleOptionSelect(vt._id, found._id, found.value);
+                                }}
+                                className="w-full bg-white border border-gray-300 rounded-xl px-4 py-2.5 text-sm font-semibold text-gray-900 outline-none focus:border-[#5428D8] focus:ring-2 focus:ring-[#5428D8]/20 transition-all cursor-pointer shadow-sm appearance-none pr-10"
+                              >
+                                {vt.values.map((val: VariationValue) => (
+                                  <option key={val._id} value={val._id}>
+                                    {val.value}
+                                  </option>
+                                ))}
+                              </select>
+                              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                                <ChevronDown size={16} />
+                              </div>
+                            </div>
+                          ) : (
+                            /* 4. Pill Buttons Layout (Size / Options) */
+                            <div className="flex flex-wrap gap-2">
+                              {vt.values.map((val: VariationValue) => {
+                                const isSelected = selectedOptions[vt._id] === val._id;
+                                return (
+                                  <button
+                                    key={val._id}
+                                    type="button"
+                                    onClick={() => handleOptionSelect(vt._id, val._id, val.value)}
+                                    className={cn(
+                                      "px-4 py-2 text-sm rounded-xl border transition-all duration-200 font-semibold select-none",
+                                      isSelected
+                                        ? "bg-[#5428D8] text-white border-[#5428D8] shadow-sm"
                                         : "bg-white text-[#1E1B4B] border-gray-200 hover:border-[#5428D8] hover:bg-purple-50"
                                     )}
                                   >

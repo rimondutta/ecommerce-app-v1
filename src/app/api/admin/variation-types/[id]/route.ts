@@ -64,6 +64,13 @@ export async function PUT(
       return NextResponse.json({ error: 'Not found' }, { status: 404 });
     }
 
+    try {
+      const { invalidateCache } = await import('@/lib/cache');
+      await invalidateCache('products:*', 'product:*');
+    } catch {
+      /* ignore cache invalidation errors */
+    }
+
     return NextResponse.json({ variationType });
   } catch (error: unknown) {
     if ((error as { code?: number })?.code === 11000) {

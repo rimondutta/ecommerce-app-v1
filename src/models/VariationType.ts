@@ -5,8 +5,9 @@ import mongoose from 'mongoose';
  * Represents a named category of product variation, e.g. "Color", "Size", "Pieces".
  * Admins can create/manage these from /admin/variations.
  * displayType controls how the selector renders on the storefront:
- *   - "swatch"   → color circles (used for Color)
- *   - "button"   → pill-style buttons (used for Size, Pieces, etc.)
+ *   - "cards"    → high-converting bundle radio cards (used for Pieces / Packs / Bundles)
+ *   - "swatch"   → color circles with hex color (used for Color)
+ *   - "button"   → pill-style buttons (used for Size, etc.)
  *   - "dropdown" → <select> element
  */
 const VariationTypeSchema = new mongoose.Schema(
@@ -15,7 +16,7 @@ const VariationTypeSchema = new mongoose.Schema(
     slug: { type: String, required: true, unique: true, lowercase: true, trim: true },
     displayType: {
       type: String,
-      enum: ['swatch', 'button', 'dropdown'],
+      enum: ['swatch', 'button', 'dropdown', 'cards', 'pcs'],
       default: 'button',
     },
   },
