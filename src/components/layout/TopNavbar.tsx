@@ -183,14 +183,14 @@ export default function TopNavbar() {
   };
 
   const [categories, setCategories] = useState([
-    { name: "Toys", slug: "toys", icon: "🧸", image: "/images/categories/toys.png" },
-    { name: "Gadgets", slug: "gadgets", icon: "🎮", image: "/images/categories/gadgets.png" },
-    { name: "Dolls", slug: "dolls", icon: "👧", image: "/images/categories/dolls.png" },
-    { name: "Puzzles", slug: "puzzles", icon: "🧩", image: "/images/categories/puzzles.png" },
-    { name: "Toy Cars", slug: "toy-cars", icon: "🏎️", image: "/images/categories/toy-cars.png" },
-    { name: "Arts & Crafts", slug: "arts-crafts", icon: "🎨", image: "/images/categories/arts-crafts.png" },
-    { name: "Cosmetics", slug: "cosmetics", icon: "💄", image: "/images/categories/cosmetics.png" },
-    { name: "Gift Sets", slug: "gift-sets", icon: "🎁", image: "/images/categories/gift-sets.png" },
+    { name: "Toys", slug: "toys", icon: "", image: "/images/categories/toys.png" },
+    { name: "Gadgets", slug: "gadgets", icon: "", image: "/images/categories/gadgets.png" },
+    { name: "Dolls", slug: "dolls", icon: "", image: "/images/categories/dolls.png" },
+    { name: "Puzzles", slug: "puzzles", icon: "", image: "/images/categories/puzzles.png" },
+    { name: "Toy Cars", slug: "toy-cars", icon: "", image: "/images/categories/toy-cars.png" },
+    { name: "Arts & Crafts", slug: "arts-crafts", icon: "", image: "/images/categories/arts-crafts.png" },
+    { name: "Cosmetics", slug: "cosmetics", icon: "", image: "/images/categories/cosmetics.png" },
+    { name: "Gift Sets", slug: "gift-sets", icon: "", image: "/images/categories/gift-sets.png" },
   ]);
 
   // Dynamically load active categories from database / admin
@@ -200,22 +200,12 @@ export default function TopNavbar() {
       .then((res) => res.json())
       .then((data) => {
         if (isMounted && data?.success && Array.isArray(data.data) && data.data.length > 0) {
-          const emojiMap: Record<string, string> = {
-            toys: "🧸",
-            gadgets: "🎮",
-            dolls: "👧",
-            puzzles: "🧩",
-            "toy-cars": "🏎️",
-            "arts-crafts": "🎨",
-            cosmetics: "💄",
-            "gift-sets": "🎁",
-          };
           setCategories(
             data.data.map((c: { name: string; slug: string; image?: string }) => ({
               name: c.name,
               slug: c.slug,
               image: c.image,
-              icon: emojiMap[c.slug] || "🧸",
+              icon: "",
             }))
           );
         }
@@ -522,12 +512,10 @@ export default function TopNavbar() {
                     onClick={() => setIsCategoryOpen(false)}
                     className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-purple-50 hover:text-[#5428D8] transition-colors"
                   >
-                    {cat.image ? (
+                    {cat.image && (
                       <div className="relative w-6 h-6 rounded-md overflow-hidden shrink-0">
                         <Image src={cat.image} alt={cat.name} fill sizes="24px" className="object-contain" />
                       </div>
-                    ) : (
-                      <span className="text-lg shrink-0">{cat.icon}</span>
                     )}
                     <span className="font-semibold truncate">{cat.name}</span>
                   </Link>
@@ -536,7 +524,7 @@ export default function TopNavbar() {
             )}
           </div>
 
-          {/* Navigation Links with Icons (Dynamic from CMS) */}
+          {/* Navigation Links (Dynamic from CMS) */}
           <nav className="flex items-center gap-6 xl:gap-8 text-sm">
             {menuItems.length > 0 ? (
               menuItems.map((item) => {
@@ -563,7 +551,6 @@ export default function TopNavbar() {
                           : "text-gray-800 hover:text-[#5428D8]"
                           }`}
                       >
-                        {item.icon && <span>{item.icon}</span>}
                         <span>{item.label}</span>
                         {item.badge && (
                           <span className="bg-[#EF4444] text-white text-[9px] font-extrabold px-1.5 py-0.5 rounded-full uppercase">
@@ -605,7 +592,6 @@ export default function TopNavbar() {
                       : "text-gray-800 hover:text-[#5428D8]"
                       }`}
                   >
-                    {item.icon && <span>{item.icon}</span>}
                     <span>{item.label}</span>
                     {item.badge && (
                       <span className="bg-[#EF4444] text-white text-[9px] font-extrabold px-1.5 py-0.5 rounded-full uppercase">
@@ -620,9 +606,8 @@ export default function TopNavbar() {
               <>
                 <Link
                   href="/"
-                  className="flex items-center gap-1.5 text-[#5428D8] font-bold hover:opacity-85 transition-opacity"
+                  className="flex items-center text-[#5428D8] font-bold hover:opacity-85 transition-opacity"
                 >
-                  <Home className="w-4 h-4" />
                   <span>Home</span>
                 </Link>
 
@@ -635,7 +620,6 @@ export default function TopNavbar() {
                     href="/products?category=toys"
                     className="flex items-center gap-1.5 text-gray-800 hover:text-[#5428D8] font-bold transition-colors py-1"
                   >
-                    <span className="text-amber-600">🧸</span>
                     <span>Toys</span>
                     <ChevronDown className="w-3.5 h-3.5 text-gray-500 stroke-[2.5]" />
                   </Link>
@@ -660,7 +644,6 @@ export default function TopNavbar() {
                     href="/products?category=gadgets"
                     className="flex items-center gap-1.5 text-gray-800 hover:text-[#5428D8] font-bold transition-colors py-1"
                   >
-                    <Gamepad2 className="w-4 h-4 text-cyan-600" />
                     <span>Gadgets</span>
                     <ChevronDown className="w-3.5 h-3.5 text-gray-500 stroke-[2.5]" />
                   </Link>
@@ -684,7 +667,6 @@ export default function TopNavbar() {
                     href="/products?category=cosmetics"
                     className="flex items-center gap-1.5 text-gray-800 hover:text-[#5428D8] font-bold transition-colors py-1"
                   >
-                    <Sparkle className="w-4 h-4 text-pink-500" />
                     <span>Cosmetics</span>
                     <ChevronDown className="w-3.5 h-3.5 text-gray-500 stroke-[2.5]" />
                   </Link>
@@ -701,9 +683,8 @@ export default function TopNavbar() {
 
                 <Link
                   href="/products?tag=specialoffer"
-                  className="flex items-center gap-1.5 text-gray-800 hover:text-[#5428D8] font-bold transition-colors"
+                  className="flex items-center text-gray-800 hover:text-[#5428D8] font-bold transition-colors"
                 >
-                  <Flame className="w-4 h-4 text-red-500" />
                   <span>Deals</span>
                 </Link>
 
