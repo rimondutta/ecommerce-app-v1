@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { isRateLimited } from '@/lib/ratelimit';
 import { processOrderAgentTurn } from '@/lib/ai/orderAgent';
-import { isOrderAgentAvailable } from '@/lib/ai/providers';
+import { isOrderAgentAvailable, getAIProviders } from '@/lib/ai/providers';
 
 const RequestSchema = z.object({
   sessionId: z.string().optional(),
@@ -11,9 +11,11 @@ const RequestSchema = z.object({
 });
 
 export async function GET() {
-  const available = await isOrderAgentAvailable();
+  const { active, settings } = await getAIProviders();
+  const available = Boolean(settings?.isOrderAgentEnabled && active !== null);
+  const buttonText = settings?.orderAgent?.buttonText || 'AI দিয়ে অর্ডার করুন';
   return NextResponse.json(
-    { available },
+    { available, buttonText },
     {
       headers: {
         'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120',

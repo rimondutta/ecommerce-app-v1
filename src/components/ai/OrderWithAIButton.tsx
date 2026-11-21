@@ -19,6 +19,13 @@ interface OrderWithAIButtonProps {
 
 export default function OrderWithAIButton({ product, disabled, initialAvailable }: OrderWithAIButtonProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [buttonText, setButtonText] = useState<string>(() => {
+    if (typeof window !== 'undefined') {
+      const cached = sessionStorage.getItem('ai_order_button_text');
+      if (cached) return cached;
+    }
+    return 'AI দিয়ে অর্ডার করুন';
+  });
   const [isAvailable, setIsAvailable] = useState<boolean | null>(() => {
     if (initialAvailable !== undefined) return initialAvailable;
     if (typeof window !== 'undefined') {
@@ -29,14 +36,6 @@ export default function OrderWithAIButton({ product, disabled, initialAvailable 
   });
 
   useEffect(() => {
-    // If availability was already confirmed from server, no need to refetch
-    if (initialAvailable !== undefined) {
-      if (typeof window !== 'undefined') {
-        sessionStorage.setItem('ai_order_available', String(initialAvailable));
-      }
-      return;
-    }
-
     let isMounted = true;
     fetch('/api/ai/order-agent')
       .then((res) => res.json())
@@ -44,6 +43,12 @@ export default function OrderWithAIButton({ product, disabled, initialAvailable 
         if (isMounted) {
           const avail = Boolean(data?.available);
           setIsAvailable(avail);
+          if (data?.buttonText) {
+            setButtonText(data.buttonText);
+            if (typeof window !== 'undefined') {
+              sessionStorage.setItem('ai_order_button_text', data.buttonText);
+            }
+          }
           if (typeof window !== 'undefined') {
             sessionStorage.setItem('ai_order_available', String(avail));
           }
@@ -72,7 +77,7 @@ export default function OrderWithAIButton({ product, disabled, initialAvailable 
         className="w-full py-3.5 bg-black hover:bg-neutral-900 text-white font-bengali font-bold text-sm rounded-xl flex items-center justify-center gap-2 border border-black hover:border-neutral-800 active:scale-[0.99] transition-all shadow-xs disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
       >
         <Sparkles size={16} className="text-white" />
-        <span>AI দিয়ে অর্ডার করুন</span>
+        <span>{buttonText || 'AI দিয়ে অর্ডার করুন'}</span>
       </button>
 
       <AIOrderChat

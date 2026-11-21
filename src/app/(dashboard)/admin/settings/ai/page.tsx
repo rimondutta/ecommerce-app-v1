@@ -21,6 +21,8 @@ import {
   RotateCcw,
   Eye,
   EyeOff,
+  SlidersHorizontal,
+  ShoppingBag,
 } from "lucide-react";
 
 export interface ChatbotConfigForm {
@@ -38,10 +40,21 @@ export interface ChatbotConfigForm {
   badgeText: string;
 }
 
+export interface OrderAgentConfigForm {
+  buttonText: string;
+  agentName: string;
+  agentTone: "professional" | "friendly" | "concise";
+  promptExtra: string;
+  deliveryNote: string;
+  autoCreateOrder: boolean;
+}
+
 interface AiSettingsForm {
   isChatbotEnabled: boolean;
   isOrderAgentEnabled: boolean;
   isSuggestionsEnabled: boolean;
+  globalTemperature: number;
+  strictLanguage: boolean;
   activeProvider: "gemini" | "openrouter" | "custom";
   fallbackProvider: "gemini" | "openrouter" | "custom" | "none";
   gemini: {
@@ -67,6 +80,7 @@ interface AiSettingsForm {
   };
   storeName: string;
   systemPromptExtra: string;
+  orderAgent: OrderAgentConfigForm;
   chatbot: ChatbotConfigForm;
 }
 
@@ -75,6 +89,8 @@ export default function AiSettingsPage() {
     isChatbotEnabled: true,
     isOrderAgentEnabled: false,
     isSuggestionsEnabled: false,
+    globalTemperature: 0.15,
+    strictLanguage: true,
     activeProvider: "gemini",
     fallbackProvider: "none",
     gemini: {
@@ -95,6 +111,14 @@ export default function AiSettingsPage() {
     },
     storeName: "Toy Hourse",
     systemPromptExtra: "",
+    orderAgent: {
+      buttonText: "AI দিয়ে অর্ডার করুন",
+      agentName: "Toy Hourse AI Assistant",
+      agentTone: "professional",
+      promptExtra: "",
+      deliveryNote: "ঢাকার ভেতরে ৳৭০, ঢাকার বাইরে ৳১৩০। ক্যাশ অন ডেলিভারি (COD)। ২-৪ কার্যদিবস।",
+      autoCreateOrder: true,
+    },
     chatbot: {
       botName: "Toy Hourse AI",
       welcomeMessage:
@@ -124,6 +148,7 @@ export default function AiSettingsPage() {
   const [testResult, setTestResult] = useState<{ success: boolean; message: string } | null>(null);
   const [toast, setToast] = useState<{ type: "success" | "error"; message: string } | null>(null);
   const [newPromptInput, setNewPromptInput] = useState("");
+  const [previewTab, setPreviewTab] = useState<"chatbot" | "orderAgent">("chatbot");
 
   useEffect(() => {
     fetch("/api/admin/ai-settings")
@@ -133,6 +158,18 @@ export default function AiSettingsPage() {
           setConfig((prev) => ({
             ...prev,
             ...data.settings,
+            globalTemperature:
+              typeof data.settings.globalTemperature === "number"
+                ? data.settings.globalTemperature
+                : prev.globalTemperature,
+            strictLanguage:
+              typeof data.settings.strictLanguage === "boolean"
+                ? data.settings.strictLanguage
+                : prev.strictLanguage,
+            orderAgent: {
+              ...prev.orderAgent,
+              ...(data.settings.orderAgent || {}),
+            },
             chatbot: {
               ...prev.chatbot,
               ...(data.settings.chatbot || {}),
@@ -828,6 +865,266 @@ export default function AiSettingsPage() {
             </div>
           </div>
 
+          {/* Global AI Precision & Creativity (Temperature) Card */}
+          <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-xs space-y-5">
+            <div className="flex items-center justify-between border-b border-gray-100 pb-3">
+              <div className="flex items-center gap-2">
+                <div className="p-2 rounded-xl bg-purple-50 text-purple-700 border border-purple-100">
+                  <SlidersHorizontal size={18} />
+                </div>
+                <div>
+                  <h2 className="text-base font-bold text-gray-900">
+                    AI প্রিসিশন ও তাপমাত্রা নিয়ন্ত্রণ (Precision & Temperature)
+                  </h2>
+                  <p className="text-xs text-gray-500">
+                    মডেলের হ্যালুসিনেশন প্রতিরোধ এবং অর্ডার ও তথ্যের নির্ভুলতা নির্ধারণ করুন
+                  </p>
+                </div>
+              </div>
+              <div className="px-3 py-1 rounded-full text-xs font-bold border border-purple-200 bg-purple-50 text-purple-700">
+                Temperature: {config.globalTemperature}
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="text-xs font-bold text-gray-800 flex items-center gap-1.5">
+                    <span>গ্লোবাল তাপমাত্রা (Global Temperature: {config.globalTemperature})</span>
+                  </label>
+                  <span className="text-xs font-semibold text-purple-600">
+                    {config.globalTemperature <= 0.2
+                      ? "কঠোর ও সঠিক (Strict & Factual)"
+                      : config.globalTemperature <= 0.6
+                      ? "ভারসাম্যপূর্ণ (Balanced)"
+                      : "সৃজনশীল (Creative)"}
+                  </span>
+                </div>
+
+                <input
+                  type="range"
+                  min="0.0"
+                  max="1.0"
+                  step="0.05"
+                  value={config.globalTemperature}
+                  onChange={(e) =>
+                    setConfig((p) => ({ ...p, globalTemperature: parseFloat(e.target.value) }))
+                  }
+                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-purple-600"
+                />
+
+                <div className="flex justify-between text-[11px] text-gray-400 mt-1">
+                  <span className="text-emerald-700 font-medium">0.0 (শতভাগ নির্ভুল)</span>
+                  <span className="text-purple-700 font-bold">0.15 (সুপারিশকৃত)</span>
+                  <span className="text-amber-700 font-medium">0.5 (স্বাভাবিক)</span>
+                  <span className="text-red-600 font-medium">1.0 (অতিরিক্ত কল্পনাবহুল)</span>
+                </div>
+
+                <p className="text-xs text-gray-500 mt-2 bg-gray-50 p-2.5 rounded-xl border border-gray-200">
+                  💡 <strong>সুপারিশ:</strong> ই-কমার্স এবং অর্ডার গ্রহণ এজেন্টের ক্ষেত্রে তাপমাত্রা <strong>০.১০ - ০.২০</strong> রাখলে মডেল কোনো ভুল বা কাল্পনিক তথ্য তৈরি করবে না এবং পণ্যের সঠিক স্টক ও মূল্য দেবে।
+                </p>
+              </div>
+
+              {/* Strict Language Toggle */}
+              <div className="pt-2 border-t border-gray-100 flex items-center justify-between">
+                <div>
+                  <p className="text-xs font-bold text-gray-900">
+                    বাংলা ভাষার শতভাগ বিশুদ্ধতা বজায় রাখা (Strict Bengali Integrity)
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    ওপেন-সোর্স বা বহুভাষিক মডেলের অনাকাঙ্ক্ষিত মিশ্র বা বিদেশী শব্দের ব্যবহার স্বয়ংক্রিয়ভাবে ফিল্টার করবে
+                  </p>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer shrink-0 ml-3">
+                  <input
+                    type="checkbox"
+                    checked={config.strictLanguage}
+                    onChange={(e) =>
+                      setConfig((p) => ({ ...p, strictLanguage: e.target.checked }))
+                    }
+                    className="sr-only peer"
+                  />
+                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          {/* AI Order Agent Configuration Card */}
+          <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-xs space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-gray-100 pb-4">
+              <div className="flex items-center gap-2">
+                <div className="p-2 rounded-xl bg-purple-50 text-purple-700 border border-purple-100">
+                  <ShoppingBag size={18} />
+                </div>
+                <div>
+                  <h2 className="text-base font-bold text-gray-900">
+                    AI অর্ডার এজেন্ট নিয়ন্ত্রণ (AI Order Agent Control)
+                  </h2>
+                  <p className="text-xs text-gray-500">
+                    পণ্য পেজে "AI দিয়ে অর্ডার করুন" বাটন, এজেন্টের ব্যক্তিত্ব, টোন ও অর্ডার গ্রহণের নীতিমালা নিয়ন্ত্রণ করুন
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-semibold text-gray-500">এজেন্ট স্ট্যাটাস:</span>
+                <span
+                  className={`text-xs font-bold px-2.5 py-1 rounded-full ${
+                    config.isOrderAgentEnabled
+                      ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                      : "bg-gray-100 text-gray-600 border border-gray-200"
+                  }`}
+                >
+                  {config.isOrderAgentEnabled ? "● সক্রিয় (Active)" : "○ বন্ধ (Disabled)"}
+                </span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Button Text */}
+              <div>
+                <label className="block text-xs font-bold text-gray-700 mb-1">
+                  পণ্য পেজের বাটন টেক্সট (Button Label)
+                </label>
+                <input
+                  type="text"
+                  value={config.orderAgent.buttonText}
+                  onChange={(e) =>
+                    setConfig((p) => ({
+                      ...p,
+                      orderAgent: { ...p.orderAgent, buttonText: e.target.value },
+                    }))
+                  }
+                  placeholder="AI দিয়ে অর্ডার করুন"
+                  className="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-300 rounded-xl text-sm font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-600"
+                />
+                <p className="text-xs text-gray-400 mt-1">
+                  পণ্য বিবরণী পেজের "এখনই কিনুন" বাটনের পাশে এই টেক্সট প্রদর্শিত হবে।
+                </p>
+              </div>
+
+              {/* Agent Persona Name */}
+              <div>
+                <label className="block text-xs font-bold text-gray-700 mb-1">
+                  এজেন্টের নাম / ব্যক্তিত্ব (Agent Persona Name)
+                </label>
+                <input
+                  type="text"
+                  value={config.orderAgent.agentName}
+                  onChange={(e) =>
+                    setConfig((p) => ({
+                      ...p,
+                      orderAgent: { ...p.orderAgent, agentName: e.target.value },
+                    }))
+                  }
+                  placeholder="Toy Hourse AI Assistant"
+                  className="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-300 rounded-xl text-sm font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-600"
+                />
+                <p className="text-xs text-gray-400 mt-1">
+                  ড্রয়ারের শীর্ষে এবং চ্যাটে এই নামটি এজেন্টের পরিচয় হিসেবে থাকবে।
+                </p>
+              </div>
+
+              {/* Agent Tone */}
+              <div>
+                <label className="block text-xs font-bold text-gray-700 mb-1">
+                  কথাবার্তার ধরন / টোন (Agent Tone)
+                </label>
+                <select
+                  value={config.orderAgent.agentTone}
+                  onChange={(e) =>
+                    setConfig((p) => ({
+                      ...p,
+                      orderAgent: {
+                        ...p.orderAgent,
+                        agentTone: e.target.value as "professional" | "friendly" | "concise",
+                      },
+                    }))
+                  }
+                  className="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-300 rounded-xl text-sm font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-600"
+                >
+                  <option value="professional">মার্জিত ও পেশাদার (Professional - শ্রদ্ধাশীল ও প্রাতিষ্ঠানিক)</option>
+                  <option value="friendly">বন্ধুভাবাপন্ন (Friendly - আন্তরিক, উষ্ণ ও সাবলীল)</option>
+                  <option value="concise">সংক্ষিপ্ত ও দ্রুত (Concise - টু-দ্য-পয়েন্ট ও দ্রুত অর্ডার সম্পন্নকারী)</option>
+                </select>
+                <p className="text-xs text-gray-400 mt-1">
+                  এজেন্ট ক্রেতার সাথে ঠিক কীভাবে কথা বলবে তা নির্ধারণ করুন।
+                </p>
+              </div>
+
+              {/* Delivery & Payment Note */}
+              <div>
+                <label className="block text-xs font-bold text-gray-700 mb-1">
+                  ডেলিভারি ও ক্যাশ অন ডেলিভারি নোট (Delivery & COD Note)
+                </label>
+                <input
+                  type="text"
+                  value={config.orderAgent.deliveryNote}
+                  onChange={(e) =>
+                    setConfig((p) => ({
+                      ...p,
+                      orderAgent: { ...p.orderAgent, deliveryNote: e.target.value },
+                    }))
+                  }
+                  placeholder="ঢাকার ভেতরে ৳৭০, ঢাকার বাইরে ৳১৩০। ক্যাশ অন ডেলিভারি (COD)। ২-৪ কার্যদিবস।"
+                  className="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-300 rounded-xl text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-600"
+                />
+                <p className="text-xs text-gray-400 mt-1">
+                  অর্ডার চ্যাটের সময় ডেলিভারি ও পেমেন্ট সংক্রান্ত তথ্যে এটি ব্যবহৃত হবে।
+                </p>
+              </div>
+            </div>
+
+            {/* Custom Guidelines / Prompt Extra */}
+            <div>
+              <label className="block text-xs font-bold text-gray-700 mb-1">
+                অর্ডার এজেন্টের বিশেষ নিয়মাবলী (Custom Order Taking Guidelines)
+              </label>
+              <textarea
+                rows={3}
+                value={config.orderAgent.promptExtra}
+                onChange={(e) =>
+                  setConfig((p) => ({
+                    ...p,
+                    orderAgent: { ...p.orderAgent, promptExtra: e.target.value },
+                  }))
+                }
+                placeholder="যেমন: কোনো কাস্টমার একাধিক খেলনা চাইলে তাকে ডিসকাউন্ট বা বিশেষ অফারের কথা বলুন। সবসময় নিশ্চিত হোন ফোন নম্বরটি সঠিক।"
+                className="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-300 rounded-xl text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-600"
+              />
+              <p className="text-xs text-gray-400 mt-1">
+                এই বিশেষ নিয়মগুলো সরাসরি অর্ডার এজেন্টের সিস্টেম প্রম্পটের সাথে যুক্ত হবে।
+              </p>
+            </div>
+
+            {/* Auto-create order switch */}
+            <div className="pt-2 border-t border-gray-100 flex items-center justify-between">
+              <div>
+                <p className="text-xs font-bold text-gray-900">
+                  সরাসরি অর্ডার তৈরি (Auto-Create Store Order)
+                </p>
+                <p className="text-xs text-gray-500">
+                  গ্রাহক কনফার্ম করলে তাৎক্ষণিক ডাটাবেসে অর্ডার তৈরি ও ইনভেন্টরি লক করবে
+                </p>
+              </div>
+              <label className="relative inline-flex items-center cursor-pointer shrink-0 ml-3">
+                <input
+                  type="checkbox"
+                  checked={config.orderAgent.autoCreateOrder}
+                  onChange={(e) =>
+                    setConfig((p) => ({
+                      ...p,
+                      orderAgent: { ...p.orderAgent, autoCreateOrder: e.target.checked },
+                    }))
+                  }
+                  className="sr-only peer"
+                />
+                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+              </label>
+            </div>
+          </div>
+
           {/* Website Chatbot Configuration Card */}
           <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-xs space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-gray-100 pb-4">
@@ -1215,126 +1512,238 @@ export default function AiSettingsPage() {
                   <span className="text-[10px] text-slate-400 font-medium">রিয়েলটাইম আপডেট</span>
                 </div>
 
-                {/* Mock Chat Window */}
-                <div className="bg-white rounded-2xl border border-slate-200/90 shadow-lg overflow-hidden flex flex-col h-[460px]">
-                  {/* Mock Header */}
-                  <div className="px-4 py-3 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white flex items-center justify-between">
-                    <div className="flex items-center gap-2.5">
-                      <div
-                        className="w-7 h-7 rounded-lg flex items-center justify-center text-white text-xs font-bold shadow-xs relative"
-                        style={{ backgroundColor: config.chatbot.primaryColor || "#7C3AED" }}
-                      >
-                        AI
-                        <span className="absolute -bottom-0.5 -right-0.5 w-2 h-2 bg-emerald-500 border border-slate-900 rounded-full" />
+                {/* Preview Tab Selector */}
+                <div className="flex bg-slate-200/80 p-0.5 rounded-xl mb-3">
+                  <button
+                    type="button"
+                    onClick={() => setPreviewTab("chatbot")}
+                    className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+                      previewTab === "chatbot"
+                        ? "bg-white text-purple-700 shadow-xs"
+                        : "text-slate-600 hover:text-slate-900"
+                    }`}
+                  >
+                    ওয়েবসাইট চ্যাটবট
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPreviewTab("orderAgent")}
+                    className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+                      previewTab === "orderAgent"
+                        ? "bg-white text-purple-700 shadow-xs"
+                        : "text-slate-600 hover:text-slate-900"
+                    }`}
+                  >
+                    AI অর্ডার ড্রয়ার
+                  </button>
+                </div>
+
+                {previewTab === "chatbot" ? (
+                  <>
+                    {/* Mock Chat Window */}
+                    <div className="bg-white rounded-2xl border border-slate-200/90 shadow-lg overflow-hidden flex flex-col h-[460px]">
+                      {/* Mock Header */}
+                      <div className="px-4 py-3 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white flex items-center justify-between">
+                        <div className="flex items-center gap-2.5">
+                          <div
+                            className="w-7 h-7 rounded-lg flex items-center justify-center text-white text-xs font-bold shadow-xs relative"
+                            style={{ backgroundColor: config.chatbot.primaryColor || "#7C3AED" }}
+                          >
+                            AI
+                            <span className="absolute -bottom-0.5 -right-0.5 w-2 h-2 bg-emerald-500 border border-slate-900 rounded-full" />
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-1.5">
+                              <p className="text-xs font-bold leading-none">
+                                {config.chatbot.botName || "Toy Hourse AI"}
+                              </p>
+                              <span className="text-[9px] bg-emerald-500/20 text-emerald-300 px-1 rounded-sm">
+                                Online
+                              </span>
+                            </div>
+                            <p className="text-[10px] text-slate-300 leading-none mt-0.5">
+                              তাৎক্ষণিক উত্তর
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-1 text-slate-400">
+                          <div className="p-1 rounded hover:bg-white/10">
+                            <RotateCcw size={12} />
+                          </div>
+                          <div className="p-1 rounded hover:bg-white/10">
+                            <span className="text-xs font-bold leading-none">&times;</span>
+                          </div>
+                        </div>
                       </div>
-                      <div>
-                        <div className="flex items-center gap-1.5">
-                          <p className="text-xs font-bold leading-none">
-                            {config.chatbot.botName || "Toy Hourse AI"}
+
+                      {/* Mock Conversation Body */}
+                      <div className="flex-1 p-3 overflow-y-auto space-y-3 bg-gradient-to-b from-slate-50/50 to-white text-xs">
+                        {/* Welcome Card */}
+                        <div className="p-3 rounded-xl bg-purple-50/60 border border-purple-100 text-slate-700 space-y-1.5">
+                          <p className="font-bold text-[11px] text-purple-900 flex items-center gap-1">
+                            <Sparkles size={12} className="text-purple-600" />
+                            <span>{config.chatbot.botName || "Toy Hourse AI"} এ স্বাগতম!</span>
                           </p>
-                          <span className="text-[9px] bg-emerald-500/20 text-emerald-300 px-1 rounded-sm">
-                            Online
+                          <p className="text-[11px] text-slate-600 leading-relaxed font-bengali">
+                            {config.chatbot.welcomeMessage ||
+                              "হ্যালো! Toy Hourse এ আপনাকে স্বাগতম..."}
+                          </p>
+                        </div>
+
+                        {/* Quick Prompts */}
+                        {config.chatbot.quickPrompts.length > 0 && (
+                          <div className="space-y-1.5 pt-1">
+                            <p className="text-[10px] font-bold text-slate-400 uppercase">
+                              সচরাচর জিজ্ঞাসিত প্রশ্ন:
+                            </p>
+                            <div className="flex flex-wrap gap-1">
+                              {config.chatbot.quickPrompts.slice(0, 4).map((q, idx) => (
+                                <span
+                                  key={idx}
+                                  className="text-[10px] bg-white text-slate-700 border border-slate-200 px-2 py-1 rounded-full shadow-2xs font-medium"
+                                >
+                                  {q}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Mock Assistant Message */}
+                        <div className="flex gap-2 pt-1">
+                          <div
+                            className="w-5 h-5 rounded-md flex items-center justify-center text-[10px] text-white shrink-0"
+                            style={{ backgroundColor: config.chatbot.primaryColor || "#7C3AED" }}
+                          >
+                            AI
+                          </div>
+                          <div className="bg-white border border-slate-200 px-3 py-2 rounded-xl rounded-tl-xs shadow-2xs text-[11px] text-slate-800 space-y-1">
+                            <p>অবশ্যই! আমাদের সবথেকে জনপ্রিয় কিছু খেলনা দেখতে পারেন:</p>
+                            <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-purple-50 text-purple-700 font-bold text-[10px] border border-purple-200">
+                              <span>Electric Little Duck</span>
+                              <span>↗</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Mock Input Bar */}
+                      <div className="p-2.5 bg-white border-t border-slate-100">
+                        <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-400">
+                          <span className="flex-1 truncate text-[11px]">
+                            {config.chatbot.placeholder || "খেলনা খুঁজুন বা প্রশ্ন লিখুন..."}
                           </span>
+                          <div
+                            className="w-6 h-6 rounded-lg flex items-center justify-center text-white shrink-0 text-[10px]"
+                            style={{ backgroundColor: config.chatbot.primaryColor || "#7C3AED" }}
+                          >
+                            ➤
+                          </div>
                         </div>
-                        <p className="text-[10px] text-slate-300 leading-none mt-0.5">
-                          তাৎক্ষণিক উত্তর
-                        </p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-1 text-slate-400">
-                      <div className="p-1 rounded hover:bg-white/10">
-                        <RotateCcw size={12} />
-                      </div>
-                      <div className="p-1 rounded hover:bg-white/10">
-                        <span className="text-xs font-bold leading-none">&times;</span>
-                      </div>
-                    </div>
-                  </div>
 
-                  {/* Mock Conversation Body */}
-                  <div className="flex-1 p-3 overflow-y-auto space-y-3 bg-gradient-to-b from-slate-50/50 to-white text-xs">
-                    {/* Welcome Card */}
-                    <div className="p-3 rounded-xl bg-purple-50/60 border border-purple-100 text-slate-700 space-y-1.5">
-                      <p className="font-bold text-[11px] text-purple-900 flex items-center gap-1">
-                        <Sparkles size={12} className="text-purple-600" />
-                        <span>{config.chatbot.botName || "Toy Hourse AI"} এ স্বাগতম!</span>
+                    {/* Mock Floating Trigger Launcher */}
+                    <div className="mt-4 pt-3 border-t border-slate-200 flex items-center justify-between">
+                      <div className="text-[11px] font-semibold text-slate-600">
+                        ওয়েবসাইটে ফ্লোটিং বাটন:
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[11px] font-bold bg-white text-slate-800 px-2.5 py-1 rounded-full border border-slate-200 shadow-2xs">
+                          {config.chatbot.badgeText || "Chat with AI 🤖"}
+                        </span>
+                        <div
+                          className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-md"
+                          style={{ backgroundColor: config.chatbot.primaryColor || "#7C3AED" }}
+                        >
+                          AI
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    {/* Mock Order Button on Product Page */}
+                    <div className="mb-3 p-3 bg-white rounded-xl border border-slate-200 shadow-xs">
+                      <p className="text-[10px] text-slate-400 font-bold uppercase mb-1.5">
+                        প্রোডাক্ট পেজের বাটন প্রিভিউ:
                       </p>
-                      <p className="text-[11px] text-slate-600 leading-relaxed font-bengali">
-                        {config.chatbot.welcomeMessage ||
-                          "হ্যালো! Toy Hourse এ আপনাকে স্বাগতম..."}
-                      </p>
+                      <div className="w-full py-2.5 bg-black text-white font-bold rounded-xl flex items-center justify-center gap-2 text-xs shadow-xs">
+                        <Sparkles size={14} className="text-white" />
+                        <span>{config.orderAgent.buttonText || "AI দিয়ে অর্ডার করুন"}</span>
+                      </div>
                     </div>
 
-                    {/* Quick Prompts */}
-                    {config.chatbot.quickPrompts.length > 0 && (
-                      <div className="space-y-1.5 pt-1">
-                        <p className="text-[10px] font-bold text-slate-400 uppercase">
-                          সচরাচর জিজ্ঞাসিত প্রশ্ন:
-                        </p>
-                        <div className="flex flex-wrap gap-1">
-                          {config.chatbot.quickPrompts.slice(0, 4).map((q, idx) => (
-                            <span
-                              key={idx}
-                              className="text-[10px] bg-white text-slate-700 border border-slate-200 px-2 py-1 rounded-full shadow-2xs font-medium"
-                            >
-                              {q}
-                            </span>
-                          ))}
+                    {/* Mock Order Drawer Window */}
+                    <div className="bg-white rounded-2xl border border-slate-200/90 shadow-lg overflow-hidden flex flex-col h-[400px]">
+                      {/* Mock Header */}
+                      <div className="px-4 py-3 bg-neutral-900 text-white flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <div className="w-7 h-7 rounded-lg bg-purple-600 flex items-center justify-center text-white text-xs font-bold shadow-xs">
+                            <Sparkles size={14} />
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-1.5">
+                              <p className="text-xs font-bold leading-none">
+                                {config.orderAgent.agentName || "Toy Hourse AI Assistant"}
+                              </p>
+                              <span className="text-[9px] bg-emerald-500/20 text-emerald-300 px-1 rounded-sm">
+                                Live
+                              </span>
+                            </div>
+                            <p className="text-[10px] text-slate-300 leading-none mt-0.5">
+                              টোন: {config.orderAgent.agentTone}
+                            </p>
+                          </div>
+                        </div>
+                        <span className="text-sm font-bold text-neutral-400">&times;</span>
+                      </div>
+
+                      {/* Mock Drawer Messages */}
+                      <div className="flex-1 p-3 overflow-y-auto space-y-2.5 bg-neutral-50/50 text-xs">
+                        {/* Bot greeting turn */}
+                        <div className="bg-white border border-neutral-200 p-2.5 rounded-xl rounded-tl-xs shadow-2xs space-y-1">
+                          <p className="text-neutral-800 leading-relaxed font-bengali">
+                            আসসালামু আলাইকুম! "{config.storeName}"-এ স্বাগতম। আপনি "Electric Little Duck" পণ্যটি দেখছেন। অর্ডার করতে অনুগ্রহ করে আপনার ১১ ডিজিটের মোবাইল নম্বরটি লিখুন।
+                          </p>
+                        </div>
+
+                        {/* User reply */}
+                        <div className="flex justify-end">
+                          <div className="bg-neutral-900 text-white px-3 py-1.5 rounded-xl rounded-tr-xs text-[11px] shadow-2xs">
+                            01712345678
+                          </div>
+                        </div>
+
+                        {/* Bot tone response */}
+                        <div className="bg-white border border-neutral-200 p-2.5 rounded-xl rounded-tl-xs shadow-2xs space-y-1">
+                          <p className="text-neutral-800 leading-relaxed font-bengali">
+                            {config.orderAgent.agentTone === "friendly"
+                              ? "অনেক ধন্যবাদ ভাই/আপু! আপনার সুন্দর নামটি ও ডেলিভারি ঠিকানা দিন, দ্রুত পাঠিয়ে দিচ্ছি।"
+                              : config.orderAgent.agentTone === "concise"
+                              ? "ধন্যবাদ। এবার আপনার ডেলিভারি ঠিকানা লিখুন।"
+                              : "ধন্যবাদ। অনুগ্রহ করে আপনার নাম ও পূর্ণ ডেলিভারি ঠিকানা (বাসা/রোড নম্বর, এলাকা ও জেলা) লিখুন।"}
+                          </p>
+                          <div className="text-[10px] text-neutral-500 bg-neutral-100 p-1.5 rounded-md mt-1 border border-neutral-200">
+                            🚚 {config.orderAgent.deliveryNote || "ঢাকার ভেতরে ৳৭০, ঢাকার বাইরে ৳১৩০। Cash on Delivery।"}
+                          </div>
                         </div>
                       </div>
-                    )}
 
-                    {/* Mock Assistant Message */}
-                    <div className="flex gap-2 pt-1">
-                      <div
-                        className="w-5 h-5 rounded-md flex items-center justify-center text-[10px] text-white shrink-0"
-                        style={{ backgroundColor: config.chatbot.primaryColor || "#7C3AED" }}
-                      >
-                        AI
-                      </div>
-                      <div className="bg-white border border-slate-200 px-3 py-2 rounded-xl rounded-tl-xs shadow-2xs text-[11px] text-slate-800 space-y-1">
-                        <p>অবশ্যই! আমাদের সবথেকে জনপ্রিয় কিছু খেলনা দেখতে পারেন:</p>
-                        <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-purple-50 text-purple-700 font-bold text-[10px] border border-purple-200">
-                          <span>Electric Little Duck</span>
-                          <span>↗</span>
+                      {/* Mock Drawer Input */}
+                      <div className="p-2.5 bg-white border-t border-neutral-100">
+                        <div className="flex items-center gap-1.5 bg-neutral-50 border border-neutral-200 rounded-xl px-2.5 py-1.5 text-xs text-neutral-400">
+                          <span className="flex-1 truncate text-[11px]">
+                            আপনার ঠিকানা লিখুন...
+                          </span>
+                          <div className="w-6 h-6 rounded-lg bg-neutral-900 flex items-center justify-center text-white shrink-0 text-[10px]">
+                            ➤
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-
-                  {/* Mock Input Bar */}
-                  <div className="p-2.5 bg-white border-t border-slate-100">
-                    <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-400">
-                      <span className="flex-1 truncate text-[11px]">
-                        {config.chatbot.placeholder || "খেলনা খুঁজুন বা প্রশ্ন লিখুন..."}
-                      </span>
-                      <div
-                        className="w-6 h-6 rounded-lg flex items-center justify-center text-white shrink-0 text-[10px]"
-                        style={{ backgroundColor: config.chatbot.primaryColor || "#7C3AED" }}
-                      >
-                        ➤
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Mock Floating Trigger Launcher */}
-                <div className="mt-4 pt-3 border-t border-slate-200 flex items-center justify-between">
-                  <div className="text-[11px] font-semibold text-slate-600">
-                    ওয়েবসাইটে ফ্লোটিং বাটন:
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-[11px] font-bold bg-white text-slate-800 px-2.5 py-1 rounded-full border border-slate-200 shadow-2xs">
-                      {config.chatbot.badgeText || "Chat with AI 🤖"}
-                    </span>
-                    <div
-                      className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-md"
-                      style={{ backgroundColor: config.chatbot.primaryColor || "#7C3AED" }}
-                    >
-                      AI
-                    </div>
-                  </div>
-                </div>
+                  </>
+                )}
               </div>
             </div>
           </div>

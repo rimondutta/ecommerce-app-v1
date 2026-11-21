@@ -104,7 +104,8 @@ function extractJsonFromRawOutput(raw: string): string {
 async function callLLMExtractor(
   systemPrompt: string,
   history: Array<{ role: 'user' | 'assistant' | 'system'; content: string }>,
-  userMessage: string
+  userMessage: string,
+  temperature: number = 0.15
 ) {
   const messages = [
     ...history.slice(-10),
@@ -117,7 +118,7 @@ async function callLLMExtractor(
       system: systemPrompt,
       messages,
       jsonMode: true,
-      temperature: 0.2,
+      temperature,
     });
   } catch (error) {
     console.warn('[orderAgent] Initial LLM call failed:', error);
@@ -165,7 +166,7 @@ async function callLLMExtractor(
       system: `${systemPrompt}\n\nCRITICAL: Reply with ONLY a raw JSON object starting with { and ending with }. No markdown, no text outside the JSON.`,
       messages,
       jsonMode: true,
-      temperature: 0.1,
+      temperature: Math.max(0.05, temperature - 0.05),
     });
     const retryClean = extractJsonFromRawOutput(retryOutput);
     if (retryClean.startsWith('{')) {
@@ -332,7 +333,7 @@ export async function processOrderAgentTurn(params: {
 
   // If first greeting (no user message yet) - instant greeting without slow LLM roundtrip
   if (isInitialGreeting) {
-    const greetingText = `আসসালামু আলাইকুম! 😊 "${storeName}"-এ আপনাকে স্বাগতম!\n\n"${product.title}" দেখছেন — চমৎকার পছন্দ! 🎁\n\nঅর্ডার করতে শুধু আপনার মোবাইল নম্বরটা দিন (যেমন: 017XXXXXXXX) 👇`;
+    const greetingText = `আসসালামু আলাইকুম! "${storeName}"-এ আপনাকে স্বাগতম।\n\n"${product.title}" দেখছেন — চমৎকার পছন্দ।\n\nঅর্ডার করতে অনুগ্রহ করে আপনার ১১ ডিজিটের মোবাইল নম্বরটি লিখুন (যেমন: 017XXXXXXXX)।`;
 
     session.messages.push({
       role: 'assistant',
@@ -409,20 +410,37 @@ export async function processOrderAgentTurn(params: {
   else currentMissingField = 'review';
 
   // 6. LLM Extraction & Natural Conversational Reply
-  const systemPrompt = buildSystemPrompt(storeName, productContext, extraInstructions, {
-    phone: session.collected.phone,
-    name: session.collected.name,
-    variationLabel: session.collected.variationLabel,
-    quantity: session.collected.quantity,
-    address: session.collected.address,
-    shippingZone: session.collected.shippingZone,
-    nextMissingField: currentMissingField,
-  });
+  const agentOptions = {
+    agentName: aiSettings?.orderAgent?.agentName || `${storeName} AI Assistant`,
+    agentTone: aiSettings?.orderAgent?.agentTone || 'professional',
+    promptExtra: aiSettings?.orderAgent?.promptExtra || '',
+    deliveryNote: aiSettings?.orderAgent?.deliveryNote || '',
+    strictLanguage: aiSettings?.strictLanguage !== false,
+  };
+
+  const systemPrompt = buildSystemPrompt(
+    storeName,
+    productContext,
+    extraInstructions,
+    {
+      phone: session.collected.phone,
+      name: session.collected.name,
+      variationLabel: session.collected.variationLabel,
+      quantity: session.collected.quantity,
+      address: session.collected.address,
+      shippingZone: session.collected.shippingZone,
+      nextMissingField: currentMissingField,
+    },
+    agentOptions
+  );
+
+  const effectiveTemperature = aiSettings?.globalTemperature ?? 0.15;
 
   const llmResult = await callLLMExtractor(
     systemPrompt,
     session.messages.map((m: { role: string; content: string }) => ({ role: m.role as any, content: m.content })),
-    cleanUserMessage
+    cleanUserMessage,
+    effectiveTemperature
   );
 
   // 7. Update Collected State with Validation

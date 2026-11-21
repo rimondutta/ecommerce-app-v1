@@ -154,15 +154,23 @@ export async function isSuggestionsAvailable(): Promise<boolean> {
  * Gemini 503/429 (overloaded) errors also trigger the fallback instead of surfacing to the user.
  */
 export async function generateAI(options: GenerateOptions): Promise<string> {
-  const { active, fallback, activeProviderName, fallbackProviderName } = await getAIProviders();
+  const { active, fallback, activeProviderName, fallbackProviderName, settings } = await getAIProviders();
 
   if (!active && !fallback) {
     throw new Error('দুঃখিত, AI সার্ভিস বর্তমানে সক্রিয় নেই। অনুগ্রহ করে পরে চেষ্টা করুন।');
   }
 
+  const effectiveTemperature =
+    options.temperature !== undefined ? options.temperature : (settings?.globalTemperature ?? 0.15);
+
+  const effectiveOptions: GenerateOptions = {
+    ...options,
+    temperature: effectiveTemperature,
+  };
+
   if (active) {
     try {
-      return await active.generate(options);
+      return await active.generate(effectiveOptions);
     } catch (activeError) {
       console.warn(`[AI] Active provider (${activeProviderName}) failed:`, activeError);
       if (!fallback) {
@@ -175,7 +183,7 @@ export async function generateAI(options: GenerateOptions): Promise<string> {
   if (fallback) {
     try {
       console.info(`[AI] Attempting fallback provider (${fallbackProviderName})...`);
-      return await fallback.generate(options);
+      return await fallback.generate(effectiveOptions);
     } catch (fallbackError) {
       console.error(`[AI] Fallback provider (${fallbackProviderName}) failed:`, fallbackError);
       throw new Error('দুঃখিত, একটু সমস্যা হয়েছে। আবার চেষ্টা করুন।');

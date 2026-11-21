@@ -24,11 +24,22 @@ export interface IChatbotConfig {
   badgeText?: string;
 }
 
+export interface IOrderAgentConfig {
+  buttonText?: string;
+  agentName?: string;
+  agentTone?: 'professional' | 'friendly' | 'concise';
+  promptExtra?: string;
+  deliveryNote?: string;
+  autoCreateOrder?: boolean;
+}
+
 export interface IAiSettings {
   key: string;
   isChatbotEnabled: boolean;
   isOrderAgentEnabled: boolean;
   isSuggestionsEnabled: boolean;
+  globalTemperature?: number;
+  strictLanguage?: boolean;
   activeProvider: 'gemini' | 'openrouter' | 'custom';
   fallbackProvider: 'gemini' | 'openrouter' | 'custom' | 'none';
   gemini: {
@@ -50,6 +61,7 @@ export interface IAiSettings {
   storeName: string;
   systemPromptExtra: string;
   chatbot?: IChatbotConfig;
+  orderAgent?: IOrderAgentConfig;
 }
 
 const AiSettingsSchema = new mongoose.Schema(
@@ -86,6 +98,16 @@ const AiSettingsSchema = new mongoose.Schema(
     },
     storeName: { type: String, default: 'Toy Hourse' },
     systemPromptExtra: { type: String, default: '' },
+    globalTemperature: { type: Number, default: 0.15 },
+    strictLanguage: { type: Boolean, default: true },
+    orderAgent: {
+      buttonText: { type: String, default: 'AI দিয়ে অর্ডার করুন' },
+      agentName: { type: String, default: 'Toy Hourse অর্ডার সহকারী' },
+      agentTone: { type: String, enum: ['professional', 'friendly', 'concise'], default: 'professional' },
+      promptExtra: { type: String, default: '' },
+      deliveryNote: { type: String, default: 'ঢাকার ভেতরে ৳৭০, ঢাকার বাইরে ৳১৩০। ক্যাশ অন ডেলিভারি প্রযোজ্য।' },
+      autoCreateOrder: { type: Boolean, default: true },
+    },
     chatbot: {
       botName: { type: String, default: 'Toy Hourse AI' },
       welcomeMessage: {

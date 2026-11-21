@@ -53,6 +53,18 @@ export async function GET() {
       },
       storeName: settings.storeName || 'Toy Hourse',
       systemPromptExtra: settings.systemPromptExtra || '',
+      globalTemperature: settings.globalTemperature ?? 0.15,
+      strictLanguage: settings.strictLanguage !== false,
+      orderAgent: {
+        buttonText: settings.orderAgent?.buttonText || 'AI দিয়ে অর্ডার করুন',
+        agentName: settings.orderAgent?.agentName || 'Toy Hourse অর্ডার সহকারী',
+        agentTone: settings.orderAgent?.agentTone || 'professional',
+        promptExtra: settings.orderAgent?.promptExtra || '',
+        deliveryNote:
+          settings.orderAgent?.deliveryNote ||
+          'ঢাকার ভেতরে ৳৭০, ঢাকার বাইরে ৳১৩০। ক্যাশ অন ডেলিভারি প্রযোজ্য।',
+        autoCreateOrder: settings.orderAgent?.autoCreateOrder !== false,
+      },
       chatbot: {
         botName: settings.chatbot?.botName || 'Toy Hourse AI',
         welcomeMessage:
@@ -63,10 +75,10 @@ export async function GET() {
           Array.isArray(settings.chatbot?.quickPrompts) && settings.chatbot.quickPrompts.length > 0
             ? settings.chatbot.quickPrompts
             : [
-                '🚗 জনপ্রিয় খেলনা দেখাও',
-                '🧸 ১-৩ বছরের খেলনা কি আছে?',
-                '🚚 ডেলিভারি চার্জ ও সময় কত?',
-                '💳 ক্যাশ অন ডেলিভারি আছে?',
+                'জনপ্রিয় খেলনা সমূহ',
+                '১-৩ বছর বয়সীদের খেলনা',
+                'ডেলিভারি চার্জ ও সময়সীমা',
+                'ক্যাশ অন ডেলিভারি তথ্য',
               ],
         supportPhone: settings.chatbot?.supportPhone || '',
         deliveryInsideDhaka: settings.chatbot?.deliveryInsideDhaka ?? 70,
@@ -76,7 +88,7 @@ export async function GET() {
         returnPolicy: settings.chatbot?.returnPolicy || '৭ দিনের সহজ রিটার্ন ও রিপ্লেসমেন্ট পলিসি',
         primaryColor: settings.chatbot?.primaryColor || '#7C3AED',
         position: settings.chatbot?.position || 'bottom-right',
-        badgeText: settings.chatbot?.badgeText || 'Chat with AI 🤖',
+        badgeText: settings.chatbot?.badgeText || 'Live Support',
       },
     };
 
@@ -164,6 +176,20 @@ export async function PUT(req: Request) {
       },
       storeName: body.storeName?.trim() || 'Toy Hourse',
       systemPromptExtra: body.systemPromptExtra?.trim() || '',
+      globalTemperature: Number(body.globalTemperature ?? 0.15),
+      strictLanguage: body.strictLanguage !== false,
+      orderAgent: {
+        buttonText: body.orderAgent?.buttonText?.trim() || 'AI দিয়ে অর্ডার করুন',
+        agentName: body.orderAgent?.agentName?.trim() || 'Toy Hourse অর্ডার সহকারী',
+        agentTone: ['professional', 'friendly', 'concise'].includes(body.orderAgent?.agentTone)
+          ? body.orderAgent.agentTone
+          : 'professional',
+        promptExtra: body.orderAgent?.promptExtra?.trim() || '',
+        deliveryNote:
+          body.orderAgent?.deliveryNote?.trim() ||
+          'ঢাকার ভেতরে ৳৭০, ঢাকার বাইরে ৳১৩০। ক্যাশ অন ডেলিভারি প্রযোজ্য।',
+        autoCreateOrder: body.orderAgent?.autoCreateOrder !== false,
+      },
       chatbot: {
         botName: body.chatbot?.botName?.trim() || 'Toy Hourse AI',
         welcomeMessage: body.chatbot?.welcomeMessage?.trim() || '',
@@ -178,7 +204,7 @@ export async function PUT(req: Request) {
         returnPolicy: body.chatbot?.returnPolicy?.trim() || '',
         primaryColor: body.chatbot?.primaryColor?.trim() || '#7C3AED',
         position: body.chatbot?.position === 'bottom-left' ? 'bottom-left' : 'bottom-right',
-        badgeText: body.chatbot?.badgeText?.trim() || 'Chat with AI 🤖',
+        badgeText: body.chatbot?.badgeText?.trim() || 'Live Support',
       },
     };
 

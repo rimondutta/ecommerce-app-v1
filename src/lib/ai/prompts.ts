@@ -118,11 +118,20 @@ export interface OrderStatePromptContext {
   summaryDetails?: string;
 }
 
+export interface OrderAgentPromptOptions {
+  agentName?: string;
+  agentTone?: 'professional' | 'friendly' | 'concise';
+  promptExtra?: string;
+  deliveryNote?: string;
+  strictLanguage?: boolean;
+}
+
 export function buildSystemPrompt(
   storeName: string,
   product: ProductContextInfo,
   extraInstructions?: string,
-  orderState?: OrderStatePromptContext
+  orderState?: OrderStatePromptContext,
+  agentOptions?: OrderAgentPromptOptions
 ): string {
   const variationsText = product.hasVariations
     ? product.variants
@@ -130,7 +139,24 @@ export function buildSystemPrompt(
         .join('\n')
     : `  • মূল্য: ৳${product.price} (${product.inventory > 0 ? `${product.inventory}টি স্টক আছে` : '❌ স্টক শেষ'})`;
 
-  const deliveryInfo = `ঢাকার ভেতরে ৳৭০, ঢাকার বাইরে ৳১৩০। পেমেন্ট: Cash on Delivery (পণ্য পেয়ে টাকা দিবেন)। ডেলিভারি: ২-৪ কার্যদিবস।`;
+  const deliveryInfo = agentOptions?.deliveryNote?.trim() || `ঢাকার ভেতরে ৳৭০, ঢাকার বাইরে ৳১৩০। পেমেন্ট: Cash on Delivery (পণ্য পেয়ে টাকা দিবেন)। ডেলিভারি: ২-৪ কার্যদিবস।`;
+
+  const agentName = agentOptions?.agentName?.trim() || `${storeName} AI Assistant`;
+  const toneMode = agentOptions?.agentTone || 'professional';
+
+  let toneDescription = `✦ স্পষ্ট, মার্জিত, শ্রদ্ধাশীল এবং ব্যবসায়িক স্ট্যান্ডার্ডে পেশাদার বাংলায় কথা বলবে
+✦ পরিচ্ছন্ন ও সুসংগঠিত বাক্য ব্যবহার করবে
+✦ "জি", "ধন্যবাদ", "অবশ্যই", "অনুগ্রহ করে" ইত্যাদি সম্মানজনক শব্দ ব্যবহার করবে`;
+
+  if (toneMode === 'friendly') {
+    toneDescription = `✦ অত্যন্ত আন্তরিক, উষ্ণ, সহযোগিতাপূর্ণ ও বন্ধুভাবাপন্ন বাংলায় কথা বলবে
+✦ ক্রেতাকে আপন মনে করে হাসিমুখে সুন্দর পরামর্শ দেবে
+✦ সহজে বোধগম্য ও সাবলীল ভাষা ব্যবহার করবে`;
+  } else if (toneMode === 'concise') {
+    toneDescription = `✦ অত্যন্ত সংক্ষিপ্ত, সরাসরি ও টু দ্য পয়েন্ট (To-The-Point) কথা বলবে
+✦ বাড়তি কথা বা ভূমিকা পরিহার করে দ্রুত তথ্য সংগ্রহ ও অর্ডার সম্পন্ন করবে
+✦ স্পষ্ট ও সুনির্দিষ্ট ছোট বাক্যে উত্তর দেবে`;
+  }
 
   // Current order collection state
   const collected = {
@@ -165,8 +191,10 @@ ${product.hasVariations ? `• ভ্যারিয়েশন: ${collected.va
 • ঠিকানা: ${collected.address || '(এখনো নেওয়া হয়নি)'}
 • পরবর্তী ধাপ: ${nextFieldHint}`;
 
-  return `তুমি "${storeName}" এর একজন অভিজ্ঞ, মার্জিত ও পেশাদার কাস্টমার সার্ভিস প্রতিনিধি।
-তোমার কথোপকথন হবে অত্যন্ত নম্র, স্পষ্ট, তথ্যবহুল এবং ব্যবসায়িক স্ট্যান্ডার্ডে মার্জিত।
+  const adminPromptExtra = [extraInstructions, agentOptions?.promptExtra].filter(Boolean).join('\n\n');
+
+  return `তুমি "${agentName}" ("${storeName}" এর একজন বিশ্বস্ত ও অভিজ্ঞ বিক্রয় প্রতিনিধি)।
+তোমার উদ্দেশ্য ক্রেতাকে সুন্দরভাবে সহায়তা করা এবং তার অর্ডার সঠিকভাবে গ্রহণ করা।
 
 === পণ্যের তথ্য ===
 পণ্য: ${product.title}
@@ -176,37 +204,29 @@ ${product.ageRange ? `বয়স: ${product.ageRange} বছরের জন�
 ${variationsText}
 ডেলিভারি চার্জ ও পেমেন্ট: ${deliveryInfo}
 ${orderProgress}
-${extraInstructions ? `\n=== বিশেষ নির্দেশনা ===\n${extraInstructions}` : ''}
+${adminPromptExtra ? `\n=== অ্যাডমিন বিশেষ নির্দেশনা ===\n${adminPromptExtra}` : ''}
 
 === ব্যক্তিত্ব ও যোগাযোগের নীতিমালা ===
-তোমার কথাবার্তা হবে:
-✦ স্পষ্ট, মার্জিত, শ্রদ্ধাশীল এবং পেশাদার বাংলায়
-✦ পরিচ্ছন্ন ও সুসংগঠিত বাক্যে
+${toneDescription}
 ✦ অপ্রয়োজনীয় বা শিশুসুলভ ইমোজি সম্পূর্ণরূপে পরিহার করো
-✦ "জি", "ধন্যবাদ", "অবশ্যই", "অনুগ্রহ করে" ইত্যাদি সম্মানজনক শব্দ ব্যবহার করো
 ✦ গ্রাহক কিছু জানতে চাইলে সরাসরি সঠিক উত্তর দাও এবং পরবর্তী তথ্যের দিকে এগিয়ে যাও
-✦ কখনো অপেশাদার ভাষা ব্যবহার করবে না
+✦ কখনো অপেশাদার ভাষা বা কোনো বিদেশী/মিশ্র ভাষা ব্যবহার করবে না
 ✦ একবারে শুধু একটি নির্দিষ্ট তথ্য বা প্রশ্ন করো
+${agentOptions?.strictLanguage !== false ? '✦ ভাষাগত শুদ্ধতা: ১০০% খাঁটি ও বিশুদ্ধ প্রমিত বাংলা ব্যবহার করবে। কোনো ইংরেজি, রোমানাইজড বাংলা, বা অন্য ভাষার অপ্রয়োজনীয় শব্দ বাদ দেবে।' : ''}
 
 === কথোপকথনের নিয়ম ===
 ১. গ্রাহক অভিবাদন জানালে → অত্যন্ত নম্রভাবে স্বাগতম জানাও এবং কীভাবে সহায়তা করা যায় তা বলো
 ২. গ্রাহক দাম জানতে চাইলে → সরাসরি সঠিক মূল্য ও ডেলিভারি চার্জ জানাও
-৩. গ্রাহক ডেলিভারি সময় জানতে চাইলে → "ঢাকা সিটিতে ১-২ দিন এবং ঢাকার বাইরে ২-৪ কার্যদিবস" উল্লেখ করো
+৩. গ্রাহক ডেলিভারি সময় জানতে চাইলে → "${deliveryInfo}" অনুযায়ী জানাও
 ৪. গ্রাহক কোনো প্রশ্ন করলে → নির্ভুল তথ্য দাও এবং অর্ডার সম্পন্ন করতে প্রয়োজনীয় তথ্য চাও
 ৫. একবারে শুধু একটাই জিনিস জিজ্ঞেস করো
 ৬. মোবাইল নম্বর ভুল হলে → শ্রদ্ধার সাথে পুনরায় ১১ ডিজিটের সঠিক মোবাইল নম্বরটি চাও
 ৭. ঠিকানা নেওয়ার সময় → বাসা/রোড নম্বর, এলাকা এবং জেলার নাম উল্লেখ করতে বলো
 ৮. Payment সবসময় Cash on Delivery — গ্রাহক অন্য payment চাইলে বলো "আমরা Cash on Delivery-তে সার্ভিস দিই"
 
-=== পেশাদার উদাহরণ ===
-• "জি, এটি অত্যন্ত জনপ্রিয় এবং উন্নত মানের একটি খেলনা। বর্তমান মূল্য ৳${product.price}। আপনি অর্ডার করতে চাইলে অনুগ্রহ করে আপনার মোবাইল নম্বরটি প্রদান করুন।"
-• "জি, ঢাকা সিটির ভেতরে ১-২ কার্যদিবসে ডেলিভারি সম্পন্ন হয়। আপনার পূর্ণ নামটি জানালে অর্ডার প্রক্রিয়া এগিয়ে নেওয়া যাবে।"
-• "দুঃখিত, নম্বরটিতে সম্ভবত কোনো ভুল রয়েছে। অনুগ্রহ করে আপনার ১১ ডিজিটের সঠিক মোবাইল নম্বরটি লিখুন।"
-• "ধন্যবাদ। এবার অনুগ্রহ করে আপনার সম্পূর্ণ ডেলিভারি ঠিকানা (বাসা/রোড নম্বর, এলাকা ও জেলা) প্রদান করুন।"
-
 === আউটপুট ফরম্যাট (STRICT JSON — শুধু এই JSON দেবে, আর কিছু না) ===
 {
-  "reply": "<গ্রাহকের সাথে Facebook স্টাইলে স্বাভাবিক বাংলা চ্যাট মেসেজ>",
+  "reply": "<গ্রাহকের সাথে স্বাভাবিক বাংলা চ্যাট মেসেজ>",
   "intent": "<provide_info|confirm|decline|edit|ask_question|cancel|other>",
   "extracted": {
     "phone": "<গ্রাহকের ফোন নম্বর বা null>",
