@@ -85,11 +85,13 @@ export async function invalidateProduct(productId: string, slug?: string): Promi
 
     await deleteCached(...keysToDelete);
 
-    // Wildcard-delete all paginated API product lists and v1 caches
+    // Wildcard-delete all paginated API product lists, catalog and v1 caches
+    const { invalidateCache } = await import('@/lib/cache');
     await Promise.all([
       deleteCachedPattern(KEYS.apiProductsPattern()),
       deleteCachedPattern(KEYS.v1ProductsPattern()),
       deleteCachedPattern(KEYS.isrProductsPattern()),
+      invalidateCache('products:*'),
     ]);
 
     // Next.js ISR invalidation
@@ -147,10 +149,12 @@ export async function invalidateCategory(categoryId: string, slug?: string): Pro
     await deleteCached(...keysToDelete);
 
     // Category changes affect product listings filtered by category
+    const { invalidateCache } = await import('@/lib/cache');
     await Promise.all([
       deleteCachedPattern(KEYS.apiProductsPattern()),
       deleteCachedPattern(KEYS.v1ProductsPattern()),
       deleteCachedPattern(KEYS.apiCategoriesPattern()),
+      invalidateCache('products:*'),
     ]);
 
     const { revalidatePath } = await import('next/cache');

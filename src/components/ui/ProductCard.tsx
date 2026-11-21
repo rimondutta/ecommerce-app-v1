@@ -8,6 +8,7 @@ import { useCart } from "@/components/providers/CartProvider";
 import { useWishlist } from "@/store/wishlistStore";
 import { useToast } from "@/components/playshelf/Toast";
 import { trackAddToCart } from "@/lib/fbPixel";
+import { getOptimizedCloudinaryUrl } from "@/lib/utils";
 
 export interface ProductCardData {
   _id: string;
@@ -190,10 +191,10 @@ export default function ProductCard({
           <Heart size={12} className={wishlisted ? "fill-red-500 text-red-500" : "text-gray-400"} />
         </button>
 
-        {/* Product image */}
+        {/* Product image (Cloudinary auto-optimized to 450px WebP/AVIF) */}
         <Link href={`/products/${product.slug}`} className="block w-full h-full relative">
           <Image
-            src={imageUrl}
+            src={getOptimizedCloudinaryUrl(imageUrl, { width: 450 })}
             alt={imageAlt}
             fill
             priority={priority}

@@ -86,6 +86,7 @@ const ProductSchema = new mongoose.Schema(
 ProductSchema.index({ isPublished: 1, category: 1 });
 ProductSchema.index({ isPublished: 1, createdAt: -1 });
 ProductSchema.index({ isPublished: 1, ageRange: 1 });
+ProductSchema.index({ isPublished: 1, tags: 1 });
 ProductSchema.index({ isPublished: 1, price: 1 }); // For price-asc sorting
 ProductSchema.index({ isPublished: 1, price: -1 }); // For price-desc sorting
 ProductSchema.index({ title: 'text', description: 'text' }); // Enables faster text searching

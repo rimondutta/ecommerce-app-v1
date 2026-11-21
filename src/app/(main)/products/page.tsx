@@ -43,12 +43,12 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
 
   const tagParam = params.tag || (params.offer === "special" ? "specialoffer" : undefined);
 
-  const cacheKey = `products:catalog:v7:p${page}:l${limit}:${params.category || "all"}:${params.age || "all"}:${params.variant || "none"}:${tagParam || "none"}:${params.minPrice || "0"}:${params.maxPrice || "inf"}:${params.rating || "all"}:${params.search || "none"}`;
+  const cacheKey = `products:catalog:v8:p${page}:l${limit}:${params.category || "all"}:${params.age || "all"}:${params.variant || "none"}:${tagParam || "none"}:${params.minPrice || "0"}:${params.maxPrice || "inf"}:${params.rating || "all"}:${params.search || "none"}`;
 
-  // Fetch paginated products, categories, and variation filters with Redis caching
+  // Fetch paginated products, categories, and variation filters with Redis & Memory caching
   const { products, totalCount, categories, variationFilters, availableSizes, availableColors, ageRanges } = await withCache(
     cacheKey,
-    60,
+    300,
     async () => {
       const filter: Record<string, unknown> = { isPublished: true };
 
@@ -153,7 +153,7 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
       }
 
       const [allCategories, allVariationTypes, allVariationValues, rawAgeRanges, usedSizesList, usedColorsList] =
-        await withCache('products:filter_metadata:v6', 60, async () => {
+        await withCache('products:filter_metadata:v8', 1800, async () => {
           const [cats, vTypes, vVals, ages, catCounts, usedVarValues, varProducts] = await Promise.all([
             Category.find({ isActive: { $ne: false } }).select("name slug").sort({ name: 1 }).lean(),
             VariationType.find({}).sort({ name: 1 }).lean(),
@@ -372,16 +372,8 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
       const [dbProducts, total] = await Promise.all([
         Product.find(filter)
           .populate("category", "name slug")
-          .populate({
-            path: "variants.combination.variationType",
-            select: "name slug displayType",
-          })
-          .populate({
-            path: "variants.combination.variationValue",
-            select: "value slug colorHex",
-          })
           .select(
-            "title price compareAtPrice slug images category badge ageRange createdAt rating reviewCount hasVariations variants tags isFreeShipping"
+            "title price compareAtPrice slug images category badge ageRange createdAt rating reviewCount hasVariations inventory variants.isActive variants.sku variants.combinationLabel variants.combination.variationValue tags isFreeShipping"
           )
           .sort({ createdAt: -1 })
           .skip(skip)
@@ -442,23 +434,27 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
     }
   );
 
-  const serializedProducts = JSON.parse(JSON.stringify(products));
-  const serializedCategories = JSON.parse(JSON.stringify(categories));
-  const serializedVariationFilters = JSON.parse(JSON.stringify(variationFilters || []));
-  const serializedAvailableSizes = JSON.parse(JSON.stringify(availableSizes || []));
-  const serializedAvailableColors = JSON.parse(JSON.stringify(availableColors || []));
-  const serializedAgeRanges: string[] = JSON.parse(JSON.stringify(ageRanges || []));
+  const serializedData = JSON.parse(
+    JSON.stringify({
+      products,
+      categories,
+      variationFilters: variationFilters || [],
+      availableSizes: availableSizes || [],
+      availableColors: availableColors || [],
+      ageRanges: ageRanges || [],
+    })
+  );
   const totalPages = Math.max(1, Math.ceil(totalCount / limit));
 
   return (
     <React.Suspense fallback={<div>Loading products...</div>}>
       <ShopClient
-        initialProducts={serializedProducts}
-        allCategories={serializedCategories}
-        variationFilters={serializedVariationFilters}
-        availableSizes={serializedAvailableSizes}
-        availableColors={serializedAvailableColors}
-        ageRanges={serializedAgeRanges}
+        initialProducts={serializedData.products}
+        allCategories={serializedData.categories}
+        variationFilters={serializedData.variationFilters}
+        availableSizes={serializedData.availableSizes}
+        availableColors={serializedData.availableColors}
+        ageRanges={serializedData.ageRanges}
         initialTag={tagParam || null}
         initialMinPrice={params.minPrice || null}
         initialMaxPrice={params.maxPrice || null}
