@@ -66,7 +66,11 @@ export async function PUT(
 
     try {
       const { invalidateCache } = await import('@/lib/cache');
-      await invalidateCache('products:*', 'product:*', 'home:*', 'api:products:*');
+      const { invalidateFilterMetadata } = await import('@/lib/cache/invalidation');
+      await Promise.all([
+        invalidateCache('products:*', 'product:*', 'home:*', 'api:products:*'),
+        invalidateFilterMetadata(),
+      ]);
     } catch {
       /* ignore cache invalidation errors */
     }
@@ -106,6 +110,17 @@ export async function DELETE(
     // Delete all values belonging to this type, then delete the type
     await VariationValue.deleteMany({ variationType: id });
     await VariationType.findByIdAndDelete(id);
+
+    try {
+      const { invalidateCache } = await import('@/lib/cache');
+      const { invalidateFilterMetadata } = await import('@/lib/cache/invalidation');
+      await Promise.all([
+        invalidateCache('products:*', 'product:*', 'home:*', 'api:products:*'),
+        invalidateFilterMetadata(),
+      ]);
+    } catch {
+      /* ignore cache invalidation errors */
+    }
 
     return NextResponse.json({ success: true });
   } catch (error: unknown) {

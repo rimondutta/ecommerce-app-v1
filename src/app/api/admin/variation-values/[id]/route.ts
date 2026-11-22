@@ -35,6 +35,13 @@ export async function PUT(
       return NextResponse.json({ error: 'Not found' }, { status: 404 });
     }
 
+    try {
+      const { invalidateFilterMetadata } = await import('@/lib/cache/invalidation');
+      await invalidateFilterMetadata();
+    } catch {
+      /* ignore cache invalidation errors */
+    }
+
     return NextResponse.json({ variationValue });
   } catch (error: unknown) {
     if ((error as { code?: number })?.code === 11000) {
@@ -71,6 +78,13 @@ export async function DELETE(
     }
 
     await VariationValue.findByIdAndDelete(id);
+
+    try {
+      const { invalidateFilterMetadata } = await import('@/lib/cache/invalidation');
+      await invalidateFilterMetadata();
+    } catch {
+      /* ignore cache invalidation errors */
+    }
 
     return NextResponse.json({ success: true });
   } catch (error: unknown) {

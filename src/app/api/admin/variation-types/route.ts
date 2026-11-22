@@ -59,6 +59,13 @@ export async function POST(req: Request) {
       displayType: displayType || 'button',
     });
 
+    try {
+      const { invalidateFilterMetadata } = await import('@/lib/cache/invalidation');
+      await invalidateFilterMetadata();
+    } catch {
+      /* ignore cache invalidation errors */
+    }
+
     return NextResponse.json({ variationType }, { status: 201 });
   } catch (error: unknown) {
     if ((error as { code?: number })?.code === 11000) {

@@ -92,6 +92,7 @@ export async function invalidateProduct(productId: string, slug?: string): Promi
       deleteCachedPattern(KEYS.v1ProductsPattern()),
       deleteCachedPattern(KEYS.isrProductsPattern()),
       invalidateCache('products:*'),
+      invalidateCache('catalog:p*'),
     ]);
 
     // Next.js ISR invalidation
@@ -155,6 +156,7 @@ export async function invalidateCategory(categoryId: string, slug?: string): Pro
       deleteCachedPattern(KEYS.v1ProductsPattern()),
       deleteCachedPattern(KEYS.apiCategoriesPattern()),
       invalidateCache('products:*'),
+      invalidateCache('catalog:*'),
     ]);
 
     const { revalidatePath } = await import('next/cache');
@@ -174,11 +176,29 @@ export async function invalidateCategoryList(): Promise<void> {
   try {
     await deleteCached(KEYS.categoriesList());
     await deleteCachedPattern(KEYS.apiCategoriesPattern());
+    const { invalidateCache } = await import('@/lib/cache');
+    await Promise.all([
+      invalidateCache('catalog:filter_metadata:*'),
+      invalidateCache('catalog:p*'),
+    ]);
     const { revalidatePath } = await import('next/cache');
     revalidatePath('/products');
   } catch (err) {
     cacheLog('ERROR', '[invalidateCategoryList]', undefined, err);
     console.error('[cache] invalidateCategoryList failed:', err);
+  }
+}
+
+/**
+ * Invalidate filter metadata for the catalog shop page (categories, variation types/values, age ranges).
+ */
+export async function invalidateFilterMetadata(): Promise<void> {
+  try {
+    const { invalidateCache } = await import('@/lib/cache');
+    await invalidateCache('catalog:filter_metadata:*');
+  } catch (err) {
+    cacheLog('ERROR', '[invalidateFilterMetadata]', undefined, err);
+    console.error('[cache] invalidateFilterMetadata failed:', err);
   }
 }
 

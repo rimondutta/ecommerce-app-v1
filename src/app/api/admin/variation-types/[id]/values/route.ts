@@ -65,6 +65,13 @@ export async function POST(
       sortOrder: sortOrder || 0,
     });
 
+    try {
+      const { invalidateFilterMetadata } = await import('@/lib/cache/invalidation');
+      await invalidateFilterMetadata();
+    } catch {
+      /* ignore cache invalidation errors */
+    }
+
     return NextResponse.json({ variationValue }, { status: 201 });
   } catch (error: unknown) {
     if ((error as { code?: number })?.code === 11000) {
