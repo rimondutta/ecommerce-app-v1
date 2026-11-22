@@ -44,8 +44,8 @@ const defaultCategories: CategoryItem[] = [
 const trustFeatures = [
   {
     icon: Truck,
-    title: "Free Shipping",
-    description: "On orders over $50",
+    title: "Fast Delivery",
+    description: "Nationwide delivery across BD",
   },
   {
     icon: ShieldCheck,

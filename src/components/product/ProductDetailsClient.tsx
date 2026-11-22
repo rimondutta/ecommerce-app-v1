@@ -1230,7 +1230,7 @@ export default function ProductDetailsClient({
                   }
                   if (product.isFreeShipping !== undefined) {
                     specsList.push({
-                      label: "Free Shipping",
+                      label: "Fast Delivery",
                       value: product.isFreeShipping ? "Yes (Free Delivery)" : "Standard Rates Apply",
                     });
                   }
@@ -1433,10 +1433,9 @@ export default function ProductDetailsClient({
               <div className="bg-white rounded-2xl border border-gray-100 p-5 flex items-start gap-4">
                 <Truck className="text-[#5428D8] shrink-0 mt-0.5" size={22} />
                 <div>
-                  <h4 className="font-bold text-sm text-[#1E1B4B] mb-1">Free Shipping</h4>
+                  <h4 className="font-bold text-sm text-[#1E1B4B] mb-1">Fast Delivery</h4>
                   <p className="text-sm text-gray-600">
-                    Free standard shipping on all orders over ৳1,500. Orders are
-                    processed within 1–2 business days and delivered in 3–7 days.
+                    Nationwide delivery across Bangladesh. Dhaka city: 1–2 business days. Outside Dhaka: 2–4 business days.
                   </p>
                 </div>
               </div>
