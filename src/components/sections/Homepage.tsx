@@ -21,6 +21,9 @@ interface Product {
   _id: string; title: string; slug: string; price: number;
   compareAtPrice?: number; images: { url: string; alt?: string }[];
   badge?: string; ageRange?: string; rating?: number; reviewCount?: number;
+  inventory?: number;
+  hasVariations?: boolean;
+  variants?: { stock?: number; isActive?: boolean }[];
 }
 interface Category { name: string; slug: string; image: string; }
 interface BlogPreview {

@@ -225,7 +225,7 @@ export async function POST(req: Request) {
     await touchProductsTimestamp()
     try {
       const { invalidateCache } = await import('@/lib/cache')
-      await invalidateCache('products:*', 'product:*')
+      await invalidateCache('products:*', 'product:*', 'home:*', 'api:products:*')
     } catch {
       // cache optional
     }

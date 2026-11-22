@@ -20,7 +20,9 @@ interface HomeProduct {
   rating?: number;
   reviewCount?: number;
   category?: string;
-  inventory?: number | { quantity?: number };
+  inventory?: number;
+  hasVariations?: boolean;
+  variants?: { stock?: number; isActive?: boolean }[];
 }
 
 interface HomeCategory {
@@ -66,7 +68,7 @@ export default async function Home() {
     ] = await withCache('home:isr:data', 60, async () => {
       return await Promise.all([
         Product.find({ isPublished: true })
-          .select('title price compareAtPrice slug images category badge colors sizes inventory rating reviewCount')
+          .select('title price compareAtPrice slug images category badge colors sizes inventory rating reviewCount hasVariations variants')
           .sort({ createdAt: -1 })
           .limit(4)
           .lean(),
@@ -79,17 +81,17 @@ export default async function Home() {
           .limit(3)
           .lean(),
         Product.find({ isPublished: true, tags: 'specialoffer' })
-          .select('title price compareAtPrice slug images badge rating reviewCount tags category inventory')
+          .select('title price compareAtPrice slug images badge rating reviewCount tags category inventory hasVariations variants')
           .sort({ createdAt: -1 })
           .limit(12)
           .lean(),
         Product.find({ isPublished: true, tags: 'bestselling' })
-          .select('title price compareAtPrice slug images badge rating reviewCount tags')
+          .select('title price compareAtPrice slug images badge rating reviewCount tags category inventory hasVariations variants')
           .sort({ createdAt: -1 })
           .limit(10)
           .lean(),
         Product.find({ isPublished: true, tags: 'discount' })
-          .select('title price compareAtPrice slug images badge rating reviewCount tags category inventory')
+          .select('title price compareAtPrice slug images badge rating reviewCount tags category inventory hasVariations variants')
           .sort({ createdAt: -1 })
           .limit(10)
           .lean(),
@@ -97,7 +99,7 @@ export default async function Home() {
           isPublished: true,
           $or: [{ tags: 'freedelivery' }, { tags: 'freeshipping' }, { isFreeShipping: true }],
         })
-          .select('title price compareAtPrice slug images badge rating reviewCount tags category inventory')
+          .select('title price compareAtPrice slug images badge rating reviewCount tags category inventory hasVariations variants')
           .sort({ createdAt: -1 })
           .limit(10)
           .lean(),

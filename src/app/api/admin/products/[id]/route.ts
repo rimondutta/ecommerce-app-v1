@@ -123,7 +123,7 @@ export async function PUT(
     // Invalidate Redis caches
     try {
       const { invalidateCache } = await import('@/lib/cache');
-      await invalidateCache('products:*', `product:*:*`);
+      await invalidateCache('products:*', `product:*:*`, 'home:*', 'api:products:*');
     } catch {}
 
     return NextResponse.json({ product });
@@ -168,7 +168,7 @@ export async function DELETE(
       revalidatePath('/admin/products');
       try {
         const { invalidateCache } = await import('@/lib/cache');
-        await invalidateCache('products:*', `product:*:*`);
+        await invalidateCache('products:*', `product:*:*`, 'home:*', 'api:products:*');
       } catch {}
       return NextResponse.json({ message: 'Product already deleted', success: true });
     }
@@ -219,7 +219,7 @@ export async function DELETE(
     // Invalidate Redis caches
     try {
       const { invalidateCache } = await import('@/lib/cache');
-      await invalidateCache('products:*', `product:*:*`);
+      await invalidateCache('products:*', `product:*:*`, 'home:*', 'api:products:*');
     } catch {}
 
     return NextResponse.json({ message: 'Product and associated images deleted', success: true });

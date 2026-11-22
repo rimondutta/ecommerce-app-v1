@@ -25,6 +25,21 @@ export interface ProductCardData {
   inventory?: number;
   category?: { name?: string; slug?: string } | string;
   hasVariations?: boolean;
+  variants?: Array<{
+    sku?: string;
+    combinationLabel?: string;
+    price?: number;
+    comparePrice?: number;
+    stock?: number;
+    combination?: Array<{
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      variationType?: any;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      variationValue?: any;
+    }>;
+    isActive?: boolean;
+    images?: string[];
+  }>;
 }
 
 /* ─── Helpers ─── */
@@ -103,7 +118,32 @@ export default function ProductCard({
   const [addedToCart, setAddedToCart] = useState(false);
 
   const wishlisted = isWishlisted(product._id);
-  const isOutOfStock = product.inventory !== undefined && product.inventory <= 0;
+  const isOutOfStock = React.useMemo(() => {
+    // 1. If badge explicitly states out of stock / stock out
+    if (product.badge && /^(out of stock|stock out|স্টক আউট)/i.test(product.badge.trim())) {
+      return true;
+    }
+
+    // 2. If product has variations, check total active variants stock
+    if (product.hasVariations && Array.isArray(product.variants) && product.variants.length > 0) {
+      const totalVariantStock = product.variants.reduce(
+        (sum, v) => sum + (v.isActive !== false ? (Number(v.stock) || 0) : 0),
+        0
+      );
+      return totalVariantStock <= 0;
+    }
+
+    // 3. Flat inventory check
+    if (product.inventory !== undefined && product.inventory !== null) {
+      const invNum =
+        typeof product.inventory === "object" && product.inventory !== null
+          ? Number((product.inventory as { quantity?: number }).quantity) || 0
+          : Number(product.inventory);
+      return invNum <= 0;
+    }
+
+    return false;
+  }, [product.inventory, product.hasVariations, product.variants, product.badge]);
 
   const discount = getDiscountPercent(product.price, product.compareAtPrice);
   const firstImage = product.images?.[0];
@@ -166,8 +206,13 @@ export default function ProductCard({
     ">
       {/* ── Image zone ── */}
       <div className="relative w-full aspect-square bg-gray-100 flex-shrink-0 overflow-hidden">
-        {/* Discount badge */}
-        {discount && (
+        {/* Out of stock badge takes priority over discount */}
+        {isOutOfStock ? (
+          <span className="absolute top-2.5 left-2.5 z-10 text-[10px] font-black px-2.5 py-[3px] rounded-full tracking-wide shadow-sm bg-red-600 text-white flex items-center gap-1">
+            <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+            Stock Out
+          </span>
+        ) : discount ? (
           <span className={`
             absolute top-2.5 left-2.5 z-10 text-[10px] font-black
             px-2.5 py-[3px] rounded-full tracking-wide shadow-sm
@@ -175,7 +220,7 @@ export default function ProductCard({
           `}>
             -{discount}%
           </span>
-        )}
+        ) : null}
 
         {/* Wishlist — visible on mobile, hover on desktop */}
         <button
@@ -199,8 +244,17 @@ export default function ProductCard({
             fill
             priority={priority}
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-            className="object-cover transition-transform duration-500 group-hover:scale-[1.07]"
+            className={`object-cover transition-transform duration-500 group-hover:scale-[1.07] ${
+              isOutOfStock ? "grayscale-[35%] opacity-90" : ""
+            }`}
           />
+          {isOutOfStock && (
+            <div className="absolute inset-0 bg-black/25 flex items-center justify-center">
+              <span className="bg-white/95 text-red-600 font-extrabold text-[11px] sm:text-xs px-3 py-1 rounded-full shadow-md tracking-wide">
+                Stock Out
+              </span>
+            </div>
+          )}
         </Link>
       </div>
 
@@ -229,20 +283,24 @@ export default function ProductCard({
           )}
         </div>
 
-        {/* Add to Cart */}
+        {/* Add to Cart / Stock Out */}
         <button
           onClick={handleAddToCart}
           disabled={isOutOfStock}
           className={`
-            w-full ${isOutOfStock ? "bg-[#E8DDD0] text-[#B5A898] cursor-not-allowed" : `${cartBg} text-white shadow-[0_2px_8px_rgba(84,40,216,0.25)] hover:shadow-[0_4px_16px_rgba(84,40,216,0.35)]`} text-[11px] sm:text-xs font-semibold
-            rounded-xl py-2 sm:py-2.5 cursor-pointer
+            w-full ${
+              isOutOfStock
+                ? "bg-gray-100 text-gray-400 border border-gray-200 cursor-not-allowed shadow-none"
+                : `${cartBg} text-white shadow-[0_2px_8px_rgba(84,40,216,0.25)] hover:shadow-[0_4px_16px_rgba(84,40,216,0.35)] cursor-pointer active:scale-95 hover:-translate-y-0.5`
+            } text-[11px] sm:text-xs font-semibold
+            rounded-xl py-2 sm:py-2.5
             flex items-center justify-center gap-1.5
-            transition-all duration-200 active:scale-95 hover:-translate-y-0.5
+            transition-all duration-200
             ${addedToCart ? "opacity-80" : ""}
           `}
         >
           <ShoppingCart size={12} strokeWidth={2.5} />
-          {isOutOfStock ? "Out of Stock" : addedToCart ? "Added ✓" : "Add to Cart"}
+          {isOutOfStock ? "Stock Out" : addedToCart ? "Added ✓" : "Add to Cart"}
         </button>
       </div>
 

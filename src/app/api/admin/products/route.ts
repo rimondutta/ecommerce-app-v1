@@ -120,7 +120,7 @@ export async function POST(req: Request) {
 
     // Invalidate Redis caches
     const { invalidateCache } = await import('@/lib/cache');
-    await invalidateCache('products:*', 'product:*');
+    await invalidateCache('products:*', 'product:*', 'home:*', 'api:products:*');
 
     return NextResponse.json({ product }, { status: 201 });
   } catch (error: unknown) {

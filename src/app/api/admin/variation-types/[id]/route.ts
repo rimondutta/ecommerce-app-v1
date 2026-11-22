@@ -66,7 +66,7 @@ export async function PUT(
 
     try {
       const { invalidateCache } = await import('@/lib/cache');
-      await invalidateCache('products:*', 'product:*');
+      await invalidateCache('products:*', 'product:*', 'home:*', 'api:products:*');
     } catch {
       /* ignore cache invalidation errors */
     }

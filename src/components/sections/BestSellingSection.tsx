@@ -17,7 +17,12 @@ export default function BestSellingSection({ initialProducts = [] }: BestSelling
     if (initialProducts.length === 0) {
       fetch("/api/products?tag=bestselling&limit=10")
         .then((r) => r.json())
-        .then((data) => { if (data?.products?.length) setProducts(data.products); })
+        .then((data) => {
+          const list = data?.data || data?.products;
+          if (Array.isArray(list) && list.length > 0) {
+            setProducts(list);
+          }
+        })
         .catch(() => {/* silent */});
     }
   }, [initialProducts.length]);
