@@ -3,8 +3,10 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Star, ArrowRight, Play, X } from "lucide-react";
-import { m, AnimatePresence } from "framer-motion";
+import dynamic from "next/dynamic";
+import { Star, ArrowRight, Play } from "lucide-react";
+
+const HeroVideoModal = dynamic(() => import("./HeroVideoModal"), { ssr: false });
 
 export default function HeroBanner() {
   const [isVideoOpen, setIsVideoOpen] = useState(false);
@@ -13,14 +15,15 @@ export default function HeroBanner() {
   return (
     <section className="w-full relative overflow-hidden bg-[#FDF8F0] border-b border-[#EDE4D8] min-h-[440px] sm:min-h-[520px] lg:min-h-[560px] xl:min-h-[620px] flex items-center font-sans">
       
-      {/* ═══ Full Width Background Banner Image (toyhourse-hero-section.png) ═══ */}
+      {/* ═══ Full Width Background Banner Image (toyhourse-hero-section.webp) ═══ */}
       <div className="absolute inset-0 w-full h-full pointer-events-none select-none">
         <Image
-          src="/images/toyhourse-hero-section.png"
+          src="/images/toyhourse-hero-section.webp"
           alt="Toy Hourse Hero Banner"
           fill
           priority
-          sizes="100vw"
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 1440px"
+          quality={80}
           className="object-cover object-right"
         />
         {/* Subtle gradient overlay on left for pristine contrast & readability on any device */}
@@ -138,45 +141,10 @@ export default function HeroBanner() {
 
       </div>
 
-      {/* ═══ Interactive Video Modal ═══ */}
-      <AnimatePresence>
-        {isVideoOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
-            <m.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setIsVideoOpen(false)}
-              className="absolute inset-0 bg-black/75 backdrop-blur-md"
-            />
-            <m.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              transition={{ duration: 0.25 }}
-              className="relative z-10 w-full max-w-4xl bg-black rounded-3xl overflow-hidden shadow-2xl border border-white/10"
-            >
-              <button
-                type="button"
-                onClick={() => setIsVideoOpen(false)}
-                className="absolute top-4 right-4 z-20 w-10 h-10 rounded-full bg-black/60 hover:bg-black text-white flex items-center justify-center transition-colors cursor-pointer"
-                aria-label="Close video"
-              >
-                <X className="w-5 h-5" />
-              </button>
-              <div className="relative aspect-video w-full">
-                <video
-                  src="/video/hero-bg.mp4"
-                  controls
-                  autoPlay
-                  playsInline
-                  className="w-full h-full object-cover"
-                />
-              </div>
-            </m.div>
-          </div>
-        )}
-      </AnimatePresence>
+      {/* ═══ Interactive Video Modal (Dynamically loaded on demand) ═══ */}
+      {isVideoOpen && (
+        <HeroVideoModal isOpen={isVideoOpen} onClose={() => setIsVideoOpen(false)} />
+      )}
     </section>
   );
 }

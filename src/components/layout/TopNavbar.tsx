@@ -184,59 +184,67 @@ export default function TopNavbar() {
   };
 
   const [categories, setCategories] = useState([
-    { name: "Toys", slug: "toys", icon: "", image: "/images/categories/toys.png" },
-    { name: "Gadgets", slug: "gadgets", icon: "", image: "/images/categories/gadgets.png" },
-    { name: "Dolls", slug: "dolls", icon: "", image: "/images/categories/dolls.png" },
-    { name: "Puzzles", slug: "puzzles", icon: "", image: "/images/categories/puzzles.png" },
-    { name: "Toy Cars", slug: "toy-cars", icon: "", image: "/images/categories/toy-cars.png" },
-    { name: "Arts & Crafts", slug: "arts-crafts", icon: "", image: "/images/categories/arts-crafts.png" },
-    { name: "Cosmetics", slug: "cosmetics", icon: "", image: "/images/categories/cosmetics.png" },
-    { name: "Gift Sets", slug: "gift-sets", icon: "", image: "/images/categories/gift-sets.png" },
+    { name: "Toys", slug: "toys", icon: "", image: "/images/categories/toys.webp" },
+    { name: "Gadgets", slug: "gadgets", icon: "", image: "/images/categories/gadgets.webp" },
+    { name: "Dolls", slug: "dolls", icon: "", image: "/images/categories/dolls.webp" },
+    { name: "Puzzles", slug: "puzzles", icon: "", image: "/images/categories/puzzles.webp" },
+    { name: "Toy Cars", slug: "toy-cars", icon: "", image: "/images/categories/toy-cars.webp" },
+    { name: "Arts & Crafts", slug: "arts-crafts", icon: "", image: "/images/categories/arts-crafts.webp" },
+    { name: "Cosmetics", slug: "cosmetics", icon: "", image: "/images/categories/cosmetics.webp" },
+    { name: "Gift Sets", slug: "gift-sets", icon: "", image: "/images/categories/gift-sets.webp" },
   ]);
 
-  // Dynamically load active categories from database / admin
+  // Dynamically load active categories & menu in idle time (does not block FCP/LCP)
   useEffect(() => {
     let isMounted = true;
-    fetch("/api/categories")
-      .then((res) => res.json())
-      .then((data) => {
-        if (isMounted && data?.success && Array.isArray(data.data) && data.data.length > 0) {
-          setCategories(
-            data.data.map((c: { name: string; slug: string; image?: string }) => ({
-              name: c.name,
-              slug: c.slug,
-              image: c.image,
-              icon: "",
-            }))
-          );
-        }
-      })
-      .catch((err) => {
-        console.warn("[TopNavbar] Category fetch error:", err);
-      });
 
-    return () => {
-      isMounted = false;
+    const loadNavMetadata = () => {
+      fetch("/api/categories")
+        .then((res) => res.json())
+        .then((data) => {
+          if (isMounted && data?.success && Array.isArray(data.data) && data.data.length > 0) {
+            setCategories(
+              data.data.map((c: { name: string; slug: string; image?: string }) => ({
+                name: c.name,
+                slug: c.slug,
+                image: c.image,
+                icon: "",
+              }))
+            );
+          }
+        })
+        .catch((err) => {
+          console.warn("[TopNavbar] Category fetch error:", err);
+        });
+
+      fetch("/api/menu")
+        .then((res) => res.json())
+        .then((data) => {
+          if (isMounted && data?.success && Array.isArray(data.data) && data.data.length > 0) {
+            setMenuItems(data.data);
+          }
+        })
+        .catch((err) => {
+          console.warn("[TopNavbar] Menu fetch error:", err);
+        });
     };
-  }, []);
 
-  // Dynamically load active menu items from database / admin CMS
-  useEffect(() => {
-    let isMounted = true;
-    fetch("/api/menu")
-      .then((res) => res.json())
-      .then((data) => {
-        if (isMounted && data?.success && Array.isArray(data.data) && data.data.length > 0) {
-          setMenuItems(data.data);
-        }
-      })
-      .catch((err) => {
-        console.warn("[TopNavbar] Menu fetch error:", err);
-      });
-
-    return () => {
-      isMounted = false;
-    };
+    if (typeof window !== "undefined" && "requestIdleCallback" in window) {
+      const handle = (window as unknown as { requestIdleCallback: (cb: () => void, opt?: { timeout: number }) => number }).requestIdleCallback(
+        loadNavMetadata,
+        { timeout: 3000 }
+      );
+      return () => {
+        isMounted = false;
+        (window as unknown as { cancelIdleCallback: (h: number) => void }).cancelIdleCallback(handle);
+      };
+    } else {
+      const timer = setTimeout(loadNavMetadata, 1500);
+      return () => {
+        isMounted = false;
+        clearTimeout(timer);
+      };
+    }
   }, []);
 
   return (

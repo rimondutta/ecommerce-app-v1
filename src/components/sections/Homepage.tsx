@@ -5,11 +5,11 @@ import Link from "next/link";
 import Image from "next/image";
 import HeroBanner from "./HeroBanner";
 import CategorySection from "./CategorySection";
+import BestSellingSection from "./BestSellingSection";
+import TrendingProductsSection from "./TrendingProductsSection";
+import DiscountSection from "./DiscountSection";
+import FreeDeliverySection from "./FreeDeliverySection";
 import dynamic from "next/dynamic";
-const DynamicBestSellingSection = dynamic(() => import("./BestSellingSection"), { ssr: false });
-const DynamicTrendingProductsSection = dynamic(() => import("./TrendingProductsSection"), { ssr: false });
-const DynamicDiscountSection = dynamic(() => import("./DiscountSection"), { ssr: false });
-const DynamicFreeDeliverySection = dynamic(() => import("./FreeDeliverySection"), { ssr: false });
 const DynamicAppDownloadSection = dynamic(() => import("./AppDownloadSection"));
 import AnimatedReveal from "@/components/ui/AnimatedReveal";
 import { ArrowRight } from "lucide-react";
@@ -78,22 +78,22 @@ export default function Homepage({
       {/* ═══════════════════════════════════════════════
           BEST SELLING TOYS — Admin controlled via 'bestselling' tag
           ═══════════════════════════════════════════════ */}
-      <DynamicBestSellingSection initialProducts={bestsellingProducts} />
+      <BestSellingSection initialProducts={bestsellingProducts} />
 
       {/* ═══════════════════════════════════════════════
           TRENDING PRODUCTS — Matching Reference UI
           ═══════════════════════════════════════════════ */}
-      <DynamicTrendingProductsSection products={trendingProducts} />
+      <TrendingProductsSection products={trendingProducts} />
 
       {/* ═══════════════════════════════════════════════
           DISCOUNT DEALS — Admin controlled via 'discount' tag
           ═══════════════════════════════════════════════ */}
-      <DynamicDiscountSection initialProducts={discountProducts} />
+      <DiscountSection initialProducts={discountProducts} />
 
       {/* ═══════════════════════════════════════════════
           FREE DELIVERY PRODUCTS — Admin controlled via 'freedelivery' tag
           ═══════════════════════════════════════════════ */}
-      <DynamicFreeDeliverySection initialProducts={freeDeliveryProducts} />
+      <FreeDeliverySection initialProducts={freeDeliveryProducts} />
 
 
       {/* ═══════════════════════════════════════════════

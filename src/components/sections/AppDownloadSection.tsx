@@ -92,10 +92,10 @@ export default function AppDownloadSection() {
                 className="relative w-full max-w-[300px] lg:max-w-[340px] aspect-[9/19] rounded-[3rem] overflow-hidden shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] bg-white border border-black/5"
               >
                 <Image
-                  src="/images/mobile-app-image.png"
+                  src="/images/mobile-app-image.webp"
                   alt="App Screenshot"
                   fill
-                  loading="eager"
+                  loading="lazy"
                   sizes="(max-width: 768px) 300px, 340px"
                   className="object-contain"
                 />

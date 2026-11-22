@@ -20,25 +20,25 @@ export interface CategoryItem {
 }
 
 const PRESET_IMAGES: Record<string, string> = {
-  toys: "/images/categories/toys.png",
-  gadgets: "/images/categories/gadgets.png",
-  dolls: "/images/categories/dolls.png",
-  puzzles: "/images/categories/puzzles.png",
-  "toy-cars": "/images/categories/toy-cars.png",
-  "arts-crafts": "/images/categories/arts-crafts.png",
-  cosmetics: "/images/categories/cosmetics.png",
-  "gift-sets": "/images/categories/gift-sets.png",
+  toys: "/images/categories/toys.webp",
+  gadgets: "/images/categories/gadgets.webp",
+  dolls: "/images/categories/dolls.webp",
+  puzzles: "/images/categories/puzzles.webp",
+  "toy-cars": "/images/categories/toy-cars.webp",
+  "arts-crafts": "/images/categories/arts-crafts.webp",
+  cosmetics: "/images/categories/cosmetics.webp",
+  "gift-sets": "/images/categories/gift-sets.webp",
 };
 
 const defaultCategories: CategoryItem[] = [
-  { name: "Toys", slug: "toys", image: "/images/categories/toys.png" },
-  { name: "Gadgets", slug: "gadgets", image: "/images/categories/gadgets.png" },
-  { name: "Dolls", slug: "dolls", image: "/images/categories/dolls.png" },
-  { name: "Puzzles", slug: "puzzles", image: "/images/categories/puzzles.png" },
-  { name: "Toy Cars", slug: "toy-cars", image: "/images/categories/toy-cars.png" },
-  { name: "Arts & Crafts", slug: "arts-crafts", image: "/images/categories/arts-crafts.png" },
-  { name: "Cosmetics", slug: "cosmetics", image: "/images/categories/cosmetics.png" },
-  { name: "Gift Sets", slug: "gift-sets", image: "/images/categories/gift-sets.png" },
+  { name: "Toys", slug: "toys", image: "/images/categories/toys.webp" },
+  { name: "Gadgets", slug: "gadgets", image: "/images/categories/gadgets.webp" },
+  { name: "Dolls", slug: "dolls", image: "/images/categories/dolls.webp" },
+  { name: "Puzzles", slug: "puzzles", image: "/images/categories/puzzles.webp" },
+  { name: "Toy Cars", slug: "toy-cars", image: "/images/categories/toy-cars.webp" },
+  { name: "Arts & Crafts", slug: "arts-crafts", image: "/images/categories/arts-crafts.webp" },
+  { name: "Cosmetics", slug: "cosmetics", image: "/images/categories/cosmetics.webp" },
+  { name: "Gift Sets", slug: "gift-sets", image: "/images/categories/gift-sets.webp" },
 ];
 
 const trustFeatures = [
@@ -86,8 +86,9 @@ export default function CategorySection({
     initialCategories.length > 0 ? initialCategories : defaultCategories
   );
 
-  // Client-side fetch to ensure instant freshness when admin updates categories in dashboard
+  // Fallback client-side fetch only if initialCategories were not provided by SSR/ISR
   useEffect(() => {
+    if (initialCategories.length > 0) return;
     let isMounted = true;
     fetch("/api/categories")
       .then((res) => res.json())
@@ -103,7 +104,7 @@ export default function CategorySection({
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [initialCategories.length]);
 
   return (
     <>

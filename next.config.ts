@@ -35,6 +35,9 @@ const nextConfig: NextConfig = {
   images: {
     // Serve AVIF first (smallest), fallback to WebP — ~30-40% smaller than JPEG/PNG.
     formats: ['image/avif', 'image/webp'],
+    // Mobile-first device sizes ensure smartphones receive appropriately sized images (360/414px) instead of 640px+
+    deviceSizes: [360, 414, 640, 750, 828, 1080, 1200, 1920],
+    imageSizes: [16, 32, 48, 64, 96, 128, 160, 240, 384],
     // Cache optimized images for 1 year at the CDN edge.
     minimumCacheTTL: 31536000,
     // SECURITY: Restrict remote image hosts to exactly the services in use.
