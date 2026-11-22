@@ -96,6 +96,19 @@ export async function POST(req: Request) {
     // Limit conversation payload length to protect against abuse and excessive token consumption
     const boundedMessages = messages.slice(-15);
 
+    // Normalize messages to ensure all have parts array for AI SDK v7 compatibility
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const sanitizedMessages = boundedMessages.map((msg: any) => {
+      if (!msg.parts && typeof msg.content === 'string') {
+        return {
+          id: msg.id || String(Date.now()),
+          role: msg.role || 'user',
+          parts: [{ type: 'text', text: msg.content }],
+        };
+      }
+      return msg;
+    });
+
     // ── Resolve Provider from Dashboard Settings ──
     const activeProvider = settings?.activeProvider || 'openrouter';
     let apiKey = '';
@@ -203,9 +216,9 @@ ${extraInstructions ? `Additional Store Instructions:\n${extraInstructions}` : '
     const result = streamText({
       model: aiProvider(modelName) as unknown as Parameters<typeof streamText>[0]['model'],
       system: systemPrompt,
-      messages: await convertToModelMessages(boundedMessages),
+      messages: await convertToModelMessages(sanitizedMessages),
       stopWhen: isStepCount(5),
-      temperature: 0.1,
+      temperature: settings?.globalTemperature ?? 0.15,
       tools: {
         searchProducts: tool({
           description: 'Search for products in the store catalog by name, category, or keyword.',
@@ -219,82 +232,94 @@ ${extraInstructions ? `Additional Store Instructions:\n${extraInstructions}` : '
             })
           ),
           execute: async ({ query }: { query: string }) => {
-            const sanitizedQuery = (query || '').trim().slice(0, 80);
-            if (!sanitizedQuery) {
-              return { results: 'No search term provided.' };
+            try {
+              const sanitizedQuery = (query || '').trim().slice(0, 80);
+              if (!sanitizedQuery) {
+                return { results: 'No search term provided.' };
+              }
+
+              // Escape regex metacharacters to eliminate regular-expression injection / ReDoS
+              const escapedQuery = sanitizedQuery.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+              // 1. Try high-performance MongoDB text index first
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              let products: any[] = [];
+              try {
+                products = await Product.find({
+                  $text: { $search: sanitizedQuery },
+                  isPublished: true,
+                })
+                  .select('title slug price compareAtPrice inventory hasVariations variants badge')
+                  .limit(5)
+                  .lean();
+              } catch {
+                // If text index search fails (e.g. non-indexed tokens), fallback to regex
+                products = [];
+              }
+
+              // 2. Fall back to escaped regex if text search yielded zero matches
+              if (!products || !products.length) {
+                products = await Product.find({
+                  $or: [
+                    { title: { $regex: escapedQuery, $options: 'i' } },
+                    { tags: { $regex: escapedQuery, $options: 'i' } },
+                  ],
+                  isPublished: true,
+                })
+                  .select('title slug price compareAtPrice inventory hasVariations variants badge')
+                  .limit(5)
+                  .lean();
+              }
+
+              if (!products || !products.length) {
+                return { results: 'No products found for this query.' };
+              }
+
+              interface ProductVariant {
+                inventory?: number;
+                stock?: number;
+                price: number;
+              }
+
+              interface ProductType {
+                title: string;
+                slug: string;
+                price: number;
+                compareAtPrice?: number;
+                inventory: number;
+                hasVariations: boolean;
+                variants?: ProductVariant[];
+                badge?: string;
+              }
+
+              return {
+                results: (products as ProductType[]).map((p) => {
+                  let stock = p.inventory;
+                  let price = p.price;
+
+                  if (p.hasVariations && p.variants && p.variants.length > 0) {
+                    stock = p.variants.reduce(
+                      (total: number, v: ProductVariant) => total + (v.stock ?? v.inventory ?? 0),
+                      0
+                    );
+                    price = p.variants[0].price;
+                  }
+
+                  return {
+                    name: p.title,
+                    price,
+                    originalPrice: p.compareAtPrice,
+                    stock,
+                    inStock: stock > 0,
+                    link: `/products/${p.slug}`,
+                    badge: p.badge,
+                  };
+                }),
+              };
+            } catch (toolErr) {
+              console.error('searchProducts tool execution error:', toolErr);
+              return { results: 'Search encountered a temporary error.' };
             }
-
-            // Escape regex metacharacters to eliminate regular-expression injection / ReDoS
-            const escapedQuery = sanitizedQuery.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-
-            // 1. Try high-performance MongoDB text index first
-            let products = await Product.find({
-              $text: { $search: sanitizedQuery },
-              isPublished: true,
-            })
-              .select('title slug price compareAtPrice inventory hasVariations variants badge')
-              .limit(5)
-              .lean();
-
-            // 2. Fall back to escaped regex if text search yielded zero matches
-            if (!products.length) {
-              products = await Product.find({
-                $or: [
-                  { title: { $regex: escapedQuery, $options: 'i' } },
-                  { tags: { $regex: escapedQuery, $options: 'i' } },
-                ],
-                isPublished: true,
-              })
-                .select('title slug price compareAtPrice inventory hasVariations variants badge')
-                .limit(5)
-                .lean();
-            }
-
-            if (!products.length) {
-              return { results: 'No products found for this query.' };
-            }
-
-            interface ProductVariant {
-              inventory?: number;
-              stock?: number;
-              price: number;
-            }
-
-            interface ProductType {
-              title: string;
-              slug: string;
-              price: number;
-              compareAtPrice?: number;
-              inventory: number;
-              hasVariations: boolean;
-              variants?: ProductVariant[];
-              badge?: string;
-            }
-
-            return {
-              results: (products as ProductType[]).map((p) => {
-                let stock = p.inventory;
-                let price = p.price;
-
-                if (p.hasVariations && p.variants && p.variants.length > 0) {
-                  stock = p.variants.reduce(
-                    (total: number, v: ProductVariant) => total + (v.stock ?? v.inventory ?? 0),
-                    0
-                  );
-                  price = p.variants[0].price;
-                }
-
-                return {
-                  name: p.title,
-                  price,
-                  originalPrice: p.compareAtPrice,
-                  stock,
-                  inStock: stock > 0,
-                  link: `/products/${p.slug}`,
-                  badge: p.badge,
-                };
-              }),
-            };
           },
         }),
       },

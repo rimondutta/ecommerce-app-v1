@@ -92,13 +92,19 @@ function cleanAiResponse(raw: string): string {
     .replace(/situation|situación|状況|狀況/gi, 'অবস্থা')
     .replace(/\bBirmingham\b/gi, 'পিস');
 
-  // 2. Fix bare link paths: e.g. [/products/slug] or (/products/slug) on their own line
+  // 2. Fix bare bracketed links: [/products/slug] anywhere in text
   cleaned = cleaned.replace(
-    /(?:^|\n)\s*\[?\s*(\/products\/[a-zA-Z0-9_-]+)\s*\]?\s*(?:\n|$)/g,
+    /\[\s*(\/products\/[a-zA-Z0-9_-]+)\s*\]/g,
+    '[অর্ডার করুন ও বিস্তারিত দেখুন]($1)'
+  );
+
+  // 3. Fix bare link paths on their own line
+  cleaned = cleaned.replace(
+    /(?:^|\n)\s*(\/products\/[a-zA-Z0-9_-]+)\s*(?:\n|$)/g,
     '\n[অর্ডার করুন ও বিস্তারিত দেখুন]($1)\n'
   );
 
-  // 3. Fix bold titles followed directly by a bracketed URL
+  // 4. Fix bold titles followed directly by a bracketed URL
   cleaned = cleaned.replace(
     /\*\*([^*]+)\*\*\s*\[?(\/products\/[a-zA-Z0-9_-]+)\]?/g,
     '**[$1]($2)**'
@@ -113,7 +119,7 @@ export default function Chatbot() {
   const [isChatbotEnabled, setIsChatbotEnabled] = useState<boolean | null>(null);
   const [config, setConfig] = useState<ChatbotConfig>(DEFAULT_CONFIG);
 
-  const { messages, sendMessage, status, setMessages } = useChat();
+  const { messages, sendMessage, status, setMessages, error, regenerate } = useChat();
   const isLoading = status === 'streaming' || status === 'submitted';
 
   useEffect(() => {
@@ -367,23 +373,63 @@ export default function Chatbot() {
               )}
 
               {/* Message List */}
-              {messages.map((m) => {
-                const mAny = m as unknown as {
-                  content?: string;
-                  toolInvocations?: ChatToolInvocation[];
-                };
-                const textContent: string = m.parts
-                  ? m.parts
-                      .filter(isTextUIPart)
-                      .map((p) => p.text)
-                      .join('')
-                  : mAny.content || '';
-
+              {messages.map((m, mIdx) => {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const mAny = m as any;
                 const isUser = m.role === 'user';
+                const isLast = mIdx === messages.length - 1;
+
+                // 1. Robust text extraction supporting AI SDK v7 parts and legacy content string
+                let textContent = '';
+                if (Array.isArray(m.parts)) {
+                  for (const part of m.parts) {
+                    if (isTextUIPart(part)) {
+                      textContent += part.text || '';
+                    } else if (part && typeof part === 'object' && (part as { type?: string; text?: string }).type === 'text') {
+                      textContent += (part as { text?: string }).text || '';
+                    }
+                  }
+                }
+                if (!textContent && typeof mAny.content === 'string') {
+                  textContent = mAny.content;
+                }
+
+                // 2. Extract tool invocations from AI SDK v7 parts or legacy toolInvocations
+                const toolInvocations: { toolCallId: string; toolName: string; query?: string }[] = [];
+                if (Array.isArray(m.parts)) {
+                  for (const part of m.parts) {
+                    const pAny = part as {
+                      type?: string;
+                      toolName?: string;
+                      toolCallId?: string;
+                      id?: string;
+                      input?: { query?: string };
+                      args?: { query?: string };
+                    };
+                    if (pAny.type?.startsWith('tool-') || pAny.type === 'dynamic-tool') {
+                      const toolName = pAny.toolName || pAny.type.replace(/^tool-/, '');
+                      const query = pAny.input?.query || pAny.args?.query || '';
+                      toolInvocations.push({
+                        toolCallId: pAny.toolCallId || pAny.id || Math.random().toString(),
+                        toolName,
+                        query,
+                      });
+                    }
+                  }
+                }
+                if (toolInvocations.length === 0 && Array.isArray(mAny.toolInvocations)) {
+                  for (const t of mAny.toolInvocations) {
+                    toolInvocations.push({
+                      toolCallId: t.toolCallId,
+                      toolName: 'searchProducts',
+                      query: t.args?.query,
+                    });
+                  }
+                }
 
                 return (
                   <div
-                    key={m.id}
+                    key={m.id || mIdx}
                     className={`flex gap-2.5 w-full ${isUser ? 'justify-end' : 'justify-start'}`}
                   >
                     {!isUser && (
@@ -393,23 +439,23 @@ export default function Chatbot() {
                     )}
 
                     <div className={`flex flex-col gap-1.5 ${isUser ? 'items-end max-w-[85%]' : 'w-full'}`}>
-                      {/* Tool Calls Rendering */}
-                      {mAny.toolInvocations && mAny.toolInvocations.length > 0 && (
+                      {/* Tool Calls Rendering (shows live searching badge) */}
+                      {toolInvocations.length > 0 && (
                         <div className="flex flex-col gap-1.5 w-full">
-                          {mAny.toolInvocations.map((tool: ChatToolInvocation) => (
+                          {toolInvocations.map((tool) => (
                             <div
                               key={tool.toolCallId}
-                              className="bg-purple-50/80 border border-purple-200/80 text-purple-700 text-xs px-3 py-1.5 rounded-xl inline-flex items-center gap-2 animate-pulse"
+                              className="bg-purple-50/90 border border-purple-200 text-purple-700 text-xs px-3 py-1.5 rounded-xl inline-flex items-center gap-2 animate-pulse"
                             >
                               <Loader2 size={12} className="animate-spin text-purple-600" />
-                              <span>ক্যাটালগ অনুসন্ধান হচ্ছে: &ldquo;{tool.args.query}&rdquo;...</span>
+                              <span>ক্যাটালগ অনুসন্ধান হচ্ছে{tool.query ? `: "${tool.query}"` : ''}...</span>
                             </div>
                           ))}
                         </div>
                       )}
 
                       {/* Text Bubble */}
-                      {textContent && (
+                      {textContent ? (
                         <div
                           className={`text-xs sm:text-sm leading-relaxed ${
                             isUser
@@ -488,16 +534,52 @@ export default function Chatbot() {
                             </ReactMarkdown>
                           </div>
                         </div>
+                      ) : !isUser && (
+                        /* Assistant message bubble while streaming text or if stream ended empty */
+                        isLast && isLoading ? (
+                          <div className="bg-white border border-slate-200 px-4 py-2.5 rounded-2xl rounded-tl-xs shadow-2xs flex items-center gap-2 h-10 w-fit">
+                            <span className="w-1.5 h-1.5 bg-purple-500 rounded-full animate-bounce [animation-delay:-0.3s]" />
+                            <span className="w-1.5 h-1.5 bg-purple-500 rounded-full animate-bounce [animation-delay:-0.15s]" />
+                            <span className="w-1.5 h-1.5 bg-purple-500 rounded-full animate-bounce" />
+                            <span className="text-[11px] text-slate-400 font-medium ml-1">উত্তর প্রস্তুত হচ্ছে...</span>
+                          </div>
+                        ) : !isLoading && !toolInvocations.length ? (
+                          <div className="bg-slate-50 border border-slate-200 text-slate-600 px-4 py-2.5 rounded-2xl rounded-tl-xs text-xs flex items-center justify-between gap-3 shadow-2xs">
+                            <span>কোনো উত্তর পাওয়া যায়নি।</span>
+                            <button
+                              type="button"
+                              onClick={() => regenerate()}
+                              className="inline-flex items-center gap-1 text-purple-600 hover:text-purple-700 font-semibold cursor-pointer"
+                            >
+                              <RotateCcw size={12} />
+                              পুনরায় চেষ্টা
+                            </button>
+                          </div>
+                        ) : null
                       )}
                     </div>
                   </div>
                 );
               })}
 
-              {/* Typing / Loading indicator */}
+              {/* Global Error Banner */}
+              {error && (
+                <div className="p-3 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center justify-between gap-2 shadow-xs">
+                  <span>সংযোগ সমস্যা বা ত্রুটি হয়েছে। অনুগ্রহ করে আবার চেষ্টা করুন।</span>
+                  <button
+                    type="button"
+                    onClick={() => regenerate()}
+                    className="shrink-0 px-2.5 py-1 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-xs font-semibold cursor-pointer transition-colors"
+                  >
+                    পুনরায় চেষ্টা
+                  </button>
+                </div>
+              )}
+
+              {/* Typing / Loading indicator when user message was just submitted */}
               {isLoading && messages.length > 0 && messages[messages.length - 1].role === 'user' && (
                 <div className="flex gap-2.5 justify-start w-full">
-                <div className="shrink-0 mt-0.5">
+                  <div className="shrink-0 mt-0.5">
                     <BotIcon className="w-7 h-7 object-contain" />
                   </div>
                   <div className="bg-white border border-slate-200 px-4 py-3 rounded-2xl rounded-tl-xs shadow-xs flex items-center gap-1.5 h-10">
