@@ -177,8 +177,12 @@ const nextConfig: NextConfig = {
             value: "max-age=63072000; includeSubDomains; preload",
           },
           {
+            // unload=() explicitly disables the deprecated unload event,
+            // preventing the "Permissions policy violation: unload is not allowed"
+            // console warning triggered by third-party scripts (e.g. Meta Pixel).
+            // Disabling unload also improves Back/Forward Cache (bfcache) eligibility.
             key: "Permissions-Policy",
-            value: "camera=(), microphone=(), geolocation=()",
+            value: "camera=(), microphone=(), geolocation=(), unload=()",
           },
         ],
       },
