@@ -2,6 +2,8 @@ import path from "path";
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Produce a self-contained standalone server for Docker & Railway production deployment
+  output: "standalone",
   turbopack: {
     root: path.resolve(__dirname),
   },

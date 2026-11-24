@@ -214,7 +214,7 @@ async function connectToDatabase(): Promise<typeof mongoose> {
   }
 
   // 6. Initialize a new connection.
-  const MONGODB_URI = process.env.MONGODB_URI;
+  const MONGODB_URI = process.env.MONGODB_URI?.trim().replace(/^["']|["']$/g, '');
 
   if (!MONGODB_URI) {
     throw new Error(

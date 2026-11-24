@@ -39,8 +39,12 @@ export const viewport: Viewport = {
   maximumScale: 5,
 };
 
+const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXTAUTH_URL || 'https://toyhourse.com')
+  .trim()
+  .replace(/^["']|["']$/g, '');
+
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXTAUTH_URL || 'https://toyhourse.com'),
+  metadataBase: new URL(siteUrl),
   title: {
     default: "Toy Hourse — Toys They'll Actually Play With Twice",
     template: "%s | Toy Hourse",
@@ -53,7 +57,7 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_US",
     siteName: "Toy Hourse",
-    url: process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXTAUTH_URL || 'https://toyhourse.com',
+    url: siteUrl,
   },
   twitter: {
     card: "summary_large_image",

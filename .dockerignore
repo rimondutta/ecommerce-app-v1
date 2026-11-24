@@ -1,0 +1,51 @@
+# Node & package manager dependencies
+node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.pnpm-store
+
+# Next.js build output
+.next
+out
+
+# Environment variables & secrets (NEVER bake secrets into Docker images)
+.env
+.env*.local
+.env.development
+.env.test
+.env.production
+.env.staging
+
+# Version control
+.git
+.gitignore
+.github
+
+# Testing, logs, and scratch files
+tests
+scratch
+coverage
+*.test.js
+*.test.mjs
+*.test.ts
+
+# IDE and Editor configuration
+.vscode
+.idea
+*.swp
+*.swo
+
+# Docker and deployment files
+Dockerfile*
+.dockerignore
+docker-compose*.yml
+
+# Documentation and agent metadata
+README.md
+.agents
+
+# Operating system files
+.DS_Store
+Thumbs.db

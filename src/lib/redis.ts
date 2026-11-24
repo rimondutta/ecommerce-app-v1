@@ -11,14 +11,15 @@
  */
 import { Redis } from '@upstash/redis';
 
-export const hasRedis =
-  !!process.env.UPSTASH_REDIS_REST_URL &&
-  !!process.env.UPSTASH_REDIS_REST_TOKEN;
+const rawUrl = process.env.UPSTASH_REDIS_REST_URL?.trim().replace(/^["']|["']$/g, '');
+const rawToken = process.env.UPSTASH_REDIS_REST_TOKEN?.trim().replace(/^["']|["']$/g, '');
+
+export const hasRedis = !!rawUrl && !!rawToken;
 
 export const redis: Redis | null = hasRedis
   ? new Redis({
-      url: process.env.UPSTASH_REDIS_REST_URL!,
-      token: process.env.UPSTASH_REDIS_REST_TOKEN!,
+      url: rawUrl!,
+      token: rawToken!,
       // Next.js static prerender and ISR routes throw DynamicServerError when fetch uses 'no-store'.
       // By setting cache: 'default', requests avoid triggering dynamic server bailout during static rendering.
       cache: 'default',
