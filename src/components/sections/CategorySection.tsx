@@ -109,7 +109,7 @@ export default function CategorySection({
   return (
     <>
       {/* ═══════════════════════════════════════════════
-          Shop by Category — Reference UI Style
+          Shop by Category 
           ═══════════════════════════════════════════════ */}
       <section className="w-full bg-[#FDF8F0] py-10 sm:py-14 md:py-20 font-sans select-none">
         <div className="max-w-[1360px] mx-auto px-4 sm:px-6 lg:px-8">
@@ -185,9 +185,9 @@ export default function CategorySection({
       {/* ═══════════════════════════════════════════════
           Trust & Features Banner — Full Width
           ═══════════════════════════════════════════════ */}
-      <section className="w-full bg-[#FBF4EB] border-y border-[#EDE4D8] py-5 sm:py-6 font-sans select-none shadow-2xs">
+      <section className="w-full bg-[#F3F0FE] border-y border-[#E9E3FC] py-5 sm:py-6 font-sans select-none shadow-2xs">
         <div className="w-full max-w-[1360px] mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6 lg:gap-0 lg:divide-x lg:divide-purple-200/50">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6 lg:gap-0 lg:divide-x lg:divide-[#DDD4FA]">
             {trustFeatures.map((feat) => {
               const Icon = feat.icon;
               return (
@@ -195,7 +195,7 @@ export default function CategorySection({
                   key={feat.title}
                   className="flex items-center gap-3.5 sm:gap-4 px-0 lg:px-6 xl:px-8 first:pl-2 last:pr-2 justify-start lg:justify-center"
                 >
-                  <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-white text-[#5428D8] shadow-xs flex items-center justify-center shrink-0 border border-[#EDE4D8]">
+                  <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-white text-[#5428D8] shadow-xs flex items-center justify-center shrink-0 border border-[#E9E3FC]">
                     <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-[#5428D8]" />
                   </div>
                   <div>
