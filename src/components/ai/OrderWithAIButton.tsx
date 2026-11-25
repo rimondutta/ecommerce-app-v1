@@ -74,7 +74,7 @@ export default function OrderWithAIButton({ product, disabled, initialAvailable 
         onClick={() => setIsOpen(true)}
         disabled={disabled}
         type="button"
-        className="w-full py-3.5 bg-black hover:bg-neutral-900 text-white font-bengali font-bold text-sm rounded-xl flex items-center justify-center gap-2 border border-black hover:border-neutral-800 active:scale-[0.99] transition-all shadow-xs disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+        className="w-full py-3.5 bg-[#1E1B4B] hover:bg-[#2A2663] text-white font-bengali font-bold text-sm rounded-xl flex items-center justify-center gap-2 border border-[#1E1B4B] hover:border-[#2A2663] active:scale-[0.99] transition-all shadow-xs disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
       >
         <Sparkles size={16} className="text-white" />
         <span>{buttonText || 'AI দিয়ে অর্ডার করুন'}</span>

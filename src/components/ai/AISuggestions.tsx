@@ -17,23 +17,24 @@ export default function AISuggestions({
   initialSuggestions,
   compact = false,
 }: AISuggestionsProps) {
-  const [suggestions, setSuggestions] = useState<SuggestedProduct[]>(initialSuggestions || []);
+  const [fetchedSuggestions, setFetchedSuggestions] = useState<SuggestedProduct[]>([]);
   const [loading, setLoading] = useState(!initialSuggestions?.length && Boolean(productId));
 
+  const suggestions = initialSuggestions && initialSuggestions.length > 0
+    ? initialSuggestions
+    : fetchedSuggestions;
+
   useEffect(() => {
-    if (initialSuggestions && initialSuggestions.length > 0) {
-      setSuggestions(initialSuggestions);
+    if ((initialSuggestions && initialSuggestions.length > 0) || !productId) {
       return;
     }
-
-    if (!productId) return;
 
     let isMounted = true;
     fetch(`/api/ai/suggest?productId=${encodeURIComponent(productId)}`)
       .then((res) => res.json())
       .then((data) => {
         if (isMounted && data.suggestions && Array.isArray(data.suggestions)) {
-          setSuggestions(data.suggestions);
+          setFetchedSuggestions(data.suggestions);
         }
       })
       .catch((err) => console.warn('[AISuggestions] fetch error:', err))
@@ -68,9 +69,9 @@ export default function AISuggestions({
 
   if (compact) {
     return (
-      <div className="space-y-3 font-bengali">
-        <div className="flex items-center gap-1.5 text-xs font-bold text-black">
-          <Sparkles size={14} className="text-black" />
+      <div className="space-y-2.5 font-bengali">
+        <div className="flex items-center gap-1.5 text-xs font-bold text-[#2C2416]">
+          <Sparkles size={13} className="text-[#5428D8]" />
           <span>আপনার পছন্দ হতে পারে এমন কিছু খেলনা:</span>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -78,21 +79,21 @@ export default function AISuggestions({
             <Link
               key={p._id}
               href={`/products/${p.slug}`}
-              className="flex gap-2.5 p-2 rounded-xl bg-neutral-50 hover:bg-neutral-100 border border-neutral-200 transition-colors"
+              className="flex gap-2.5 p-2 rounded-xl bg-[#FAF8F5] hover:bg-[#F3F0FE]/60 border border-[#EAE3D8] hover:border-[#D8CEFA] transition-colors"
             >
-              <div className="relative w-12 h-12 rounded-lg bg-white overflow-hidden shrink-0 border border-neutral-200">
+              <div className="relative w-12 h-12 rounded-lg bg-white overflow-hidden shrink-0 border border-[#EFEAE2]">
                 {p.image ? (
                   <Image src={p.image} alt={p.title} fill sizes="48px" className="object-cover" />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center text-neutral-400">
+                  <div className="w-full h-full flex items-center justify-center text-[#9A8F83]">
                     <Package size={16} />
                   </div>
                 )}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-xs font-bold text-black truncate">{p.title}</p>
-                <p className="text-[11px] text-neutral-600 truncate leading-tight mt-0.5">{p.reason}</p>
-                <p className="text-xs font-bold text-black mt-0.5">৳{p.price.toLocaleString()}</p>
+                <p className="text-xs font-bold text-[#2C2416] truncate">{p.title}</p>
+                <p className="text-[11px] text-[#7A6E62] truncate leading-tight mt-0.5">{p.reason}</p>
+                <p className="text-xs font-bold text-[#5428D8] mt-0.5">৳{p.price.toLocaleString()}</p>
               </div>
             </Link>
           ))}

@@ -40,7 +40,7 @@
   --font-body:     'Poppins', var(--font-poppins), sans-serif;
   --font-sans:     'Poppins', var(--font-poppins), sans-serif;
   --font-mono:     'Poppins', var(--font-poppins), sans-serif;
-  --font-bengali:  var(--font-bengali), 'Hind Siliguri', 'Noto Sans Bengali', sans-serif;
+  --font-bengali:  var(--font-hind-siliguri), 'Hind Siliguri', 'Noto Sans Bengali', sans-serif;
 
   /* ─── Radii — organic, not perfectly geometric ─── */
   --radius-none: 0px;
@@ -115,7 +115,7 @@ h1, h2, h3, h4, h5, h6,
   font-family: 'Playfair Display', var(--font-playfair), Georgia, serif !important;
 }
 
-/* Body text, Button, Nav text -> Poppins */
+/* Body text, Button, Nav text -> Poppins (with Hind Siliguri fallback for Bengali) */
 p, span, li, td, th, input, select, textarea, label,
 button,
 nav,
@@ -125,12 +125,25 @@ nav a,
 .font-mono,
 .font-button,
 .font-nav {
-  font-family: 'Poppins', var(--font-poppins), sans-serif;
+  font-family: 'Poppins', var(--font-poppins), var(--font-hind-siliguri), 'Hind Siliguri', sans-serif;
 }
 
 /* Explicit Button Font Override */
 button, input[type="button"], input[type="submit"], [role="button"], .btn {
-  font-family: 'Poppins', var(--font-poppins), sans-serif !important;
+  font-family: 'Poppins', var(--font-poppins), var(--font-hind-siliguri), 'Hind Siliguri', sans-serif !important;
+}
+
+/* Explicit Bengali UI Scope (Chat, Checkout Helpers, Bengali Cards) */
+.font-bengali,
+.font-bengali p,
+.font-bengali span,
+.font-bengali input,
+.font-bengali textarea,
+.font-bengali button,
+.font-bengali a,
+.font-bengali h3,
+.font-bengali h4 {
+  font-family: var(--font-hind-siliguri), 'Hind Siliguri', var(--font-poppins), 'Poppins', sans-serif !important;
 }
 
 /* Explicit Logo & Product Title & Price Font Overrides */

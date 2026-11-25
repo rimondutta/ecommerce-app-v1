@@ -29,7 +29,7 @@ const playfair = Playfair_Display({
 const hindSiliguri = Hind_Siliguri({
   subsets: ["bengali"],
   weight: ["400", "500", "600", "700"],
-  variable: "--font-bengali",
+  variable: "--font-hind-siliguri",
   display: "swap",
 });
 

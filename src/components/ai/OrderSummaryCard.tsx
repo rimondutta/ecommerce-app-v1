@@ -12,44 +12,50 @@ interface OrderSummaryCardProps {
 
 export default function OrderSummaryCard({ summary, isConfirmed }: OrderSummaryCardProps) {
   return (
-    <div className="bg-white border border-neutral-200 rounded-2xl p-4 shadow-xs space-y-3 font-bengali text-neutral-900">
-      <div className="flex items-center justify-between border-b border-neutral-100 pb-2">
+    <div className="bg-[#FAF8F5] border border-[#EAE3D8] rounded-2xl p-3.5 space-y-3 font-bengali text-[#2C2416]">
+      <div className="flex items-center justify-between border-b border-[#EFEAE2] pb-2">
         <div className="flex items-center gap-2">
-          <div className="w-2 h-2 rounded-full bg-black" />
-          <span className="text-xs font-bold uppercase tracking-wider text-black">
+          <span
+            className={`w-2 h-2 rounded-full ${
+              isConfirmed ? 'bg-emerald-500' : 'bg-[#5428D8]'
+            }`}
+          />
+          <span className="text-xs font-bold text-[#2C2416]">
             {isConfirmed ? 'অর্ডার প্রস্তুত ও গৃহীত' : 'অর্ডার সামারি'}
           </span>
         </div>
-        <span className="text-xs text-neutral-500 font-medium">ক্যাশ অন ডেলিভারি</span>
+        <span className="text-[11px] text-[#7A6E62] bg-white px-2 py-0.5 rounded-full border border-[#EFEAE2] font-medium">
+          ক্যাশ অন ডেলিভারি
+        </span>
       </div>
 
       {/* Product Info */}
       <div className="flex gap-3 items-center">
-        <div className="relative w-16 h-16 rounded-xl overflow-hidden bg-neutral-50 border border-neutral-200 shrink-0">
+        <div className="relative w-14 h-14 rounded-xl overflow-hidden bg-white border border-[#EAE3D8] shrink-0">
           {summary.image ? (
             <Image
               src={summary.image}
               alt={summary.title}
               fill
-              sizes="64px"
+              sizes="56px"
               className="object-cover"
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center text-neutral-400">
-              <Package size={24} />
+            <div className="w-full h-full flex items-center justify-center text-[#9A8F83]">
+              <Package size={20} />
             </div>
           )}
         </div>
 
         <div className="flex-1 min-w-0">
-          <h4 className="text-sm font-bold text-black truncate">{summary.title}</h4>
+          <h4 className="text-[13px] font-bold text-[#2C2416] truncate">{summary.title}</h4>
           {summary.variationLabel && (
-            <p className="text-xs text-neutral-600 font-medium mt-0.5">
+            <p className="text-xs text-[#7A6E62] font-medium mt-0.5">
               ভ্যারিয়েশন: {summary.variationLabel}
             </p>
           )}
-          <p className="text-xs text-neutral-500 mt-0.5">
-            পরিমাণ: <span className="font-semibold text-black">{summary.quantity} টি</span> × ৳
+          <p className="text-xs text-[#7A6E62] mt-0.5">
+            পরিমাণ: <span className="font-semibold text-[#2C2416]">{summary.quantity} টি</span> × ৳
             {summary.unitPrice.toLocaleString()}
           </p>
         </div>
@@ -57,10 +63,10 @@ export default function OrderSummaryCard({ summary, isConfirmed }: OrderSummaryC
 
       {/* Customer & Address Details */}
       {(summary.customerName || summary.shippingAddress) && (
-        <div className="bg-neutral-50 rounded-xl p-2.5 space-y-1.5 text-xs text-neutral-700 border border-neutral-100">
+        <div className="bg-white rounded-xl p-2.5 space-y-1.5 text-xs text-[#5E5449] border border-[#EFEAE2]">
           {summary.customerName && (
             <div className="flex items-center gap-1.5">
-              <User size={13} className="text-neutral-400 shrink-0" />
+              <User size={13} className="text-[#9A8F83] shrink-0" />
               <span className="truncate">
                 {summary.customerName} {summary.customerPhone ? `(${summary.customerPhone})` : ''}
               </span>
@@ -68,7 +74,7 @@ export default function OrderSummaryCard({ summary, isConfirmed }: OrderSummaryC
           )}
           {summary.shippingAddress && (
             <div className="flex items-start gap-1.5">
-              <MapPin size={13} className="text-neutral-400 shrink-0 mt-0.5" />
+              <MapPin size={13} className="text-[#9A8F83] shrink-0 mt-0.5" />
               <span className="leading-snug">{summary.shippingAddress}</span>
             </div>
           )}
@@ -76,32 +82,39 @@ export default function OrderSummaryCard({ summary, isConfirmed }: OrderSummaryC
       )}
 
       {/* Price Breakdown */}
-      <div className="space-y-1 text-xs border-t border-neutral-100 pt-2 text-neutral-600">
+      <div className="space-y-1.5 text-xs border-t border-[#EFEAE2] pt-2.5 text-[#7A6E62]">
         <div className="flex justify-between">
           <span>পণ্যের সাবটোটাল:</span>
-          <span className="text-neutral-900 font-medium">৳{summary.subtotal.toLocaleString()}</span>
+          <span className="text-[#2C2416] font-medium">৳{summary.subtotal.toLocaleString()}</span>
         </div>
         <div className="flex justify-between items-center">
           <span className="flex items-center gap-1">
-            <Truck size={12} className="text-neutral-400" />
+            <Truck size={12} className="text-[#9A8F83]" />
             ডেলিভারি চার্জ ({summary.shippingZone === 'inside_dhaka' ? 'ঢাকা সিটি' : 'ঢাকার বাইরে'}):
           </span>
-          <span className={summary.shippingCost === 0 ? 'text-black font-bold' : 'text-neutral-900 font-medium'}>
+          <span
+            className={
+              summary.shippingCost === 0
+                ? 'text-emerald-600 font-bold'
+                : 'text-[#2C2416] font-medium'
+            }
+          >
             {summary.shippingCost === 0 ? 'ফ্রি' : `৳${summary.shippingCost}`}
           </span>
         </div>
         {summary.discountAmount && summary.discountAmount > 0 ? (
-          <div className="flex justify-between text-neutral-900 font-semibold">
+          <div className="flex justify-between text-emerald-700 font-semibold">
             <span>কুপন ডিসকাউন্ট {summary.couponCode ? `(${summary.couponCode})` : ''}:</span>
             <span>-৳{summary.discountAmount.toLocaleString()}</span>
           </div>
         ) : null}
-        <div className="flex justify-between text-sm font-bold text-black pt-2 border-t border-neutral-200">
+        <div className="flex justify-between items-center text-[13px] font-bold text-[#2C2416] pt-2 border-t border-[#EAE3D8]">
           <span>সর্বমোট প্রদেয়:</span>
-          <span className="text-black text-base font-extrabold">৳{summary.totalAmount.toLocaleString()}</span>
+          <span className="text-[#5428D8] text-base font-extrabold">
+            ৳{summary.totalAmount.toLocaleString()}
+          </span>
         </div>
       </div>
     </div>
   );
 }
-

@@ -1,18 +1,17 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import Image from 'next/image';
+import { m, AnimatePresence } from 'framer-motion';
 import {
   X,
   RotateCcw,
   Send,
-  Sparkles,
-  Bot,
-  User,
-  CheckCircle2,
   Copy,
   Check,
-  AlertCircle,
+  CheckCircle2,
+  Package,
+  ShieldCheck,
 } from 'lucide-react';
 import OrderSummaryCard from './OrderSummaryCard';
 import AISuggestions from './AISuggestions';
@@ -41,29 +40,59 @@ interface AIOrderChatProps {
 }
 
 const STEPS = [
-  { key: 'phone', label: 'ফোন' },
-  { key: 'name', label: 'নাম' },
-  { key: 'variation', label: 'ভ্যারিয়েশন' },
+  { key: 'phone', label: 'মোবাইল নম্বর' },
+  { key: 'name', label: 'আপনার নাম' },
+  { key: 'variation', label: 'ভ্যারিয়েশন' },
   { key: 'quantity', label: 'পরিমাণ' },
   { key: 'address', label: 'ঠিকানা' },
   { key: 'review', label: 'রিভিউ' },
   { key: 'done', label: 'সম্পন্ন' },
 ];
 
+const STEP_PLACEHOLDERS: Record<string, string> = {
+  phone: 'মোবাইল নম্বর লিখুন (যেমন: 017XXXXXXXX)...',
+  name: 'আপনার পুরো নাম লিখুন...',
+  variation: 'পছন্দের রঙ বা সাইজ লিখুন...',
+  quantity: 'পরিমাণ লিখুন (যেমন: ১, ২)...',
+  address: 'আপনার ডেলিভারির সম্পূর্ণ ঠিকানা লিখুন...',
+  review: 'অর্ডার কনফার্ম করতে লিখুন...',
+  done: 'নতুন কিছু জানতে চাইলে লিখুন...',
+};
+
+const AssistantAvatar = () => (
+  <div className="w-7 h-7 rounded-full bg-white border border-[#EAE3D8] p-0.5 shrink-0 mt-0.5 overflow-hidden shadow-[0_1px_2px_rgba(44,36,22,0.04)]">
+    <Image
+      src="/images/ai-chatbot.png"
+      alt="Assistant"
+      width={28}
+      height={28}
+      className="w-full h-full object-contain"
+    />
+  </div>
+);
+
 export default function AIOrderChat({ isOpen, onClose, product }: AIOrderChatProps) {
-  const [messages, setMessages] = useState<Message[]>([]);
+  const initialGreeting = `আসসালামু আলাইকুম! 😊 Toy Hourse-এ স্বাগতম।\n\nঅর্ডারটি সম্পন্ন করতে নিচে আপনার মোবাইল নম্বরটি দিন (যেমন: 017XXXXXXXX)।`;
+  const [messages, setMessages] = useState<Message[]>([
+    { id: 'welcome', role: 'assistant', content: initialGreeting },
+  ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [currentStep, setCurrentStep] = useState<string>('phone');
   const [quickReplies, setQuickReplies] = useState<string[]>([]);
-  const [currentSummary, setCurrentSummary] = useState<OrderSummaryData | null>(null);
   const [completedOrderId, setCompletedOrderId] = useState<string | null>(null);
-  const [completedSuggestions, setCompletedSuggestions] = useState<SuggestedProduct[]>([]);
   const [copied, setCopied] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const msgCounterRef = useRef(2);
+  const initializedRef = useRef(false);
+
+  const nextId = () => {
+    msgCounterRef.current += 1;
+    return `msg-${msgCounterRef.current}`;
+  };
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -73,31 +102,26 @@ export default function AIOrderChat({ isOpen, onClose, product }: AIOrderChatPro
     scrollToBottom();
   }, [messages, loading]);
 
-  // Focus input when opened
+  // Focus input when opened & support Escape key to close
   useEffect(() => {
-    if (isOpen) {
-      setTimeout(() => {
-        inputRef.current?.focus();
-      }, 300);
-    }
-  }, [isOpen]);
+    if (!isOpen) return;
 
-  // Initial greeting call when opened for the first time
-  useEffect(() => {
-    if (isOpen && messages.length === 0 && !sessionId) {
-      const instantGreeting = `আসসালামু আলাইকুম! 😊 Toy Hourse-এ আপনাকে স্বাগতম!\n\n"${product.title}" দেখছেন — চমৎকার পছন্দ! 🎁\n\nঅর্ডার করতে শুধু আপনার মোবাইল নম্বরটা দিন (যেমন: 017XXXXXXXX) 👇`;
-      setMessages([
-        {
-          id: 'welcome',
-          role: 'assistant',
-          content: instantGreeting,
-        },
-      ]);
-      initSession();
-    }
-  }, [isOpen]);
+    const timer = setTimeout(() => {
+      inputRef.current?.focus();
+    }, 300);
 
-  const initSession = async () => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isOpen, onClose]);
+
+  const initSession = React.useCallback(async () => {
     try {
       const res = await fetch('/api/ai/order-agent', {
         method: 'POST',
@@ -121,7 +145,6 @@ export default function AIOrderChat({ isOpen, onClose, product }: AIOrderChatPro
             summary: data.summary,
           },
         ]);
-        if (data.summary) setCurrentSummary(data.summary);
       }
     } catch (err) {
       console.error('[AIOrderChat] init error:', err);
@@ -135,14 +158,22 @@ export default function AIOrderChat({ isOpen, onClose, product }: AIOrderChatPro
     } finally {
       setLoading(false);
     }
-  };
+  }, [product._id]);
+
+  // Initialize backend session when opened for the first time
+  useEffect(() => {
+    if (isOpen && !initializedRef.current && !sessionId) {
+      initializedRef.current = true;
+      void initSession();
+    }
+  }, [isOpen, sessionId, initSession]);
 
   const handleSendMessage = async (textToSend?: string) => {
     const text = (textToSend || input).trim();
     if (!text || loading) return;
 
     setInput('');
-    const userMsgId = Date.now().toString();
+    const userMsgId = nextId();
     setMessages((prev) => [...prev, { id: userMsgId, role: 'user', content: text }]);
     setLoading(true);
 
@@ -162,7 +193,7 @@ export default function AIOrderChat({ isOpen, onClose, product }: AIOrderChatPro
         setMessages((prev) => [
           ...prev,
           {
-            id: (Date.now() + 1).toString(),
+            id: nextId(),
             role: 'assistant',
             content: data.reply || data.error || 'একটি সমস্যা দেখা দিয়েছে। আবার লিখুন।',
           },
@@ -173,19 +204,12 @@ export default function AIOrderChat({ isOpen, onClose, product }: AIOrderChatPro
       if (data.sessionId) setSessionId(data.sessionId);
       if (data.step) setCurrentStep(data.step);
       if (data.quickReplies) setQuickReplies(data.quickReplies);
-      if (data.summary) setCurrentSummary(data.summary);
-
-      if (data.orderId) {
-        setCompletedOrderId(data.orderId);
-      }
-      if (data.suggestions) {
-        setCompletedSuggestions(data.suggestions);
-      }
+      if (data.orderId) setCompletedOrderId(data.orderId);
 
       setMessages((prev) => [
         ...prev,
         {
-          id: (Date.now() + 1).toString(),
+          id: nextId(),
           role: 'assistant',
           content: data.reply,
           summary: data.summary,
@@ -198,7 +222,7 @@ export default function AIOrderChat({ isOpen, onClose, product }: AIOrderChatPro
       setMessages((prev) => [
         ...prev,
         {
-          id: (Date.now() + 1).toString(),
+          id: nextId(),
           role: 'assistant',
           content: 'দুঃখিত, ইন্টারনেট বা সার্ভারে সংযোগ পেতে সমস্যা হয়েছে। আবার চেষ্টা করুন।',
         },
@@ -209,151 +233,175 @@ export default function AIOrderChat({ isOpen, onClose, product }: AIOrderChatPro
   };
 
   const handleRestart = () => {
-    setMessages([]);
+    const instantGreeting = `আসসালামু আলাইকুম! 😊 নতুন করে শুরু করছি।\n\nঅর্ডারটি সম্পন্ন করতে আপনার মোবাইল নম্বরটি দিন (যেমন: 017XXXXXXXX)।`;
+    setMessages([{ id: 'welcome-reset', role: 'assistant', content: instantGreeting }]);
     setSessionId(null);
-    setCurrentSummary(null);
     setCompletedOrderId(null);
-    setCompletedSuggestions([]);
     setCurrentStep('phone');
     setQuickReplies([]);
     initSession();
   };
 
-  const handleCopyOrderId = () => {
-    if (!completedOrderId) return;
-    navigator.clipboard.writeText(`#${completedOrderId.slice(-8).toUpperCase()}`);
+  const handleCopyOrderId = (orderIdToCopy?: string | null) => {
+    const targetId = orderIdToCopy || completedOrderId;
+    if (!targetId) return;
+    navigator.clipboard.writeText(`#${targetId.slice(-8).toUpperCase()}`);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const getStepProgressIndex = () => {
-    const idx = STEPS.findIndex((s) => s.key === currentStep);
-    return idx >= 0 ? idx : 0;
-  };
+  const activeIdx = Math.max(
+    0,
+    STEPS.findIndex((s) => s.key === currentStep)
+  );
+  const progressPercent =
+    currentStep === 'done'
+      ? 100
+      : Math.round(((activeIdx + 1) / STEPS.length) * 100);
+  const currentStepInfo = STEPS[activeIdx] || STEPS[0];
+  const productThumb = product.images?.[0]?.url;
 
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-[100] flex justify-end font-bengali">
-          {/* Backdrop */}
-          <motion.div
+        <div
+          className="fixed inset-0 z-[100] flex justify-end font-bengali"
+          role="dialog"
+          aria-modal="true"
+          aria-label="অর্ডার অ্যাসিস্ট্যান্ট"
+        >
+          {/* Soft Warm Backdrop */}
+          <m.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity"
+            className="fixed inset-0 bg-[#2C2416]/30 backdrop-blur-[2px]"
           />
 
-          {/* Drawer / Bottom Sheet */}
-          <motion.div
-            initial={{ x: '100%', y: 0 }}
-            animate={{ x: 0, y: 0 }}
-            exit={{ x: '100%', y: 0 }}
-            transition={{ type: 'spring', damping: 25, stiffness: 220 }}
-            className="relative z-10 w-full sm:max-w-md md:max-w-lg bg-white h-full flex flex-col shadow-2xl border-l border-gray-200"
+          {/* Clean Floating Drawer Sheet */}
+          <m.div
+            initial={{ x: '100%' }}
+            animate={{ x: 0 }}
+            exit={{ x: '100%' }}
+            transition={{ type: 'spring', damping: 28, stiffness: 260 }}
+            className="relative z-10 w-full sm:w-[420px] sm:m-3 sm:h-[calc(100%-24px)] sm:rounded-[24px] bg-white h-full flex flex-col shadow-[0_24px_60px_-15px_rgba(44,36,22,0.22)] border border-[#EDE6DC] overflow-hidden"
           >
-            {/* Header */}
-            <div className="px-4 py-3.5 bg-black text-white flex items-center justify-between shrink-0 border-b border-neutral-800">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white border border-white/20">
-                  <Sparkles size={16} />
+            {/* ─── Header ─── */}
+            <header className="px-4 py-3.5 bg-white border-b border-[#F0EAE1] flex items-center justify-between shrink-0">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="relative w-9 h-9 rounded-full bg-[#F3F0FE] p-1 ring-1 ring-[#E4DCFC] shrink-0">
+                  <Image
+                    src="/images/ai-chatbot.png"
+                    alt="Toy Hourse Assistant"
+                    width={36}
+                    height={36}
+                    className="w-full h-full object-contain"
+                  />
+                  <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-white" />
                 </div>
-                <div>
-                  <h3 className="text-sm font-bold flex items-center gap-1.5 leading-tight">
-                    <span>AI অর্ডার অ্যাসিস্ট্যান্ট</span>
-                    <span className="text-[10px] bg-white text-black px-1.5 py-0.2 rounded-full font-bold">
-                      LIVE
+
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-[14.5px] font-bold text-[#2C2416] leading-tight truncate">
+                      অর্ডার অ্যাসিস্ট্যান্ট
+                    </h3>
+                    <span className="inline-flex items-center gap-1 text-[10px] font-semibold bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full border border-emerald-200/70 shrink-0">
+                      সক্রিয়
                     </span>
-                  </h3>
-                  <p className="text-[11px] text-neutral-400 truncate max-w-[220px]">
-                    {product.title}
+                  </div>
+                  <p className="text-[11.5px] text-[#7A6E62] mt-0.5 truncate">
+                    {currentStep === 'done'
+                      ? 'অর্ডার সম্পন্ন হয়েছে'
+                      : `ধাপ ${activeIdx + 1}/${STEPS.length} · ${currentStepInfo.label}`}
                   </p>
                 </div>
               </div>
 
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1 shrink-0">
                 <button
+                  type="button"
                   onClick={handleRestart}
                   title="নতুন করে শুরু করুন"
-                  className="p-1.5 rounded-lg hover:bg-neutral-800 text-neutral-300 hover:text-white transition-colors cursor-pointer"
+                  aria-label="নতুন করে শুরু করুন"
+                  className="w-8 h-8 rounded-full flex items-center justify-center text-[#7A6E62] hover:text-[#2C2416] hover:bg-[#F5F1EB] transition-colors cursor-pointer"
                 >
-                  <RotateCcw size={16} />
+                  <RotateCcw size={15} />
                 </button>
                 <button
+                  type="button"
                   onClick={onClose}
                   title="বন্ধ করুন"
-                  className="p-1.5 rounded-lg hover:bg-neutral-800 text-neutral-300 hover:text-white transition-colors cursor-pointer"
+                  aria-label="বন্ধ করুন"
+                  className="w-8 h-8 rounded-full flex items-center justify-center text-[#7A6E62] hover:text-[#2C2416] hover:bg-[#F5F1EB] transition-colors cursor-pointer"
                 >
-                  <X size={18} />
+                  <X size={17} />
                 </button>
               </div>
-            </div>
+            </header>
 
-            {/* Step Progress Bar */}
-            <div className="bg-white border-b border-neutral-200 px-3 py-2 shrink-0 overflow-x-auto no-scrollbar">
-              <div className="flex items-center justify-between min-w-[340px] text-[11px]">
-                {STEPS.map((s, index) => {
-                  const activeIdx = getStepProgressIndex();
-                  const isDone = index < activeIdx || currentStep === 'done';
-                  const isCurrent = index === activeIdx && currentStep !== 'done';
-                  return (
-                    <div key={s.key} className="flex items-center gap-1">
-                      <span
-                        className={`w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-bold ${
-                          isDone
-                            ? 'bg-black text-white'
-                            : isCurrent
-                            ? 'border-2 border-black bg-white text-black font-extrabold'
-                            : 'bg-neutral-100 text-neutral-400 border border-neutral-200'
-                        }`}
-                      >
-                        {isDone ? '✓' : index + 1}
-                      </span>
-                      <span
-                        className={`font-medium ${
-                          isCurrent
-                            ? 'text-black font-bold'
-                            : isDone
-                            ? 'text-neutral-800 font-semibold'
-                            : 'text-neutral-400'
-                        }`}
-                      >
-                        {s.label}
-                      </span>
-                      {index < STEPS.length - 1 && (
-                        <span className="text-neutral-300 mx-0.5">›</span>
-                      )}
-                    </div>
-                  );
-                })}
+            {/* ─── Compact Product Context Strip + Hairline Progress ─── */}
+            <div className="bg-[#FAF8F5] border-b border-[#F0EAE1] shrink-0">
+              <div className="px-4 py-2 flex items-center gap-2.5">
+                <div className="relative w-8 h-8 rounded-lg overflow-hidden bg-white border border-[#EAE3D8] shrink-0 flex items-center justify-center">
+                  {productThumb ? (
+                    <Image
+                      src={productThumb}
+                      alt={product.title}
+                      fill
+                      sizes="32px"
+                      className="object-cover"
+                    />
+                  ) : (
+                    <Package size={14} className="text-[#9A8F83]" />
+                  )}
+                </div>
+                <p className="text-xs font-medium text-[#2C2416] truncate flex-1">
+                  {product.title}
+                </p>
+                <span className="text-xs font-bold text-[#5428D8] bg-[#F3F0FE] px-2 py-0.5 rounded-md shrink-0">
+                  ৳{product.price.toLocaleString()}
+                </span>
+              </div>
+
+              {/* Smooth 2px Progress Hairline */}
+              <div className="h-[2px] w-full bg-[#EFEAE2] overflow-hidden">
+                <div
+                  className={`h-full transition-all duration-500 ease-out rounded-r-full ${
+                    currentStep === 'done'
+                      ? 'bg-emerald-500'
+                      : 'bg-gradient-to-r from-[#5428D8] to-[#7C3AED]'
+                  }`}
+                  style={{ width: `${progressPercent}%` }}
+                />
               </div>
             </div>
 
-            {/* Messages Body */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-neutral-50/60 custom-scrollbar">
+            {/* ─── Conversation Stream ─── */}
+            <div className="flex-1 overflow-y-auto px-4 py-5 space-y-4 bg-[#FAF8F5]/75 custom-scrollbar">
               {messages.map((msg) => {
                 const isAssistant = msg.role === 'assistant';
                 return (
-                  <div
+                  <m.div
                     key={msg.id}
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.2 }}
                     className={`flex gap-2.5 ${isAssistant ? 'justify-start' : 'justify-end'}`}
                   >
-                    {isAssistant && (
-                      <div className="w-7 h-7 rounded-full bg-black text-white flex items-center justify-center shrink-0 mt-0.5 shadow-xs">
-                        <Bot size={15} />
-                      </div>
-                    )}
+                    {isAssistant && <AssistantAvatar />}
 
                     <div
-                      className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm leading-relaxed shadow-xs ${
+                      className={
                         isAssistant
-                          ? 'bg-white text-neutral-900 border border-neutral-200 rounded-tl-xs whitespace-pre-line'
-                          : 'bg-black text-white rounded-tr-xs'
-                      }`}
+                          ? 'max-w-[85%] rounded-[20px] rounded-tl-[6px] px-4 py-3 text-[13.5px] sm:text-[14px] leading-[1.65] bg-white text-[#2C2416] border border-[#EDE7DD] shadow-[0_1px_2px_rgba(44,36,22,0.04)] whitespace-pre-line'
+                          : 'max-w-[82%] rounded-[20px] rounded-br-[6px] px-4 py-2.5 text-[13.5px] sm:text-[14px] leading-[1.6] bg-[#5428D8] text-white shadow-[0_2px_10px_rgba(84,40,216,0.18)] whitespace-pre-line'
+                      }
                     >
                       {msg.content}
 
-                      {/* Review Summary Card */}
+                      {/* Order Review Summary Card */}
                       {msg.summary && (
                         <div className="mt-3">
                           <OrderSummaryCard
@@ -363,57 +411,53 @@ export default function AIOrderChat({ isOpen, onClose, product }: AIOrderChatPro
                         </div>
                       )}
 
-                      {/* Order Done Info */}
+                      {/* Order Confirmation Card */}
                       {msg.orderId && (
-                        <div className="mt-3 p-3.5 bg-neutral-100/90 rounded-xl border border-neutral-300 text-neutral-900 space-y-2">
-                          <div className="flex items-center justify-between">
-                            <span className="text-xs font-semibold text-neutral-800">অর্ডার নম্বর:</span>
+                        <div className="mt-3 p-3.5 bg-emerald-50/75 rounded-2xl border border-emerald-200/80 text-emerald-950 space-y-2">
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-800">
+                              <CheckCircle2 size={14} className="text-emerald-600 shrink-0" />
+                              অর্ডার নম্বর
+                            </span>
                             <div className="flex items-center gap-1.5">
-                              <code className="text-xs font-mono font-bold bg-black text-white px-2 py-0.5 rounded border border-black">
+                              <code className="text-xs font-mono font-bold bg-white text-emerald-800 px-2 py-0.5 rounded-md border border-emerald-200">
                                 #{msg.orderId.slice(-8).toUpperCase()}
                               </code>
                               <button
-                                onClick={handleCopyOrderId}
-                                className="text-neutral-600 hover:text-black cursor-pointer"
-                                title="কপি করুন"
+                                type="button"
+                                onClick={() => handleCopyOrderId(msg.orderId)}
+                                className="p-1 rounded-md text-emerald-700 hover:bg-emerald-100 transition-colors cursor-pointer"
+                                title="অর্ডার নম্বর কপি করুন"
                               >
-                                {copied ? <Check size={14} /> : <Copy size={14} />}
+                                {copied ? <Check size={13} /> : <Copy size={13} />}
                               </button>
                             </div>
                           </div>
-                          <p className="text-xs text-neutral-600">
-                            পণ্যটি দ্রুত প্রস্তুত করা হচ্ছে। ডেলিভারিম্যান আপনার দেওয়া ঠিকানায় পৌঁছে নগদ অর্থ গ্রহণ করবেন।
+                          <p className="text-xs text-emerald-800/90 leading-relaxed">
+                            পণ্যটি দ্রুত প্রস্তুত করা হচ্ছে। ডেলিভারিম্যান আপনার ঠিকানায় পৌঁছে নগদ অর্থ গ্রহণ করবেন।
                           </p>
                         </div>
                       )}
 
-                      {/* Suggested Products at Done Step */}
+                      {/* Compact Related Suggestions */}
                       {msg.suggestions && msg.suggestions.length > 0 && (
-                        <div className="mt-3 pt-3 border-t border-neutral-200">
+                        <div className="mt-3 pt-3 border-t border-[#EFEAE2]">
                           <AISuggestions initialSuggestions={msg.suggestions} compact />
                         </div>
                       )}
                     </div>
-
-                    {!isAssistant && (
-                      <div className="w-7 h-7 rounded-full bg-neutral-200 text-black flex items-center justify-center shrink-0 mt-0.5">
-                        <User size={14} />
-                      </div>
-                    )}
-                  </div>
+                  </m.div>
                 );
               })}
 
-              {/* Typing indicator */}
+              {/* Typing Indicator */}
               {loading && (
                 <div className="flex gap-2.5 items-center">
-                  <div className="w-7 h-7 rounded-full bg-black text-white flex items-center justify-center shrink-0 shadow-xs">
-                    <Bot size={15} />
-                  </div>
-                  <div className="bg-white border border-neutral-200 rounded-2xl rounded-tl-xs px-4 py-3 flex items-center gap-1.5 shadow-xs">
-                    <div className="w-2 h-2 rounded-full bg-neutral-700 animate-bounce" />
-                    <div className="w-2 h-2 rounded-full bg-neutral-700 animate-bounce [animation-delay:0.2s]" />
-                    <div className="w-2 h-2 rounded-full bg-neutral-700 animate-bounce [animation-delay:0.4s]" />
+                  <AssistantAvatar />
+                  <div className="bg-white border border-[#EDE7DD] rounded-[20px] rounded-tl-[6px] px-4 py-3 flex items-center gap-1.5 shadow-[0_1px_2px_rgba(44,36,22,0.04)]">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#5428D8]/60 animate-bounce [animation-delay:-0.3s]" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#5428D8]/60 animate-bounce [animation-delay:-0.15s]" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#5428D8]/60 animate-bounce" />
                   </div>
                 </div>
               )}
@@ -421,14 +465,15 @@ export default function AIOrderChat({ isOpen, onClose, product }: AIOrderChatPro
               <div ref={messagesEndRef} />
             </div>
 
-            {/* Quick Reply Chips */}
+            {/* ─── Quick Reply Chips ─── */}
             {quickReplies.length > 0 && !loading && (
-              <div className="px-3 py-2 bg-white border-t border-neutral-100 flex items-center gap-2 overflow-x-auto no-scrollbar shrink-0">
+              <div className="px-4 py-2 bg-white border-t border-[#F3EFE8] flex items-center gap-2 overflow-x-auto no-scrollbar shrink-0">
                 {quickReplies.map((chip, idx) => (
                   <button
                     key={idx}
+                    type="button"
                     onClick={() => handleSendMessage(chip)}
-                    className="whitespace-nowrap px-3.5 py-1.5 rounded-full text-xs font-semibold bg-white text-black border border-neutral-300 hover:bg-black hover:text-white hover:border-black transition-all shrink-0 active:scale-95 cursor-pointer shadow-2xs"
+                    className="whitespace-nowrap px-3.5 py-1.5 rounded-full text-xs font-medium bg-[#F3F0FE] text-[#4C23C7] border border-[#E3DBFC] hover:bg-[#5428D8] hover:text-white hover:border-[#5428D8] transition-all shrink-0 active:scale-95 cursor-pointer"
                   >
                     {chip}
                   </button>
@@ -436,14 +481,14 @@ export default function AIOrderChat({ isOpen, onClose, product }: AIOrderChatPro
               </div>
             )}
 
-            {/* Input Bar */}
-            <div className="p-3 bg-white border-t border-neutral-200 shrink-0">
+            {/* ─── Unified Modern Pill Composer ─── */}
+            <div className="px-3.5 pt-2.5 pb-3 bg-white border-t border-[#F0EAE1] shrink-0">
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
                   handleSendMessage();
                 }}
-                className="flex items-center gap-2"
+                className="flex items-center gap-2 bg-[#F5F2EC] border border-[#E6DFD5] rounded-full pl-4 pr-1.5 py-1.5 transition-all focus-within:bg-white focus-within:border-[#5428D8]/45 focus-within:ring-4 focus-within:ring-[#5428D8]/10"
               >
                 <input
                   ref={inputRef}
@@ -451,28 +496,30 @@ export default function AIOrderChat({ isOpen, onClose, product }: AIOrderChatPro
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   placeholder={
-                    currentStep === 'done'
-                      ? 'নতুন কিছু জিজ্ঞাসা করতে পারেন...'
-                      : 'আপনার উত্তর এখানে লিখুন (যেমন: নাম, ফোন, ঠিকানা)...'
+                    STEP_PLACEHOLDERS[currentStep] || 'আপনার উত্তর এখানে লিখুন...'
                   }
                   disabled={loading}
-                  className="flex-1 px-4 py-2.5 text-sm bg-neutral-50 border border-neutral-300 rounded-xl outline-none focus:outline-none focus-visible:outline-none focus:ring-2 focus:ring-black focus:border-black focus:bg-white transition-all text-neutral-900 placeholder:text-neutral-400"
-                  style={{ outline: 'none' }}
+                  className="flex-1 bg-transparent text-[13.5px] sm:text-sm text-[#2C2416] placeholder:text-[#9A8F83] border-0 outline-none focus:outline-none focus-visible:outline-none ring-0 focus:ring-0 py-1 min-w-0"
+                  style={{ outline: 'none', boxShadow: 'none' }}
                 />
                 <button
                   type="submit"
                   disabled={loading || !input.trim()}
-                  className="p-2.5 rounded-xl bg-black text-white hover:bg-neutral-800 disabled:opacity-30 disabled:cursor-not-allowed transition-colors shrink-0 shadow-xs cursor-pointer"
-                  aria-label="Send message"
+                  className="w-9 h-9 rounded-full bg-[#5428D8] text-white hover:bg-[#461EC0] disabled:bg-[#E5DFD5] disabled:text-[#A3988C] disabled:cursor-not-allowed flex items-center justify-center shrink-0 transition-all active:scale-95 cursor-pointer"
+                  aria-label="পাঠান"
                 >
-                  <Send size={18} />
+                  <Send size={15} className="-translate-x-[0.5px]" />
                 </button>
               </form>
+
+              <p className="flex items-center justify-center gap-1.5 text-[10.5px] text-[#9A8F83] mt-2">
+                <ShieldCheck size={12} className="text-emerald-600 shrink-0" />
+                <span>ক্যাশ অন ডেলিভারি · নিরাপদ ও সহজ অর্ডার</span>
+              </p>
             </div>
-          </motion.div>
+          </m.div>
         </div>
       )}
     </AnimatePresence>
   );
 }
-
