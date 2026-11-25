@@ -5,12 +5,13 @@ import bcrypt from 'bcryptjs';
 import { randomUUID } from 'crypto';
 import connectToDatabase from './db';
 import User from '@/models/User';
+import { cleanEnv } from '@/lib/env';
 
 export const authOptions: NextAuthOptions = {
   providers: [
     GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      clientId: cleanEnv(process.env.GOOGLE_CLIENT_ID),
+      clientSecret: cleanEnv(process.env.GOOGLE_CLIENT_SECRET),
     }),
     CredentialsProvider({
       name: 'Credentials',
@@ -118,6 +119,6 @@ export const authOptions: NextAuthOptions = {
     strategy: 'jwt',
     maxAge: 7 * 24 * 60 * 60, // 7 days — sessions expire automatically
   },
-  secret: process.env.NEXTAUTH_SECRET,
-  debug: process.env.NODE_ENV === 'development',
+  secret: cleanEnv(process.env.NEXTAUTH_SECRET),
+  debug: cleanEnv(process.env.NODE_ENV) === 'development',
 };

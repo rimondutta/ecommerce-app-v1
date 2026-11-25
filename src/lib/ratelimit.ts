@@ -35,7 +35,7 @@ const orderRatelimit = (hasRedis && redis)
 const aiRatelimit = (hasRedis && redis)
   ? new Ratelimit({
       redis,
-      limiter: Ratelimit.slidingWindow(10, '1 m'),
+      limiter: Ratelimit.slidingWindow(20, '1 m'),
       analytics: true,
       prefix: 'ratelimit:ai',
     })
@@ -125,7 +125,7 @@ export async function checkRateLimit(
       break;
     case 'ai':
       limiter = aiRatelimit;
-      fallbackLimit = 10;
+      fallbackLimit = 20;
       break;
     case 'upload':
       limiter = uploadRatelimit;

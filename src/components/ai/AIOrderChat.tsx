@@ -71,6 +71,38 @@ const AssistantAvatar = () => (
   </div>
 );
 
+async function postOrderAgent(payload: {
+  sessionId?: string;
+  productId: string;
+  message: string;
+}) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 45000);
+  try {
+    const res = await fetch('/api/ai/order-agent', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+      signal: controller.signal,
+    });
+
+    const rawText = await res.text();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let data: Record<string, any> = {};
+    if (rawText) {
+      try {
+        data = JSON.parse(rawText);
+      } catch {
+        // Gateway/proxy timeout (e.g. 502/504 HTML or plain-text error) — surface clean status instead of SyntaxError
+        throw new Error(`HTTP_${res.status}`);
+      }
+    }
+    return { res, data };
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 export default function AIOrderChat({ isOpen, onClose, product }: AIOrderChatProps) {
   const initialGreeting = `আসসালামু আলাইকুম! 😊 Toy Hourse-এ স্বাগতম।\n\nঅর্ডারটি সম্পন্ন করতে নিচে আপনার মোবাইল নম্বরটি দিন (যেমন: 017XXXXXXXX)।`;
   const [messages, setMessages] = useState<Message[]>([
@@ -123,16 +155,11 @@ export default function AIOrderChat({ isOpen, onClose, product }: AIOrderChatPro
 
   const initSession = React.useCallback(async () => {
     try {
-      const res = await fetch('/api/ai/order-agent', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          productId: product._id,
-          message: '',
-        }),
+      const { res, data } = await postOrderAgent({
+        productId: product._id,
+        message: '',
       });
 
-      const data = await res.json();
       if (data.reply) {
         setSessionId(data.sessionId);
         setCurrentStep(data.step || 'phone');
@@ -143,6 +170,14 @@ export default function AIOrderChat({ isOpen, onClose, product }: AIOrderChatPro
             role: 'assistant',
             content: data.reply,
             summary: data.summary,
+          },
+        ]);
+      } else if (!res.ok) {
+        setMessages([
+          {
+            id: '1',
+            role: 'assistant',
+            content: data.error || 'দুঃখিত, কানেকশনে সমস্যা হয়েছে। অনুগ্রহ করে আবার চেষ্টা করুন।',
           },
         ]);
       }
@@ -178,18 +213,13 @@ export default function AIOrderChat({ isOpen, onClose, product }: AIOrderChatPro
     setLoading(true);
 
     try {
-      const res = await fetch('/api/ai/order-agent', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          sessionId: sessionId || undefined,
-          productId: product._id,
-          message: text,
-        }),
+      const { res, data } = await postOrderAgent({
+        sessionId: sessionId || undefined,
+        productId: product._id,
+        message: text,
       });
 
-      const data = await res.json();
-      if (!res.ok && data.error) {
+      if (!res.ok) {
         setMessages((prev) => [
           ...prev,
           {
@@ -211,7 +241,7 @@ export default function AIOrderChat({ isOpen, onClose, product }: AIOrderChatPro
         {
           id: nextId(),
           role: 'assistant',
-          content: data.reply,
+          content: data.reply || 'দুঃখিত, উত্তর পাওয়া যায়নি। অনুগ্রহ করে আবার লিখুন।',
           summary: data.summary,
           orderId: data.orderId,
           suggestions: data.suggestions,
@@ -219,12 +249,16 @@ export default function AIOrderChat({ isOpen, onClose, product }: AIOrderChatPro
       ]);
     } catch (err) {
       console.error('[AIOrderChat] send error:', err);
+      const isTimeout =
+        (err instanceof Error && (err.name === 'AbortError' || err.message === 'HTTP_504'));
       setMessages((prev) => [
         ...prev,
         {
           id: nextId(),
           role: 'assistant',
-          content: 'দুঃখিত, ইন্টারনেট বা সার্ভারে সংযোগ পেতে সমস্যা হয়েছে। আবার চেষ্টা করুন।',
+          content: isTimeout
+            ? 'সার্ভার থেকে উত্তর আসতে একটু বেশি সময় লাগছে। অনুগ্রহ করে আবার চেষ্টা করুন।'
+            : 'দুঃখিত, ইন্টারনেট বা সার্ভারে সংযোগ পেতে সমস্যা হয়েছে। আবার চেষ্টা করুন।',
         },
       ]);
     } finally {

@@ -5,10 +5,11 @@ import connectToDatabase from '@/lib/db';
 import Product from '@/models/Product';
 import AiSettings, { IAiSettings } from '@/models/AiSettings';
 import { decryptApiKey } from '@/lib/ai/crypto';
+import { cleanEnv } from '@/lib/env';
 import { NextResponse } from 'next/server';
 
-// Allow streaming responses up to 35 seconds
-export const maxDuration = 35;
+// Allow streaming responses up to 60 seconds
+export const maxDuration = 60;
 
 /**
  * Public endpoint to check if the website chatbot is currently enabled
@@ -120,7 +121,7 @@ export async function POST(req: Request) {
     };
 
     if (activeProvider === 'gemini') {
-      apiKey = decryptApiKey(settings?.gemini?.apiKey) || process.env.GEMINI_API_KEY || '';
+      apiKey = decryptApiKey(settings?.gemini?.apiKey) || cleanEnv(process.env.GEMINI_API_KEY);
       modelName = settings?.gemini?.model || 'gemini-3-flash-preview';
       // Google Generative AI provides an official OpenAI-compatible endpoint
       baseURL = 'https://generativelanguage.googleapis.com/v1beta/openai/';
@@ -135,16 +136,17 @@ export async function POST(req: Request) {
       }
     } else {
       // Default / OpenRouter
-      apiKey = decryptApiKey(settings?.openrouter?.apiKey) || process.env.OPENROUTER_API_KEY || '';
-      const rawModel = settings?.openrouter?.model || process.env.OPENROUTER_MODEL || 'openrouter/free';
+      apiKey = decryptApiKey(settings?.openrouter?.apiKey) || cleanEnv(process.env.OPENROUTER_API_KEY);
+      const rawModel = settings?.openrouter?.model || cleanEnv(process.env.OPENROUTER_MODEL) || 'openrouter/free';
       // Auto-correct deprecated free slugs to active openrouter/free
       modelName = rawModel === 'meta-llama/llama-3.3-70b-instruct:free' ? 'openrouter/free' : rawModel;
       baseURL = 'https://openrouter.ai/api/v1';
     }
 
     // Fallback if the selected provider has no key configured
-    if (!apiKey && process.env.OPENROUTER_API_KEY) {
-      apiKey = process.env.OPENROUTER_API_KEY;
+    const envOpenRouterKey = cleanEnv(process.env.OPENROUTER_API_KEY);
+    if (!apiKey && envOpenRouterKey) {
+      apiKey = envOpenRouterKey;
       modelName = 'openrouter/free';
       baseURL = 'https://openrouter.ai/api/v1';
     }
@@ -219,6 +221,10 @@ ${extraInstructions ? `Additional Store Instructions:\n${extraInstructions}` : '
       messages: await convertToModelMessages(sanitizedMessages),
       stopWhen: isStepCount(5),
       temperature: settings?.globalTemperature ?? 0.15,
+      maxOutputTokens: 2048,
+      onError: ({ error }) => {
+        console.error('[API /api/chat] Stream error:', error);
+      },
       tools: {
         searchProducts: tool({
           description: 'Search for products in the store catalog by name, category, or keyword.',

@@ -4,6 +4,7 @@ import { authOptions } from '@/lib/auth';
 import connectToDatabase from '@/lib/db';
 import AiSettings, { IAiSettings } from '@/models/AiSettings';
 import { decryptApiKey, isMaskedKey } from '@/lib/ai/crypto';
+import { cleanEnv } from '@/lib/env';
 import { GeminiProvider } from '@/lib/ai/providers/gemini';
 import { OpenRouterProvider } from '@/lib/ai/providers/openrouter';
 import { CustomProvider } from '@/lib/ai/providers/custom';
@@ -27,7 +28,7 @@ export async function POST(req: Request) {
     if (provider === 'gemini') {
       let resolvedKey = apiKey && !isMaskedKey(apiKey) && apiKey.trim() !== '' ? apiKey.trim() : '';
       if (!resolvedKey) {
-        resolvedKey = decryptApiKey(settings?.gemini?.apiKey) || process.env.GEMINI_API_KEY || '';
+        resolvedKey = decryptApiKey(settings?.gemini?.apiKey) || cleanEnv(process.env.GEMINI_API_KEY);
       }
       if (!resolvedKey) {
         return NextResponse.json(
@@ -39,7 +40,7 @@ export async function POST(req: Request) {
     } else if (provider === 'openrouter') {
       let resolvedKey = apiKey && !isMaskedKey(apiKey) && apiKey.trim() !== '' ? apiKey.trim() : '';
       if (!resolvedKey) {
-        resolvedKey = decryptApiKey(settings?.openrouter?.apiKey) || process.env.OPENROUTER_API_KEY || '';
+        resolvedKey = decryptApiKey(settings?.openrouter?.apiKey) || cleanEnv(process.env.OPENROUTER_API_KEY);
       }
       if (!resolvedKey) {
         return NextResponse.json(

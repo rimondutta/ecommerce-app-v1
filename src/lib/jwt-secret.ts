@@ -7,10 +7,12 @@
  * NEVER falls back to a hardcoded or development secret in production.
  */
 
-export function getJwtSecret(): string {
-  const secret = process.env.NEXTAUTH_SECRET;
+import { cleanEnv } from '@/lib/env';
 
-  if (!secret || secret.trim() === '') {
+export function getJwtSecret(): string {
+  const secret = cleanEnv(process.env.NEXTAUTH_SECRET);
+
+  if (!secret) {
     throw new Error(
       'FATAL: NEXTAUTH_SECRET is not configured. Authentication operations cannot proceed securely.'
     );

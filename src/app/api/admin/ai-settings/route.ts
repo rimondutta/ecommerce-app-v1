@@ -4,6 +4,8 @@ import { authOptions } from '@/lib/auth';
 import connectToDatabase from '@/lib/db';
 import AiSettings, { IAiSettings } from '@/models/AiSettings';
 import { encryptApiKey, decryptApiKey, maskApiKey, isMaskedKey } from '@/lib/ai/crypto';
+import { cleanEnv } from '@/lib/env';
+import { invalidateCache } from '@/lib/cache';
 
 export async function GET() {
   try {
@@ -32,15 +34,15 @@ export async function GET() {
       fallbackProvider: settings.fallbackProvider || 'none',
       gemini: {
         apiKey: geminiDecrypted || '',
-        isConfigured: Boolean(geminiDecrypted || process.env.GEMINI_API_KEY),
+        isConfigured: Boolean(geminiDecrypted || cleanEnv(process.env.GEMINI_API_KEY)),
         model: settings.gemini?.model || 'gemini-3-flash-preview',
-        hasEnvFallback: Boolean(process.env.GEMINI_API_KEY),
+        hasEnvFallback: Boolean(cleanEnv(process.env.GEMINI_API_KEY)),
       },
       openrouter: {
         apiKey: openrouterDecrypted || '',
-        isConfigured: Boolean(openrouterDecrypted || process.env.OPENROUTER_API_KEY),
+        isConfigured: Boolean(openrouterDecrypted || cleanEnv(process.env.OPENROUTER_API_KEY)),
         model: settings.openrouter?.model || 'openrouter/free',
-        hasEnvFallback: Boolean(process.env.OPENROUTER_API_KEY),
+        hasEnvFallback: Boolean(cleanEnv(process.env.OPENROUTER_API_KEY)),
       },
       custom: {
         apiKey: customDecrypted || '',
@@ -213,6 +215,8 @@ export async function PUT(req: Request) {
       { $set: updateDoc },
       { upsert: true, returnDocument: 'after', setDefaultsOnInsert: true }
     );
+
+    await invalidateCache('ai:order-agent:available').catch(() => {});
 
     return NextResponse.json({
       success: true,

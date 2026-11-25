@@ -58,8 +58,14 @@ export async function getCached<T>(key: string): Promise<T | null> {
   try {
     const raw = await redis.get<T>(key);
     if (raw !== null && raw !== undefined) {
-      cacheLog('HIT', key);
-      return safeParse<T>(raw) ?? (raw as T);
+      const parsed = safeParse<T>(raw);
+      if (parsed !== null) {
+        cacheLog('HIT', key);
+        return parsed;
+      }
+      // Corrupted JSON string in Redis — treat as cache miss rather than returning raw string
+      cacheLog('MISS', key);
+      return null;
     }
     cacheLog('MISS', key);
     return null;

@@ -58,22 +58,27 @@ const getProductData = cache(async (slug: string) => {
  * High performance: Fetches metadata on the server before rendering
  */
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { slug } = await params;
-  const [product] = await getProductData(slug);
+  try {
+    const { slug } = await params;
+    const [product] = await getProductData(slug);
 
-  if (!product) return { title: "Product Not Found" };
+    if (!product) return { title: "Product Not Found" };
 
-  const prod = product as ProductLean;
+    const prod = product as ProductLean;
 
-  return {
-    title: `${prod.title} - Toy Hourse`,
-    description: prod.description,
-    openGraph: {
-      title: prod.title,
+    return {
+      title: `${prod.title} - Toy Hourse`,
       description: prod.description,
-      images: [prod.images?.[0]?.url || ""],
-    },
-  };
+      openGraph: {
+        title: prod.title,
+        description: prod.description,
+        images: [prod.images?.[0]?.url || ""],
+      },
+    };
+  } catch (err) {
+    console.error("[ProductDetailPage generateMetadata] Error:", err);
+    return { title: "Product - Toy Hourse" };
+  }
 }
 
 /**
@@ -119,7 +124,8 @@ export default async function ProductDetailPage({ params }: PageProps) {
 
   // Serialize MongoDB data (lean() gives us POJO, but we still need to handle ObjectIds)
   const serializedProduct = JSON.parse(JSON.stringify(product));
-  const serializedRelated = JSON.parse(JSON.stringify(relatedProducts?.filter((p: { slug?: string }) => p.slug !== slug) || []));
+  const safeRelatedList = Array.isArray(relatedProducts) ? relatedProducts : [];
+  const serializedRelated = JSON.parse(JSON.stringify(safeRelatedList.filter((p: { slug?: string }) => p?.slug !== slug)));
 
   return <ProductDetailsClient product={serializedProduct} relatedProducts={serializedRelated} isAiAvailable={isAiAvailable} />;
 }

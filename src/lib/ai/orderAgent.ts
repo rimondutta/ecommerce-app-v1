@@ -119,6 +119,7 @@ async function callLLMExtractor(
       messages,
       jsonMode: true,
       temperature,
+      timeoutMs: 18000,
     });
   } catch (error) {
     console.warn('[orderAgent] Initial LLM call failed:', error);
@@ -150,8 +151,9 @@ async function callLLMExtractor(
     }
   }
 
-  // If the output is natural Bangla text (not JSON at all), use it directly as reply
-  const looksLikeText = cleanJson.length > 5 && !cleanJson.startsWith('{') && !cleanJson.startsWith('<');
+  // Only accept non-JSON plain text if it actually contains Bangla (prevents leaking English internal reasoning)
+  const hasBangla = /[\u0980-\u09FF]/.test(cleanJson);
+  const looksLikeText = hasBangla && cleanJson.length > 5 && !cleanJson.startsWith('{') && !cleanJson.startsWith('<');
   if (looksLikeText) {
     return {
       reply: cleanJson.trim(),
@@ -160,13 +162,14 @@ async function callLLMExtractor(
     };
   }
 
-  // Last resort: retry once with stricter instruction
+  // Last resort: retry once with stricter instruction within bounded timeout
   try {
     const retryOutput = await generateAI({
       system: `${systemPrompt}\n\nCRITICAL: Reply with ONLY a raw JSON object starting with { and ending with }. No markdown, no text outside the JSON.`,
       messages,
       jsonMode: true,
       temperature: Math.max(0.05, temperature - 0.05),
+      timeoutMs: 12000,
     });
     const retryClean = extractJsonFromRawOutput(retryOutput);
     if (retryClean.startsWith('{')) {
@@ -179,7 +182,7 @@ async function callLLMExtractor(
         }
       } catch { /* ignore */ }
     }
-    if (retryClean.length > 5 && !retryClean.startsWith('{')) {
+    if (/[\u0980-\u09FF]/.test(retryClean) && retryClean.length > 5 && !retryClean.startsWith('{')) {
       return { reply: retryClean.trim(), intent: 'ask_question' as const, extracted: {} };
     }
   } catch (retryErr) {

@@ -4,6 +4,9 @@ import { isRateLimited } from '@/lib/ratelimit';
 import { processOrderAgentTurn } from '@/lib/ai/orderAgent';
 import { isOrderAgentAvailable, getAIProviders } from '@/lib/ai/providers';
 
+// Allow up to 60s for LLM provider calls (OpenRouter free-tier can be slow)
+export const maxDuration = 60;
+
 const RequestSchema = z.object({
   sessionId: z.string().optional(),
   productId: z.string().min(1, 'Product ID is required'),
@@ -29,8 +32,8 @@ export async function POST(req: Request) {
     const forwarded = req.headers.get('x-forwarded-for');
     const ip = forwarded?.split(',')[0]?.trim() || 'unknown';
 
-    // Strict rate limit check per IP (Upstash Redis)
-    const rateLimited = await isRateLimited(`ai_order_${ip}`, 'strict');
+    // AI-tier rate limit per IP (supports full multi-turn order flow without hitting auth 5/min cap)
+    const rateLimited = await isRateLimited(`ai_order_${ip}`, 'ai');
     if (rateLimited) {
       return NextResponse.json(
         {

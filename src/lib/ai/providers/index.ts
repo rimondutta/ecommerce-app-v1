@@ -1,6 +1,7 @@
 import connectToDatabase from '@/lib/db';
 import AiSettings, { IAiSettings } from '@/models/AiSettings';
 import { decryptApiKey } from '@/lib/ai/crypto';
+import { cleanEnv } from '@/lib/env';
 import { AIProvider, GenerateOptions } from './types';
 import { GeminiProvider } from './gemini';
 import { OpenRouterProvider } from './openrouter';
@@ -28,18 +29,18 @@ export function buildProvider(
 ): AIProvider | null {
   if (providerType === 'gemini') {
     const dbKey = decryptApiKey(settings?.gemini?.apiKey);
-    const apiKey = dbKey || process.env.GEMINI_API_KEY || '';
+    const apiKey = dbKey || cleanEnv(process.env.GEMINI_API_KEY);
     if (!apiKey) return null;
     return new GeminiProvider(apiKey, settings?.gemini?.model || 'gemini-3-flash-preview');
   }
 
   if (providerType === 'openrouter') {
     const dbKey = decryptApiKey(settings?.openrouter?.apiKey);
-    const apiKey = dbKey || process.env.OPENROUTER_API_KEY || '';
+    const apiKey = dbKey || cleanEnv(process.env.OPENROUTER_API_KEY);
     if (!apiKey) return null;
     return new OpenRouterProvider(
       apiKey,
-      settings?.openrouter?.model || 'openrouter/free'
+      settings?.openrouter?.model || cleanEnv(process.env.OPENROUTER_MODEL) || 'openrouter/free'
     );
   }
 
@@ -64,9 +65,9 @@ export function buildProvider(
  * Builds an OpenRouter fallback from env variables only (no DB key needed)
  */
 function buildEnvOpenRouterFallback(): AIProvider | null {
-  const apiKey = process.env.OPENROUTER_API_KEY || '';
+  const apiKey = cleanEnv(process.env.OPENROUTER_API_KEY);
   if (!apiKey) return null;
-  const model = process.env.OPENROUTER_MODEL || 'openrouter/free';
+  const model = cleanEnv(process.env.OPENROUTER_MODEL) || 'openrouter/free';
   return new OpenRouterProvider(apiKey, model);
 }
 
@@ -101,7 +102,7 @@ export async function getAIProviders(): Promise<ProviderBundle> {
 
   if (!fallback && activeProviderName === 'openrouter') {
     const dbKey = decryptApiKey(settings?.gemini?.apiKey);
-    const geminiKey = dbKey || process.env.GEMINI_API_KEY || '';
+    const geminiKey = dbKey || cleanEnv(process.env.GEMINI_API_KEY);
     if (geminiKey) {
       // Use gemini-3-flash-preview as the auto-fallback default
       const autoFallbackModel = settings?.gemini?.model || 'gemini-3-flash-preview';
@@ -121,16 +122,19 @@ export async function getAIProviders(): Promise<ProviderBundle> {
 }
 
 /**
- * Checks if AI Order Agent is globally enabled and has a valid key configured
+ * Checks if AI Order Agent is globally enabled and has a valid key configured.
+ * Only positive availability or disabled state from a healthy DB read is cached briefly;
+ * transient lookup errors fail false without sticking in Redis for 60s.
  */
 export async function isOrderAgentAvailable(): Promise<boolean> {
   try {
     const { withCache } = await import('@/lib/cache');
-    return await withCache('ai:order-agent:available', 60, async () => {
+    const cached = await withCache('ai:order-agent:available', 30, async () => {
       const { active, settings } = await getAIProviders();
       if (!settings?.isOrderAgentEnabled) return false;
       return active !== null;
     });
+    return cached;
   } catch {
     return false;
   }

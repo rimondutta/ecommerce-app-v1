@@ -1,11 +1,12 @@
 import crypto from 'crypto';
+import { cleanEnv } from '@/lib/env';
 
 const ALGORITHM = 'aes-256-gcm';
 const IV_LENGTH = 12; // Standard for GCM
 const AUTH_TAG_LENGTH = 16;
 
 function getKey(): Buffer {
-  const envKey = process.env.AI_SETTINGS_ENCRYPTION_KEY;
+  const envKey = cleanEnv(process.env.AI_SETTINGS_ENCRYPTION_KEY);
   if (envKey) {
     if (/^[0-9a-fA-F]{64}$/.test(envKey)) {
       return Buffer.from(envKey, 'hex');
@@ -13,7 +14,7 @@ function getKey(): Buffer {
     return crypto.createHash('sha256').update(envKey).digest();
   }
   // Fallback to NEXTAUTH_SECRET if custom key not set in env
-  const fallbackKey = process.env.NEXTAUTH_SECRET || '';
+  const fallbackKey = cleanEnv(process.env.NEXTAUTH_SECRET);
   if (!fallbackKey) {
     throw new Error('Encryption key missing: Neither AI_SETTINGS_ENCRYPTION_KEY nor NEXTAUTH_SECRET is configured in environment.');
   }
@@ -22,29 +23,30 @@ function getKey(): Buffer {
 
 /**
  * Returns all potential decryption keys to gracefully handle keys
- * encrypted before or after AI_SETTINGS_ENCRYPTION_KEY or NEXTAUTH_SECRET changes.
+ * encrypted before or after AI_SETTINGS_ENCRYPTION_KEY or NEXTAUTH_SECRET changes,
+ * or when env vars contain surrounding quotes (e.g. from Docker --env-file).
  */
 function getCandidateKeys(): Buffer[] {
   const keys: Buffer[] = [];
-  try {
-    const primary = getKey();
-    keys.push(primary);
-  } catch {
-    // Primary key missing
-  }
 
-  const envKey = process.env.AI_SETTINGS_ENCRYPTION_KEY;
-  if (envKey) {
-    if (/^[0-9a-fA-F]{64}$/.test(envKey)) {
-      const hashKey = crypto.createHash('sha256').update(envKey).digest();
-      if (!keys.some((k) => k.equals(hashKey))) keys.push(hashKey);
+  const makeKey = (s: string): Buffer =>
+    /^[0-9a-fA-F]{64}$/.test(s)
+      ? Buffer.from(s, 'hex')
+      : crypto.createHash('sha256').update(s).digest();
+
+  const addVariants = (raw: string | undefined) => {
+    if (!raw) return;
+    const stripped = cleanEnv(raw);
+    // Try stripped (canonical) first, then raw, so we prefer the clean key for new encryptions
+    for (const s of [stripped, raw]) {
+      if (!s) continue;
+      const k = makeKey(s);
+      if (!keys.some((existing) => existing.equals(k))) keys.push(k);
     }
-  }
+  };
 
-  if (process.env.NEXTAUTH_SECRET) {
-    const nextAuthKey = crypto.createHash('sha256').update(process.env.NEXTAUTH_SECRET).digest();
-    if (!keys.some((k) => k.equals(nextAuthKey))) keys.push(nextAuthKey);
-  }
+  addVariants(process.env.AI_SETTINGS_ENCRYPTION_KEY);
+  addVariants(process.env.NEXTAUTH_SECRET);
 
   return keys;
 }
