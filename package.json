@@ -20,7 +20,7 @@
     "@types/three": "^0.187.0",
     "@upstash/ratelimit": "^2.2.0",
     "@upstash/redis": "^1.41.0",
-    "ai": "^7.0.89",
+    "ai": "^7.0.179",
     "bcryptjs": "^3.0.3",
     "cloudinary": "^2.9.0",
     "clsx": "^2.1.1",
