@@ -429,7 +429,7 @@ export default function TopNavbar() {
                         <span>My Account</span>
                       </Link>
                       <Link
-                        href="/account"
+                        href="/account?tab=orders"
                         onClick={() => setIsAccountOpen(false)}
                         className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-purple-50 hover:text-[#5428D8] transition-colors"
                       >

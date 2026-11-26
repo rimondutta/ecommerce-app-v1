@@ -91,12 +91,20 @@ export const authOptions: NextAuthOptions = {
       }
       return true;
     },
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger, session }) {
       if (user) {
         token.role = user.role;
         token.id = user.id;
         if (user.image) {
           token.image = user.image;
+        }
+      }
+      if (trigger === 'update' && session) {
+        if (typeof session.name === 'string' && session.name.trim()) {
+          token.name = session.name.trim();
+        }
+        if (typeof session.image === 'string') {
+          token.image = session.image;
         }
       }
       return token;
@@ -105,6 +113,9 @@ export const authOptions: NextAuthOptions = {
       if (token) {
         session.user.id = token.id ?? '';
         session.user.role = token.role ?? 'customer';
+        if (typeof token.name === 'string') {
+          session.user.name = token.name;
+        }
         if (token.image) {
           session.user.image = token.image;
         }

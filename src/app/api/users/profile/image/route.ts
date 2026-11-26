@@ -1,17 +1,16 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/db';
 import User from '@/models/User';
-import { getBearerSession } from '@/lib/mobile-auth';
-import { NextRequest } from 'next/server';
 import { uploadImage, deleteImage, isCloudinaryUrl } from '@/lib/cloudinary';
 import { validateImageBuffer } from '@/lib/imageValidator';
 import { getCorsHeaders, handleCorsPreflight } from '@/lib/cors';
 import { logger } from '@/lib/logger';
+import { resolveUserSession } from '@/lib/resolve-user-session';
 
 export async function POST(req: NextRequest) {
   const cors = getCorsHeaders(req, 'POST, OPTIONS');
   try {
-    const session = await getBearerSession(req);
+    const session = await resolveUserSession(req);
     if (!session) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401, headers: cors });
     }
@@ -30,15 +29,15 @@ export async function POST(req: NextRequest) {
     const validation = validateImageBuffer(buffer, 3 * 1024 * 1024); // 3MB limit for profile images
     if (!validation.valid) {
       logger.security('Rejected invalid profile image upload', {
-        userId: session.user.id,
+        userId: session.id,
         reason: validation.error,
       });
       return NextResponse.json({ success: false, error: validation.error }, { status: 400, headers: cors });
     }
 
     await connectToDatabase();
-    
-    const user = await User.findById(session.user.id);
+
+    const user = await User.findById(session.id);
     if (!user) {
       return NextResponse.json({ success: false, error: 'User not found' }, { status: 404, headers: cors });
     }
@@ -57,7 +56,7 @@ export async function POST(req: NextRequest) {
     await user.save();
 
     logger.info('User profile image updated', {
-      userId: session.user.id,
+      userId: session.id,
       format: validation.format,
     });
 
